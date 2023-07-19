@@ -36,7 +36,7 @@ import (
 	"open_im_sdk/pkg/syncer"
 	"sync"
 
-	"github.com/OpenIMSDK/Open-IM-Server/pkg/common/log"
+	"github.com/imCloud/im/pkg/common/log"
 
 	"open_im_sdk/pkg/utils"
 	"open_im_sdk/sdk_struct"

@@ -15,7 +15,7 @@
 package funcation
 
 import (
-	"github.com/OpenIMSDK/Open-IM-Server/pkg/proto/sdkws"
+	"github.com/imCloud/im/pkg/proto/sdkws"
 	"open_im_sdk/pkg/log"
 	"open_im_sdk/pkg/utils"
 	"strconv"

@@ -17,7 +17,7 @@ package conversation_msg
 import (
 	"context"
 	"encoding/json"
-	"github.com/OpenIMSDK/Open-IM-Server/pkg/common/log"
+	"github.com/imCloud/im/pkg/common/log"
 	"open_im_sdk/internal/file"
 	"open_im_sdk/pkg/db/db_interface"
 	"open_im_sdk/sdk_struct"

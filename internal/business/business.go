@@ -16,13 +16,13 @@ package business
 
 import (
 	"context"
-	"github.com/OpenIMSDK/Open-IM-Server/pkg/proto/sdkws"
+	"github.com/imCloud/im/pkg/proto/sdkws"
 	"open_im_sdk/open_im_sdk_callback"
 	"open_im_sdk/pkg/db/db_interface"
 	"open_im_sdk/pkg/utils"
 	"open_im_sdk/sdk_struct"
 
-	"github.com/OpenIMSDK/Open-IM-Server/pkg/common/log"
+	"github.com/imCloud/im/pkg/common/log"
 )
 
 type Business struct {

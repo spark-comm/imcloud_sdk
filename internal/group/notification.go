@@ -19,8 +19,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/OpenIMSDK/Open-IM-Server/pkg/common/log"
-	"github.com/OpenIMSDK/Open-IM-Server/pkg/proto/sdkws"
+	"github.com/imCloud/im/pkg/common/log"
+	"github.com/imCloud/im/pkg/proto/sdkws"
 	"open_im_sdk/pkg/constant"
 	"open_im_sdk/pkg/utils"
 )

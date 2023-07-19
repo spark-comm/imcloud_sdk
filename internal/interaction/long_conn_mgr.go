@@ -33,11 +33,11 @@ import (
 	"sync"
 	"time"
 
-	"github.com/OpenIMSDK/Open-IM-Server/pkg/common/log"
-	"github.com/OpenIMSDK/Open-IM-Server/pkg/errs"
-	"github.com/OpenIMSDK/Open-IM-Server/pkg/proto/sdkws"
 	"github.com/golang/protobuf/proto"
 	"github.com/gorilla/websocket"
+	"github.com/imCloud/im/pkg/common/log"
+	"github.com/imCloud/im/pkg/errs"
+	"github.com/imCloud/im/pkg/proto/sdkws"
 )
 
 const (

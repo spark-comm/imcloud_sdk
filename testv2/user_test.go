@@ -19,7 +19,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/OpenIMSDK/Open-IM-Server/pkg/proto/sdkws"
+	"github.com/imCloud/im/pkg/proto/sdkws"
 )
 
 func Test_GetSelfUserInfo(t *testing.T) {

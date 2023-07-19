@@ -24,7 +24,7 @@ import (
 	"open_im_sdk/pkg/db/model_struct"
 	"open_im_sdk/pkg/utils"
 
-	"github.com/OpenIMSDK/Open-IM-Server/pkg/common/log"
+	"github.com/imCloud/im/pkg/common/log"
 	"gorm.io/gorm"
 )
 

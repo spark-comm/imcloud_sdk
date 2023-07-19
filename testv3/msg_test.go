@@ -25,7 +25,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/OpenIMSDK/Open-IM-Server/pkg/common/log"
+	"github.com/imCloud/im/pkg/common/log"
 )
 
 const (

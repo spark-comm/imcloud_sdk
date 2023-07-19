@@ -23,9 +23,9 @@ import (
 	"open_im_sdk/pkg/utils"
 	"open_im_sdk/sdk_struct"
 
-	"github.com/OpenIMSDK/Open-IM-Server/pkg/common/log"
-	pbMsg "github.com/OpenIMSDK/Open-IM-Server/pkg/proto/msg"
-	"github.com/OpenIMSDK/Open-IM-Server/pkg/proto/sdkws"
+	"github.com/imCloud/im/pkg/common/log"
+	pbMsg "github.com/imCloud/im/pkg/proto/msg"
+	"github.com/imCloud/im/pkg/proto/sdkws"
 )
 
 func (c *Conversation) markMsgAsRead2Svr(ctx context.Context, conversationID string, seqs []int64) error {

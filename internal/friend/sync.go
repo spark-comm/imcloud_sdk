@@ -19,9 +19,9 @@ import (
 	"open_im_sdk/internal/util"
 	"open_im_sdk/pkg/constant"
 
-	"github.com/OpenIMSDK/Open-IM-Server/pkg/common/log"
-	"github.com/OpenIMSDK/Open-IM-Server/pkg/proto/friend"
-	"github.com/OpenIMSDK/Open-IM-Server/pkg/proto/sdkws"
+	"github.com/imCloud/im/pkg/common/log"
+	"github.com/imCloud/im/pkg/proto/friend"
+	"github.com/imCloud/im/pkg/proto/sdkws"
 )
 
 // send

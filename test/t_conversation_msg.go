@@ -26,9 +26,9 @@ import (
 	"open_im_sdk/sdk_struct"
 	"sync"
 
-	"github.com/OpenIMSDK/Open-IM-Server/pkg/proto/sdkws"
+	"github.com/imCloud/im/pkg/proto/sdkws"
 
-	"github.com/OpenIMSDK/Open-IM-Server/pkg/common/mcontext"
+	"github.com/imCloud/im/pkg/common/mcontext"
 )
 
 //funcation DotestSetConversationRecvMessageOpt() {

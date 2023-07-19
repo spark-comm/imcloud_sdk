@@ -27,8 +27,8 @@ import (
 	"open_im_sdk/pkg/syncer"
 	"open_im_sdk/pkg/utils"
 
-	"github.com/OpenIMSDK/Open-IM-Server/pkg/common/log"
-	"github.com/OpenIMSDK/Open-IM-Server/pkg/proto/sdkws"
+	"github.com/imCloud/im/pkg/common/log"
+	"github.com/imCloud/im/pkg/proto/sdkws"
 )
 
 func NewFriend(loginUserID string, db db_interface.DataBase, user *user.User, conversationCh chan common.Cmd2Value) *Friend {

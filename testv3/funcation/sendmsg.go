@@ -17,8 +17,8 @@ package funcation
 
 import (
 	"context"
-	"github.com/OpenIMSDK/Open-IM-Server/pkg/common/log"
-	"github.com/OpenIMSDK/Open-IM-Server/pkg/proto/sdkws"
+	"github.com/imCloud/im/pkg/common/log"
+	"github.com/imCloud/im/pkg/proto/sdkws"
 
 	"open_im_sdk/sdk_struct"
 )

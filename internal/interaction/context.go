@@ -15,7 +15,7 @@
 package interaction
 
 import (
-	"github.com/OpenIMSDK/Open-IM-Server/pkg/common/constant"
+	"github.com/imCloud/im/pkg/common/constant"
 	"time"
 )
 

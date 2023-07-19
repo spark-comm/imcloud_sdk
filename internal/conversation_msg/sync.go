@@ -22,7 +22,7 @@ import (
 	"open_im_sdk/pkg/syncer"
 	"time"
 
-	"github.com/OpenIMSDK/Open-IM-Server/pkg/common/log"
+	"github.com/imCloud/im/pkg/common/log"
 )
 
 func (c *Conversation) SyncConversations(ctx context.Context) error {

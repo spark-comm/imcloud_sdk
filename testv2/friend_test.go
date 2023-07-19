@@ -20,7 +20,7 @@ import (
 	"testing"
 	"time"
 
-	friend2 "github.com/OpenIMSDK/Open-IM-Server/pkg/proto/friend"
+	friend2 "github.com/imCloud/im/pkg/proto/friend"
 )
 
 func Test_GetSpecifiedFriendsInfo(t *testing.T) {

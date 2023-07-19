@@ -15,7 +15,7 @@
 package server_api_params
 
 import (
-	"github.com/OpenIMSDK/Open-IM-Server/pkg/proto/sdkws"
+	"github.com/imCloud/im/pkg/proto/sdkws"
 )
 
 type GetUsersInfoReq struct {

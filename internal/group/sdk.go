@@ -16,7 +16,7 @@ package group
 
 import (
 	"context"
-	"github.com/OpenIMSDK/Open-IM-Server/pkg/common/log"
+	"github.com/imCloud/im/pkg/common/log"
 	"open_im_sdk/internal/util"
 	"open_im_sdk/pkg/constant"
 	"open_im_sdk/pkg/db/model_struct"
@@ -24,10 +24,10 @@ import (
 	"open_im_sdk/pkg/sdkerrs"
 	"time"
 
-	"github.com/OpenIMSDK/Open-IM-Server/pkg/proto/group"
-	"github.com/OpenIMSDK/Open-IM-Server/pkg/proto/sdkws"
-	"github.com/OpenIMSDK/Open-IM-Server/pkg/proto/wrapperspb"
-	"github.com/OpenIMSDK/Open-IM-Server/pkg/utils"
+	"github.com/imCloud/im/pkg/proto/group"
+	"github.com/imCloud/im/pkg/proto/sdkws"
+	"github.com/imCloud/im/pkg/proto/wrapperspb"
+	"github.com/imCloud/im/pkg/utils"
 )
 
 //// deprecated use CreateGroup

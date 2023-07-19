@@ -27,9 +27,9 @@ import (
 	"open_im_sdk/pkg/utils"
 	"sync"
 
-	"github.com/OpenIMSDK/Open-IM-Server/pkg/common/log"
-	"github.com/OpenIMSDK/Open-IM-Server/pkg/proto/group"
-	"github.com/OpenIMSDK/Open-IM-Server/pkg/proto/sdkws"
+	"github.com/imCloud/im/pkg/common/log"
+	"github.com/imCloud/im/pkg/proto/group"
+	"github.com/imCloud/im/pkg/proto/sdkws"
 )
 
 func NewGroup(loginUserID string, db db_interface.DataBase,

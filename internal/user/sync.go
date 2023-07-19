@@ -16,8 +16,8 @@ package user
 
 import (
 	"context"
-	"github.com/OpenIMSDK/Open-IM-Server/pkg/common/log"
-	"github.com/OpenIMSDK/Open-IM-Server/pkg/errs"
+	"github.com/imCloud/im/pkg/common/log"
+	"github.com/imCloud/im/pkg/errs"
 	"gorm.io/gorm"
 	"open_im_sdk/pkg/db/model_struct"
 )

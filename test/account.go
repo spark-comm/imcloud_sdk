@@ -31,10 +31,10 @@ import (
 	"sync"
 	"time"
 
-	imLog "github.com/OpenIMSDK/Open-IM-Server/pkg/common/log"
-	authPB "github.com/OpenIMSDK/Open-IM-Server/pkg/proto/auth"
-	"github.com/OpenIMSDK/Open-IM-Server/pkg/proto/sdkws"
-	userPB "github.com/OpenIMSDK/Open-IM-Server/pkg/proto/user"
+	imLog "github.com/imCloud/im/pkg/common/log"
+	authPB "github.com/imCloud/im/pkg/proto/auth"
+	"github.com/imCloud/im/pkg/proto/sdkws"
+	userPB "github.com/imCloud/im/pkg/proto/user"
 )
 
 func GenUid(uid int, prefix string) string {

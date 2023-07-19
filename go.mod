@@ -19,11 +19,12 @@ require (
 	gorm.io/driver/sqlite v1.3.6
 	gorm.io/gorm v1.23.8
 	nhooyr.io/websocket v1.8.7
+	github.com/imCloud v0.0.0
 )
 
 require golang.org/x/net v0.11.0
 
-replace github.com/miliao_apis => ../miliao_apis
+replace github.com/imCloud => ../../imcloud
 
 require (
 	github.com/bwmarrin/snowflake v0.3.0 // indirect

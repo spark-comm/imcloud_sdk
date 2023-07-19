@@ -16,7 +16,7 @@ package db
 
 import (
 	"context"
-	"github.com/OpenIMSDK/Open-IM-Server/pkg/errs"
+	"github.com/imCloud/im/pkg/errs"
 	"open_im_sdk/pkg/db/model_struct"
 	"time"
 )

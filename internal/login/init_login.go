@@ -16,7 +16,7 @@ package login
 
 import (
 	"context"
-	"github.com/OpenIMSDK/Open-IM-Server/pkg/proto/sdkws"
+	"github.com/imCloud/im/pkg/proto/sdkws"
 	"open_im_sdk/internal/business"
 	"open_im_sdk/internal/cache"
 	conv "open_im_sdk/internal/conversation_msg"
@@ -39,11 +39,11 @@ import (
 	"sync"
 	"time"
 
-	"github.com/OpenIMSDK/Open-IM-Server/pkg/proto/push"
+	"github.com/imCloud/im/pkg/proto/push"
 
-	"github.com/OpenIMSDK/Open-IM-Server/pkg/common/log"
+	"github.com/imCloud/im/pkg/common/log"
 
-	"github.com/OpenIMSDK/Open-IM-Server/pkg/common/mcontext"
+	"github.com/imCloud/im/pkg/common/mcontext"
 )
 
 const (

@@ -25,8 +25,8 @@ import (
 	"open_im_sdk/pkg/sdkerrs"
 	"time"
 
-	"github.com/OpenIMSDK/Open-IM-Server/pkg/common/log"
-	"github.com/OpenIMSDK/Open-IM-Server/pkg/proto/sdkws"
+	"github.com/imCloud/im/pkg/common/log"
+	"github.com/imCloud/im/pkg/proto/sdkws"
 )
 
 //var (

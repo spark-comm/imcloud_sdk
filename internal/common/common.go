@@ -17,8 +17,8 @@ package common
 import (
 	"open_im_sdk/pkg/utils"
 
-	"github.com/OpenIMSDK/Open-IM-Server/pkg/proto/sdkws"
 	"github.com/golang/protobuf/proto"
+	"github.com/imCloud/im/pkg/proto/sdkws"
 )
 
 func UnmarshalTips(msg *sdkws.MsgData, detail proto.Message) error {

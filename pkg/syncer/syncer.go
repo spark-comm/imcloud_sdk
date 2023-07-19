@@ -18,7 +18,7 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/OpenIMSDK/Open-IM-Server/pkg/common/log"
+	"github.com/imCloud/im/pkg/common/log"
 )
 
 func New[T any, V comparable](

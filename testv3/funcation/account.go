@@ -15,8 +15,8 @@
 package funcation
 
 import (
-	"github.com/OpenIMSDK/Open-IM-Server/pkg/proto/sdkws"
-	userPB "github.com/OpenIMSDK/Open-IM-Server/pkg/proto/user"
+	"github.com/imCloud/im/pkg/proto/sdkws"
+	userPB "github.com/imCloud/im/pkg/proto/user"
 	"open_im_sdk/internal/util"
 	"open_im_sdk/pkg/log"
 	"open_im_sdk/pkg/utils"

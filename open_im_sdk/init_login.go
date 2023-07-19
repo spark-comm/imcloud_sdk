@@ -25,8 +25,8 @@ import (
 	"open_im_sdk/sdk_struct"
 	"strings"
 
-	"github.com/OpenIMSDK/Open-IM-Server/pkg/common/log"
-	"github.com/OpenIMSDK/Open-IM-Server/pkg/common/mcontext"
+	"github.com/imCloud/im/pkg/common/log"
+	"github.com/imCloud/im/pkg/common/mcontext"
 )
 
 func GetSdkVersion() string {

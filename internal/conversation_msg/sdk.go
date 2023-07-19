@@ -38,12 +38,12 @@ import (
 	"os"
 	"time"
 
-	"github.com/OpenIMSDK/Open-IM-Server/pkg/common/log"
+	"github.com/imCloud/im/pkg/common/log"
 
-	pbConversation "github.com/OpenIMSDK/Open-IM-Server/pkg/proto/conversation"
-	"github.com/OpenIMSDK/Open-IM-Server/pkg/proto/sdkws"
-	pbUser "github.com/OpenIMSDK/Open-IM-Server/pkg/proto/user"
-	"github.com/OpenIMSDK/Open-IM-Server/pkg/proto/wrapperspb"
+	pbConversation "github.com/imCloud/im/pkg/proto/conversation"
+	"github.com/imCloud/im/pkg/proto/sdkws"
+	pbUser "github.com/imCloud/im/pkg/proto/user"
+	"github.com/imCloud/im/pkg/proto/wrapperspb"
 
 	"github.com/jinzhu/copier"
 	imgtype "github.com/shamsher31/goimgtype"

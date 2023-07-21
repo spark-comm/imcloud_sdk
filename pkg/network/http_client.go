@@ -18,6 +18,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net"
 
 	"io/ioutil"
@@ -74,7 +75,7 @@ func postLogic(url string, data interface{}, token string) (content []byte, err 
 	}
 	req.Close = true
 	req.Header.Add("content-type", "application/json")
-	req.Header.Add("token", token)
+	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
 	req.Header.Add("OperationID", utils.OperationIDGenerator())
 	tp := &http.Transport{
 		DialContext: (&net.Dialer{

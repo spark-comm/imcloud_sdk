@@ -35,10 +35,11 @@ import (
 //)
 
 type apiResponse struct {
-	ErrCode int             `json:"errCode"`
-	ErrMsg  string          `json:"errMsg"`
-	ErrDlt  string          `json:"errDlt"`
-	Data    json.RawMessage `json:"data"`
+	Code   int             `json:"code"`
+	ErrMsg string          `json:"errMsg"`
+	Msg    string          `json:"msg"`
+	Reason string          `json:"reason"`
+	Data   json.RawMessage `json:"data"`
 }
 
 func ApiPost(ctx context.Context, api string, req, resp any) (err error) {
@@ -72,7 +73,7 @@ func ApiPost(ctx context.Context, api string, req, resp any) (err error) {
 	request.ContentLength = int64(len(reqBody))
 	request.Header.Set("Content-Type", "application/json")
 	request.Header.Set("operationID", operationID)
-	request.Header.Set("token", ctxInfo.Token())
+	request.Header.Set("Authorization", fmt.Sprintf("Bearer %s", ctxInfo.Token()))
 	response, err := new(http.Client).Do(request)
 	if err != nil {
 		log.ZError(ctx, "ApiRequest", err, "type", "network error")
@@ -90,9 +91,9 @@ func ApiPost(ctx context.Context, api string, req, resp any) (err error) {
 		log.ZError(ctx, "ApiResponse", err, "type", "api code parse")
 		return sdkerrs.ErrSdkInternal.Wrap(fmt.Sprintf("api %s json.Unmarshal(%q, %T) failed %s", api, string(respBody), &baseApi, err.Error()))
 	}
-	if baseApi.ErrCode != 0 {
-		err := sdkerrs.New(baseApi.ErrCode, baseApi.ErrMsg, baseApi.ErrDlt)
-		log.ZError(ctx, "ApiResponse", err, "type", "api code error", "msg", baseApi.ErrMsg, "dlt", baseApi.ErrDlt)
+	if baseApi.Code != 0 {
+		err := sdkerrs.New(baseApi.Code, baseApi.ErrMsg, baseApi.Reason)
+		log.ZError(ctx, "ApiResponse", err, "type", "api code error", "msg", baseApi.ErrMsg, "dlt", baseApi.Reason)
 		return err
 	}
 	if resp == nil || len(baseApi.Data) == 0 || string(baseApi.Data) == "null" {

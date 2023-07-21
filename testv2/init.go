@@ -65,15 +65,15 @@ func init() {
 
 func GetUserToken(ctx context.Context, userID string) (string, error) {
 	jsonReqData, err := json.Marshal(map[string]any{
-		"userID":     userID,
-		"platformID": 1,
-		"secret":     "openIM123",
+		"phone":      userID,
+		"platformID": "Windows",
+		"password":   "12345678",
 		//"secret": "111111",
 	})
 	if err != nil {
 		return "", err
 	}
-	path := APIADDR + "/auth/user_token"
+	path := APIADDR + "/api/app/v1/auth/login"
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, path, bytes.NewReader(jsonReqData))
 	if err != nil {
 		return "", err
@@ -90,11 +90,11 @@ func GetUserToken(ctx context.Context, userID string) (string, error) {
 		return "", err
 	}
 	type Result struct {
-		ErrCode int    `json:"errCode"`
-		ErrMsg  string `json:"errMsg"`
-		ErrDlt  string `json:"errDlt"`
-		Data    struct {
-			Token             string `json:"token"`
+		Code   int    `json:"code"`
+		Msg    string `json:"msg"`
+		Reason string `json:"reason"`
+		Data   struct {
+			AccessToken       string `json:"access_token"`
 			ExpireTimeSeconds int    `json:"expireTimeSeconds"`
 		} `json:"data"`
 	}
@@ -102,10 +102,10 @@ func GetUserToken(ctx context.Context, userID string) (string, error) {
 	if err := json.Unmarshal(body, &result); err != nil {
 		return "", err
 	}
-	if result.ErrCode != 0 {
-		return "", fmt.Errorf("errCode:%d, errMsg:%s, errDlt:%s", result.ErrCode, result.ErrMsg, result.ErrDlt)
+	if result.Code != 200 {
+		return "", fmt.Errorf("errCode:%d, errMsg:%s, errDlt:%s", result.Code, result.Msg, result.Reason)
 	}
-	return result.Data.Token, nil
+	return result.Data.AccessToken, nil
 }
 
 type onListenerForService struct {

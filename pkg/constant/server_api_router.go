@@ -15,100 +15,103 @@
 package constant
 
 const (
-	GetSelfUserInfoRouter         = "/user/get_self_user_info"
-	GetUsersInfoRouter            = "/user/get_users_info"
-	UpdateSelfUserInfoRouter      = "/user/update_user_info"
-	SetGlobalRecvMessageOptRouter = "/user/set_global_msg_recv_opt"
-	GetUsersInfoFromCacheRouter   = "/user/get_users_info_from_cache"
+	BaseRouter = "/api/app/v1"
+)
+const (
+	GetSelfUserInfoRouter         = BaseRouter + "/user/get_self_user_info"
+	GetUsersInfoRouter            = BaseRouter + "/user/get_users_info"
+	UpdateSelfUserInfoRouter      = BaseRouter + "/user/update_user_info"
+	SetGlobalRecvMessageOptRouter = BaseRouter + "/user/set_global_msg_recv_opt"
+	GetUsersInfoFromCacheRouter   = BaseRouter + "/user/get_users_info_from_cache"
 
-	AddFriendRouter                    = "/friend/add_friend"
-	DeleteFriendRouter                 = "/friend/delete_friend"
-	GetFriendApplicationListRouter     = "/friend/get_friend_apply_list"      //recv
-	GetSelfFriendApplicationListRouter = "/friend/get_self_friend_apply_list" //send
-	GetFriendListRouter                = "/friend/get_friend_list"
-	AddFriendResponse                  = "/friend/add_friend_response"
-	SetFriendRemark                    = "/friend/set_friend_remark"
+	AddFriendRouter                    = BaseRouter + "/friend/add_friend"
+	DeleteFriendRouter                 = BaseRouter + "/friend/delete_friend"
+	GetFriendApplicationListRouter     = BaseRouter + "/friend/get_friend_apply_list"      //recv
+	GetSelfFriendApplicationListRouter = BaseRouter + "/friend/get_self_friend_apply_list" //send
+	GetFriendListRouter                = BaseRouter + "/friend/get_friend_list"
+	AddFriendResponse                  = BaseRouter + "/friend/add_friend_response"
+	SetFriendRemark                    = BaseRouter + "/friend/set_friend_remark"
 
-	AddBlackRouter     = "/friend/add_black"
-	RemoveBlackRouter  = "/friend/remove_black"
-	GetBlackListRouter = "/friend/get_black_list"
+	AddBlackRouter     = BaseRouter + "/friend/add_black"
+	RemoveBlackRouter  = BaseRouter + "/friend/remove_black"
+	GetBlackListRouter = BaseRouter + "/friend/get_black_list"
 
 	SendMsgRouter          = "/chat/send_msg"
 	PullUserMsgRouter      = "/chat/pull_msg"
-	PullUserMsgBySeqRouter = "/chat/pull_msg_by_seq"
+	PullUserMsgBySeqRouter = BaseRouter + "/msg/pull_msg_by_seq"
 	NewestSeqRouter        = "/chat/newest_seq"
 
 	//msg
-	ClearConversationMsgRouter             = RouterMsg + "/clear_conversation_msg" // Clear the message of the specified conversation
-	ClearAllMsgRouter                      = RouterMsg + "/user_clear_all_msg"     // Clear all messages of the current user
-	DeleteMsgsRouter                       = RouterMsg + "/delete_msgs"            // Delete the specified message
-	RevokeMsgRouter                        = RouterMsg + "/revoke_msg"
-	SetMessageReactionExtensionsRouter     = RouterMsg + "/set_message_reaction_extensions"
-	AddMessageReactionExtensionsRouter     = RouterMsg + "/add_message_reaction_extensions"
-	MarkMsgsAsReadRouter                   = RouterMsg + "/mark_msgs_as_read"
-	GetConversationsHasReadAndMaxSeqRouter = RouterMsg + "/get_conversations_has_read_and_max_seq"
+	ClearConversationMsgRouter             = BaseRouter + RouterMsg + "/clear_conversation_msg" // Clear the message of the specified conversation
+	ClearAllMsgRouter                      = BaseRouter + RouterMsg + "/user_clear_all_msg"     // Clear all messages of the current user
+	DeleteMsgsRouter                       = BaseRouter + RouterMsg + "/delete_msgs"            // Delete the specified message
+	RevokeMsgRouter                        = BaseRouter + RouterMsg + "/revoke_msg"
+	SetMessageReactionExtensionsRouter     = BaseRouter + RouterMsg + "/set_message_reaction_extensions"
+	AddMessageReactionExtensionsRouter     = BaseRouter + RouterMsg + "/add_message_reaction_extensions"
+	MarkMsgsAsReadRouter                   = BaseRouter + RouterMsg + "/mark_msgs_as_read"
+	GetConversationsHasReadAndMaxSeqRouter = BaseRouter + RouterMsg + "/get_conversations_has_read_and_max_seq"
 
-	MarkConversationAsRead    = RouterMsg + "/mark_conversation_as_read"
-	MarkMsgsAsRead            = RouterMsg + "/mark_msgs_as_read"
-	SetConversationHasReadSeq = RouterMsg + "/set_conversation_has_read_seq"
+	MarkConversationAsRead    = BaseRouter + RouterMsg + "/mark_conversation_as_read"
+	MarkMsgsAsRead            = BaseRouter + RouterMsg + "/mark_msgs_as_read"
+	SetConversationHasReadSeq = BaseRouter + RouterMsg + "/set_conversation_has_read_seq"
 
-	GetMessageListReactionExtensionsRouter = RouterMsg + "/get_message_list_reaction_extensions"
-	DeleteMessageReactionExtensionsRouter  = RouterMsg + "/delete_message_reaction_extensions"
+	GetMessageListReactionExtensionsRouter = BaseRouter + RouterMsg + "/get_message_list_reaction_extensions"
+	DeleteMessageReactionExtensionsRouter  = BaseRouter + RouterMsg + "/delete_message_reaction_extensions"
 
-	TencentCloudStorageCredentialRouter = "/third/tencent_cloud_storage_credential"
-	AliOSSCredentialRouter              = "/third/ali_oss_credential"
-	MinioStorageCredentialRouter        = "/third/minio_storage_credential"
-	AwsStorageCredentialRouter          = "/third/aws_storage_credential"
+	TencentCloudStorageCredentialRouter = BaseRouter + "/third/tencent_cloud_storage_credential"
+	AliOSSCredentialRouter              = BaseRouter + "/third/ali_oss_credential"
+	MinioStorageCredentialRouter        = BaseRouter + "/third/minio_storage_credential"
+	AwsStorageCredentialRouter          = BaseRouter + "/third/aws_storage_credential"
 
 	//group
-	CreateGroupRouter                 = RouterGroup + "/create_group"
-	SetGroupInfoRouter                = RouterGroup + "/set_group_info"
-	JoinGroupRouter                   = RouterGroup + "/join_group"
-	QuitGroupRouter                   = RouterGroup + "/quit_group"
-	GetGroupsInfoRouter               = RouterGroup + "/get_groups_info"
-	GetGroupMemberListRouter          = RouterGroup + "/get_group_member_list"
-	GetGroupAllMemberListRouter       = RouterGroup + "/get_group_all_member_list"
-	GetGroupMembersInfoRouter         = RouterGroup + "/get_group_members_info"
-	InviteUserToGroupRouter           = RouterGroup + "/invite_user_to_group"
-	GetJoinedGroupListRouter          = RouterGroup + "/get_joined_group_list"
-	KickGroupMemberRouter             = RouterGroup + "/kick_group"
-	TransferGroupRouter               = RouterGroup + "/transfer_group"
-	GetRecvGroupApplicationListRouter = RouterGroup + "/get_recv_group_applicationList"
-	GetSendGroupApplicationListRouter = RouterGroup + "/get_user_req_group_applicationList"
-	AcceptGroupApplicationRouter      = RouterGroup + "/group_application_response"
-	RefuseGroupApplicationRouter      = RouterGroup + "/group_application_response"
-	DismissGroupRouter                = RouterGroup + "/dismiss_group"
-	MuteGroupMemberRouter             = RouterGroup + "/mute_group_member"
-	CancelMuteGroupMemberRouter       = RouterGroup + "/cancel_mute_group_member"
-	MuteGroupRouter                   = RouterGroup + "/mute_group"
-	CancelMuteGroupRouter             = RouterGroup + "/cancel_mute_group"
-	SetGroupMemberNicknameRouter      = RouterGroup + "/set_group_member_nickname"
-	SetGroupMemberInfoRouter          = RouterGroup + "/set_group_member_info"
-	GetGroupAbstractInfoRouter        = RouterGroup + "/get_group_abstract_info"
+	CreateGroupRouter                 = BaseRouter + RouterGroup + "/create_group"
+	SetGroupInfoRouter                = BaseRouter + RouterGroup + "/set_group_info"
+	JoinGroupRouter                   = BaseRouter + RouterGroup + "/join_group"
+	QuitGroupRouter                   = BaseRouter + RouterGroup + "/quit_group"
+	GetGroupsInfoRouter               = BaseRouter + RouterGroup + "/get_groups_info"
+	GetGroupMemberListRouter          = BaseRouter + RouterGroup + "/get_group_member_list"
+	GetGroupAllMemberListRouter       = BaseRouter + RouterGroup + "/get_group_all_member_list"
+	GetGroupMembersInfoRouter         = BaseRouter + RouterGroup + "/get_group_members_info"
+	InviteUserToGroupRouter           = BaseRouter + RouterGroup + "/invite_user_to_group"
+	GetJoinedGroupListRouter          = BaseRouter + RouterGroup + "/get_joined_group_list"
+	KickGroupMemberRouter             = BaseRouter + RouterGroup + "/kick_group"
+	TransferGroupRouter               = BaseRouter + RouterGroup + "/transfer_group"
+	GetRecvGroupApplicationListRouter = BaseRouter + RouterGroup + "/get_recv_group_applicationList"
+	GetSendGroupApplicationListRouter = BaseRouter + RouterGroup + "/get_user_req_group_applicationList"
+	AcceptGroupApplicationRouter      = BaseRouter + RouterGroup + "/group_application_response"
+	RefuseGroupApplicationRouter      = BaseRouter + RouterGroup + "/group_application_response"
+	DismissGroupRouter                = BaseRouter + RouterGroup + "/dismiss_group"
+	MuteGroupMemberRouter             = BaseRouter + RouterGroup + "/mute_group_member"
+	CancelMuteGroupMemberRouter       = BaseRouter + RouterGroup + "/cancel_mute_group_member"
+	MuteGroupRouter                   = BaseRouter + RouterGroup + "/mute_group"
+	CancelMuteGroupRouter             = BaseRouter + RouterGroup + "/cancel_mute_group"
+	SetGroupMemberNicknameRouter      = BaseRouter + RouterGroup + "/set_group_member_nickname"
+	SetGroupMemberInfoRouter          = BaseRouter + RouterGroup + "/set_group_member_info"
+	GetGroupAbstractInfoRouter        = BaseRouter + RouterGroup + "/get_group_abstract_info"
 
-	SetReceiveMessageOptRouter         = "/conversation/set_receive_message_opt"
-	GetReceiveMessageOptRouter         = "/conversation/get_receive_message_opt"
-	GetAllConversationMessageOptRouter = "/conversation/get_all_conversation_message_opt"
-	SetConversationOptRouter           = ConversationGroup + "/set_conversation"
-	GetConversationsRouter             = ConversationGroup + "/get_conversations"
-	GetAllConversationsRouter          = ConversationGroup + "/get_all_conversations"
-	GetConversationRouter              = ConversationGroup + "/get_conversation"
-	BatchSetConversationRouter         = ConversationGroup + "/batch_set_conversation"
-	ModifyConversationFieldRouter      = ConversationGroup + "/modify_conversation_field"
-	SetConversationsRouter             = ConversationGroup + "/set_conversations"
+	SetReceiveMessageOptRouter         = BaseRouter + "/conversation/set_receive_message_opt"
+	GetReceiveMessageOptRouter         = BaseRouter + "/conversation/get_receive_message_opt"
+	GetAllConversationMessageOptRouter = BaseRouter + "/conversation/get_all_conversation_message_opt"
+	SetConversationOptRouter           = BaseRouter + ConversationGroup + "/set_conversation"
+	GetConversationsRouter             = BaseRouter + ConversationGroup + "/get_conversations"
+	GetAllConversationsRouter          = BaseRouter + ConversationGroup + "/get_all_conversations"
+	GetConversationRouter              = BaseRouter + ConversationGroup + "/get_conversation"
+	BatchSetConversationRouter         = BaseRouter + ConversationGroup + "/batch_set_conversation"
+	ModifyConversationFieldRouter      = BaseRouter + ConversationGroup + "/modify_conversation_field"
+	SetConversationsRouter             = BaseRouter + ConversationGroup + "/set_conversations"
 
 	//organization
-	GetSubDepartmentRouter    = RouterOrganization + "/get_sub_department"
-	GetDepartmentMemberRouter = RouterOrganization + "/get_department_member"
-	ParseTokenRouter          = RouterAuth + "/parse_token"
+	GetSubDepartmentRouter    = BaseRouter + RouterOrganization + "/get_sub_department"
+	GetDepartmentMemberRouter = BaseRouter + RouterOrganization + "/get_department_member"
+	ParseTokenRouter          = BaseRouter + RouterAuth + "/parse_token"
 
 	//super_group
-	GetJoinedSuperGroupListRouter = RouterSuperGroup + "/get_joined_group_list"
-	GetSuperGroupsInfoRouter      = RouterSuperGroup + "/get_groups_info"
+	GetJoinedSuperGroupListRouter = BaseRouter + RouterSuperGroup + "/get_joined_group_list"
+	GetSuperGroupsInfoRouter      = BaseRouter + RouterSuperGroup + "/get_groups_info"
 
 	//third
-	FcmUpdateTokenRouter = RouterThird + "/fcm_update_token"
-	SetAppBadgeRouter    = RouterThird + "/set_app_badge"
+	FcmUpdateTokenRouter = BaseRouter + RouterThird + "/fcm_update_token"
+	SetAppBadgeRouter    = BaseRouter + RouterThird + "/set_app_badge"
 )
 const (
 	RouterGroup        = "/group"

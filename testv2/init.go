@@ -48,10 +48,10 @@ func init() {
 	}
 	ctx = open_im_sdk.UserForSDK.Context()
 	ctx = ccontext.WithOperationID(ctx, "initOperationID")
-	token, err := GetUserToken(ctx, UserID)
-	if err != nil {
-		panic(err)
-	}
+	//token, err := GetUserToken(ctx, UserID)
+	//if err != nil {
+	//	panic(err)
+	//}
 	if err := open_im_sdk.UserForSDK.Login(ctx, UserID, token); err != nil {
 		panic(err)
 	}

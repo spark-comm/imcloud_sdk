@@ -23,11 +23,11 @@ import (
 	"open_im_sdk/pkg/sdkerrs"
 	"open_im_sdk/pkg/syncer"
 
+	imUserPb "github.com/imCloud/api/user/v1"
 	"github.com/imCloud/im/pkg/common/log"
 	authPb "github.com/imCloud/im/pkg/proto/auth"
 	"github.com/imCloud/im/pkg/proto/sdkws"
 	userPb "github.com/imCloud/im/pkg/proto/user"
-
 	"open_im_sdk/open_im_sdk_callback"
 	"open_im_sdk/pkg/common"
 	"open_im_sdk/pkg/constant"
@@ -137,11 +137,12 @@ func (u *User) userInfoUpdatedNotification(ctx context.Context, msg *sdkws.MsgDa
 
 // GetUsersInfoFromSvr retrieves user information from the server.
 func (u *User) GetUsersInfoFromSvr(ctx context.Context, userIDs []string) ([]*model_struct.LocalUser, error) {
-	resp, err := util.CallApi[userPb.GetDesignateUsersResp](ctx, constant.GetUsersInfoRouter, userPb.GetDesignateUsersReq{UserIDs: userIDs})
+	_, err := util.CallApi[userPb.GetDesignateUsersResp](ctx, constant.GetUsersInfoRouter, userPb.GetDesignateUsersReq{UserIDs: userIDs})
 	if err != nil {
 		return nil, sdkerrs.Warp(err, "GetUsersInfoFromSvr failed")
 	}
-	return util.Batch(ServerUserToLocalUser, resp.UsersInfo), nil
+	//return util.Batch(ServerUserToLocalUser, resp.UsersInfo), nil
+	return nil, err
 }
 
 // GetUsersInfoFromSvrNoCallback retrieves user information from the server.
@@ -190,10 +191,10 @@ func (u *User) ParseTokenFromSvr(ctx context.Context) (int64, error) {
 }
 
 // GetServerUserInfo retrieves user information from the server.
-func (u *User) GetServerUserInfo(ctx context.Context, userIDs []string) ([]*sdkws.UserInfo, error) {
-	resp, err := util.CallApi[userPb.GetDesignateUsersResp](ctx, constant.GetUsersInfoRouter, &userPb.GetDesignateUsersReq{UserIDs: userIDs})
+func (u *User) GetServerUserInfo(ctx context.Context, userIDs []string) ([]*imUserPb.ProfileReply, error) {
+	resp, err := util.CallApi[imUserPb.FindProfileByUserRes](ctx, constant.GetUsersInfoRouter, &userPb.GetDesignateUsersReq{UserIDs: userIDs})
 	if err != nil {
 		return nil, err
 	}
-	return resp.UsersInfo, nil
+	return resp.List, nil
 }

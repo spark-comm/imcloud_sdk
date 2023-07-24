@@ -15,20 +15,18 @@
 package user
 
 import (
+	imUserPb "github.com/imCloud/api/user/v1"
 	"open_im_sdk/pkg/db/model_struct"
-
-	"github.com/imCloud/im/pkg/proto/sdkws"
 )
 
-func ServerUserToLocalUser(user *sdkws.UserInfo) *model_struct.LocalUser {
+func ServerUserToLocalUser(user *imUserPb.ProfileReply) *model_struct.LocalUser {
 	return &model_struct.LocalUser{
 		UserID:           user.UserID,
 		Nickname:         user.Nickname,
 		FaceURL:          user.FaceURL,
-		CreateTime:       user.CreateTime,
-		Ex:               user.Ex,
+		CreateTime:       user.CreatedAt.Seconds,
 		AppMangerLevel:   user.AppMangerLevel,
-		GlobalRecvMsgOpt: user.GlobalRecvMsgOpt,
+		GlobalRecvMsgOpt: user.GlobalMsgReceive,
 		//AttachedInfo: user.AttachedInfo,
 	}
 }

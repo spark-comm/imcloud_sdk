@@ -32,7 +32,7 @@ func Test_GetSelfUserInfo(t *testing.T) {
 }
 
 func Test_GetUsersInfo(t *testing.T) {
-	userInfo, err := open_im_sdk.UserForSDK.Full().GetUsersInfo(ctx, []string{"friendUserID"})
+	userInfo, err := open_im_sdk.UserForSDK.Full().GetUsersInfo(ctx, []string{"45778745637736448"})
 	if err != nil {
 		t.Error(err)
 	}
@@ -49,12 +49,12 @@ func Test_GetUsersInfo(t *testing.T) {
 
 func Test_SetSelfInfo(t *testing.T) {
 	newNickName := "test"
-	//newFaceURL := "http://test.com"
+	newFaceURL := "http://test.com"
 	err := open_im_sdk.UserForSDK.User().SetSelfInfo(ctx, &sdkws.UserInfo{
 		Nickname: newNickName,
-		//FaceURL:  newFaceURL,
+		FaceURL:  newFaceURL,
 	})
-	newFaceURL := "http://test.com"
+	//newFaceURL := "http://test.com"
 
 	if err != nil {
 		t.Error(err)

@@ -27,6 +27,8 @@ replace github.com/imCloud => ../../imcloud
 
 require (
 	github.com/bwmarrin/snowflake v0.3.0 // indirect
+	github.com/envoyproxy/protoc-gen-validate v1.0.1 // indirect
+	github.com/go-kratos/kratos/v2 v2.6.3 // indirect
 	github.com/go-stack/stack v1.8.0 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect

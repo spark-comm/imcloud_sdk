@@ -168,20 +168,28 @@ func (u *User) getSelfUserInfo(ctx context.Context) (*model_struct.LocalUser, er
 		if len(srvUserInfo) == 0 {
 			return nil, sdkerrs.ErrUserIDNotFound
 		}
-		userInfo = ServerUserToLocalUser(srvUserInfo[0])
+		ui, err := ServerUserToLocalUser(srvUserInfo[0])
+		if err != nil {
+			log.ZDebug(ctx, "get self user info error", err)
+			return nil, err
+		}
+		userInfo = ui
 		_ = u.InsertLoginUser(ctx, userInfo)
 	}
 	return userInfo, nil
 }
 
-// updateSelfUserInfo updates the user's information.
-func (u *User) updateSelfUserInfo(ctx context.Context, userInfo *sdkws.UserInfo) error {
-	userInfo.UserID = u.loginUserID
-	if err := util.ApiPost(ctx, constant.UpdateSelfUserInfoRouter, userPb.UpdateUserInfoReq{UserInfo: userInfo}, nil); err != nil {
-		return err
+// searchUser search user info.
+func (u *User) searchUser(ctx context.Context, searchValue string, searchType int) (*model_struct.LocalUser, error) {
+	res, err := util.CallApi[imUserPb.SearchProfileRes](ctx, constant.SearchUserInfoRouter, &imUserPb.SearchProfileReq{SearchValue: searchValue, Type: int32(searchType)})
+	if err != nil {
+		return nil, err
 	}
-	_ = u.SyncLoginUserInfo(ctx)
-	return nil
+	user, err := ServerUserToLocalUser(res.Profile)
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
 }
 
 // ParseTokenFromSvr parses a token from the server.
@@ -197,4 +205,14 @@ func (u *User) GetServerUserInfo(ctx context.Context, userIDs []string) ([]*imUs
 		return nil, err
 	}
 	return resp.List, nil
+}
+
+// updateSelfUserInfo updates the user's information.
+func (u *User) updateSelfUserInfo(ctx context.Context, userInfo *imUserPb.UpdateProfileRequest) error {
+	userInfo.UserID = u.loginUserID
+	if err := util.ApiPost(ctx, constant.UpdateSelfUserInfoRouter, userInfo, nil); err != nil {
+		return err
+	}
+	_ = u.SyncLoginUserInfo(ctx)
+	return nil
 }

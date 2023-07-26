@@ -16,17 +16,14 @@ package user
 
 import (
 	imUserPb "github.com/imCloud/api/user/v1"
+	"github.com/jinzhu/copier"
 	"open_im_sdk/pkg/db/model_struct"
 )
 
-func ServerUserToLocalUser(user *imUserPb.ProfileReply) *model_struct.LocalUser {
-	return &model_struct.LocalUser{
-		UserID:           user.UserID,
-		Nickname:         user.Nickname,
-		FaceURL:          user.FaceURL,
-		CreateTime:       user.CreatedAt.Seconds,
-		AppMangerLevel:   user.AppMangerLevel,
-		GlobalRecvMsgOpt: user.GlobalMsgReceive,
-		//AttachedInfo: user.AttachedInfo,
+func ServerUserToLocalUser(user *imUserPb.ProfileReply) (*model_struct.LocalUser, error) {
+	loginUser := model_struct.LocalUser{}
+	if err := copier.Copy(&loginUser, user); err != nil {
+		return nil, err
 	}
+	return &loginUser, nil
 }

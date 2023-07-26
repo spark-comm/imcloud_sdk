@@ -15,11 +15,10 @@
 package testv2
 
 import (
+	imUserPb "github.com/imCloud/api/user/v1"
 	"open_im_sdk/open_im_sdk"
 	"testing"
 	"time"
-
-	"github.com/imCloud/im/pkg/proto/sdkws"
 )
 
 func Test_GetSelfUserInfo(t *testing.T) {
@@ -48,9 +47,9 @@ func Test_GetUsersInfo(t *testing.T) {
 }
 
 func Test_SetSelfInfo(t *testing.T) {
-	newNickName := "test"
+	newNickName := "test1"
 	newFaceURL := "http://test.com"
-	err := open_im_sdk.UserForSDK.User().SetSelfInfo(ctx, &sdkws.UserInfo{
+	err := open_im_sdk.UserForSDK.User().SetSelfInfo(ctx, &imUserPb.UpdateProfileRequest{
 		Nickname: newNickName,
 		FaceURL:  newFaceURL,
 	})
@@ -76,6 +75,13 @@ func Test_UpdateMsgSenderInfo(t *testing.T) {
 		t.Error(err)
 	}
 	userInfo, err := open_im_sdk.UserForSDK.User().GetSelfUserInfo(ctx)
+	if err != nil {
+		t.Error(err)
+	}
+	t.Log(userInfo)
+}
+func Test_SearchUserInfo(t *testing.T) {
+	userInfo, err := open_im_sdk.UserForSDK.User().SearchUserInfo(ctx, "au9699", 2)
 	if err != nil {
 		t.Error(err)
 	}

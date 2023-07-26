@@ -16,10 +16,9 @@ package user
 
 import (
 	"context"
+	imUserPb "github.com/imCloud/api/user/v1"
 	"open_im_sdk/pkg/constant"
 	"open_im_sdk/pkg/db/model_struct"
-
-	"github.com/imCloud/im/pkg/proto/sdkws"
 )
 
 func (u *User) GetUsersInfo(ctx context.Context, userIDs []string) ([]*model_struct.LocalUser, error) {
@@ -30,7 +29,7 @@ func (u *User) GetSelfUserInfo(ctx context.Context) (*model_struct.LocalUser, er
 	return u.getSelfUserInfo(ctx)
 }
 
-func (u *User) SetSelfInfo(ctx context.Context, userInfo *sdkws.UserInfo) error {
+func (u *User) SetSelfInfo(ctx context.Context, userInfo *imUserPb.UpdateProfileRequest) error {
 	return u.updateSelfUserInfo(ctx, userInfo)
 }
 
@@ -46,4 +45,10 @@ func (u *User) UpdateMsgSenderInfo(ctx context.Context, nickname, faceURL string
 		}
 	}
 	return nil
+}
+
+// SearchUserInfo 1-手机 2-用户ID 3-扫码
+// todo 新添加方法
+func (u *User) SearchUserInfo(ctx context.Context, searchValue string, searchType int) (*model_struct.LocalUser, error) {
+	return u.searchUser(ctx, searchValue, searchType)
 }

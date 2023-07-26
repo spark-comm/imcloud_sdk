@@ -39,3 +39,8 @@ func GetSelfUserInfo(callback open_im_sdk_callback.Base, operationID string) {
 func UpdateMsgSenderInfo(callback open_im_sdk_callback.Base, operationID string, nickname, faceURL string) {
 	call(callback, operationID, UserForSDK.User().UpdateMsgSenderInfo, nickname, faceURL)
 }
+
+// SearchUser by search value and search type
+func SearchUser(callback open_im_sdk_callback.Base, operationID string, searchValue string, searchType int) {
+	call(callback, operationID, UserForSDK.User().UpdateMsgSenderInfo, searchValue, searchType)
+}

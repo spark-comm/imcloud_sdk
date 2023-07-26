@@ -139,13 +139,13 @@ type LocalGroup struct {
 	MaxMemberCount         int32  `json:"max_member_count" gorm:"column:max_member_count;comment:群的最大用户数"`
 	MemberCount            int32  `json:"member_count" gorm:"column:member_count;comment:群用户数"`
 	AttachedInfo           string `json:"attached_info" gorm:"column:attached_info;size:1024;comment:附加信息"`
-	NeedVerification       bool   `json:"need_verification" gorm:"column:need_verification;default:0;comment:加群是否需要验证:0需要,1不需要"`
-	LookMemberInfo         bool   `json:"look_member_info" gorm:"column:look_member_info;default:0;comment:支持成员信息查看:0支持,1不支持"`
-	ApplyMemberFriend      bool   `json:"apply_member_friend" gorm:"column:apply_member_friend;default:0;comment:是否可通过群加好友:0支持,1不支持" `
-	OnlyManageUpdateName   bool   `json:"only_manage_update_name" gorm:"column:only_manage_update_name;default:0;comment:是否仅管理员或群主能够更新群名称:"`
+	NeedVerification       int32  `json:"need_verification" gorm:"column:need_verification;default:0;comment:加群是否需要验证:0需要,1不需要"`
+	LookMemberInfo         int32  `json:"look_member_info" gorm:"column:look_member_info;default:0;comment:支持成员信息查看:0支持,1不支持"`
+	ApplyMemberFriend      int32  `json:"apply_member_friend" gorm:"column:apply_member_friend;default:0;comment:是否可通过群加好友:0支持,1不支持" `
+	OnlyManageUpdateName   int32  `json:"only_manage_update_name" gorm:"column:only_manage_update_name;default:0;comment:是否仅管理员或群主能够更新群名称:"`
 	NotificationUpdateTime int64  `json:"notification_update_time" gorm:"column:notification_update_time;comment:群公告更新时间"`
 	NotificationUserID     string `json:"notification_user_id" gorm:"column:notification_user_id;size:64;comment:更新公告用户id"`
-	IsReal                 bool   `json:"is_real" gorm:"column:is_real;default:0;comment:是否实名认证，默认否"`
+	IsReal                 int32  `json:"is_real" gorm:"column:is_real;default:0;comment:是否实名认证，默认否"`
 	IsOpen                 uint   `json:"is_open" gorm:"column:is_open;default:1;comment:是否公开群组,1:开启;2:关闭"`
 	AllowPrivateChat       uint   `json:"allow_private_chat" gorm:"column:allow_private_chat;default:2;comment:允许成员私聊,1:开启;2:关闭"`
 }

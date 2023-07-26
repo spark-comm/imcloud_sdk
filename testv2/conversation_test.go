@@ -57,6 +57,7 @@ func Test_SetSetGlobalRecvMessageOpt(t *testing.T) {
 	}
 }
 
+// 隐藏会话
 func Test_HideConversation(t *testing.T) {
 	err := open_im_sdk.UserForSDK.Conversation().HideConversation(ctx, "asdasd")
 	if err != nil {
@@ -75,7 +76,7 @@ func Test_GetConversationRecvMessageOpt(t *testing.T) {
 }
 
 func Test_GetGlobalRecvMessageOpt(t *testing.T) {
-	opt, err := open_im_sdk.UserForSDK.Conversation().GetOneConversation(ctx, 2, "1772958501")
+	opt, err := open_im_sdk.UserForSDK.Conversation().GetOneConversation(ctx, 1, UserID)
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -21,11 +21,15 @@ import (
 	"open_im_sdk/pkg/utils"
 )
 
+const (
+	token = "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJpbUNsb3VkIiwic3ViIjoie1widXNlcl9pZFwiOlwiNDU3Nzg3NDU2Mzc3MzY0NDhcIixcInBsYXRmb3JtXCI6XCJXaW5kb3dzXCIsXCJyb2xlXCI6XCJcIn0iLCJleHAiOjE2OTA4MTE3ODYsIm5iZiI6MTY5MDQ1MTc4NiwiaWF0IjoxNjkwNDUxNzg2fQ.DgoKXjrQuJZFkWtnkItBED-nfiC3OxVSH9kVrbR09s4kOql4FGsPZuNgYY8oKSpuZpCTgwJrw87--qwmm3u7dw"
+)
+
 func LoginOne(uid string) bool {
 	// get token
 	collectToken(uid)
 	// init and login
-	return initAndLogin(uid, AllLoginMgr[uid].Token)
+	return initAndLogin(uid, token)
 }
 
 // 批量登录

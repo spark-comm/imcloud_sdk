@@ -15,6 +15,7 @@
 package testv2
 
 import (
+	"fmt"
 	imUserPb "github.com/imCloud/api/user/v1"
 	"open_im_sdk/open_im_sdk"
 	"testing"
@@ -51,7 +52,7 @@ func Test_SetSelfInfo(t *testing.T) {
 	newFaceURL := "http://test.com"
 	err := open_im_sdk.UserForSDK.User().SetSelfInfo(ctx, &imUserPb.UpdateProfileRequest{
 		Nickname: newNickName,
-		FaceURL:  newFaceURL,
+		FaceUrl:  newFaceURL,
 	})
 	//newFaceURL := "http://test.com"
 
@@ -80,10 +81,21 @@ func Test_UpdateMsgSenderInfo(t *testing.T) {
 	}
 	t.Log(userInfo)
 }
+
+type SearchCallback struct {
+}
+
+func (m *SearchCallback) OnError(errCode int32, errMsg string) {
+	fmt.Println("错误")
+}
+func (m *SearchCallback) OnSuccess(data string) {
+	fmt.Println("成功返回", data)
+}
 func Test_SearchUserInfo(t *testing.T) {
-	userInfo, err := open_im_sdk.UserForSDK.User().SearchUserInfo(ctx, "au9699", 2)
-	if err != nil {
-		t.Error(err)
-	}
-	t.Log(userInfo)
+	callback := SearchCallback{}
+	open_im_sdk.SearchUser(&callback, "jhjguyuyguyguyguy", "au9699", 2)
+	//if err != nil {
+	//	t.Error(err)
+	//}
+	//t.Log(userInfo)
 }

@@ -57,7 +57,8 @@ vendor/
 bin/
 tools/
 tmp/
-
+build/
+_output/
 
 ### vscode ###
 .vscode/*

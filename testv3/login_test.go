@@ -22,7 +22,7 @@ import (
 )
 
 func Test_LoginOne(t *testing.T) {
-	uid := "6506148011"
+	uid := "45778745637736448"
 	res := funcation.LoginOne(uid)
 	time.Sleep(1000 * time.Second)
 	if res != true {

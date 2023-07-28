@@ -209,7 +209,7 @@ func (u *User) GetServerUserInfo(ctx context.Context, userIDs []string) ([]*imUs
 
 // updateSelfUserInfo updates the user's information.
 func (u *User) updateSelfUserInfo(ctx context.Context, userInfo *imUserPb.UpdateProfileRequest) error {
-	userInfo.UserID = u.loginUserID
+	userInfo.UserId = u.loginUserID
 	if err := util.ApiPost(ctx, constant.UpdateSelfUserInfoRouter, userInfo, nil); err != nil {
 		return err
 	}

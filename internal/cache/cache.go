@@ -102,6 +102,6 @@ func (c *Cache) GetUserNameAndFaceURL(ctx context.Context, userID string) (faceU
 	if len(users) == 0 {
 		return "", "", sdkerrs.ErrUserIDNotFound.Wrap(userID)
 	}
-	c.userMap.Store(userID, UserInfo{FaceURL: users[0].FaceURL, Nickname: users[0].Nickname})
-	return users[0].FaceURL, users[0].Nickname, nil
+	c.userMap.Store(userID, UserInfo{FaceURL: users[0].UserId, Nickname: users[0].Nickname})
+	return users[0].FaceUrl, users[0].Nickname, nil
 }

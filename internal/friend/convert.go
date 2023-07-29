@@ -3,55 +3,65 @@ package friend
 import (
 	"open_im_sdk/pkg/db/model_struct"
 
-	"github.com/imCloud/im/pkg/proto/sdkws"
+	friendPb "github.com/imCloud/api/friend/v1"
 )
 
-func ServerFriendRequestToLocalFriendRequest(info *sdkws.FriendRequest) *model_struct.LocalFriendRequest {
+func ServerFriendRequestToLocalFriendRequest(info *friendPb.FriendRequests) *model_struct.LocalFriendRequest {
 	return &model_struct.LocalFriendRequest{
-		FromUserID:   info.FromUserID,
-		FromNickname: info.FromNickname,
-		FromFaceURL:  info.FromFaceURL,
-		//FromGender:    info.FromGender,
-		ToUserID:   info.ToUserID,
-		ToNickname: info.ToNickname,
-		ToFaceURL:  info.ToFaceURL,
-		//ToGender:      info.ToGender,
+		FromUserID:    info.FromUserId,
+		FromNickname:  info.FromNickname,
+		FromFaceURL:   info.FromFaceUrl,
+		FromGender:    info.FromGender,
+		FromCode:      info.FromCode,
+		FromPhone:     info.FromPhone,
+		FromMessage:   info.FromMessage,
+		ToUserID:      info.ToUserId,
+		ToNickname:    info.ToNickname,
+		ToFaceURL:     info.ToFaceUrl,
+		ToGender:      info.ToGender,
+		ToMessage:     info.ToMessage,
+		ToCode:        info.ToCode,
+		TomPhone:      info.ToPhone,
 		HandleResult:  info.HandleResult,
 		ReqMsg:        info.ReqMsg,
 		CreateTime:    info.CreateTime,
-		HandlerUserID: info.HandlerUserID,
+		HandlerUserID: info.HandlerUserId,
 		HandleMsg:     info.HandleMsg,
 		HandleTime:    info.HandleTime,
 		Ex:            info.Ex,
-		//AttachedInfo:  info.AttachedInfo,
 	}
 }
-
-func ServerFriendToLocalFriend(info *sdkws.FriendInfo) *model_struct.LocalFriend {
+func ServerFriendToLocalFriend(info *friendPb.ListFriendForSdkFriendInfo) *model_struct.LocalFriend {
 	return &model_struct.LocalFriend{
-		OwnerUserID:    info.OwnerUserID,
-		FriendUserID:   info.FriendUser.UserID,
+		OwnerUserID:    info.OwnerUserId,
+		FriendUserID:   info.FriendUserId,
 		Remark:         info.Remark,
 		CreateTime:     info.CreateTime,
 		AddSource:      info.AddSource,
-		OperatorUserID: info.OperatorUserID,
-		Nickname:       info.FriendUser.Nickname,
-		FaceURL:        info.FriendUser.FaceURL,
+		OperatorUserID: info.OperatorUserId,
+		Nickname:       info.Nickname,
+		FaceURL:        info.FaceUrl,
 		Ex:             info.Ex,
-		//AttachedInfo:   info.FriendUser.AttachedInfo,
+		Phone:          info.Phone,
+		Code:           info.Code,
+		Message:        info.Message,
+		Email:          info.Email,
+		Birth:          info.Birth,
+		Gender:         info.Gender,
 	}
 }
 
-func ServerBlackToLocalBlack(info *sdkws.BlackInfo) *model_struct.LocalBlack {
+func ServerBlackToLocalBlack(info *friendPb.BlackList) *model_struct.LocalBlack {
 	return &model_struct.LocalBlack{
-		OwnerUserID:    info.OwnerUserID,
-		BlockUserID:    info.BlackUserInfo.UserID,
-		CreateTime:     info.CreateTime,
-		AddSource:      info.AddSource,
-		OperatorUserID: info.OperatorUserID,
-		Nickname:       info.BlackUserInfo.Nickname,
-		FaceURL:        info.BlackUserInfo.FaceURL,
+		OwnerUserID:    info.OwnerUserId,
+		BlockUserID:    info.BlackUserId,
+		CreateTime:     info.CreatedAt,
+		OperatorUserID: info.OwnerUserId,
+		Nickname:       info.Nickname,
+		FaceURL:        info.FaceUrl,
+		Gender:         info.Gender,
+		Message:        info.Message,
+		Code:           info.Code,
 		Ex:             info.Ex,
-		//AttachedInfo:   info.FriendUser.AttachedInfo,
 	}
 }

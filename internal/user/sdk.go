@@ -29,7 +29,7 @@ func (u *User) GetSelfUserInfo(ctx context.Context) (*model_struct.LocalUser, er
 	return u.getSelfUserInfo(ctx)
 }
 
-func (u *User) SetSelfInfo(ctx context.Context, userInfo *imUserPb.UpdateProfileRequest) error {
+func (u *User) SetSelfInfo(ctx context.Context, userInfo *imUserPb.UpdateProfileReq) error {
 	return u.updateSelfUserInfo(ctx, userInfo)
 }
 

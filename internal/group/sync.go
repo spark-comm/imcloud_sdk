@@ -24,6 +24,7 @@ import (
 	"open_im_sdk/pkg/constant"
 )
 
+// SyncGroupMember 同步群成员
 func (g *Group) SyncGroupMember(ctx context.Context, groupID string) error {
 	members, err := g.GetServerGroupMembers(ctx, groupID)
 	if err != nil {
@@ -72,6 +73,7 @@ func (g *Group) SyncGroupMember(ctx context.Context, groupID string) error {
 	return nil
 }
 
+// SyncJoinedGroup 同步加入的群
 func (g *Group) SyncJoinedGroup(ctx context.Context) error {
 	_, err := g.syncJoinedGroup(ctx)
 	if err != nil {

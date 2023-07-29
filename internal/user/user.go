@@ -181,7 +181,7 @@ func (u *User) getSelfUserInfo(ctx context.Context) (*model_struct.LocalUser, er
 
 // searchUser search user info.
 func (u *User) searchUser(ctx context.Context, searchValue string, searchType int) (*model_struct.LocalUser, error) {
-	res, err := util.CallApi[imUserPb.SearchProfileRes](ctx, constant.SearchUserInfoRouter, &imUserPb.SearchProfileReq{SearchValue: searchValue, Type: int32(searchType)})
+	res, err := util.CallApi[imUserPb.SearchProfileReply](ctx, constant.SearchUserInfoRouter, &imUserPb.SearchProfileReq{SearchValue: searchValue, Type: int32(searchType)})
 	if err != nil {
 		return nil, err
 	}
@@ -200,7 +200,7 @@ func (u *User) ParseTokenFromSvr(ctx context.Context) (int64, error) {
 
 // GetServerUserInfo retrieves user information from the server.
 func (u *User) GetServerUserInfo(ctx context.Context, userIDs []string) ([]*imUserPb.ProfileReply, error) {
-	resp, err := util.CallApi[imUserPb.FindProfileByUserRes](ctx, constant.GetUsersInfoRouter, &userPb.GetDesignateUsersReq{UserIDs: userIDs})
+	resp, err := util.CallApi[imUserPb.FindProfileByUserReply](ctx, constant.GetUsersInfoRouter, &userPb.GetDesignateUsersReq{UserIDs: userIDs})
 	if err != nil {
 		return nil, err
 	}
@@ -208,7 +208,7 @@ func (u *User) GetServerUserInfo(ctx context.Context, userIDs []string) ([]*imUs
 }
 
 // updateSelfUserInfo updates the user's information.
-func (u *User) updateSelfUserInfo(ctx context.Context, userInfo *imUserPb.UpdateProfileRequest) error {
+func (u *User) updateSelfUserInfo(ctx context.Context, userInfo *imUserPb.UpdateProfileReq) error {
 	userInfo.UserId = u.loginUserID
 	if err := util.ApiPost(ctx, constant.UpdateSelfUserInfoRouter, userInfo, nil); err != nil {
 		return err

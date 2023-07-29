@@ -19,15 +19,16 @@ import (
 	"open_im_sdk/internal/util"
 	"open_im_sdk/pkg/constant"
 
+	friendPb "github.com/imCloud/api/friend/v1"
 	"github.com/imCloud/im/pkg/common/log"
 	"github.com/imCloud/im/pkg/proto/friend"
 	"github.com/imCloud/im/pkg/proto/sdkws"
 )
 
-// send
+// SyncSelfFriendApplication 自己发送的好友请求
 func (f *Friend) SyncSelfFriendApplication(ctx context.Context) error {
 	req := &friend.GetPaginationFriendsApplyFromReq{UserID: f.loginUserID, Pagination: &sdkws.RequestPagination{}}
-	fn := func(resp *friend.GetPaginationFriendsApplyFromResp) []*sdkws.FriendRequest {
+	fn := func(resp *friendPb.GetPaginationFriendsApplyFromResp) []*friendPb.FriendRequests {
 		return resp.FriendRequests
 	}
 	requests, err := util.GetPageAll(ctx, constant.GetSelfFriendApplicationListRouter, req, fn)
@@ -41,10 +42,10 @@ func (f *Friend) SyncSelfFriendApplication(ctx context.Context) error {
 	return f.requestSendSyncer.Sync(ctx, util.Batch(ServerFriendRequestToLocalFriendRequest, requests), localData, nil)
 }
 
-// recv
+// SyncFriendApplication 同步自己收到的好友请求
 func (f *Friend) SyncFriendApplication(ctx context.Context) error {
 	req := &friend.GetPaginationFriendsApplyToReq{UserID: f.loginUserID, Pagination: &sdkws.RequestPagination{}}
-	fn := func(resp *friend.GetPaginationFriendsApplyToResp) []*sdkws.FriendRequest { return resp.FriendRequests }
+	fn := func(resp *friendPb.ListFriendApplyResponse) []*friendPb.FriendRequests { return resp.List }
 	requests, err := util.GetPageAll(ctx, constant.GetFriendApplicationListRouter, req, fn)
 	if err != nil {
 		return err
@@ -56,9 +57,12 @@ func (f *Friend) SyncFriendApplication(ctx context.Context) error {
 	return f.requestRecvSyncer.Sync(ctx, util.Batch(ServerFriendRequestToLocalFriendRequest, requests), localData, nil)
 }
 
+// SyncFriendList 同步好友列表
 func (f *Friend) SyncFriendList(ctx context.Context) error {
 	req := &friend.GetPaginationFriendsReq{UserID: f.loginUserID, Pagination: &sdkws.RequestPagination{}}
-	fn := func(resp *friend.GetPaginationFriendsResp) []*sdkws.FriendInfo { return resp.FriendsInfo }
+	fn := func(resp *friendPb.ListFriendForSdkReps) []*friendPb.ListFriendForSdkFriendInfo {
+		return resp.FriendsInfo
+	}
 	friends, err := util.GetPageAll(ctx, constant.GetFriendListRouter, req, fn)
 	if err != nil {
 		return err
@@ -71,9 +75,10 @@ func (f *Friend) SyncFriendList(ctx context.Context) error {
 	return f.friendSyncer.Sync(ctx, util.Batch(ServerFriendToLocalFriend, friends), localData, nil)
 }
 
+// SyncBlackList 同步黑名单信息
 func (f *Friend) SyncBlackList(ctx context.Context) error {
 	req := &friend.GetPaginationBlacksReq{UserID: f.loginUserID, Pagination: &sdkws.RequestPagination{}}
-	fn := func(resp *friend.GetPaginationBlacksResp) []*sdkws.BlackInfo { return resp.Blacks }
+	fn := func(resp *friendPb.BlackListResponse) []*friendPb.BlackList { return resp.Data }
 	serverData, err := util.GetPageAll(ctx, constant.GetBlackListRouter, req, fn)
 	if err != nil {
 		return err

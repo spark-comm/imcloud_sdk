@@ -43,13 +43,13 @@ package model_struct
 // 	)`
 
 type LocalFriend struct {
-	OwnerUserID    string `json:"owner_user_id" gorm:"column:owner_user_id;primary_key;type:varchar(64);comment:所属用户"`
-	FriendUserID   string `json:"friend_user_id" gorm:"column:friend_user_id;primary_key;type:varchar(64);comment:好友id"`
+	OwnerUserID    string `json:"ownerUserID" gorm:"column:owner_user_id;primary_key;type:varchar(64);comment:所属用户"`
+	FriendUserID   string `json:"friendUserID" gorm:"column:friend_user_id;primary_key;type:varchar(64);comment:好友id"`
 	Remark         string `json:"remark" gorm:"column:remark;type:varchar(255);comment:备注"`
-	CreateTime     int64  `json:"create_at" gorm:"column:create_at;comment:创建时间"`
-	AddSource      int32  `json:"add_source" gorm:"column:add_source;comment:添加来源"`
-	OperatorUserID string `gorm:"column:operator_user_id;type:varchar(64)" json:"operatorUserID"`
-	FaceURL        string `json:"face_url" gorm:"column:face_url;size:44;comment:头像"`
+	CreateTime     int64  `json:"createdAt" gorm:"column:create_at;comment:创建时间"`
+	AddSource      int32  `json:"addSource" gorm:"column:add_source;comment:添加来源"`
+	OperatorUserID string `json:"operatorUserID" gorm:"column:operator_user_id;type:varchar(64)"`
+	FaceURL        string `json:"faceURL" gorm:"column:face_url;size:44;comment:头像"`
 	Nickname       string `json:"nickname" gorm:"column:nickname;size:50;comment:用户昵称"`
 	Message        string `json:"message" gorm:"column:message;size:50;comment:个性签名"`
 	Code           string `json:"code" gorm:"column:code;size:6;uniqueIndex;comment:用户ID"`
@@ -57,9 +57,9 @@ type LocalFriend struct {
 	Email          string `json:"email" gorm:"column:email;size:36;comment:邮箱"`
 	Birth          int64  `json:"birth" gorm:"column:birth;comment:生日"`
 	Gender         int32  `json:"gender" gorm:"column:gender;default:0;comment:性别，默认女"`
-	PhoneNumber    string `json:"phone_number" gorm:"column:phone_number;type:varchar(32);comment:手机号"`
 	Ex             string `json:"ex" gorm:"column:ex;type:varchar(1024)"`
-	AttachedInfo   string `json:"attached_info" gorm:"column:attached_info;type:varchar(1024)"`
+	BackgroundURL  string `json:"backgroundURL" gorm:"column:background_url;type:varchar(255)"`
+	AttachedInfo   string `json:"attachedInfo" gorm:"column:attached_info;type:varchar(1024)"`
 }
 
 // message FriendRequest{
@@ -75,26 +75,26 @@ type LocalFriend struct {
 // }
 // open_im_sdk.FriendRequest == imdb.FriendRequest
 type LocalFriendRequest struct {
-	FromUserID    string `gorm:"column:from_user_id;primary_key;type:varchar(64);comment:来源用户ID" json:"from_user_id"`
-	FromNickname  string `gorm:"column:from_nickname;type:varchar;type:varchar(255);comment:来源用户昵称" json:"from_nickname"`
-	FromFaceURL   string `gorm:"column:from_face_url;type:varchar;type:varchar(255);comment:来源用户头像" json:"from_face_url"`
-	FromGender    int32  `gorm:"column:from_gender;comment:来源用户性别" json:"from_gender"`
-	FromCode      string `json:"from_code" gorm:"column:from_code;size:6;uniqueIndex;comment:来源用户code"`
-	FromMessage   string `json:"from_message" gorm:"column:from_message;size:6;uniqueIndex;comment:来源用户个性签名"`
-	FromPhone     string `json:"from_phone" gorm:"column:from_phone;size:6;uniqueIndex;comment:来源用户手机号"`
-	ToUserID      string `gorm:"column:to_user_id;primary_key;type:varchar(64);comment:接收方用户ID" json:"to_user_id"`
-	ToNickname    string `gorm:"column:to_nickname;type:varchar;type:varchar(255);comment:接收方昵称" json:"to_nickname"`
-	ToFaceURL     string `gorm:"column:to_face_url;type:varchar;type:varchar(255);comment:接收方头像" json:"to_face_url"`
-	ToGender      int32  `gorm:"column:to_gender;comment:接收方性别" json:"to_gender"`
-	ToCode        string `json:"to_code" gorm:"column:to_code;size:6;uniqueIndex;comment:接收方的code"`
-	ToMessage     string `json:"to_message" gorm:"column:to_message;size:6;uniqueIndex;comment:接收方个性签名"`
-	TomPhone      string `json:"tom_phone" gorm:"column:tom_phone;size:6;uniqueIndex;comment:接收方手机号"`
-	HandleResult  int32  `gorm:"column:handle_result;comment:处理0:待处理;1:同意;2:拒绝" json:"handle_result"`
-	ReqMsg        string `gorm:"column:req_msg;type:varchar(255);comment:请求消息" json:"req_msg"`
-	CreateTime    int64  `gorm:"column:create_time;comment:创建时间" json:"create_time"`
-	HandlerUserID string `gorm:"column:handler_user_id;type:varchar(64);comment:处理的用户id" json:"handler_user_id"`
-	HandleMsg     string `gorm:"column:handle_msg;type:varchar(255);comment:处理备注" json:"handle_msg"`
-	HandleTime    int64  `gorm:"column:handle_time;comment:处理时间" json:"handle_time"`
+	FromUserID    string `gorm:"column:from_user_id;primary_key;type:varchar(64);comment:来源用户ID" json:"fromUserID"`
+	FromNickname  string `gorm:"column:from_nickname;type:varchar;type:varchar(255);comment:来源用户昵称" json:"fromNickname"`
+	FromFaceURL   string `gorm:"column:from_face_url;type:varchar;type:varchar(255);comment:来源用户头像" json:"fromFaceURL"`
+	FromGender    int32  `gorm:"column:from_gender;comment:来源用户性别" json:"fromGender"`
+	FromCode      string `json:"fromCode" gorm:"column:from_code;size:6;uniqueIndex;comment:来源用户code"`
+	FromMessage   string `json:"fromMessage" gorm:"column:from_message;size:6;uniqueIndex;comment:来源用户个性签名"`
+	FromPhone     string `json:"fromPhone" gorm:"column:from_phone;size:6;uniqueIndex;comment:来源用户手机号"`
+	ToUserID      string `gorm:"column:to_user_id;primary_key;type:varchar(64);comment:接收方用户ID" json:"toUserID"`
+	ToNickname    string `gorm:"column:to_nickname;type:varchar;type:varchar(255);comment:接收方昵称" json:"toNickname"`
+	ToFaceURL     string `gorm:"column:to_face_url;type:varchar;type:varchar(255);comment:接收方头像" json:"toFaceURL"`
+	ToGender      int32  `gorm:"column:to_gender;comment:接收方性别" json:"toGender"`
+	ToCode        string `json:"toCode" gorm:"column:to_code;size:6;uniqueIndex;comment:接收方的code"`
+	ToMessage     string `json:"toMessage" gorm:"column:to_message;size:6;uniqueIndex;comment:接收方个性签名"`
+	TomPhone      string `json:"toPhone" gorm:"column:tom_phone;size:6;uniqueIndex;comment:接收方手机号"`
+	HandleResult  int32  `gorm:"column:handle_result;comment:处理0:待处理;1:同意;2:拒绝" json:"handleResult"`
+	ReqMsg        string `gorm:"column:req_msg;type:varchar(255);comment:请求消息" json:"reqMsg"`
+	CreateTime    int64  `gorm:"column:create_time;comment:创建时间" json:"createTime"`
+	HandlerUserID string `gorm:"column:handler_user_id;type:varchar(64);comment:处理的用户id" json:"handlerUserID"`
+	HandleMsg     string `gorm:"column:handle_msg;type:varchar(255);comment:处理备注" json:"handleMsg"`
+	HandleTime    int64  `gorm:"column:handle_time;comment:处理时间" json:"handleTime"`
 	Ex            string `gorm:"column:ex;type:varchar(1024)" json:"ex"`
 	AttachedInfo  string `gorm:"column:attached_info;type:varchar(1024)" json:"attachedInfo"`
 }
@@ -246,8 +246,8 @@ type LocalGroupRequest struct {
 // int32 AppMangerLevel = 10;
 // open_im_sdk.User == imdb.User
 type LocalUser struct {
-	UserID              string `json:"user_id" gorm:"column:user_id;primary_key;type:varchar(64)"`
-	FaceURL             string `json:"face_url" gorm:"column:face_url;size:44;comment:头像文件名"`
+	UserID              string `json:"userID" gorm:"column:user_id;primary_key;type:varchar(64)"`
+	FaceURL             string `json:"faceURL" gorm:"column:face_url;size:44;comment:头像文件名"`
 	Nickname            string `json:"nickname" gorm:"column:nickname;size:50;comment:用户昵称"`
 	Message             string `json:"message" gorm:"column:message;size:50;comment:个性签名"`
 	Code                string `json:"code" gorm:"column:code;size:6;uniqueIndex;comment:用户ID"`
@@ -255,19 +255,19 @@ type LocalUser struct {
 	Email               string `json:"email" gorm:"column:email;size:36;comment:邮箱"`
 	Birth               int64  `json:"birth" gorm:"column:birth;comment:生日"`
 	Gender              int32  `gorm:"column:gender;comment:性别" json:"gender"`
-	ShareCode           string `json:"share_code" gorm:"column:share_code;size:20;not null;default:'';comment:分享码"`
-	IsOpenMoments       uint   `json:"is_open_moments" gorm:"column:is_open_moments;default:1;comment:是否公开朋友圈,1:不公开;2:公开"`
-	LastLogin           int64  `json:"last_login" gorm:"column:last_login;default:0;comment:上次登陆时间"`
-	QRCodeAdd           uint   `json:"qr_code_add" gorm:"column:qr_code_add;default:1;comment:是否开启二维码,1:开启;0:关闭"`
-	CardAdd             uint   `json:"card_add" gorm:"column:card_add;default:1;comment:是否开启名片,1:开启;0:关闭"`
-	GroupAdd            uint   `json:"group_add" gorm:"column:group_add;default:1;comment:是否开启群添加,1:开启;0:关闭"`
-	CodeAdd             uint   `json:"code_add" gorm:"column:code_add;default:1;comment:开启code,1:开启;0:关闭"`
-	PhoneAdd            uint   `json:"phone_add" gorm:"column:phone_add;default:1;comment:开启手机号,1:开启;0:关闭"`
-	ShowLastLogin       uint   `json:"show_last_login" gorm:"column:show_last_login;default:2;comment:好友是否可见我的上线时间,1:开启;0:关闭"`
-	MultipleDeviceLogin uint   `json:"multiple_device_login" gorm:"column:multiple_device_login;default:1;comment:是否允许多设备登陆,1:允许;2:不允许"`
-	AccountStatus       int    `json:"account_status" gorm:"column:account_status;default:1;comment:账户状态 1 -> 正常,2->冻结"`
-	GlobalRecvMsgOpt    int32  `json:"global_recv_msg_opt" gorm:"column:global_recv_msg_opt;default:1;comment:用户全局接收消息选项0：正常；1：不接受消息；2：接受在线消息不接受离线消息；"`
-	AppMangerLevel      int32  `json:"app_manger_level" gorm:"column:app_manger_level;default:1;comment:app管理等级"`
+	ShareCode           string `json:"shareCode" gorm:"column:share_code;size:20;not null;default:'';comment:分享码"`
+	IsOpenMoments       uint   `json:"isOpenMoments" gorm:"column:is_open_moments;default:1;comment:是否公开朋友圈,1:不公开;2:公开"`
+	LastLogin           int64  `json:"lastLogin" gorm:"column:last_login;default:0;comment:上次登陆时间"`
+	QRCodeAdd           uint   `json:"qRCodeAdd" gorm:"column:qr_code_add;default:1;comment:是否开启二维码,1:开启;0:关闭"`
+	CardAdd             uint   `json:"cardAdd" gorm:"column:card_add;default:1;comment:是否开启名片,1:开启;0:关闭"`
+	GroupAdd            uint   `json:"groupAdd" gorm:"column:group_add;default:1;comment:是否开启群添加,1:开启;0:关闭"`
+	CodeAdd             uint   `json:"codeAdd" gorm:"column:code_add;default:1;comment:开启code,1:开启;0:关闭"`
+	PhoneAdd            uint   `json:"phoneAdd" gorm:"column:phone_add;default:1;comment:开启手机号,1:开启;0:关闭"`
+	ShowLastLogin       uint   `json:"showLastLogin" gorm:"column:show_last_login;default:2;comment:好友是否可见我的上线时间,1:开启;0:关闭"`
+	MultipleDeviceLogin uint   `json:"multipleDeviceLogin" gorm:"column:multiple_device_login;default:1;comment:是否允许多设备登陆,1:允许;2:不允许"`
+	AccountStatus       int    `json:"accountStatus" gorm:"column:account_status;default:1;comment:账户状态 1 -> 正常,2->冻结"`
+	GlobalRecvMsgOpt    int32  `json:"globalRecvMsgOpt" gorm:"column:global_recv_msg_opt;default:1;comment:用户全局接收消息选项0：正常；1：不接受消息；2：接受在线消息不接受离线消息；"`
+	AppMangerLevel      int32  `json:"appMangerLevel" gorm:"column:app_manger_level;default:1;comment:app管理等级"`
 }
 
 // message BlackInfo{

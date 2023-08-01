@@ -25,5 +25,6 @@ func ServerUserToLocalUser(user *imUserPb.ProfileReply) (*model_struct.LocalUser
 	if err := copier.Copy(&loginUser, user); err != nil {
 		return nil, err
 	}
+	loginUser.UserID = user.UserId
 	return &loginUser, nil
 }

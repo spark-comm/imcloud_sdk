@@ -8,16 +8,16 @@ import (
 
 func ServerFriendRequestToLocalFriendRequest(info *friendPb.FriendRequests) *model_struct.LocalFriendRequest {
 	return &model_struct.LocalFriendRequest{
-		FromUserID:    info.FromUserId,
+		FromUserID:    info.FromUserID,
 		FromNickname:  info.FromNickname,
-		FromFaceURL:   info.FromFaceUrl,
+		FromFaceURL:   info.FromFaceURL,
 		FromGender:    info.FromGender,
 		FromCode:      info.FromCode,
 		FromPhone:     info.FromPhone,
 		FromMessage:   info.FromMessage,
-		ToUserID:      info.ToUserId,
+		ToUserID:      info.ToUserID,
 		ToNickname:    info.ToNickname,
-		ToFaceURL:     info.ToFaceUrl,
+		ToFaceURL:     info.ToFaceURL,
 		ToGender:      info.ToGender,
 		ToMessage:     info.ToMessage,
 		ToCode:        info.ToCode,
@@ -25,22 +25,22 @@ func ServerFriendRequestToLocalFriendRequest(info *friendPb.FriendRequests) *mod
 		HandleResult:  info.HandleResult,
 		ReqMsg:        info.ReqMsg,
 		CreateTime:    info.CreateTime,
-		HandlerUserID: info.HandlerUserId,
+		HandlerUserID: info.HandlerUserID,
 		HandleMsg:     info.HandleMsg,
 		HandleTime:    info.HandleTime,
 		Ex:            info.Ex,
 	}
 }
-func ServerFriendToLocalFriend(info *friendPb.ListFriendForSdkFriendInfo) *model_struct.LocalFriend {
+func ServerFriendToLocalFriend(info *friendPb.FriendInfo) *model_struct.LocalFriend {
 	return &model_struct.LocalFriend{
-		OwnerUserID:    info.OwnerUserId,
-		FriendUserID:   info.FriendUserId,
+		OwnerUserID:    info.OwnerUserID,
+		FriendUserID:   info.FriendUserID,
 		Remark:         info.Remark,
-		CreateTime:     info.CreateTime,
+		CreateTime:     info.CreatedAt,
 		AddSource:      info.AddSource,
-		OperatorUserID: info.OperatorUserId,
+		OperatorUserID: info.OperatorUserID,
 		Nickname:       info.Nickname,
-		FaceURL:        info.FaceUrl,
+		FaceURL:        info.FaceURL,
 		Ex:             info.Ex,
 		Phone:          info.Phone,
 		Code:           info.Code,
@@ -53,12 +53,12 @@ func ServerFriendToLocalFriend(info *friendPb.ListFriendForSdkFriendInfo) *model
 
 func ServerBlackToLocalBlack(info *friendPb.BlackList) *model_struct.LocalBlack {
 	return &model_struct.LocalBlack{
-		OwnerUserID:    info.OwnerUserId,
-		BlockUserID:    info.BlackUserId,
+		OwnerUserID:    info.OwnerUserID,
+		BlockUserID:    info.BlackUserID,
 		CreateTime:     info.CreatedAt,
-		OperatorUserID: info.OwnerUserId,
+		OperatorUserID: info.OwnerUserID,
 		Nickname:       info.Nickname,
-		FaceURL:        info.FaceUrl,
+		FaceURL:        info.FaceURL,
 		Gender:         info.Gender,
 		Message:        info.Message,
 		Code:           info.Code,

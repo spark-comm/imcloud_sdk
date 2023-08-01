@@ -46,7 +46,7 @@ func (u *Full) GetUsersInfo(ctx context.Context, userIDs []string) ([]*api.FullU
 		userMap[info.UserId] = &api.PublicUser{
 			UserID:   info.UserId,
 			Nickname: info.Nickname,
-			FaceURL:  info.FaceUrl,
+			FaceURL:  info.FaceURL,
 			//Ex:         info.Ex,
 			CreateTime: info.CreatedAt.Seconds,
 		}

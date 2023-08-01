@@ -52,7 +52,7 @@ func Test_SetSelfInfo(t *testing.T) {
 	newFaceURL := "http://test.com"
 	err := open_im_sdk.UserForSDK.User().SetSelfInfo(ctx, &imUserPb.UpdateProfileReq{
 		Nickname: newNickName,
-		FaceUrl:  newFaceURL,
+		FaceURL:  newFaceURL,
 	})
 	//newFaceURL := "http://test.com"
 
@@ -92,10 +92,9 @@ func (m *SearchCallback) OnSuccess(data string) {
 	fmt.Println("成功返回", data)
 }
 func Test_SearchUserInfo(t *testing.T) {
-	callback := SearchCallback{}
-	open_im_sdk.SearchUser(&callback, "jhjguyuyguyguyguy", "au9699", 2)
-	//if err != nil {
-	//	t.Error(err)
-	//}
-	//t.Log(userInfo)
+	userInfo, err := open_im_sdk.UserForSDK.User().SearchUserInfo(ctx, "1000001", 1)
+	if err != nil {
+		t.Error(err)
+	}
+	t.Log(userInfo)
 }

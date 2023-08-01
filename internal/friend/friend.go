@@ -16,8 +16,9 @@ package friend
 
 import (
 	"context"
-	"errors"
 	"fmt"
+	"github.com/imCloud/im/pkg/common/log"
+	"github.com/imCloud/im/pkg/proto/sdkws"
 	"open_im_sdk/internal/user"
 	"open_im_sdk/open_im_sdk_callback"
 	"open_im_sdk/pkg/common"
@@ -25,10 +26,6 @@ import (
 	"open_im_sdk/pkg/db/db_interface"
 	"open_im_sdk/pkg/db/model_struct"
 	"open_im_sdk/pkg/syncer"
-	"open_im_sdk/pkg/utils"
-
-	"github.com/imCloud/im/pkg/common/log"
-	"github.com/imCloud/im/pkg/proto/sdkws"
 )
 
 func NewFriend(loginUserID string, db db_interface.DataBase, user *user.User, conversationCh chan common.Cmd2Value) *Friend {
@@ -193,12 +190,13 @@ func (f *Friend) DoNotification(ctx context.Context, msg *sdkws.MsgData) {
 
 func (f *Friend) syncApplication(ctx context.Context, from *sdkws.FromToUserID) error {
 	if from.FromUserID == f.loginUserID {
+		// 自己发起的请求
 		if err := f.SyncFriendApplication(ctx); err != nil {
 			return err
 		}
 		return f.SyncSelfFriendApplication(ctx)
-		// send to me
 	} else if from.ToUserID == f.loginUserID {
+		// 发给自己的请求
 		if err := f.SyncSelfFriendApplication(ctx); err != nil {
 			return err
 		}
@@ -207,76 +205,18 @@ func (f *Friend) syncApplication(ctx context.Context, from *sdkws.FromToUserID) 
 	return fmt.Errorf("friend application notification error, fromUserID: %s, toUserID: %s", from.FromUserID, from.ToUserID)
 }
 
-func (f *Friend) doNotification(ctx context.Context, msg *sdkws.MsgData) error {
-	if f.friendListener == nil {
-		return errors.New("f.friendListener == nil")
-	}
-	if msg.SendTime < f.loginTime || f.loginTime == 0 {
-		return errors.New("ignore notification")
-	}
-	switch msg.ContentType {
-	case constant.FriendApplicationNotification:
-		tips := sdkws.FriendApplicationTips{}
-		if err := utils.UnmarshalNotificationElem(msg.Content, &tips); err != nil {
-			return err
-		}
-		return f.syncApplication(ctx, tips.FromToUserID)
-	case constant.FriendApplicationApprovedNotification:
-		var tips sdkws.FriendApplicationApprovedTips
-		if err := utils.UnmarshalNotificationElem(msg.Content, &tips); err != nil {
-			return err
-		}
-		if err := f.SyncFriendList(ctx); err != nil {
-			return err
-		}
-		return f.syncApplication(ctx, tips.FromToUserID)
-	case constant.FriendApplicationRejectedNotification:
-		var tips sdkws.FriendApplicationRejectedTips
-		if err := utils.UnmarshalNotificationElem(msg.Content, &tips); err != nil {
-			return err
-		}
-		return f.syncApplication(ctx, tips.FromToUserID)
-	case constant.FriendAddedNotification:
-		return f.SyncFriendList(ctx)
-	case constant.FriendDeletedNotification:
-		var tips sdkws.FriendDeletedTips
-		if err := utils.UnmarshalNotificationElem(msg.Content, &tips); err != nil {
-			return err
-		}
-		if tips.FromToUserID.FromUserID == f.loginUserID {
-			return f.SyncFriendList(ctx)
-		}
-		return nil
-	case constant.FriendRemarkSetNotification:
-		var tips sdkws.FriendInfoChangedTips
-		if err := utils.UnmarshalNotificationElem(msg.Content, &tips); err != nil {
-			return err
-		}
-		if tips.FromToUserID.FromUserID == f.loginUserID {
-			return f.SyncFriendList(ctx)
-		}
-		return nil
-	case constant.FriendInfoUpdatedNotification:
-		return f.SyncFriendList(ctx)
-	case constant.BlackAddedNotification:
-		var tips sdkws.BlackAddedTips
-		if err := utils.UnmarshalNotificationElem(msg.Content, &tips); err != nil {
-			return err
-		}
-		if tips.FromToUserID.FromUserID == f.loginUserID {
-			return f.SyncBlackList(ctx)
-		}
-		return nil
-	case constant.BlackDeletedNotification:
-		var tips sdkws.BlackDeletedTips
-		if err := utils.UnmarshalNotificationElem(msg.Content, &tips); err != nil {
-			return err
-		}
-		if tips.FromToUserID.FromUserID == f.loginUserID {
-			return f.SyncBlackList(ctx)
-		}
-		return nil
-	default:
-		return fmt.Errorf("type failed %d", msg.ContentType)
-	}
+// GetFriendRequestByApplicant ， 根据申请人和被申请人获取请求数据
+// 参数：
+//
+//	ctx ： context.Context 上下文
+//	fromUserId ： string 来源的用户ID
+//	fromUserId ： string 接受者的用户ID
+//
+// 返回值：
+//
+//	*Profile ：desc
+//	error ：desc
+func (f *Friend) GetFriendRequestByApplicant(ctx context.Context, fromUserId, toUserId string) (*model_struct.LocalFriend, error) {
+
+	return nil, nil
 }

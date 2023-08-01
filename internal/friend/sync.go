@@ -60,7 +60,7 @@ func (f *Friend) SyncFriendApplication(ctx context.Context) error {
 // SyncFriendList 同步好友列表
 func (f *Friend) SyncFriendList(ctx context.Context) error {
 	req := &friend.GetPaginationFriendsReq{UserID: f.loginUserID, Pagination: &sdkws.RequestPagination{}}
-	fn := func(resp *friendPb.ListFriendForSdkReps) []*friendPb.ListFriendForSdkFriendInfo {
+	fn := func(resp *friendPb.ListFriendForSdkReps) []*friendPb.FriendInfo {
 		return resp.FriendsInfo
 	}
 	friends, err := util.GetPageAll(ctx, constant.GetFriendListRouter, req, fn)

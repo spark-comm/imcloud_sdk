@@ -36,7 +36,7 @@ func Test_GetSpecifiedFriendsInfo(t *testing.T) {
 
 func Test_AddFriend(t *testing.T) {
 	err := open_im_sdk.UserForSDK.Friend().AddFriend(ctx, &friend2.ApplyToAddFriendReq{
-		ToUserID: "48676976868724736",
+		ToUserID: "48685099025174528",
 		ReqMsg:   "test add",
 	})
 	if err != nil {
@@ -66,7 +66,7 @@ func Test_AddFriend(t *testing.T) {
 //}
 
 func Test_AcceptFriendApplication(t *testing.T) {
-	req := &sdk_params_callback.ProcessFriendApplicationParams{ToUserID: "48672487050842112", HandleMsg: "test accept"}
+	req := &sdk_params_callback.ProcessFriendApplicationParams{ToUserID: "48676976868724736", HandleMsg: "test accept"}
 	err := open_im_sdk.UserForSDK.Friend().AcceptFriendApplication(ctx, req)
 	if err != nil {
 		t.Fatal(err)
@@ -76,7 +76,7 @@ func Test_AcceptFriendApplication(t *testing.T) {
 }
 
 func Test_RefuseFriendApplication(t *testing.T) {
-	req := &sdk_params_callback.ProcessFriendApplicationParams{ToUserID: "6754269405", HandleMsg: "test refuse"}
+	req := &sdk_params_callback.ProcessFriendApplicationParams{ToUserID: "48676976868724736", HandleMsg: "test refuse"}
 	err := open_im_sdk.UserForSDK.Friend().RefuseFriendApplication(ctx, req)
 	if err != nil {
 		t.Fatal(err)
@@ -111,7 +111,7 @@ func Test_GetFriendList(t *testing.T) {
 	}
 	t.Log("GetFriendList success", ctx.Value("operationID"))
 	for _, info := range infos {
-		t.Logf("PublicInfo: %#v, FriendInfo: %#v, BlackInfo: %#v", info.PublicInfo, info.FriendInfo, info.BlackInfo)
+		t.Logf("PublicInfo: %#v", info)
 	}
 }
 

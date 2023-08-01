@@ -22,6 +22,7 @@ import (
 	"errors"
 	"fmt"
 	"open_im_sdk/pkg/db/model_struct"
+	"open_im_sdk/pkg/db/pg"
 	"open_im_sdk/pkg/utils"
 )
 
@@ -71,7 +72,14 @@ func (d *DataBase) GetPageFriendList(ctx context.Context, offset, count int) ([]
 		"GetFriendList failed")
 	return friendList, err
 }
-
+func (d *DataBase) GetFriendList(ctx context.Context, page *pg.Page) ([]*model_struct.LocalFriend, error) {
+	d.friendMtx.Lock()
+	defer d.friendMtx.Unlock()
+	friendList := make([]*model_struct.LocalFriend, 0)
+	err := utils.Wrap(d.conn.WithContext(ctx).Where("owner_user_id = ?", d.loginUserID).Scopes(pg.Operation(page)).Order("nickname").Find(&friendList).Error,
+		"GetFriendList failed")
+	return friendList, err
+}
 func (d *DataBase) SearchFriendList(ctx context.Context, keyword string, isSearchUserID, isSearchNickname, isSearchRemark bool) ([]*model_struct.LocalFriend, error) {
 	d.friendMtx.Lock()
 	defer d.friendMtx.Unlock()

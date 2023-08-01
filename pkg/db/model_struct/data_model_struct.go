@@ -287,7 +287,7 @@ type LocalBlack struct {
 	Gender         int32  `gorm:"column:gender;comment:性别" json:"gender"`
 	Message        string `json:"message" gorm:"column:message;size:50;comment:个性签名"`
 	Code           string `json:"code" gorm:"column:code;size:6;uniqueIndex;comment:用户ID"`
-	CreateTime     int64  `gorm:"column:create_time" json:"createTime"`
+	CreateAt       int64  `gorm:"column:createAt" json:"createAt"`
 	AddSource      int32  `gorm:"column:add_source" json:"addSource"`
 	OperatorUserID string `gorm:"column:operator_user_id;type:varchar(64)" json:"operatorUserID"`
 	Ex             string `gorm:"column:ex;type:varchar(1024)" json:"ex"`

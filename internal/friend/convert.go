@@ -55,7 +55,7 @@ func ServerBlackToLocalBlack(info *friendPb.BlackList) *model_struct.LocalBlack 
 	return &model_struct.LocalBlack{
 		OwnerUserID:    info.OwnerUserID,
 		BlockUserID:    info.BlackUserID,
-		CreateTime:     info.CreatedAt,
+		CreateAt:       info.CreatedAt,
 		OperatorUserID: info.OwnerUserID,
 		Nickname:       info.Nickname,
 		FaceURL:        info.FaceURL,

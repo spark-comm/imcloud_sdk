@@ -17,6 +17,7 @@ package db_interface
 import (
 	"context"
 	"open_im_sdk/pkg/db/model_struct"
+	"open_im_sdk/pkg/db/pg"
 	"open_im_sdk/sdk_struct"
 )
 
@@ -222,6 +223,8 @@ type FriendDatabase interface {
 	UpdateFriend(ctx context.Context, friend *model_struct.LocalFriend) error
 	GetAllFriendList(ctx context.Context) ([]*model_struct.LocalFriend, error)
 	GetPageFriendList(ctx context.Context, offset, count int) ([]*model_struct.LocalFriend, error)
+	//GetFriendList 分页获取好友数据
+	GetFriendList(ctx context.Context, page *pg.Page) ([]*model_struct.LocalFriend, error)
 	SearchFriendList(ctx context.Context, keyword string, isSearchUserID, isSearchNickname, isSearchRemark bool) ([]*model_struct.LocalFriend, error)
 	GetFriendInfoByFriendUserID(ctx context.Context, FriendUserID string) (*model_struct.LocalFriend, error)
 	GetFriendInfoList(ctx context.Context, friendUserIDList []string) ([]*model_struct.LocalFriend, error)
@@ -230,8 +233,14 @@ type FriendDatabase interface {
 	UpdateFriendRequest(ctx context.Context, friendRequest *model_struct.LocalFriendRequest) error
 	GetRecvFriendApplication(ctx context.Context) ([]*model_struct.LocalFriendRequest, error)
 	GetSendFriendApplication(ctx context.Context) ([]*model_struct.LocalFriendRequest, error)
+	//GetRecvFriendApplicationList 分页获取我收到的好友请求
+	GetRecvFriendApplicationList(ctx context.Context, page *pg.Page) ([]*model_struct.LocalFriendRequest, error)
+	// GetSendFriendApplicationList 分页获取我发送的好友请求
+	GetSendFriendApplicationList(ctx context.Context, page *pg.Page) ([]*model_struct.LocalFriendRequest, error)
 	GetFriendApplicationByBothID(ctx context.Context, fromUserID, toUserID string) (*model_struct.LocalFriendRequest, error)
 	GetBlackListDB(ctx context.Context) ([]*model_struct.LocalBlack, error)
+	//GetBlackList 分页获取黑明单数据
+	GetBlackList(ctx context.Context, page *pg.Page) ([]*model_struct.LocalBlack, error)
 	GetBlackListUserID(ctx context.Context) (blackListUid []string, err error)
 	GetBlackInfoByBlockUserID(ctx context.Context, blockUserID string) (*model_struct.LocalBlack, error)
 	GetBlackInfoList(ctx context.Context, blockUserIDList []string) ([]*model_struct.LocalBlack, error)

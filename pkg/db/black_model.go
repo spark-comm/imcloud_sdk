@@ -21,6 +21,7 @@ import (
 	"context"
 	"errors"
 	"open_im_sdk/pkg/db/model_struct"
+	"open_im_sdk/pkg/db/pg"
 	"open_im_sdk/pkg/utils"
 )
 
@@ -39,6 +40,18 @@ func (d *DataBase) GetBlackListDB(ctx context.Context) ([]*model_struct.LocalBla
 		transfer = append(transfer, &v1)
 	}
 	return transfer, err
+}
+
+// GetBlackList 分页获取黑明单数据
+func (d *DataBase) GetBlackList(ctx context.Context, page *pg.Page) ([]*model_struct.LocalBlack, error) {
+	d.friendMtx.Lock()
+	defer d.friendMtx.Unlock()
+	if d == nil {
+		return nil, errors.New("database is not open")
+	}
+	blackList := make([]*model_struct.LocalBlack, 0)
+	err := d.conn.WithContext(ctx).Model(&model_struct.LocalBlack{}).Where("owner_user_id=?", d.loginUserID).Scopes(pg.Operation(page)).Scan(&blackList).Error
+	return blackList, err
 }
 
 func (d *DataBase) GetBlackListUserID(ctx context.Context) (blackListUid []string, err error) {

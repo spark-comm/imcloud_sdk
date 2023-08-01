@@ -21,6 +21,7 @@ import (
 	"context"
 	"errors"
 	"open_im_sdk/pkg/db/model_struct"
+	"open_im_sdk/pkg/db/pg"
 	"open_im_sdk/pkg/utils"
 )
 
@@ -74,6 +75,23 @@ func (d *DataBase) GetSendFriendApplication(ctx context.Context) ([]*model_struc
 	return transfer, utils.Wrap(err, "GetSendFriendApplication failed")
 }
 
+// GetRecvFriendApplicationList 分页获取我收到的好友请求
+func (d *DataBase) GetRecvFriendApplicationList(ctx context.Context, page *pg.Page) ([]*model_struct.LocalFriendRequest, error) {
+	d.friendMtx.Lock()
+	defer d.friendMtx.Unlock()
+	transfer := make([]*model_struct.LocalFriendRequest, 0)
+	err := utils.Wrap(d.conn.WithContext(ctx).Where("to_user_id = ?", d.loginUserID).Scopes(pg.Operation(page)).Order("create_time DESC").Find(&transfer).Error, "GetRecvFriendApplication failed")
+	return transfer, utils.Wrap(err, "GetRecvFriendApplication failed")
+}
+
+// GetSendFriendApplicationList 分页获取我发送的好友请求
+func (d *DataBase) GetSendFriendApplicationList(ctx context.Context, page *pg.Page) ([]*model_struct.LocalFriendRequest, error) {
+	d.friendMtx.Lock()
+	defer d.friendMtx.Unlock()
+	transfer := make([]*model_struct.LocalFriendRequest, 0)
+	err := utils.Wrap(d.conn.WithContext(ctx).Where("from_user_id = ?", d.loginUserID).Scopes(pg.Operation(page)).Order("create_time DESC").Find(&transfer).Error, "GetSendFriendApplication failed")
+	return transfer, utils.Wrap(err, "GetSendFriendApplication failed")
+}
 func (d *DataBase) GetFriendApplicationByBothID(ctx context.Context, fromUserID, toUserID string) (*model_struct.LocalFriendRequest, error) {
 	d.friendMtx.Lock()
 	defer d.friendMtx.Unlock()

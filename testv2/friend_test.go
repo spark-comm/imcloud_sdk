@@ -160,3 +160,46 @@ func Test_GetBlackList(t *testing.T) {
 		t.Log(*item)
 	}
 }
+
+func Test_GetFriendListPage(t *testing.T) {
+	info, err := open_im_sdk.UserForSDK.Friend().GetFriendListPage(ctx, 1, 10)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log("GetFriendListPage success", ctx.Value("operationID"))
+	for _, item := range info {
+		t.Log(*item)
+	}
+}
+
+func Test_GetPageFriendApplicationListAsRecipient(t *testing.T) {
+	info, err := open_im_sdk.UserForSDK.Friend().GetPageFriendApplicationListAsRecipient(ctx, 1, 10)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log("GetPageFriendApplicationListAsRecipient success", ctx.Value("operationID"))
+	for _, item := range info {
+		t.Log(*item)
+	}
+}
+
+func Test_GetPageFriendApplicationListAsApplicant(t *testing.T) {
+	info, err := open_im_sdk.UserForSDK.Friend().GetPageFriendApplicationListAsApplicant(ctx, 1, 10)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log("GetPageFriendApplicationListAsApplicant success", ctx.Value("operationID"))
+	for _, item := range info {
+		t.Log(*item)
+	}
+}
+func Test_GetPageBlackList(t *testing.T) {
+	info, err := open_im_sdk.UserForSDK.Friend().GetPageBlackList(ctx, 1, 10)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log("GetPageBlackList success", ctx.Value("operationID"))
+	for _, item := range info {
+		t.Log(*item)
+	}
+}

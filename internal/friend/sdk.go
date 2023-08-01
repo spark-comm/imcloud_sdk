@@ -19,6 +19,7 @@ import (
 	"open_im_sdk/internal/util"
 	"open_im_sdk/pkg/constant"
 	"open_im_sdk/pkg/db/model_struct"
+	"open_im_sdk/pkg/db/pg"
 	sdk "open_im_sdk/pkg/sdk_params_callback"
 	"open_im_sdk/pkg/sdkerrs"
 	"open_im_sdk/pkg/server_api_params"
@@ -67,10 +68,22 @@ func (f *Friend) GetFriendApplicationListAsRecipient(ctx context.Context) ([]*mo
 	return f.db.GetRecvFriendApplication(ctx)
 }
 
+// GetPageFriendApplicationListAsRecipient 分页获取我收到的数据
+func (f *Friend) GetPageFriendApplicationListAsRecipient(ctx context.Context, no, size int64) ([]*model_struct.LocalFriendRequest, error) {
+	return f.db.GetRecvFriendApplicationList(ctx, &pg.Page{
+		NO:   no,
+		Size: size,
+	})
+}
 func (f *Friend) GetFriendApplicationListAsApplicant(ctx context.Context) ([]*model_struct.LocalFriendRequest, error) {
 	return f.db.GetSendFriendApplication(ctx)
 }
-
+func (f *Friend) GetPageFriendApplicationListAsApplicant(ctx context.Context, no, size int64) ([]*model_struct.LocalFriendRequest, error) {
+	return f.db.GetSendFriendApplicationList(ctx, &pg.Page{
+		NO:   no,
+		Size: size,
+	})
+}
 func (f *Friend) AcceptFriendApplication(ctx context.Context, userIDHandleMsg *sdk.ProcessFriendApplicationParams) error {
 	return f.RespondFriendApply(ctx, &friend.RespondFriendApplyReq{FromUserID: userIDHandleMsg.ToUserID, ToUserID: f.loginUserID, HandleResult: constant.FriendResponseAgree, HandleMsg: userIDHandleMsg.HandleMsg})
 }
@@ -162,8 +175,8 @@ func (f *Friend) GetFriendList(ctx context.Context) ([]*model_struct.LocalFriend
 	return localFriendList, nil
 }
 
-func (f *Friend) GetFriendListPage(ctx context.Context, offset, count int32) ([]*model_struct.LocalFriend, error) {
-	localFriendList, err := f.db.GetPageFriendList(ctx, int(offset), int(count))
+func (f *Friend) GetFriendListPage(ctx context.Context, no, size int64) ([]*model_struct.LocalFriend, error) {
+	localFriendList, err := f.db.GetFriendList(ctx, &pg.Page{NO: no, Size: size})
 	if err != nil {
 		return nil, err
 	}
@@ -241,4 +254,9 @@ func (f *Friend) RemoveBlack(ctx context.Context, blackUserID string) error {
 
 func (f *Friend) GetBlackList(ctx context.Context) ([]*model_struct.LocalBlack, error) {
 	return f.db.GetBlackListDB(ctx)
+}
+
+// GetPageBlackList 分页获取黑名单
+func (f *Friend) GetPageBlackList(ctx context.Context, no, size int64) ([]*model_struct.LocalBlack, error) {
+	return f.db.GetBlackList(ctx, &pg.Page{NO: no, Size: size})
 }

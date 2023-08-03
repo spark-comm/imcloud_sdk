@@ -39,7 +39,7 @@ func (u *Full) GetUsersInfo(ctx context.Context, userIDs []string) ([]*api.FullU
 	}
 	blackMap := make(map[string]*model_struct.LocalBlack)
 	for i, b := range blackList {
-		blackMap[b.BlockUserID] = blackList[i]
+		blackMap[b.BlackUserID] = blackList[i]
 	}
 	userMap := make(map[string]*api.PublicUser)
 	for _, info := range users {

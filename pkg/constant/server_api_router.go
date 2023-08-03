@@ -36,11 +36,12 @@ const (
 	AddBlackRouter     = BaseRouter + "/friend/add_black"
 	RemoveBlackRouter  = BaseRouter + "/friend/remove_black"
 	GetBlackListRouter = BaseRouter + "/friend/get_black_list"
-
-	SendMsgRouter          = "/chat/send_msg"
-	PullUserMsgRouter      = "/chat/pull_msg"
-	PullUserMsgBySeqRouter = BaseRouter + "/msg/pull_msg_by_seq"
-	NewestSeqRouter        = "/chat/newest_seq"
+	// GetFriendRequestByApplicantRouter 通过申请与被申请人获取好友请求详情
+	GetFriendRequestByApplicantRouter = BaseRouter + "/friend/get_friend_request_by_applicant"
+	SendMsgRouter                     = "/chat/send_msg"
+	PullUserMsgRouter                 = "/chat/pull_msg"
+	PullUserMsgBySeqRouter            = BaseRouter + "/msg/pull_msg_by_seq"
+	NewestSeqRouter                   = "/chat/newest_seq"
 
 	//msg
 	ClearConversationMsgRouter             = BaseRouter + RouterMsg + "/clear_conversation_msg" // Clear the message of the specified conversation

@@ -54,7 +54,7 @@ func ServerFriendToLocalFriend(info *friendPb.FriendInfo) *model_struct.LocalFri
 func ServerBlackToLocalBlack(info *friendPb.BlackList) *model_struct.LocalBlack {
 	return &model_struct.LocalBlack{
 		OwnerUserID:    info.OwnerUserID,
-		BlockUserID:    info.BlackUserID,
+		BlackUserID:    info.BlackUserID,
 		CreateAt:       info.CreatedAt,
 		OperatorUserID: info.OwnerUserID,
 		Nickname:       info.Nickname,

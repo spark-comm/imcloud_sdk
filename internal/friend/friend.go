@@ -85,11 +85,11 @@ func (f *Friend) initSyncer() {
 	f.blockSyncer = syncer.New(func(ctx context.Context, value *model_struct.LocalBlack) error {
 		return f.db.InsertBlack(ctx, value)
 	}, func(ctx context.Context, value *model_struct.LocalBlack) error {
-		return f.db.DeleteBlack(ctx, value.BlockUserID)
+		return f.db.DeleteBlack(ctx, value.BlackUserID)
 	}, func(ctx context.Context, server *model_struct.LocalBlack, local *model_struct.LocalBlack) error {
 		return f.db.UpdateBlack(ctx, server)
 	}, func(value *model_struct.LocalBlack) [2]string {
-		return [...]string{value.OwnerUserID, value.BlockUserID}
+		return [...]string{value.OwnerUserID, value.BlackUserID}
 	}, nil, func(ctx context.Context, state int, server, local *model_struct.LocalBlack) error {
 		if f.friendListener == nil {
 			return nil

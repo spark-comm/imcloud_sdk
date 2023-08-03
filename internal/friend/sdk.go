@@ -41,7 +41,7 @@ func (f *Friend) GetSpecifiedFriendsInfo(ctx context.Context, friendUserIDList [
 	log.ZDebug(ctx, "GetDesignatedFriendsInfo", "blackList", blackList)
 	m := make(map[string]*model_struct.LocalBlack)
 	for i, black := range blackList {
-		m[black.BlockUserID] = blackList[i]
+		m[black.BlackUserID] = blackList[i]
 	}
 	res := make([]*server_api_params.FullUserInfo, 0, len(localFriendList))
 	for _, localFriend := range localFriendList {
@@ -122,7 +122,7 @@ func (f *Friend) CheckFriend(ctx context.Context, friendUserIDList []string) ([]
 		isBlack := false
 		isFriend := false
 		for _, b := range blackList {
-			if v == b.BlockUserID {
+			if v == b.BlackUserID {
 				isBlack = true
 				break
 			}
@@ -213,7 +213,7 @@ func (f *Friend) SearchFriends(ctx context.Context, param *sdk.SearchFriendsPara
 	}
 	m := make(map[string]struct{})
 	for _, black := range localBlackList {
-		m[black.BlockUserID] = struct{}{}
+		m[black.BlackUserID] = struct{}{}
 	}
 	res := make([]*sdk.SearchFriendItem, 0, len(localFriendList))
 	for i, localFriend := range localFriendList {

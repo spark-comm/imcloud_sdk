@@ -38,55 +38,65 @@ func (g *Group) doNotification(ctx context.Context, msg *sdkws.MsgData) error {
 		return errors.New("listener is nil")
 	}
 	switch msg.ContentType {
+	//创建群消息通知
 	case constant.GroupCreatedNotification: // 1501
 		var detail sdkws.GroupCreatedTips
 		if err := utils.UnmarshalNotificationElem(msg.Content, &detail); err != nil {
 			return err
 		}
+		//同步群信息
 		if err := g.SyncJoinedGroup(ctx); err != nil {
 			return err
 		}
+		//同步群成员
 		return g.SyncGroupMember(ctx, detail.Group.GroupID)
+		//群信息变更通知
 	case constant.GroupInfoSetNotification: // 1502
 		var detail sdkws.GroupInfoSetTips
 		if err := utils.UnmarshalNotificationElem(msg.Content, &detail); err != nil {
 			return err
 		}
 		return g.SyncJoinedGroup(ctx)
+		//加群请求通知
 	case constant.JoinGroupApplicationNotification: // 1503
 		var detail sdkws.JoinGroupApplicationTips
 		if err := utils.UnmarshalNotificationElem(msg.Content, &detail); err != nil {
 			return err
 		}
 		if detail.Applicant.UserID == g.loginUserID {
+			//自己主动加群申请信息
 			return g.SyncSelfGroupApplication(ctx)
 		} else {
+			//(以管理员或群主身份)获取群的加群申请
 			return g.SyncAdminGroupApplication(ctx)
 		}
+		//接受群请求通知
 	case constant.GroupApplicationAcceptedNotification: // 1505
 		var detail sdkws.GroupApplicationAcceptedTips
 		if err := utils.UnmarshalNotificationElem(msg.Content, &detail); err != nil {
 			return err
 		}
-		if detail.OpUser.UserID == g.loginUserID {
+		if detail.OpUser.UserID == g.loginUserID || detail.ReceiverAs == 1 {
 			return g.SyncAdminGroupApplication(ctx)
 		}
-		if detail.ReceiverAs == 1 {
-			return g.SyncAdminGroupApplication(ctx)
-		}
+		//if detail.ReceiverAs == 1 {
+		//	return g.SyncAdminGroupApplication(ctx)
+		//}
 		return g.SyncJoinedGroup(ctx)
+		//群请求拒绝通知
 	case constant.GroupApplicationRejectedNotification: // 1506
 		var detail sdkws.GroupApplicationRejectedTips
 		if err := utils.UnmarshalNotificationElem(msg.Content, &detail); err != nil {
 			return err
 		}
-		if detail.OpUser.UserID == g.loginUserID {
+		if detail.OpUser.UserID == g.loginUserID || detail.ReceiverAs == 1 {
 			return g.SyncAdminGroupApplication(ctx)
 		}
-		if detail.ReceiverAs == 1 {
-			return g.SyncAdminGroupApplication(ctx)
-		}
+		//if detail.ReceiverAs == 1 {
+		//	return g.SyncAdminGroupApplication(ctx)
+		//}
 		return g.SyncSelfGroupApplication(ctx)
+		//转让群主通知
 	case constant.GroupOwnerTransferredNotification: // 1507
 		var detail sdkws.GroupOwnerTransferredTips
 		if err := utils.UnmarshalNotificationElem(msg.Content, &detail); err != nil {
@@ -99,6 +109,7 @@ func (g *Group) doNotification(ctx context.Context, msg *sdkws.MsgData) error {
 			return errors.New(fmt.Sprintf("group is nil, groupID: %s", detail.Group.GroupID))
 		}
 		return g.SyncGroupMember(ctx, detail.Group.GroupID)
+		//踢人通知
 	case constant.MemberKickedNotification: // 1508
 		var detail sdkws.MemberKickedTips
 		if err := utils.UnmarshalNotificationElem(msg.Content, &detail); err != nil {
@@ -111,11 +122,13 @@ func (g *Group) doNotification(ctx context.Context, msg *sdkws.MsgData) error {
 				break
 			}
 		}
+		//踢掉自己
 		if self {
 			members, err := g.db.GetGroupMemberListSplit(ctx, detail.Group.GroupID, 0, 0, 999999)
 			if err != nil {
 				return err
 			}
+			//删除所有成员
 			if err := g.db.DeleteGroupAllMembers(ctx, detail.Group.GroupID); err != nil {
 				return err
 			}
@@ -142,20 +155,22 @@ func (g *Group) doNotification(ctx context.Context, msg *sdkws.MsgData) error {
 			if err != nil {
 				return err
 			}
+			//删除群
 			if err := g.db.DeleteGroup(ctx, detail.Group.GroupID); err != nil {
 				return err
 			}
 			g.listener.OnGroupInfoChanged(string(data))
 			return nil
-		} else {
+		} else { //仅群成员信息变动
 			return g.SyncGroupMember(ctx, detail.Group.GroupID)
 		}
+		//退群通知
 	case constant.MemberQuitNotification: // 1504
 		var detail sdkws.MemberQuitTips
 		if err := utils.UnmarshalNotificationElem(msg.Content, &detail); err != nil {
 			return err
 		}
-		if detail.QuitUser.UserID == g.loginUserID {
+		if detail.QuitUser.UserID == g.loginUserID { //退群为自己  删除操作
 			//if err := g.db.DeleteGroupAllMembers(ctx, detail.Group.GroupID); err != nil {
 			//	return err
 			//}
@@ -209,9 +224,10 @@ func (g *Group) doNotification(ctx context.Context, msg *sdkws.MsgData) error {
 			}
 			g.listener.OnGroupInfoChanged(string(data))
 			return nil
-		} else {
+		} else { //群成员同步
 			return g.SyncGroupMember(ctx, detail.Group.GroupID)
 		}
+		//成员邀请通知
 	case constant.MemberInvitedNotification: // 1509
 		var detail sdkws.MemberInvitedTips
 		if err := utils.UnmarshalNotificationElem(msg.Content, &detail); err != nil {
@@ -221,6 +237,7 @@ func (g *Group) doNotification(ctx context.Context, msg *sdkws.MsgData) error {
 			return err
 		}
 		return g.SyncGroupMember(ctx, detail.Group.GroupID)
+		//进群通知
 	case constant.MemberEnterNotification: // 1510
 		var detail sdkws.MemberEnterTips
 		if err := utils.UnmarshalNotificationElem(msg.Content, &detail); err != nil {
@@ -230,6 +247,7 @@ func (g *Group) doNotification(ctx context.Context, msg *sdkws.MsgData) error {
 			return err
 		}
 		return g.SyncGroupMember(ctx, detail.Group.GroupID)
+		//群解散通知
 	case constant.GroupDismissedNotification: // 1511
 		var detail sdkws.GroupDismissedTips
 		if err := utils.UnmarshalNotificationElem(msg.Content, &detail); err != nil {
@@ -242,34 +260,41 @@ func (g *Group) doNotification(ctx context.Context, msg *sdkws.MsgData) error {
 			return err
 		}
 		return g.SyncGroupMember(ctx, detail.Group.GroupID)
+		//群成员禁言通知
 	case constant.GroupMemberMutedNotification: // 1512
 		var detail sdkws.GroupMemberMutedTips
 		if err := utils.UnmarshalNotificationElem(msg.Content, &detail); err != nil {
 			return err
 		}
 		return g.SyncGroupMember(ctx, detail.Group.GroupID)
+		//群成员禁言解除通知
 	case constant.GroupMemberCancelMutedNotification: // 1513
 		var detail sdkws.GroupMemberCancelMutedTips
 		if err := utils.UnmarshalNotificationElem(msg.Content, &detail); err != nil {
 			return err
 		}
 		return g.SyncGroupMember(ctx, detail.Group.GroupID)
+		//群禁言通知
 	case constant.GroupMutedNotification: // 1514
 		return g.SyncJoinedGroup(ctx)
+		//群禁言解除通知
 	case constant.GroupCancelMutedNotification: // 1515
 		return g.SyncJoinedGroup(ctx)
+		//设置群成员信息
 	case constant.GroupMemberInfoSetNotification: // 1516
 		var detail sdkws.GroupMemberInfoSetTips
 		if err := utils.UnmarshalNotificationElem(msg.Content, &detail); err != nil {
 			return err
 		}
 		return g.SyncGroupMember(ctx, detail.Group.GroupID)
+		//设置管理员通知
 	case constant.GroupMemberSetToAdminNotification: // 1517
 		var detail sdkws.GroupMemberInfoSetTips
 		if err := utils.UnmarshalNotificationElem(msg.Content, &detail); err != nil {
 			return err
 		}
 		return g.SyncGroupMember(ctx, detail.Group.GroupID)
+		//管理员更改为普通成员通知
 	case constant.GroupMemberSetToOrdinaryUserNotification: // 1518
 		var detail sdkws.GroupMemberInfoSetTips
 		if err := utils.UnmarshalNotificationElem(msg.Content, &detail); err != nil {

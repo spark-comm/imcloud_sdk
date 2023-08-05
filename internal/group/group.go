@@ -16,6 +16,9 @@ package group
 
 import (
 	"context"
+	groupv1 "github.com/imCloud/api/group/v1"
+	"github.com/imCloud/im/pkg/common/log"
+	"github.com/imCloud/im/pkg/proto/group"
 	"open_im_sdk/internal/util"
 	"open_im_sdk/open_im_sdk_callback"
 	"open_im_sdk/pkg/common"
@@ -26,10 +29,6 @@ import (
 	"open_im_sdk/pkg/syncer"
 	"open_im_sdk/pkg/utils"
 	"sync"
-
-	"github.com/imCloud/im/pkg/common/log"
-	"github.com/imCloud/im/pkg/proto/group"
-	"github.com/imCloud/im/pkg/proto/sdkws"
 )
 
 func NewGroup(loginUserID string, db db_interface.DataBase,
@@ -228,12 +227,12 @@ func (g *Group) GetGroupInfoFromLocal2Svr(ctx context.Context, groupID string) (
 	return ServerGroupToLocalGroup(svrGroup[0]), nil
 }
 
-func (g *Group) getGroupsInfoFromSvr(ctx context.Context, groupIDs []string) ([]*sdkws.GroupInfo, error) {
-	resp, err := util.CallApi[group.GetGroupsInfoResp](ctx, constant.GetGroupsInfoRouter, &group.GetGroupsInfoReq{GroupIDs: groupIDs})
+func (g *Group) getGroupsInfoFromSvr(ctx context.Context, groupIDs []string) ([]*groupv1.GroupInfo, error) {
+	resp, err := util.CallApi[groupv1.GetGroupInfoResponse](ctx, constant.GetGroupsInfoRouter, &group.GetGroupsInfoReq{GroupIDs: groupIDs})
 	if err != nil {
 		return nil, err
 	}
-	return resp.GroupInfos, nil
+	return resp.Data, nil
 }
 
 func (g *Group) getGroupAbstractInfoFromSvr(ctx context.Context, groupIDs []string) (*group.GetGroupAbstractInfoResp, error) {

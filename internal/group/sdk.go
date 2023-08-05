@@ -24,6 +24,7 @@ import (
 	"open_im_sdk/pkg/sdkerrs"
 	"time"
 
+	groupv1 "github.com/imCloud/api/group/v1"
 	"github.com/imCloud/im/pkg/proto/group"
 	"github.com/imCloud/im/pkg/proto/sdkws"
 	"github.com/imCloud/im/pkg/proto/wrapperspb"
@@ -60,7 +61,7 @@ import (
 //	return g.CreateGroup(ctx, req)
 //}
 
-func (g *Group) CreateGroup(ctx context.Context, req *group.CreateGroupReq) (*sdkws.GroupInfo, error) {
+func (g *Group) CreateGroup(ctx context.Context, req *group.CreateGroupReq) (*groupv1.GroupInfo, error) {
 	if req.OwnerUserID == "" {
 		req.OwnerUserID = g.loginUserID
 	}
@@ -68,21 +69,34 @@ func (g *Group) CreateGroup(ctx context.Context, req *group.CreateGroupReq) (*sd
 		return nil, sdkerrs.ErrGroupType
 	}
 	req.GroupInfo.CreatorUserID = g.loginUserID
-	resp, err := util.CallApi[group.CreateGroupResp](ctx, constant.CreateGroupRouter, req)
+	resp, err := util.CallApi[groupv1.GroupInfo](ctx, constant.CreateGroupRouter, req)
 	if err != nil {
 		return nil, err
 	}
 	if err := g.SyncJoinedGroup(ctx); err != nil {
 		return nil, err
 	}
-	if err := g.SyncGroupMember(ctx, resp.GroupInfo.GroupID); err != nil {
+	if err := g.SyncGroupMember(ctx, resp.GroupID); err != nil {
 		return nil, err
 	}
-	return resp.GroupInfo, nil
+	return resp, nil
 }
 
 func (g *Group) JoinGroup(ctx context.Context, groupID, reqMsg string, joinSource int32) error {
-	if err := util.ApiPost(ctx, constant.JoinGroupRouter, &group.JoinGroupReq{GroupID: groupID, ReqMessage: reqMsg, JoinSource: joinSource, InviterUserID: g.loginUserID}, nil); err != nil {
+	if err := util.ApiPost(ctx, constant.JoinGroupRouter,
+		&groupv1.JoinGroupReq{
+			GroupID:  groupID,
+			Remark:   reqMsg,
+			SourceID: joinSource,
+			UserID:   g.loginUserID,
+		},
+		//&group.JoinGroupReq{
+		//	GroupID:       groupID,
+		//	ReqMessage:    reqMsg,
+		//	JoinSource:    joinSource,
+		//	InviterUserID: g.loginUserID,
+		//},
+		nil); err != nil {
 		return err
 	}
 	if err := g.SyncSelfGroupApplication(ctx); err != nil {
@@ -188,6 +202,7 @@ func (g *Group) GetSpecifiedGroupsInfo(ctx context.Context, groupIDs []string) (
 		return nil, err
 	}
 	groupIDMap := utils.SliceSet(groupIDs)
+	//获取所有群数据（普通群和超级群）
 	groups := append(groupList, superGroupList...)
 	res := make([]*model_struct.LocalGroup, 0, len(groupIDs))
 	for i, v := range groups {
@@ -197,15 +212,16 @@ func (g *Group) GetSpecifiedGroupsInfo(ctx context.Context, groupIDs []string) (
 		}
 	}
 	if len(groupIDMap) > 0 {
-		groups, err := util.CallApi[group.GetGroupsInfoResp](ctx, constant.GetGroupsInfoRouter, &group.GetGroupsInfoReq{GroupIDs: utils.Keys(groupIDMap)})
+		groups, err := util.CallApi[groupv1.GetGroupInfoResponse](ctx, constant.GetGroupsInfoRouter, &group.GetGroupsInfoReq{GroupIDs: utils.Keys(groupIDMap)})
 		if err != nil {
 			log.ZError(ctx, "Call GetGroupsInfoRouter", err)
 		}
-		if groups != nil && len(groups.GroupInfos) > 0 {
-			for i := range groups.GroupInfos {
-				groups.GroupInfos[i].MemberCount = 0
+		if groups != nil && len(groups.Data) > 0 {
+			for i := range groups.Data {
+				groups.Data[i].MemberCount = 0
 			}
-			res = append(res, util.Batch(ServerGroupToLocalGroup, groups.GroupInfos)...)
+			//转换为本地的群组数据格式
+			res = append(res, util.Batch(ServerGroupToLocalGroup, groups.Data)...)
 		}
 	}
 	return res, nil

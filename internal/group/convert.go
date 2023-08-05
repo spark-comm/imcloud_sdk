@@ -15,11 +15,12 @@
 package group
 
 import (
-	"github.com/imCloud/im/pkg/proto/sdkws"
 	"open_im_sdk/pkg/db/model_struct"
+
+	groupv1 "github.com/imCloud/api/group/v1"
 )
 
-func ServerGroupToLocalGroup(info *sdkws.GroupInfo) *model_struct.LocalGroup {
+func ServerGroupToLocalGroup(info *groupv1.GroupInfo) *model_struct.LocalGroup {
 	return &model_struct.LocalGroup{
 		GroupID:                info.GroupID,
 		GroupName:              info.GroupName,
@@ -38,58 +39,72 @@ func ServerGroupToLocalGroup(info *sdkws.GroupInfo) *model_struct.LocalGroup {
 		ApplyMemberFriend:      info.ApplyMemberFriend,
 		NotificationUpdateTime: info.NotificationUpdateTime,
 		NotificationUserID:     info.NotificationUserID,
-		//AttachedInfo:           info.AttachedInfo, // TODO
+		AttachedInfo:           info.AttachedInfo,
+		Code:                   info.Code,
+		MaxMemberCount:         info.MaxMemberCount,
+		OnlyManageUpdateName:   info.OnlyManageUpdateName,
+		IsReal:                 info.IsReal,
+		IsOpen:                 uint(info.IsOpen),
+		AllowPrivateChat:       uint(info.AllowPrivateChat),
 	}
 }
 
-func ServerGroupMemberToLocalGroupMember(info *sdkws.GroupMemberFullInfo) *model_struct.LocalGroupMember {
+func ServerGroupMemberToLocalGroupMember(info *groupv1.MembersInfo) *model_struct.LocalGroupMember {
 	return &model_struct.LocalGroupMember{
 		GroupID:        info.GroupID,
 		UserID:         info.UserID,
-		Nickname:       info.Nickname,
-		FaceURL:        info.FaceURL,
 		RoleLevel:      info.RoleLevel,
 		JoinTime:       info.JoinTime,
+		Nickname:       info.Nickname,
+		FaceURL:        info.FaceUrl,
+		AttachedInfo:   info.AttachedInfo,
 		JoinSource:     info.JoinSource,
-		InviterUserID:  info.InviterUserID,
-		MuteEndTime:    info.MuteEndTime,
 		OperatorUserID: info.OperatorUserID,
 		Ex:             info.Ex,
-		//AttachedInfo:   info.AttachedInfo, // todo
+		MuteEndTime:    info.MuteEndTime,
+		Message:        info.Message,
+		Code:           info.Code,
+		Phone:          info.Phone,
+		Email:          info.Email,
+		Birth:          info.Birth,
+		Gender:         info.Gender,
+		InviterUserID:  info.InviterUserID,
 	}
 }
 
-func ServerGroupRequestToLocalGroupRequest(info *sdkws.GroupRequest) *model_struct.LocalGroupRequest {
+func ServerGroupRequestToLocalGroupRequest(info *groupv1.GroupRequestInfo) *model_struct.LocalGroupRequest {
 	return &model_struct.LocalGroupRequest{
-		GroupID:       info.GroupInfo.GroupID,
-		GroupName:     info.GroupInfo.GroupName,
-		Notification:  info.GroupInfo.Notification,
-		Introduction:  info.GroupInfo.Introduction,
-		GroupFaceURL:  info.GroupInfo.FaceURL,
-		CreateTime:    info.GroupInfo.CreateTime,
-		Status:        info.GroupInfo.Status,
-		CreatorUserID: info.GroupInfo.CreatorUserID,
-		GroupType:     info.GroupInfo.GroupType,
-		OwnerUserID:   info.GroupInfo.OwnerUserID,
-		MemberCount:   int32(info.GroupInfo.MemberCount),
-		UserID:        info.UserInfo.UserID,
-		Nickname:      info.UserInfo.Nickname,
-		UserFaceURL:   info.UserInfo.FaceURL,
-		//Gender:        info.UserInfo.Gender,
-		HandleResult: info.HandleResult,
-		ReqMsg:       info.ReqMsg,
-		HandledMsg:   info.HandleMsg,
-		ReqTime:      info.ReqTime,
-		HandleUserID: info.HandleUserID,
-		HandledTime:  info.HandleTime,
-		Ex:           info.Ex,
-		//AttachedInfo:  info.AttachedInfo,
+		GroupID:       info.GroupID,
+		GroupName:     info.GroupName,
+		Notification:  info.Notification,
+		Introduction:  info.Introduction,
+		GroupFaceURL:  info.GroupFaceURL,
+		CreateTime:    info.CreateTime,
+		Status:        info.Status,
+		CreatorUserID: info.CreatorUserID,
+		GroupType:     info.GroupType,
+		OwnerUserID:   info.OwnerUserID,
+		MemberCount:   info.MemberCount,
+		GroupCode:     info.GroupCode,
+
+		UserID:      info.UserID,
+		Nickname:    info.Nickname,
+		UserFaceURL: info.UserFaceURL,
+		Gender:      info.Gender,
+		Code:        info.Code,
+
+		HandleResult:  info.HandleResult,
+		ReqMsg:        info.ReqMsg,
+		HandledMsg:    info.HandledMsg,
+		ReqTime:       info.ReqTime,
+		HandleUserID:  info.HandleUserID,
+		HandledTime:   info.HandledTime,
 		JoinSource:    info.JoinSource,
 		InviterUserID: info.InviterUserID,
 	}
 }
 
-func ServerGroupRequestToLocalAdminGroupRequest(info *sdkws.GroupRequest) *model_struct.LocalAdminGroupRequest {
+func ServerGroupRequestToLocalAdminGroupRequest(info *groupv1.GroupRequestInfo) *model_struct.LocalAdminGroupRequest {
 	return &model_struct.LocalAdminGroupRequest{
 		LocalGroupRequest: *ServerGroupRequestToLocalGroupRequest(info),
 	}

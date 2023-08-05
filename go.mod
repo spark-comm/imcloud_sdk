@@ -21,9 +21,12 @@ require (
 	nhooyr.io/websocket v1.8.7
 )
 
-require golang.org/x/net v0.11.0
+require (
+	golang.org/x/net v0.11.0
+	gorm.io/driver/sqlite v1.5.2
+)
 
-replace github.com/imCloud => ../../imcloud
+replace github.com/imCloud => ../imcloud
 
 require (
 	github.com/bwmarrin/snowflake v0.3.0 // indirect
@@ -49,15 +52,10 @@ require (
 	go.uber.org/zap v1.24.0 // indirect
 	golang.org/x/crypto v0.10.0 // indirect
 	golang.org/x/image v0.7.0 // indirect
-	golang.org/x/mobile v0.0.0-20230531173138-3c911d8e3eda // indirect
-	golang.org/x/mod v0.10.0 // indirect
 	golang.org/x/sync v0.2.0 // indirect
 	golang.org/x/sys v0.9.0 // indirect
 	golang.org/x/text v0.10.0 // indirect
-	golang.org/x/tools v0.8.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20230626202813-9b080da550b3 // indirect
 	google.golang.org/grpc v1.56.2 // indirect
-	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	gorm.io/driver/sqlite v1.5.2 // indirect
 )

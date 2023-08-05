@@ -92,14 +92,17 @@ func (s *Syncer[T, V]) Sync(ctx context.Context, serverData []T, localData []T, 
 		return nil
 	}
 	localMap := make(map[V]T)
+	//本地获取的群/群成员列表做hash结构映射
 	for i, item := range localData {
 		localMap[s.uuid(item)] = localData[i]
 	}
 	for i := range serverData {
 		server := serverData[i]
 		id := s.uuid(server)
+		//检测本地hash映射中是否存在远程数据中的hash结构
 		local, ok := localMap[id]
 		if !ok {
+			//不存在，更新 发送通知
 			if err := s.insert(ctx, server); err != nil {
 				log.ZError(ctx, "sync insert failed", err, "type", s.ts, "server", server, "local", local)
 				return err
@@ -111,6 +114,7 @@ func (s *Syncer[T, V]) Sync(ctx context.Context, serverData []T, localData []T, 
 			continue
 		}
 		delete(localMap, id)
+		//删除hash结构  比对两份数据是否有变动
 		if s.eq(server, local) {
 			if err := s.onNotice(ctx, Unchanged, local, server, notice); err != nil {
 				log.ZError(ctx, "sync notice unchanged failed", err, "type", s.ts, "server", server, "local", local)
@@ -118,6 +122,7 @@ func (s *Syncer[T, V]) Sync(ctx context.Context, serverData []T, localData []T, 
 			}
 			continue
 		}
+		//有数据变动做更新操作
 		if err := s.update(ctx, server, local); err != nil {
 			log.ZError(ctx, "sync update failed", err, "type", s.ts, "server", server, "local", local)
 			return err
@@ -133,6 +138,7 @@ func (s *Syncer[T, V]) Sync(ctx context.Context, serverData []T, localData []T, 
 	if len(noDel) > 0 && noDel[0] {
 		return nil
 	}
+	//多余数据表示远程数据已清除，做数据同步删除
 	for id := range localMap {
 		local := localMap[id]
 		if err := s.delete(ctx, local); err != nil {

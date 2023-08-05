@@ -219,17 +219,22 @@ type LocalGroupRequest struct {
 	GroupType     int32  `gorm:"column:group_type" json:"groupType"`
 	OwnerUserID   string `gorm:"column:owner_user_id;type:varchar(64)" json:"ownerUserID"`
 	MemberCount   int32  `gorm:"column:member_count" json:"memberCount"`
-	UserID        string `gorm:"column:user_id;primary_key;type:varchar(64)" json:"userID"`
-	Nickname      string `gorm:"column:nickname;type:varchar(255)" json:"nickname"`
-	UserFaceURL   string `gorm:"column:user_face_url;type:varchar(255)" json:"userFaceURL"`
-	HandleResult  int32  `gorm:"column:handle_result" json:"handleResult"`
-	ReqMsg        string `gorm:"column:req_msg;type:varchar(255)" json:"reqMsg"`
-	HandledMsg    string `gorm:"column:handle_msg;type:varchar(255)" json:"handledMsg"`
-	ReqTime       int64  `gorm:"column:req_time" json:"reqTime"`
-	HandleUserID  string `gorm:"column:handle_user_id;type:varchar(64)" json:"handleUserID"`
-	HandledTime   int64  `gorm:"column:handle_time" json:"handledTime"`
-	Ex            string `gorm:"column:ex;type:varchar(1024)" json:"ex"`
-	AttachedInfo  string `gorm:"column:attached_info;type:varchar(1024)" json:"attachedInfo"`
+	GroupCode     string `gorm:"column:group_code" json:"group_code"`
+
+	UserID      string `gorm:"column:user_id;primary_key;type:varchar(64)" json:"userID"`
+	Nickname    string `gorm:"column:nickname;type:varchar(255)" json:"nickname"`
+	UserFaceURL string `gorm:"column:user_face_url;type:varchar(255)" json:"userFaceURL"`
+	Gender      int32  `gorm:"column:gender;type:tinyint" json:"gender"`
+	Code        string `gorm:"column:code;type:varchar(32)" json:"code"`
+
+	HandleResult int32  `gorm:"column:handle_result" json:"handleResult"`
+	ReqMsg       string `gorm:"column:req_msg;type:varchar(255)" json:"reqMsg"`
+	HandledMsg   string `gorm:"column:handle_msg;type:varchar(255)" json:"handledMsg"`
+	ReqTime      int64  `gorm:"column:req_time" json:"reqTime"`
+	HandleUserID string `gorm:"column:handle_user_id;type:varchar(64)" json:"handleUserID"`
+	HandledTime  int64  `gorm:"column:handle_time" json:"handledTime"`
+	//Ex            string `gorm:"column:ex;type:varchar(1024)" json:"ex"`
+	//AttachedInfo  string `gorm:"column:attached_info;type:varchar(1024)" json:"attachedInfo"`
 	JoinSource    int32  `gorm:"column:join_source" json:"joinSource"`
 	InviterUserID string `gorm:"column:inviter_user_id;size:64"  json:"inviterUserID"`
 }

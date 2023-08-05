@@ -140,3 +140,10 @@ func GetPageBlackList(callback open_im_sdk_callback.Base, operationID string, no
 func RemoveBlack(callback open_im_sdk_callback.Base, operationID string, removeUserID string) {
 	call(callback, operationID, UserForSDK.Friend().RemoveBlack, removeUserID)
 }
+
+// GetUnprocessedNum 获取未处理的好友请求
+// par operationID  链路id
+// return count 未处理的角标数
+func GetUnprocessedNum(callback open_im_sdk_callback.Base, operationID string) {
+	call(callback, operationID, UserForSDK.Friend().GetUnprocessedNum)
+}

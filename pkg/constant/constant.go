@@ -201,7 +201,9 @@ const (
 	ckSelfInfoUpdate    string = "self-info-update"
 )
 const (
-	BlackRelationship  = 0
+	//BlackRelationship 黑名单关系
+	BlackRelationship = 0
+	//FriendRelationship 好友关系
 	FriendRelationship = 1
 )
 

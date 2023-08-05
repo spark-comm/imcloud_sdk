@@ -24,6 +24,7 @@ import (
 	"open_im_sdk/pkg/sdkerrs"
 	"open_im_sdk/pkg/server_api_params"
 
+	friendPb "github.com/imCloud/api/friend/v1"
 	"github.com/imCloud/im/pkg/common/log"
 	"github.com/imCloud/im/pkg/proto/friend"
 )
@@ -54,11 +55,11 @@ func (f *Friend) GetSpecifiedFriendsInfo(ctx context.Context, friendUserIDList [
 	return res, nil
 }
 
-func (f *Friend) AddFriend(ctx context.Context, userIDReqMsg *friend.ApplyToAddFriendReq) error {
-	if userIDReqMsg.FromUserID == "" {
-		userIDReqMsg.FromUserID = f.loginUserID
+func (f *Friend) AddFriend(ctx context.Context, addRequest *friendPb.AddFriendRequest) error {
+	if addRequest.FromUserID == "" {
+		addRequest.FromUserID = f.loginUserID
 	}
-	if err := util.ApiPost(ctx, constant.AddFriendRouter, userIDReqMsg, nil); err != nil {
+	if err := util.ApiPost(ctx, constant.AddFriendRouter, addRequest, nil); err != nil {
 		return err
 	}
 	return f.SyncFriendApplication(ctx)
@@ -148,6 +149,7 @@ func (f *Friend) DeleteFriend(ctx context.Context, friendUserID string) error {
 	if err := util.ApiPost(ctx, constant.DeleteFriendRouter, &friend.DeleteFriendReq{OwnerUserID: f.loginUserID, FriendUserID: friendUserID}, nil); err != nil {
 		return err
 	}
+	//删除好友后删除对应的会话消息
 	return f.SyncFriendList(ctx)
 }
 
@@ -259,4 +261,9 @@ func (f *Friend) GetBlackList(ctx context.Context) ([]*model_struct.LocalBlack, 
 // GetPageBlackList 分页获取黑名单
 func (f *Friend) GetPageBlackList(ctx context.Context, no, size int64) ([]*model_struct.LocalBlack, error) {
 	return f.db.GetBlackList(ctx, &pg.Page{NO: no, Size: size})
+}
+
+// GetUnprocessedNum 获取待处理的好友请求
+func (f *Friend) GetUnprocessedNum(ctx context.Context) (int64, error) {
+	return f.db.GetUnprocessedNum(ctx)
 }

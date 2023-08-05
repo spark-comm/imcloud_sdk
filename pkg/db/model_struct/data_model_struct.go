@@ -46,7 +46,7 @@ type LocalFriend struct {
 	OwnerUserID    string `json:"ownerUserID" gorm:"column:owner_user_id;primary_key;type:varchar(64);comment:所属用户"`
 	FriendUserID   string `json:"friendUserID" gorm:"column:friend_user_id;primary_key;type:varchar(64);comment:好友id"`
 	Remark         string `json:"remark" gorm:"column:remark;type:varchar(255);comment:备注"`
-	CreateTime     int64  `json:"createdAt" gorm:"column:create_at;comment:创建时间"`
+	CreateAt       int64  `json:"createdAt" gorm:"column:create_at;comment:创建时间"`
 	AddSource      int32  `json:"addSource" gorm:"column:add_source;comment:添加来源"`
 	OperatorUserID string `json:"operatorUserID" gorm:"column:operator_user_id;type:varchar(64)"`
 	FaceURL        string `json:"faceURL" gorm:"column:face_url;size:44;comment:头像"`
@@ -91,7 +91,7 @@ type LocalFriendRequest struct {
 	TomPhone      string `json:"toPhone" gorm:"column:tom_phone;size:6;comment:接收方手机号"`
 	HandleResult  int32  `gorm:"column:handle_result;comment:处理0:待处理;1:同意;2:拒绝" json:"handleResult"`
 	ReqMsg        string `gorm:"column:req_msg;type:varchar(255);comment:请求消息" json:"reqMsg"`
-	CreateTime    int64  `gorm:"column:create_time;comment:创建时间" json:"createTime"`
+	CreateAt      int64  `gorm:"column:create_at;comment:创建时间" json:"createAt"`
 	HandlerUserID string `gorm:"column:handler_user_id;type:varchar(64);comment:处理的用户id" json:"handlerUserID"`
 	HandleMsg     string `gorm:"column:handle_msg;type:varchar(255);comment:处理备注" json:"handleMsg"`
 	HandleTime    int64  `gorm:"column:handle_time;comment:处理时间" json:"handleTime"`

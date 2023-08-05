@@ -137,12 +137,16 @@ func (u *User) userInfoUpdatedNotification(ctx context.Context, msg *sdkws.MsgDa
 
 // GetUsersInfoFromSvr retrieves user information from the server.
 func (u *User) GetUsersInfoFromSvr(ctx context.Context, userIDs []string) ([]*model_struct.LocalUser, error) {
-	_, err := util.CallApi[userPb.GetDesignateUsersResp](ctx, constant.GetUsersInfoRouter, userPb.GetDesignateUsersReq{UserIDs: userIDs})
+	resp, err := util.CallApi[imUserPb.FindProfileByUserReply](ctx, constant.GetUsersInfoRouter, imUserPb.FindProfileByUserReq{UserIds: userIDs})
 	if err != nil {
 		return nil, sdkerrs.Warp(err, "GetUsersInfoFromSvr failed")
 	}
-	//return util.Batch(ServerUserToLocalUser, resp.UsersInfo), nil
-	return nil, err
+	//信息转换
+	conversion, err := util.BatchConversion(ServerUserToLocalUser, resp.List)
+	if err != nil {
+		return nil, sdkerrs.Warp(err, "GetUsersInfoFromSvr failed")
+	}
+	return conversion, nil
 }
 
 // GetUsersInfoFromSvrNoCallback retrieves user information from the server.

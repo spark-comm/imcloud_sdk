@@ -26,7 +26,6 @@ import (
 
 	groupv1 "github.com/imCloud/api/group/v1"
 	"github.com/imCloud/im/pkg/proto/group"
-	"github.com/imCloud/im/pkg/proto/sdkws"
 	"github.com/imCloud/im/pkg/proto/wrapperspb"
 	"github.com/imCloud/im/pkg/utils"
 )
@@ -174,7 +173,10 @@ func (g *Group) ChangeGroupMemberMute(ctx context.Context, groupID, userID strin
 }
 
 func (g *Group) SetGroupMemberRoleLevel(ctx context.Context, groupID, userID string, roleLevel int) error {
-	return g.SetGroupMemberInfo(ctx, &group.SetGroupMemberInfo{GroupID: groupID, UserID: userID, RoleLevel: wrapperspb.Int32(int32(roleLevel))})
+	return g.SetGroupMemberInfo(ctx, &group.SetGroupMemberInfo{
+		GroupID:   groupID,
+		UserID:    userID,
+		RoleLevel: wrapperspb.Int32(int32(roleLevel))})
 }
 
 func (g *Group) SetGroupMemberNickname(ctx context.Context, groupID, userID string, groupMemberNickname string) error {
@@ -212,7 +214,10 @@ func (g *Group) GetSpecifiedGroupsInfo(ctx context.Context, groupIDs []string) (
 		}
 	}
 	if len(groupIDMap) > 0 {
-		groups, err := util.CallApi[groupv1.GetGroupInfoResponse](ctx, constant.GetGroupsInfoRouter, &group.GetGroupsInfoReq{GroupIDs: utils.Keys(groupIDMap)})
+		groups, err := util.CallApi[groupv1.GetGroupInfoResponse](
+			ctx,
+			constant.GetGroupsInfoRouter,
+			&groupv1.GetGroupInfoReq{GroupID: utils.Keys(groupIDMap)})
 		if err != nil {
 			log.ZError(ctx, "Call GetGroupsInfoRouter", err)
 		}
@@ -227,11 +232,16 @@ func (g *Group) GetSpecifiedGroupsInfo(ctx context.Context, groupIDs []string) (
 	return res, nil
 }
 
+//SearchGroups 本地数据过滤
 func (g *Group) SearchGroups(ctx context.Context, param sdk_params_callback.SearchGroupsParam) ([]*model_struct.LocalGroup, error) {
 	if len(param.KeywordList) == 0 || (!param.IsSearchGroupName && !param.IsSearchGroupID) {
 		return nil, sdkerrs.ErrArgs.Wrap("keyword is null or search field all false")
 	}
-	groups, err := g.db.GetAllGroupInfoByGroupIDOrGroupName(ctx, param.KeywordList[0], param.IsSearchGroupID, param.IsSearchGroupName) // todo	param.KeywordList[0]
+	groups, err := g.db.GetAllGroupInfoByGroupIDOrGroupName(
+		ctx,
+		param.KeywordList[0],
+		param.IsSearchGroupID,
+		param.IsSearchGroupName) // todo	param.KeywordList[0]
 	if err != nil {
 		return nil, err
 	}
@@ -251,19 +261,36 @@ func (g *Group) SearchGroups(ctx context.Context, param sdk_params_callback.Sear
 //}
 
 func (g *Group) SetGroupVerification(ctx context.Context, groupID string, verification int32) error {
-	return g.SetGroupInfo(ctx, &sdkws.GroupInfoForSet{GroupID: groupID, NeedVerification: wrapperspb.Int32(verification)})
+	return g.SetGroupInfo(ctx, &groupv1.EditGroupProfileRequest{
+		GroupID:          groupID,
+		NeedVerification: int64(verification),
+	})
+
+	//&sdkws.GroupInfoForSet{
+	//GroupID: groupID,
+	//NeedVerification: wrapperspb.Int32(verification)})
 }
 
 func (g *Group) SetGroupLookMemberInfo(ctx context.Context, groupID string, rule int32) error {
-	return g.SetGroupInfo(ctx, &sdkws.GroupInfoForSet{GroupID: groupID, LookMemberInfo: wrapperspb.Int32(rule)})
+	return g.SetGroupInfo(ctx,
+		&groupv1.EditGroupProfileRequest{
+			GroupID:        groupID,
+			LookMemberInfo: rule,
+			//&sdkws.GroupInfoForSet{GroupID: groupID, LookMemberInfo: wrapperspb.Int32(rule)
+		})
 }
 
 func (g *Group) SetGroupApplyMemberFriend(ctx context.Context, groupID string, rule int32) error {
-	return g.SetGroupInfo(ctx, &sdkws.GroupInfoForSet{GroupID: groupID, ApplyMemberFriend: wrapperspb.Int32(rule)})
+	return g.SetGroupInfo(ctx,
+		&groupv1.EditGroupProfileRequest{
+			GroupID:           groupID,
+			ApplyMemberFriend: rule,
+			//&sdkws.GroupInfoForSet{GroupID: groupID, ApplyMemberFriend: wrapperspb.Int32(rule)
+		})
 }
 
-func (g *Group) SetGroupInfo(ctx context.Context, groupInfo *sdkws.GroupInfoForSet) error {
-	if err := util.ApiPost(ctx, constant.SetGroupInfoRouter, &group.SetGroupInfoReq{GroupInfoForSet: groupInfo}, nil); err != nil {
+func (g *Group) SetGroupInfo(ctx context.Context, groupInfo *groupv1.EditGroupProfileRequest) error {
+	if err := util.ApiPost(ctx, constant.SetGroupInfoRouter, &groupInfo, nil); err != nil {
 		return err
 	}
 	return g.SyncJoinedGroup(ctx)

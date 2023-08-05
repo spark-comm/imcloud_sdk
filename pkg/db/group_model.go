@@ -72,6 +72,7 @@ func (d *DataBase) GetAllGroupInfoByGroupIDOrGroupName(ctx context.Context, keyw
 
 	var groupList []model_struct.LocalGroup
 	var condition string
+	//拼接添加
 	if isSearchGroupID {
 		if isSearchGroupName {
 			condition = fmt.Sprintf("group_id like %q or name like %q", "%"+keyword+"%", "%"+keyword+"%")

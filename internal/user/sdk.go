@@ -21,14 +21,17 @@ import (
 	"open_im_sdk/pkg/db/model_struct"
 )
 
+// GetUsersInfo 获取用户信息直接查服务器
 func (u *User) GetUsersInfo(ctx context.Context, userIDs []string) ([]*model_struct.LocalUser, error) {
 	return u.GetUsersInfoFromSvr(ctx, userIDs)
 }
 
+// GetSelfUserInfo 获取登录用户信息
 func (u *User) GetSelfUserInfo(ctx context.Context) (*model_struct.LocalUser, error) {
 	return u.getSelfUserInfo(ctx)
 }
 
+// SetSelfInfo 修改自己的信息
 func (u *User) SetSelfInfo(ctx context.Context, userInfo *imUserPb.UpdateProfileReq) error {
 	return u.updateSelfUserInfo(ctx, userInfo)
 }

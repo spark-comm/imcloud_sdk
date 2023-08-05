@@ -36,7 +36,7 @@ func Test_GetSpecifiedFriendsInfo(t *testing.T) {
 
 func Test_AddFriend(t *testing.T) {
 	err := open_im_sdk.UserForSDK.Friend().AddFriend(ctx, &friend2.ApplyToAddFriendReq{
-		ToUserID: "48685099025174528",
+		ToUserID: "50122897452175360",
 		ReqMsg:   "test add",
 	})
 	if err != nil {
@@ -116,7 +116,7 @@ func Test_GetFriendList(t *testing.T) {
 }
 
 func Test_SearchFriends(t *testing.T) {
-	info, err := open_im_sdk.UserForSDK.Friend().SearchFriends(ctx, &sdk_params_callback.SearchFriendsParam{KeywordList: []string{"863454357"}, IsSearchUserID: true})
+	info, err := open_im_sdk.UserForSDK.Friend().SearchFriends(ctx, &sdk_params_callback.SearchFriendsParam{KeywordList: []string{"50122626445611008"}, IsSearchUserID: true})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -172,6 +172,7 @@ func Test_GetFriendListPage(t *testing.T) {
 	}
 }
 
+// Test_GetPageFriendApplicationListAsRecipient 收到申请
 func Test_GetPageFriendApplicationListAsRecipient(t *testing.T) {
 	info, err := open_im_sdk.UserForSDK.Friend().GetPageFriendApplicationListAsRecipient(ctx, 1, 10)
 	if err != nil {
@@ -202,4 +203,14 @@ func Test_GetPageBlackList(t *testing.T) {
 	for _, item := range info {
 		t.Log(*item)
 	}
+}
+
+func Test_GetUnprocessedNum(t *testing.T) {
+	count, err := open_im_sdk.UserForSDK.Friend().GetUnprocessedNum(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log("GetPageBlackList success", ctx.Value("operationID"))
+
+	t.Log("unprocessed num ", count)
 }

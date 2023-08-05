@@ -24,3 +24,17 @@ func Batch[T any, V any](fn func(T) V, ts []T) []V {
 	}
 	return res
 }
+func BatchConversion[T any, V any](fn func(T) (V, error), ts []T) ([]V, error) {
+	if ts == nil {
+		return make([]V, 0), nil
+	}
+	res := make([]V, 0, len(ts))
+	for i := range ts {
+		v, err := fn(ts[i])
+		if err != nil {
+			return nil, err
+		}
+		res = append(res, v)
+	}
+	return res, nil
+}

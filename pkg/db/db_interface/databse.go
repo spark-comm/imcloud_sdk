@@ -247,6 +247,8 @@ type FriendDatabase interface {
 	InsertBlack(ctx context.Context, black *model_struct.LocalBlack) error
 	UpdateBlack(ctx context.Context, black *model_struct.LocalBlack) error
 	DeleteBlack(ctx context.Context, blockUserID string) error
+	//GetUnprocessedNum 获取未处理的好友申请数
+	GetUnprocessedNum(ctx context.Context) (int64, error)
 }
 
 type ReactionDatabase interface {

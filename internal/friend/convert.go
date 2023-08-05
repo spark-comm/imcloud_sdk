@@ -24,7 +24,7 @@ func ServerFriendRequestToLocalFriendRequest(info *friendPb.FriendRequests) *mod
 		TomPhone:      info.ToPhone,
 		HandleResult:  info.HandleResult,
 		ReqMsg:        info.ReqMsg,
-		CreateTime:    info.CreateTime,
+		CreateAt:      info.CreateTime,
 		HandlerUserID: info.HandlerUserID,
 		HandleMsg:     info.HandleMsg,
 		HandleTime:    info.HandleTime,
@@ -36,7 +36,7 @@ func ServerFriendToLocalFriend(info *friendPb.FriendInfo) *model_struct.LocalFri
 		OwnerUserID:    info.OwnerUserID,
 		FriendUserID:   info.FriendUserID,
 		Remark:         info.Remark,
-		CreateTime:     info.CreatedAt,
+		CreateAt:       info.CreatedAt,
 		AddSource:      info.AddSource,
 		OperatorUserID: info.OperatorUserID,
 		Nickname:       info.Nickname,
@@ -54,7 +54,7 @@ func ServerFriendToLocalFriend(info *friendPb.FriendInfo) *model_struct.LocalFri
 func ServerBlackToLocalBlack(info *friendPb.BlackList) *model_struct.LocalBlack {
 	return &model_struct.LocalBlack{
 		OwnerUserID:    info.OwnerUserID,
-		BlockUserID:    info.BlackUserID,
+		BlackUserID:    info.BlackUserID,
 		CreateAt:       info.CreatedAt,
 		OperatorUserID: info.OwnerUserID,
 		Nickname:       info.Nickname,

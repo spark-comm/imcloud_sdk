@@ -326,3 +326,8 @@ func Test_SendImgMsg(t *testing.T) {
 	}
 	t.Logf("send smg => %+v\n", res)
 }
+
+func Test_GetConversationIDBySessionType(t *testing.T) {
+	conId := open_im_sdk.GetConversationIDBySessionType("ssss", "12312", 1) //open_im_sdk.UserForSDK.Conversation().GetConversationIDBySessionType(context.Background(), "12312", 1)
+	t.Logf("send conId => %s\n", conId)
+}

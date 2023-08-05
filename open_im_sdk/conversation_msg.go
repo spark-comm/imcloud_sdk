@@ -17,6 +17,7 @@ package open_im_sdk
 import (
 	"bytes"
 	"open_im_sdk/open_im_sdk_callback"
+	"open_im_sdk/pkg/ccontext"
 )
 
 func GetAllConversationList(callback open_im_sdk_callback.Base, operationID string) {
@@ -165,15 +166,24 @@ func CreateFaceMessage(operationID string, index int, data string) string {
 func CreateForwardMessage(operationID string, m string) string {
 	return syncCall(operationID, UserForSDK.Conversation().CreateForwardMessage, m)
 }
+
+// GetConversationIDBySessionType 根据sourced和会话类型获取会话ID
 func GetConversationIDBySessionType(operationID string, sourceID string, sessionType int) string {
-	return syncCall(operationID, UserForSDK.Conversation().GetConversationIDBySessionType, sourceID, sessionType)
+	ctx := ccontext.WithOperationID(UserForSDK.BaseCtx(), operationID)
+	return UserForSDK.Conversation().GetConversationIDBySessionType(ctx, sourceID, sessionType) //syncCall(operationID, UserForSDK.Conversation().GetConversationIDBySessionType, sourceID, sessionType)
 }
+
+// SendMessage 发送消息
 func SendMessage(callback open_im_sdk_callback.SendMsgCallBack, operationID, message, recvID, groupID, offlinePushInfo string) {
 	messageCall(callback, operationID, UserForSDK.Conversation().SendMessage, message, recvID, groupID, offlinePushInfo)
 }
+
+// SendMessageNotOss 发送消息不走sdk
 func SendMessageNotOss(callback open_im_sdk_callback.SendMsgCallBack, operationID string, message, recvID, groupID string, offlinePushInfo string) {
 	messageCall(callback, operationID, UserForSDK.Conversation().SendMessageNotOss, message, recvID, groupID, offlinePushInfo)
 }
+
+// SendMessageByBuffer 根据buffer发送消息
 func SendMessageByBuffer(callback open_im_sdk_callback.SendMsgCallBack, operationID string, message, recvID, groupID string, offlinePushInfo string, buffer1, buffer2 *bytes.Buffer) {
 	messageCall(callback, operationID, UserForSDK.Conversation().SendMessageByBuffer, message, recvID, groupID, offlinePushInfo, buffer1, buffer2)
 }

@@ -22,6 +22,7 @@ import (
 	"open_im_sdk/pkg/db/model_struct"
 )
 
+// SyncLoginUserInfo 同步用户信息
 func (u *User) SyncLoginUserInfo(ctx context.Context) error {
 	remoteUser, err := u.GetSingleUserFromSvr(ctx, u.loginUserID)
 	if err != nil {

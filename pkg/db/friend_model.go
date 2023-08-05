@@ -103,7 +103,7 @@ func (d *DataBase) SearchFriendList(ctx context.Context, keyword string, isSearc
 		}
 		condition += fmt.Sprintf("remark like %q ", "%"+keyword+"%")
 	}
-	err := d.conn.WithContext(ctx).Where(condition).Order("create_time DESC").Find(&friendList).Error
+	err := d.conn.WithContext(ctx).Where(condition).Order("create_at DESC").Find(&friendList).Error
 	var transfer []*model_struct.LocalFriend
 	for _, v := range friendList {
 		v1 := v

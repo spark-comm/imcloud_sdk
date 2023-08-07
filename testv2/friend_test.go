@@ -19,6 +19,8 @@ import (
 	"open_im_sdk/pkg/sdk_params_callback"
 	"testing"
 	"time"
+
+	friend "github.com/imCloud/api/friend/v1"
 )
 
 func Test_GetSpecifiedFriendsInfo(t *testing.T) {
@@ -32,16 +34,16 @@ func Test_GetSpecifiedFriendsInfo(t *testing.T) {
 	}
 }
 
-//func Test_AddFriend(t *testing.T) {
-//	err := open_im_sdk.UserForSDK.Friend().AddFriend(ctx, &friend2.ApplyToAddFriendReq{
-//		ToUserID: "50122897452175360",
-//		ReqMsg:   "test add",
-//	})
-//	if err != nil {
-//		t.Fatal(err)
-//	}
-//	t.Log("AddFriend success", ctx.Value("operationID"))
-//}
+func Test_AddFriend(t *testing.T) {
+	err := open_im_sdk.UserForSDK.Friend().AddFriend(ctx, &friend.AddFriendRequest{
+		ToUserID: "50122626445611008",
+		ReqMsg:   "test add",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log("AddFriend success", ctx.Value("operationID"))
+}
 
 //funcation Test_GetRecvFriendApplicationList(t *testing.T) {
 //	infos, err := open_im_sdk.UserForSDK.Friend().GetRecvFriendApplicationList(ctx)

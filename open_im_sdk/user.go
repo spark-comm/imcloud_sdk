@@ -16,6 +16,7 @@ package open_im_sdk
 
 import "open_im_sdk/open_im_sdk_callback"
 
+// GetUsersInfo 获取用户信息
 func GetUsersInfo(callback open_im_sdk_callback.Base, operationID string, userIDs string) {
 	call(callback, operationID, UserForSDK.Full().GetUsersInfo, userIDs)
 }

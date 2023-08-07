@@ -16,13 +16,15 @@ package friend
 
 import (
 	"context"
-	"open_im_sdk/internal/util"
-	"open_im_sdk/pkg/constant"
-
+	"errors"
 	friendPb "github.com/imCloud/api/friend/v1"
 	"github.com/imCloud/im/pkg/common/log"
 	"github.com/imCloud/im/pkg/proto/friend"
 	"github.com/imCloud/im/pkg/proto/sdkws"
+	"gorm.io/gorm"
+	"open_im_sdk/internal/util"
+	"open_im_sdk/pkg/constant"
+	"open_im_sdk/pkg/db/model_struct"
 )
 
 // SyncSelfFriendApplication 自己发送的好友请求
@@ -90,4 +92,56 @@ func (f *Friend) SyncBlackList(ctx context.Context) error {
 	}
 	log.ZDebug(ctx, "black from local", "data", localData)
 	return f.blockSyncer.Sync(ctx, util.Batch(ServerBlackToLocalBlack, serverData), localData, nil)
+}
+
+// syncFriendApplicationById 根据id同步好友请求
+func (f *Friend) syncFriendApplicationById(ctx context.Context, fromUserID, toUserID string) error {
+	req := &friendPb.GetFriendRequestByApplicantReq{FromUserID: fromUserID, ToUserID: toUserID}
+	res, err := util.CallApi[friendPb.GetFriendRequestByApplicantReps](ctx, constant.GetFriendRequestByApplicantRouter, req)
+	if err != nil {
+		return err
+	}
+	if res.FriendRequest == nil {
+		log.ZDebug(ctx, "SyncFriendApplicationById res friend request nill")
+		return nil
+	}
+	localData, err := f.db.GetFriendApplicationByBothID(ctx, fromUserID, toUserID)
+	localList := make([]*model_struct.LocalFriendRequest, 0)
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return err
+	} else {
+		localList = append(localList, localData)
+	}
+	return f.requestSendSyncer.Sync(ctx, util.Batch(ServerFriendRequestToLocalFriendRequest, []*friendPb.FriendRequests{res.FriendRequest}), localList, nil)
+}
+
+// syncFriendById 根据id同步好友
+func (f *Friend) syncFriendById(ctx context.Context, fromUserID, friendId string) error {
+	req := &friendPb.ListFriendByIdsReq{UserID: fromUserID, FriendIds: []string{friendId}}
+	res, err := util.CallApi[friendPb.ListFriendByIdsReply](ctx, constant.GetFriendByAppIdsRouter, req)
+	if err != nil {
+		return err
+	}
+	if res.FriendsInfo == nil {
+		log.ZDebug(ctx, "SyncFriendApplicationById res friend request nill")
+		return nil
+	}
+	localData, err := f.db.GetFriendInfoList(ctx, []string{friendId})
+	localList := make([]*model_struct.LocalFriend, 0)
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return err
+	} else {
+		localList = append(localList, localData...)
+	}
+	return f.friendSyncer.Sync(ctx, util.Batch(ServerFriendToLocalFriend, res.FriendsInfo), localData, nil, true)
+}
+
+// syncDelFriend 同步删除好友列表
+func (f *Friend) syncDelFriend(ctx context.Context, friendId string) error {
+	localData, err := f.db.GetFriendInfoList(ctx, []string{friendId})
+	if err != nil {
+		return err
+	}
+	log.ZDebug(ctx, "sync friend", "data from local", localData)
+	return f.friendSyncer.Delete(ctx, localData, nil)
 }

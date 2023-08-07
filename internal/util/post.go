@@ -114,6 +114,7 @@ func CallApi[T any](ctx context.Context, api string, req any) (*T, error) {
 	return &resp, nil
 }
 
+// GetPageAll 获取所有配置
 func GetPageAll[A interface {
 	GetPagination() *sdkws.RequestPagination
 }, B, C any](ctx context.Context, api string, req A, fn func(resp *B) []C) ([]C, error) {

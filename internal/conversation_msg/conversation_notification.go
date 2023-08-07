@@ -615,6 +615,7 @@ func (c *Conversation) doNotificationNew(c2v common.Cmd2Value) {
 	//}
 	switch syncFlag {
 	case constant.MsgSyncBegin:
+		//开始同步数据
 		c.ConversationListener.OnSyncServerStart()
 		if err := c.SyncConversationHashReadSeqs(ctx); err != nil {
 			log.ZError(ctx, "SyncConversationHashReadSeqs err", err)
@@ -630,8 +631,10 @@ func (c *Conversation) doNotificationNew(c2v common.Cmd2Value) {
 			}(syncFunc)
 		}
 	case constant.MsgSyncFailed:
+		// 同步数据错误
 		c.ConversationListener.OnSyncServerFailed()
 	case constant.MsgSyncEnd:
+		// 同步数据结束
 		defer c.ConversationListener.OnSyncServerFinish()
 	}
 

@@ -55,6 +55,7 @@ func (f *Friend) GetSpecifiedFriendsInfo(ctx context.Context, friendUserIDList [
 	return res, nil
 }
 
+// AddFriend 添加好友
 func (f *Friend) AddFriend(ctx context.Context, addRequest *friendPb.AddFriendRequest) error {
 	if addRequest.FromUserID == "" {
 		addRequest.FromUserID = f.loginUserID
@@ -150,7 +151,7 @@ func (f *Friend) DeleteFriend(ctx context.Context, friendUserID string) error {
 		return err
 	}
 	//删除好友后删除对应的会话消息
-	return f.SyncFriendList(ctx)
+	return f.syncDelFriend(ctx, friendUserID)
 }
 
 func (f *Friend) GetFriendList(ctx context.Context) ([]*model_struct.LocalFriend, error) {

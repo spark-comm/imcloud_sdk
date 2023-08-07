@@ -49,6 +49,7 @@ type Friend struct {
 }
 
 func (f *Friend) initSyncer() {
+	//好友信息同步
 	f.friendSyncer = syncer.New(func(ctx context.Context, value *model_struct.LocalFriend) error {
 		return f.db.InsertFriend(ctx, value)
 	}, func(ctx context.Context, value *model_struct.LocalFriend) error {
@@ -82,6 +83,7 @@ func (f *Friend) initSyncer() {
 		}
 		return nil
 	})
+	//黑名单同步
 	f.blockSyncer = syncer.New(func(ctx context.Context, value *model_struct.LocalBlack) error {
 		return f.db.InsertBlack(ctx, value)
 	}, func(ctx context.Context, value *model_struct.LocalBlack) error {
@@ -102,6 +104,7 @@ func (f *Friend) initSyncer() {
 		}
 		return nil
 	})
+	// 收到的申请同步
 	f.requestRecvSyncer = syncer.New(func(ctx context.Context, value *model_struct.LocalFriendRequest) error {
 		return f.db.InsertFriendRequest(ctx, value)
 	}, func(ctx context.Context, value *model_struct.LocalFriendRequest) error {
@@ -131,6 +134,7 @@ func (f *Friend) initSyncer() {
 		}
 		return nil
 	})
+	//发起的申请同步
 	f.requestSendSyncer = syncer.New(func(ctx context.Context, value *model_struct.LocalFriendRequest) error {
 		return f.db.InsertFriendRequest(ctx, value)
 	}, func(ctx context.Context, value *model_struct.LocalFriendRequest) error {
@@ -188,6 +192,7 @@ func (f *Friend) DoNotification(ctx context.Context, msg *sdkws.MsgData) {
 	}()
 }
 
+// syncApplication 同步好友申请
 func (f *Friend) syncApplication(ctx context.Context, from *sdkws.FromToUserID) error {
 	if from.FromUserID == f.loginUserID {
 		// 自己发起的请求
@@ -202,21 +207,23 @@ func (f *Friend) syncApplication(ctx context.Context, from *sdkws.FromToUserID) 
 		}
 		return f.SyncFriendApplication(ctx)
 	}
-	return fmt.Errorf("friend application notification error, fromUserID: %s, toUserID: %s", from.FromUserID, from.ToUserID)
+	return nil
 }
 
-// GetFriendRequestByApplicant ， 根据申请人和被申请人获取请求数据
-// 参数：
-//
-//	ctx ： context.Context 上下文
-//	fromUserId ： string 来源的用户ID
-//	fromUserId ： string 接受者的用户ID
-//
-// 返回值：
-//
-//	*Profile ：desc
-//	error ：desc
-func (f *Friend) GetFriendRequestByApplicant(ctx context.Context, fromUserId, toUserId string) (*model_struct.LocalFriend, error) {
+// syncApplicationByNotification 根据通知同步好友请求
+func (f *Friend) syncApplicationByNotification(ctx context.Context, from *sdkws.FromToUserID) error {
+	err := f.syncFriendApplicationById(ctx, from.FromUserID, from.ToUserID)
+	if err != nil {
+		return fmt.Errorf("friend application notification error, fromUserID: %s, toUserID: %s", from.FromUserID, from.ToUserID)
+	}
+	return nil
+}
 
-	return nil, nil
+// syncFriendByNotification
+func (f *Friend) syncFriendByNotification(ctx context.Context, fromUserID, friendId string) error {
+	err := f.syncFriendById(ctx, fromUserID, friendId)
+	if err != nil {
+		return fmt.Errorf("friend  notification error, fromUserID: %s, toUserID: %s", fromUserID, friendId)
+	}
+	return nil
 }

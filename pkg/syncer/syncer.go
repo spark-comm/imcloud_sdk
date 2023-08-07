@@ -153,3 +153,31 @@ func (s *Syncer[T, V]) Sync(ctx context.Context, serverData []T, localData []T, 
 	}
 	return nil
 }
+
+// Delete 删除
+func (s *Syncer[T, V]) Delete(ctx context.Context, localData []T, notice func(ctx context.Context, state int, server, local T) error) (err error) {
+	defer func() {
+		if err == nil {
+			log.ZDebug(ctx, "sync success", "type", s.ts)
+		} else {
+			log.ZError(ctx, "sync failed", err, "type", s.ts)
+		}
+	}()
+	if len(localData) == 0 {
+		log.ZDebug(ctx, "sync both the server and client are empty", "type", s.ts)
+		return nil
+	}
+	//多余数据表示远程数据已清除，做数据同步删除
+	for _, local := range localData {
+		if err := s.delete(ctx, local); err != nil {
+			log.ZError(ctx, "sync delete failed", err, "type", s.ts, "local", local)
+			return err
+		}
+		var server T
+		if err := s.onNotice(ctx, Delete, server, local, notice); err != nil {
+			log.ZError(ctx, "sync notice delete failed", err, "type", s.ts, "local", local)
+			return err
+		}
+	}
+	return nil
+}

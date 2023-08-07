@@ -335,8 +335,8 @@ const (
 	GroupFilterAdminAndOrdinaryUsers = 4
 	GroupFilterOwnerAndAdmin         = 5
 
-	GroupResponseAgree  = 1  // Response to group application: agree
-	GroupResponseRefuse = -1 // Response to group application: refuse
+	GroupResponseAgree  = 1 // Response to group application: agree
+	GroupResponseRefuse = 2 // Response to group application: refuse
 
 	FriendResponseAgree   = 1  // Response to friend request: agree
 	FriendResponseRefuse  = -1 // Response to friend request: refuse

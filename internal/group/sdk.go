@@ -26,7 +26,6 @@ import (
 
 	groupv1 "github.com/imCloud/api/group/v1"
 	"github.com/imCloud/im/pkg/proto/group"
-	"github.com/imCloud/im/pkg/proto/wrapperspb"
 	"github.com/imCloud/im/pkg/utils"
 )
 
@@ -60,14 +59,13 @@ import (
 //	return g.CreateGroup(ctx, req)
 //}
 
-func (g *Group) CreateGroup(ctx context.Context, req *group.CreateGroupReq) (*groupv1.GroupInfo, error) {
-	if req.OwnerUserID == "" {
-		req.OwnerUserID = g.loginUserID
+func (g *Group) CreateGroup(ctx context.Context, req *groupv1.CrateGroupReq) (*groupv1.GroupInfo, error) {
+	if req.CreatorUserID == "" {
+		req.CreatorUserID = g.loginUserID
 	}
-	if req.GroupInfo.GroupType != constant.WorkingGroup {
+	if req.GroupType != constant.WorkingGroup {
 		return nil, sdkerrs.ErrGroupType
 	}
-	req.GroupInfo.CreatorUserID = g.loginUserID
 	resp, err := util.CallApi[groupv1.GroupInfo](ctx, constant.CreateGroupRouter, req)
 	if err != nil {
 		return nil, err
@@ -111,7 +109,12 @@ func (g *Group) JoinGroup(ctx context.Context, groupID, reqMsg string, joinSourc
 }
 
 func (g *Group) QuitGroup(ctx context.Context, groupID string) error {
-	if err := util.ApiPost(ctx, constant.QuitGroupRouter, &group.QuitGroupReq{GroupID: groupID}, nil); err != nil {
+	if err := util.ApiPost(ctx, constant.QuitGroupRouter, groupv1.CancelMuteGroupMemberReq{
+		GroupID: groupID,
+		UserID:  g.loginUserID,
+	},
+		//&group.QuitGroupReq{GroupID: groupID},
+		nil); err != nil {
 		return err
 	}
 	if err := g.db.DeleteGroupAllMembers(ctx, groupID); err != nil {
@@ -127,7 +130,10 @@ func (g *Group) QuitGroup(ctx context.Context, groupID string) error {
 }
 
 func (g *Group) DismissGroup(ctx context.Context, groupID string) error {
-	if err := util.ApiPost(ctx, constant.DismissGroupRouter, &group.DismissGroupReq{GroupID: groupID}, nil); err != nil {
+	if err := util.ApiPost(ctx, constant.DismissGroupRouter, &groupv1.IsGroupMemberReq{
+		GroupID: groupID,
+		UserID:  g.loginUserID,
+	}, nil); err != nil {
 		return err
 	}
 	if err := g.SyncJoinedGroup(ctx); err != nil {
@@ -141,9 +147,19 @@ func (g *Group) DismissGroup(ctx context.Context, groupID string) error {
 
 func (g *Group) ChangeGroupMute(ctx context.Context, groupID string, isMute bool) (err error) {
 	if isMute {
-		err = util.ApiPost(ctx, constant.MuteGroupRouter, &group.MuteGroupReq{GroupID: groupID}, nil)
+		err = util.ApiPost(ctx, constant.MuteGroupRouter, &groupv1.IsGroupMemberReq{
+			GroupID: groupID,
+			UserID:  g.loginUserID,
+		},
+			//group.MuteGroupReq{GroupID: groupID},
+			nil)
 	} else {
-		err = util.ApiPost(ctx, constant.CancelMuteGroupRouter, &group.CancelMuteGroupReq{GroupID: groupID}, nil)
+		err = util.ApiPost(ctx, constant.CancelMuteGroupRouter, &groupv1.CancelMuteGroupMemberReq{
+			GroupID: groupID,
+			UserID:  g.loginUserID,
+		},
+			//group.CancelMuteGroupReq{GroupID: groupID},
+			nil)
 	}
 	if err != nil {
 		return err
@@ -156,9 +172,22 @@ func (g *Group) ChangeGroupMute(ctx context.Context, groupID string, isMute bool
 
 func (g *Group) ChangeGroupMemberMute(ctx context.Context, groupID, userID string, mutedSeconds int) (err error) {
 	if mutedSeconds == 0 {
-		err = util.ApiPost(ctx, constant.CancelMuteGroupMemberRouter, &group.CancelMuteGroupMemberReq{GroupID: groupID, UserID: userID}, nil)
+		err = util.ApiPost(ctx, constant.CancelMuteGroupMemberRouter, &groupv1.CancelMuteGroupMemberReq{
+			GroupID: groupID,
+			UserID:  userID,
+			PUserID: g.loginUserID,
+		},
+			//group.CancelMuteGroupMemberReq{GroupID: groupID, UserID: userID},
+			nil)
 	} else {
-		err = util.ApiPost(ctx, constant.MuteGroupMemberRouter, &group.MuteGroupMemberReq{GroupID: groupID, UserID: userID, MutedSeconds: uint32(mutedSeconds)}, nil)
+		err = util.ApiPost(ctx, constant.MuteGroupMemberRouter, &groupv1.MuteGroupMemberReq{
+			GroupID:      groupID,
+			UserID:       userID,
+			MutedSeconds: int64(mutedSeconds),
+			PUserID:      g.loginUserID,
+		},
+			//&group.MuteGroupMemberReq{GroupID: groupID, UserID: userID, MutedSeconds: uint32(mutedSeconds)},
+			nil)
 	}
 	if err != nil {
 		return err
@@ -173,18 +202,28 @@ func (g *Group) ChangeGroupMemberMute(ctx context.Context, groupID, userID strin
 }
 
 func (g *Group) SetGroupMemberRoleLevel(ctx context.Context, groupID, userID string, roleLevel int) error {
-	return g.SetGroupMemberInfo(ctx, &group.SetGroupMemberInfo{
+	return g.SetGroupMemberInfo(ctx, &groupv1.SetGroupMemberInfo{
 		GroupID:   groupID,
 		UserID:    userID,
-		RoleLevel: wrapperspb.Int32(int32(roleLevel))})
+		RoleLevel: rune(roleLevel),
+	})
 }
 
 func (g *Group) SetGroupMemberNickname(ctx context.Context, groupID, userID string, groupMemberNickname string) error {
-	return g.SetGroupMemberInfo(ctx, &group.SetGroupMemberInfo{GroupID: groupID, UserID: userID, Nickname: wrapperspb.String(groupMemberNickname)})
+	return g.SetGroupMemberInfo(ctx, &groupv1.SetGroupMemberInfo{
+		GroupID:  groupID,
+		UserID:   userID,
+		Nickname: groupMemberNickname,
+	})
+	//&group.SetGroupMemberInfo{GroupID: groupID, UserID: userID, Nickname: wrapperspb.String(groupMemberNickname)})
 }
 
-func (g *Group) SetGroupMemberInfo(ctx context.Context, groupMemberInfo *group.SetGroupMemberInfo) error {
-	if err := util.ApiPost(ctx, constant.SetGroupMemberInfoRouter, &group.SetGroupMemberInfoReq{Members: []*group.SetGroupMemberInfo{groupMemberInfo}}, nil); err != nil {
+func (g *Group) SetGroupMemberInfo(ctx context.Context, groupMemberInfo *groupv1.SetGroupMemberInfo) error {
+	if err := util.ApiPost(ctx, constant.SetGroupMemberInfoRouter, &groupv1.SetGroupMemberInfoReq{
+		Members: []*groupv1.SetGroupMemberInfo{groupMemberInfo},
+	},
+		//&group.SetGroupMemberInfoReq{Members: []*group.SetGroupMemberInfo{groupMemberInfo}},
+		nil); err != nil {
 		return err
 	}
 	return g.SyncGroupMember(ctx, groupMemberInfo.GroupID)
@@ -232,7 +271,7 @@ func (g *Group) GetSpecifiedGroupsInfo(ctx context.Context, groupIDs []string) (
 	return res, nil
 }
 
-//SearchGroups 本地数据过滤
+// SearchGroups 本地数据过滤
 func (g *Group) SearchGroups(ctx context.Context, param sdk_params_callback.SearchGroupsParam) ([]*model_struct.LocalGroup, error) {
 	if len(param.KeywordList) == 0 || (!param.IsSearchGroupName && !param.IsSearchGroupID) {
 		return nil, sdkerrs.ErrArgs.Wrap("keyword is null or search field all false")
@@ -316,7 +355,14 @@ func (g *Group) GetSpecifiedGroupMembersInfo(ctx context.Context, groupID string
 }
 
 func (g *Group) KickGroupMember(ctx context.Context, groupID string, reason string, userIDList []string) error {
-	if err := util.ApiPost(ctx, constant.KickGroupMemberRouter, &group.KickGroupMemberReq{GroupID: groupID, KickedUserIDs: userIDList, Reason: reason}, nil); err != nil {
+	if err := util.ApiPost(ctx, constant.KickGroupMemberRouter, &groupv1.KickGroupMemberReq{
+		GroupID:          groupID,
+		KickedUserIdList: userIDList,
+		UserID:           g.loginUserID,
+		HandledMsg:       reason,
+	},
+		//&group.KickGroupMemberReq{GroupID: groupID, KickedUserIDs: userIDList, Reason: reason},
+		nil); err != nil {
 		return err
 	}
 	return g.SyncGroupMember(ctx, groupID)
@@ -357,14 +403,33 @@ func (g *Group) GetGroupApplicationListAsApplicant(ctx context.Context) ([]*mode
 }
 
 func (g *Group) AcceptGroupApplication(ctx context.Context, groupID, fromUserID, handleMsg string) error {
-	return g.HandlerGroupApplication(ctx, &group.GroupApplicationResponseReq{GroupID: groupID, FromUserID: fromUserID, HandledMsg: handleMsg, HandleResult: constant.GroupResponseAgree})
+	return g.HandlerGroupApplication(ctx,
+		&groupv1.ApplicationResponseReq{
+			GroupID:      groupID,
+			FromUserID:   fromUserID,
+			HandledMsg:   handleMsg,
+			HandleResult: constant.GroupResponseAgree,
+			UserID:       g.loginUserID,
+		})
+	//&group.GroupApplicationResponseReq{GroupID: groupID,
+	//FromUserID: fromUserID, HandledMsg: handleMsg,
+	//HandleResult: constant.GroupResponseAgree})
 }
 
 func (g *Group) RefuseGroupApplication(ctx context.Context, groupID, fromUserID, handleMsg string) error {
-	return g.HandlerGroupApplication(ctx, &group.GroupApplicationResponseReq{GroupID: groupID, FromUserID: fromUserID, HandledMsg: handleMsg, HandleResult: constant.GroupResponseRefuse})
+	return g.HandlerGroupApplication(ctx,
+		&groupv1.ApplicationResponseReq{
+			GroupID:      groupID,
+			FromUserID:   fromUserID,
+			HandledMsg:   handleMsg,
+			HandleResult: constant.GroupResponseRefuse,
+			UserID:       g.loginUserID,
+		})
+	//&group.GroupApplicationResponseReq{GroupID: groupID,
+	//	FromUserID: fromUserID, HandledMsg: handleMsg, HandleResult: constant.GroupResponseRefuse})
 }
 
-func (g *Group) HandlerGroupApplication(ctx context.Context, req *group.GroupApplicationResponseReq) error {
+func (g *Group) HandlerGroupApplication(ctx context.Context, req *groupv1.ApplicationResponseReq) error {
 	if err := util.ApiPost(ctx, constant.AcceptGroupApplicationRouter, req, nil); err != nil {
 		return err
 	}
@@ -373,7 +438,14 @@ func (g *Group) HandlerGroupApplication(ctx context.Context, req *group.GroupApp
 }
 
 func (g *Group) SearchGroupMembers(ctx context.Context, searchParam *sdk_params_callback.SearchGroupMembersParam) ([]*model_struct.LocalGroupMember, error) {
-	return g.db.SearchGroupMembersDB(ctx, searchParam.KeywordList[0], searchParam.GroupID, searchParam.IsSearchMemberNickname, searchParam.IsSearchUserID, searchParam.Offset, searchParam.Count)
+	return g.db.SearchGroupMembersDB(
+		ctx,
+		searchParam.KeywordList[0],
+		searchParam.GroupID,
+		searchParam.IsSearchMemberNickname,
+		searchParam.IsSearchUserID,
+		searchParam.Offset,
+		searchParam.Count)
 }
 
 func (g *Group) IsJoinGroup(ctx context.Context, groupID string) (bool, error) {

@@ -21,20 +21,17 @@ import (
 	"testing"
 	"time"
 
-	"github.com/imCloud/im/pkg/proto/group"
-	"github.com/imCloud/im/pkg/proto/sdkws"
-	"github.com/imCloud/im/pkg/proto/wrapperspb"
+	groupv1 "github.com/imCloud/api/group/v1"
 )
 
 func Test_CreateGroupV2(t *testing.T) {
-	req := &group.CreateGroupReq{
-		MemberUserIDs: []string{},
-		AdminUserIDs:  []string{},
-		OwnerUserID:   UserID,
-		GroupInfo: &sdkws.GroupInfo{
-			GroupName: "test-gro2up",
-			GroupType: 2,
-		},
+	req := &groupv1.CrateGroupReq{
+		MemberList:   []string{"1463426311015", "1463426512456", "1463426515762", "1463426574029"},
+		GroupName:    "圣光裁决",
+		GroupType:    2,
+		Notification: "公告：这是一个荣誉",
+		Introduction: "洗脑群",
+		FaceURL:      "https://dfsjk/djfhsd/5d1f5562d/154452.jpg",
 	}
 	info, err := open_im_sdk.UserForSDK.Group().CreateGroup(ctx, req)
 	if err != nil {
@@ -44,7 +41,10 @@ func Test_CreateGroupV2(t *testing.T) {
 }
 
 func Test_JoinGroup(t *testing.T) {
-	err := open_im_sdk.UserForSDK.Group().JoinGroup(ctx, "1728503199", "1234", 1)
+	err := open_im_sdk.UserForSDK.Group().JoinGroup(ctx,
+		"50069143293952",
+		"进群收钱呀",
+		1)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -52,7 +52,7 @@ func Test_JoinGroup(t *testing.T) {
 }
 
 func Test_QuitGroup(t *testing.T) {
-	err := open_im_sdk.UserForSDK.Group().QuitGroup(ctx, "xadxwr24")
+	err := open_im_sdk.UserForSDK.Group().QuitGroup(ctx, "106366035300352")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -60,7 +60,7 @@ func Test_QuitGroup(t *testing.T) {
 }
 
 func Test_DismissGroup(t *testing.T) {
-	err := open_im_sdk.UserForSDK.Group().DismissGroup(ctx, "1728503199")
+	err := open_im_sdk.UserForSDK.Group().DismissGroup(ctx, "50069143293952")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -68,7 +68,7 @@ func Test_DismissGroup(t *testing.T) {
 }
 
 func Test_ChangeGroupMute(t *testing.T) {
-	err := open_im_sdk.UserForSDK.Group().ChangeGroupMute(ctx, "3459296007", true)
+	err := open_im_sdk.UserForSDK.Group().ChangeGroupMute(ctx, "50069143293952", true)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -76,7 +76,7 @@ func Test_ChangeGroupMute(t *testing.T) {
 }
 
 func Test_CancelMuteGroup(t *testing.T) {
-	err := open_im_sdk.UserForSDK.Group().ChangeGroupMute(ctx, "3459296007", false)
+	err := open_im_sdk.UserForSDK.Group().ChangeGroupMute(ctx, "50069143293952", false)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -84,7 +84,11 @@ func Test_CancelMuteGroup(t *testing.T) {
 }
 
 func Test_ChangeGroupMemberMute(t *testing.T) {
-	err := open_im_sdk.UserForSDK.Group().ChangeGroupMemberMute(ctx, "3459296007", UserID, 10000)
+	err := open_im_sdk.UserForSDK.Group().ChangeGroupMemberMute(
+		ctx,
+		"50069143293952",
+		"1463426574029",
+		10000)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -92,7 +96,10 @@ func Test_ChangeGroupMemberMute(t *testing.T) {
 }
 
 func Test_CancelChangeGroupMemberMute(t *testing.T) {
-	err := open_im_sdk.UserForSDK.Group().ChangeGroupMemberMute(ctx, "3459296007", UserID, 0)
+	err := open_im_sdk.UserForSDK.Group().ChangeGroupMemberMute(ctx,
+		"50069143293952",
+		"1463426574029",
+		0)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -101,7 +108,11 @@ func Test_CancelChangeGroupMemberMute(t *testing.T) {
 
 func Test_SetGroupMemberRoleLevel(t *testing.T) {
 	// 1:普通成员 2:群主 3:管理员
-	err := open_im_sdk.UserForSDK.Group().SetGroupMemberRoleLevel(ctx, "3459296007", "45644221123", 1)
+	err := open_im_sdk.UserForSDK.Group().SetGroupMemberRoleLevel(
+		ctx,
+		"50069143293952",
+		"1463426574029",
+		3)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -109,7 +120,11 @@ func Test_SetGroupMemberRoleLevel(t *testing.T) {
 }
 
 func Test_SetGroupMemberNickname(t *testing.T) {
-	err := open_im_sdk.UserForSDK.Group().SetGroupMemberNickname(ctx, "3459296007", "45644221123", "test1234")
+	err := open_im_sdk.UserForSDK.Group().SetGroupMemberNickname(
+		ctx,
+		"50069143293952",
+		"1463426574029",
+		"不灭之祸")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -118,11 +133,11 @@ func Test_SetGroupMemberNickname(t *testing.T) {
 
 func Test_SetGroupMemberInfo(t *testing.T) {
 	// 1:普通成员 2:群主 3:管理员
-	err := open_im_sdk.UserForSDK.Group().SetGroupMemberInfo(ctx, &group.SetGroupMemberInfo{
-		GroupID:  "3459296007",
-		UserID:   UserID,
-		FaceURL:  wrapperspb.String("https://doc.rentsoft.cn/images/logo.png"),
-		Nickname: wrapperspb.String("testupdatename"),
+	err := open_im_sdk.UserForSDK.Group().SetGroupMemberInfo(ctx, &groupv1.SetGroupMemberInfo{
+		GroupID:  "50069143293952",
+		UserID:   "1463426574029",
+		FaceURL:  "https://doc.rentsoft.cn/images/logo.png",
+		Nickname: "熔火之心",
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -142,7 +157,8 @@ func Test_GetJoinedGroupList(t *testing.T) {
 }
 
 func Test_GetSpecifiedGroupsInfo(t *testing.T) {
-	info, err := open_im_sdk.UserForSDK.Group().GetSpecifiedGroupsInfo(ctx, []string{"2344707053"})
+	info, err := open_im_sdk.UserForSDK.Group().GetSpecifiedGroupsInfo(
+		ctx, []string{"50069143293952"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -175,7 +191,10 @@ func Test_GetGroupApplicationListAsApplicant(t *testing.T) {
 }
 
 func Test_AcceptGroupApplication(t *testing.T) {
-	err := open_im_sdk.UserForSDK.Group().AcceptGroupApplication(ctx, "3459296007", "863454357", "test accept")
+	err := open_im_sdk.UserForSDK.Group().AcceptGroupApplication(ctx,
+		"50069143293952",
+		"1463426515762",
+		"test accept")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -184,7 +203,11 @@ func Test_AcceptGroupApplication(t *testing.T) {
 
 func Test_RefuseGroupApplication(t *testing.T) {
 	t.Log("operationID:", ctx.Value("operationID"))
-	err := open_im_sdk.UserForSDK.Group().RefuseGroupApplication(ctx, "3459296007", "863454357", "test refuse")
+	err := open_im_sdk.UserForSDK.Group().RefuseGroupApplication(
+		ctx,
+		"171491979169792",
+		"1463426311015",
+		"test refuse")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -201,10 +224,10 @@ func Test_HandlerGroupApplication(t *testing.T) {
 
 func Test_SearchGroupMembers(t *testing.T) {
 	info, err := open_im_sdk.UserForSDK.Group().SearchGroupMembers(ctx, &sdk_params_callback.SearchGroupMembersParam{
-		GroupID:                "3459296007",
-		KeywordList:            []string{""},
+		GroupID:                "171491979169792",
+		KeywordList:            []string{"之"},
 		IsSearchUserID:         false,
-		IsSearchMemberNickname: false,
+		IsSearchMemberNickname: true,
 		Offset:                 0,
 		Count:                  10,
 	})
@@ -218,7 +241,11 @@ func Test_SearchGroupMembers(t *testing.T) {
 }
 
 func Test_KickGroupMember(t *testing.T) {
-	err := open_im_sdk.UserForSDK.Group().KickGroupMember(ctx, "3459296007", "test", []string{"863454357"})
+	err := open_im_sdk.UserForSDK.Group().KickGroupMember(
+		ctx,
+		"171491979169792",
+		"我要踢人",
+		[]string{"1463426512456"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -226,7 +253,10 @@ func Test_KickGroupMember(t *testing.T) {
 }
 
 func Test_TransferGroupOwner(t *testing.T) {
-	err := open_im_sdk.UserForSDK.Group().TransferGroupOwner(ctx, "1728503199", "5226390099")
+	err := open_im_sdk.UserForSDK.Group().TransferGroupOwner(
+		ctx,
+		"171491979169792",
+		"1463426574029")
 	if err != nil {
 		t.Fatal(err)
 	}

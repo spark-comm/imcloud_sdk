@@ -38,6 +38,7 @@ const (
 	GetBlackListRouter = BaseRouter + "/friend/get_black_list"
 	// GetFriendRequestByApplicantRouter 通过申请与被申请人获取好友请求详情
 	GetFriendRequestByApplicantRouter = BaseRouter + "/friend/get_friend_request_by_applicant"
+	GetFriendByAppIdsRouter           = BaseRouter + "/friend/get_friend_by_ids"
 	SendMsgRouter                     = "/chat/send_msg"
 	PullUserMsgRouter                 = "/chat/pull_msg"
 	PullUserMsgBySeqRouter            = BaseRouter + "/msg/pull_msg_by_seq"
@@ -126,10 +127,10 @@ const (
 )
 
 const (
-	ObjectPartLimit               = "/object/part_limit"
-	ObjectPartSize                = "/object/part_size"
-	ObjectInitiateMultipartUpload = "/object/initiate_multipart_upload"
-	ObjectAuthSign                = "/object/auth_sign"
-	ObjectCompleteMultipartUpload = "/object/complete_multipart_upload"
-	ObjectAccessURL               = "/object/access_url"
+	ObjectPartLimit               = BaseRouter + "/third/part_limit"
+	ObjectPartSize                = BaseRouter + "/third/part_size"
+	ObjectInitiateMultipartUpload = BaseRouter + "/third/init_multi_upload"
+	ObjectAuthSign                = BaseRouter + "/third/auth_sign"
+	ObjectCompleteMultipartUpload = BaseRouter + "/third/complete_multi_upload"
+	ObjectAccessURL               = BaseRouter + "/third/access_url"
 )

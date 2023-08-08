@@ -76,7 +76,8 @@ func Test_GetConversationRecvMessageOpt(t *testing.T) {
 }
 
 func Test_GetGlobalRecvMessageOpt(t *testing.T) {
-	opt, err := open_im_sdk.UserForSDK.Conversation().GetOneConversation(ctx, 1, UserID)
+	opt, err := open_im_sdk.UserForSDK.Conversation().
+		GetOneConversation(ctx, 3, "171491979169792")
 	if err != nil {
 		t.Fatal(err)
 	}

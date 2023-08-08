@@ -18,6 +18,7 @@ import (
 	"context"
 	"open_im_sdk/pkg/db/model_struct"
 	"open_im_sdk/pkg/db/pg"
+	"open_im_sdk/pkg/sdk_params_callback"
 	"open_im_sdk/sdk_struct"
 )
 
@@ -69,6 +70,8 @@ type GroupDatabase interface {
 	UpdateGroupMemberField(ctx context.Context, groupID, userID string, args map[string]interface{}) error
 	GetGroupMemberInfoIfOwnerOrAdmin(ctx context.Context) ([]*model_struct.LocalGroupMember, error)
 	SearchGroupMembersDB(ctx context.Context, keyword string, groupID string, isSearchMemberNickname, isSearchUserID bool, offset, count int) (result []*model_struct.LocalGroupMember, err error)
+	//SearchKickMemberList 获取可踢用户列表
+	SearchKickMemberList(ctx context.Context, params sdk_params_callback.GetKickGroupListReq) ([]*sdk_params_callback.KickGroupList, error)
 }
 
 type MessageDatabase interface {
@@ -249,6 +252,8 @@ type FriendDatabase interface {
 	DeleteBlack(ctx context.Context, blockUserID string) error
 	//GetUnprocessedNum 获取未处理的好友申请数
 	GetUnprocessedNum(ctx context.Context) (int64, error)
+	//获取不在列表的好友数据
+	GetNotInListFriendInfo(ctx context.Context, cond, user string, userIDs []string, pageSize, pageNum int) ([]sdk_params_callback.SearchNotInGroupUserResp, int64, error)
 }
 
 type ReactionDatabase interface {

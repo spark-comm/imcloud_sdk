@@ -20,8 +20,10 @@ package db
 import (
 	"context"
 	"errors"
+	"gorm.io/gorm"
 	"open_im_sdk/pkg/db/model_struct"
 	"open_im_sdk/pkg/db/pg"
+	"open_im_sdk/pkg/sdk_params_callback"
 	"open_im_sdk/pkg/utils"
 )
 
@@ -112,4 +114,25 @@ func (d *DataBase) GetUnprocessedNum(ctx context.Context) (int64, error) {
 		return 0, err
 	}
 	return count, nil
+}
+
+func (d *DataBase) GetNotInListFriendInfo(ctx context.Context, cond, user string, userIDs []string, pageSize, pageNum int) ([]sdk_params_callback.SearchNotInGroupUserResp, int64, error) {
+	d.friendMtx.Lock()
+	defer d.friendMtx.Unlock()
+	total := int64(0)
+	result := []sdk_params_callback.SearchNotInGroupUserResp{}
+	err := d.conn.WithContext(ctx).Model(&model_struct.LocalFriend{}).Select([]string{
+		"friend_user_id", "face_url", "nickname", "code", "phone", "gender", "remark",
+	}).Where("owner_user_id = ?", user).Scopes(func(db *gorm.DB) *gorm.DB {
+		if len(userIDs) > 0 {
+			db.Where("friend_user_id NOT IN (?)", userIDs)
+		}
+		if cond != "" {
+			db.Where("nickname LIKE ? OR remark LIKE ?", "%"+cond+"%", "%"+cond+"%")
+		}
+		return db
+	}).Count(&total).
+		Offset((pageNum - 1) * pageSize).Limit(pageSize).
+		Find(&result).Error
+	return result, total, err
 }

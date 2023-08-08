@@ -21,9 +21,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"gorm.io/gorm"
 	"open_im_sdk/pkg/constant"
 	"open_im_sdk/pkg/db/model_struct"
 	"open_im_sdk/pkg/log"
+	"open_im_sdk/pkg/sdk_params_callback"
 	"open_im_sdk/pkg/utils"
 )
 
@@ -301,4 +303,50 @@ func (d *DataBase) GetGroupMemberAllGroupIDs(ctx context.Context) ([]string, err
 		return nil, err
 	}
 	return groupIDs, nil
+}
+
+func (d *DataBase) SearchKickMemberList(ctx context.Context, params sdk_params_callback.GetKickGroupListReq) ([]*sdk_params_callback.KickGroupList, error) {
+	d.groupMtx.Lock()
+	defer d.groupMtx.Unlock()
+	tx1 := d.conn.WithContext(ctx).Model(&model_struct.LocalGroupMember{}).
+		Select([]string{
+			"group_id", "user_id", "nickname", "role_level", "join_time", "face_url",
+			"code", "phone", "gender",
+		}).Where("group_id = ? AND user_id != ?", params.GroupID, params.UserID).
+		Scopes(func(db *gorm.DB) *gorm.DB {
+			if params.IsManger { //管理员只可踢普通用户
+				db.Where("role_level = ?", 1)
+			}
+			db.Where("nickname LIKE ?", "%"+params.Name+"%")
+			return db
+		})
+	tx2 := d.conn.WithContext(ctx).Model(&model_struct.LocalGroupMember{}).Select([]string{
+		"group_id", "user_id", "nickname", "role_level", "join_time", "face_url",
+		"code", "phone", "gender",
+	}).Where("group_id = ? AND user_id != ?", params.GroupID, params.UserID).
+		Scopes(func(db *gorm.DB) *gorm.DB {
+			if params.IsManger { //管理员只可踢普通用户
+				db.Where("role_level = ?", 1)
+			}
+			db.Where("group_user_name LIKE ?", "%"+params.Name+"%")
+			return db
+		})
+	tx3 := d.conn.WithContext(ctx).Model(&model_struct.LocalGroupMember{}).
+		Select([]string{
+			"group_id", "user_id", "nickname", "role_level", "join_time", "face_url",
+			"code", "phone", "gender", "group_user_name",
+		}).Where("group_id = ? AND user_id != ?", params.GroupID, params.UserID).
+		Scopes(func(db *gorm.DB) *gorm.DB {
+			if params.IsManger { //管理员只可踢普通用户
+				db.Where("role_level = ?", 1)
+			}
+			db.Where("phone LIKE ?", "%"+params.Name+"%")
+			return db
+		})
+	total := int64(0)
+	result := make([]*sdk_params_callback.KickGroupList, 0)
+	err := d.conn.WithContext(ctx).Table("(?) AS t", d.conn.Raw("? UNION ? UNION ?", tx1, tx2, tx3)).
+		Count(&total).Order("CONVERT(nickname USING gbk) COLLATE gbk_chinese_ci").
+		Offset((params.PageNum - 1) * params.PageSize).Limit(params.PageSize).Find(&result).Error
+	return result, err
 }

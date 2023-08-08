@@ -481,3 +481,49 @@ func (g *Group) IsJoinGroup(ctx context.Context, groupID string) (bool, error) {
 	}
 	return false, nil
 }
+
+func (g *Group) KickGroupMemberList(ctx context.Context, searchParam *sdk_params_callback.GetKickGroupListReq) ([]*sdk_params_callback.KickGroupList, error) {
+	if searchParam.PageNum == 0 {
+		searchParam.PageNum = 1
+	}
+	if searchParam.PageSize == 0 {
+		searchParam.PageSize = 20
+	}
+	return g.db.SearchKickMemberList(ctx, sdk_params_callback.GetKickGroupListReq{
+		GroupID:  searchParam.GroupID,
+		IsManger: searchParam.IsManger,
+		Name:     searchParam.Name,
+		PageSize: searchParam.PageSize,
+		PageNum:  searchParam.PageNum,
+		UserID:   g.loginUserID,
+	})
+}
+
+func (g *Group) GetNotInGroupFriendInfoList(ctx context.Context, searchParam *sdk_params_callback.GetKickGroupListReq) (sdk_params_callback.SearchNotInGroupUserInfoRes, error) {
+	if searchParam.PageNum == 0 {
+		searchParam.PageNum = 1
+	}
+	if searchParam.PageSize == 0 {
+		searchParam.PageSize = 20
+	}
+	result := sdk_params_callback.SearchNotInGroupUserInfoRes{}
+	groupMember, err := g.db.GetGroupMemberListByGroupID(ctx, searchParam.GroupID)
+	if err != nil {
+		return result, err
+	}
+	groupFriends := []string{}
+	for _, member := range groupMember {
+		groupFriends = append(groupFriends, member.UserID)
+	}
+	info, total, err := g.db.GetNotInListFriendInfo(
+		ctx,
+		searchParam.Name,
+		g.loginUserID,
+		groupFriends,
+		searchParam.PageSize,
+		searchParam.PageNum,
+	)
+	result.Total = total
+	result.Friends = info
+	return result, nil
+}

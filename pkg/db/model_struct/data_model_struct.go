@@ -178,8 +178,9 @@ type LocalGroup struct {
 type LocalGroupMember struct {
 	GroupID        string `gorm:"column:group_id;primary_key;type:varchar(64);comment:群id" json:"groupID"`
 	UserID         string `gorm:"column:user_id;primary_key;type:varchar(64);comment:用户id" json:"userID"`
-	FaceURL        string `gorm:"column:face_url;size:255;comment:头像" json:"faceURL" `
-	Nickname       string `gorm:"column:nickname;size:255;comment:用户昵称" json:"nickname" `
+	FaceURL        string `gorm:"column:face_url;size:255;comment:头像" json:"faceURL"`
+	Nickname       string `gorm:"column:nickname;size:255;comment:用户昵称" json:"nickname"`
+	GroupUserName  string `gorm:"column:group_user_name;size:255;comment:用户群中昵称" json:"groupUserName"`
 	Message        string `gorm:"column:message;size:255;comment:个性签名" json:"message"`
 	Code           string `gorm:"column:code;size:6;comment:用户ID" json:"code"`
 	Phone          string `gorm:"column:phone;size:16;comment:手机号码" json:"phone"`

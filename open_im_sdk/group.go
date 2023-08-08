@@ -135,3 +135,13 @@ func SearchGroupMembers(callback open_im_sdk_callback.Base, operationID string, 
 func IsJoinGroup(callback open_im_sdk_callback.Base, operationID string, groupID string) {
 	call(callback, operationID, UserForSDK.Group().IsJoinGroup, groupID)
 }
+
+// GetKickGroupMemberList 获取可踢用户列表
+func GetKickGroupMemberList(callback open_im_sdk_callback.Base, operationID, searchParam string) {
+	call(callback, operationID, UserForSDK.Group().KickGroupMemberList, searchParam)
+}
+
+// SearchNotInGroupFriendList 获取可邀请入群好友列表
+func SearchNotInGroupFriendList(callback open_im_sdk_callback.Base, operationID, searchParam string) {
+	call(callback, operationID, UserForSDK.Group().GetNotInGroupFriendInfoList, searchParam)
+}

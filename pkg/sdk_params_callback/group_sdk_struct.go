@@ -109,3 +109,48 @@ const AcceptGroupApplicationCallback = constant.SuccessCallbackDefault
 
 // type RefuseGroupApplicationParam
 const RefuseGroupApplicationCallback = constant.SuccessCallbackDefault
+
+type GetKickGroupListReq struct {
+	GroupID  string `json:"groupID"`
+	IsManger bool   `json:"isManger"`
+	Name     string `json:"name"`
+	PageSize int    `json:"pageSize"`
+	PageNum  int    `json:"pageNum"`
+	UserID   string `json:"userID"`
+}
+
+type KickGroupList struct {
+	GroupId       string `json:"group_id"`
+	UserId        string `json:"user_id"`
+	Nickname      string `json:"nickname"`
+	RoleLevel     int    `json:"role_level"`
+	JoinTime      int64  `json:"join_time"`
+	FaceURL       string `json:"face_url"`
+	Code          string `json:"code"`
+	Phone         string `json:"phone"`
+	Gender        int    `json:"gender"`
+	GroupUserName string `json:"group_user_name"`
+}
+
+type SearchNotInGroupUserReq struct {
+	GroupId  string `json:"group_id"`
+	UserId   string `json:"user_id"`
+	Name     string `json:"name"`
+	PageSize int    `json:"pageSize"`
+	PageNum  int    `json:"pageNum"`
+}
+
+type SearchNotInGroupUserResp struct {
+	FriendUserID string `json:"friend_user_id"`
+	FaceURL      string `json:"face_url"`
+	Nickname     string `json:"nickname"`
+	Code         string `json:"code"`
+	Phone        string `json:"phone"`
+	Gender       int32  `json:"gender"`
+	Remark       string `json:"remark"`
+}
+
+type SearchNotInGroupUserInfoRes struct {
+	Total   int64                      `json:"total"`
+	Friends []SearchNotInGroupUserResp `json:"friends"`
+}

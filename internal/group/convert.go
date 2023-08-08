@@ -56,6 +56,7 @@ func ServerGroupMemberToLocalGroupMember(info *groupv1.MembersInfo) *model_struc
 		RoleLevel:      info.RoleLevel,
 		JoinTime:       info.JoinTime,
 		Nickname:       info.Nickname,
+		GroupUserName:  info.GroupUserName,
 		FaceURL:        info.FaceUrl,
 		AttachedInfo:   info.AttachedInfo,
 		JoinSource:     info.JoinSource,

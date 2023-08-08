@@ -185,8 +185,8 @@ func Test_SendMsgBatch(t *testing.T) {
 // 批量发送消息：群聊消息
 func Test_SendMsgByGroup(t *testing.T) {
 	// 用户A 向 群组 发送多条消息
-	userA := "2935954421"
-	group := "1347996360"
+	userA := "1463426515762"
+	group := "171491979169792"
 	msg := fmt.Sprintf("%v send to %v a message", userA, group)
 	t.Log("prefix ", msg)
 	funcation.LoginOne(userA)
@@ -201,7 +201,7 @@ func Test_SendMsgByGroup(t *testing.T) {
 		OperationID: operationID,
 	})
 
-	for i := 1; i <= 100000; i++ {
+	for i := 1; i <= 100; i++ {
 		time.Sleep(time.Duration(200) * time.Millisecond)
 		msg := fmt.Sprintf("%v send to %v message by %d ", userA, group, i)
 		funcation.SendMsg(ctx, userA, "", group, msg)

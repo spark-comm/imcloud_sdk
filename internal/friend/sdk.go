@@ -168,22 +168,7 @@ func (f *Friend) GetFriendList(ctx context.Context) ([]*model_struct.LocalFriend
 	if err != nil {
 		return nil, err
 	}
-	//localBlackList, err := f.db.GetBlackListDB(ctx)
-	//if err != nil {
-	//	return nil, err
-	//}
-	//m := make(map[string]*model_struct.LocalBlack)
-	//for i, black := range localBlackList {
-	//	m[black.BlockUserID] = localBlackList[i]
-	//}
-	//res := make([]*server_api_params.FullUserInfo, 0, len(localFriendList))
-	//for _, localFriend := range localFriendList {
-	//	res = append(res, &server_api_params.FullUserInfo{
-	//		PublicInfo: nil,
-	//		FriendInfo: localFriend,
-	//		BlackInfo:  m[localFriend.FriendUserID],
-	//	})
-	//}
+
 	return localFriendList, nil
 }
 
@@ -192,22 +177,6 @@ func (f *Friend) GetFriendListPage(ctx context.Context, no, size int64) ([]*mode
 	if err != nil {
 		return nil, err
 	}
-	//localBlackList, err := f.db.GetBlackListDB(ctx)
-	//if err != nil {
-	//	return nil, err
-	//}
-	//m := make(map[string]*model_struct.LocalBlack)
-	//for i, black := range localBlackList {
-	//	m[black.BlockUserID] = localBlackList[i]
-	//}
-	//res := make([]*server_api_params.FullUserInfo, 0, len(localFriendList))
-	//for _, localFriend := range localFriendList {
-	//	res = append(res, &server_api_params.FullUserInfo{
-	//		PublicInfo: nil,
-	//		FriendInfo: localFriend,
-	//		BlackInfo:  m[localFriend.FriendUserID],
-	//	})
-	//}
 	return localFriendList, nil
 }
 

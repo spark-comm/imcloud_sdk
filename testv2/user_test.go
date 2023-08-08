@@ -50,7 +50,7 @@ func Test_GetUsersInfo(t *testing.T) {
 func Test_SetSelfInfo(t *testing.T) {
 	go func() {
 		newNickName := "test5"
-		newFaceURL := "http://test1.com"
+		newFaceURL := "http://localhost:9099/api/app/object/48672487050842112/icon.png"
 		err := open_im_sdk.UserForSDK.User().SetSelfInfo(ctx, &imUserPb.UpdateProfileReq{
 			Nickname: newNickName,
 			FaceURL:  newFaceURL,

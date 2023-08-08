@@ -32,7 +32,7 @@ const (
 	GetFriendListRouter                = BaseRouter + "/friend/get_friend_list"
 	AddFriendResponse                  = BaseRouter + "/friend/add_friend_response"
 	SetFriendRemark                    = BaseRouter + "/friend/set_friend_remark"
-
+	// 黑明单
 	AddBlackRouter     = BaseRouter + "/friend/add_black"
 	RemoveBlackRouter  = BaseRouter + "/friend/remove_black"
 	GetBlackListRouter = BaseRouter + "/friend/get_black_list"

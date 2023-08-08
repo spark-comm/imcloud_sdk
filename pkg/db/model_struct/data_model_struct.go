@@ -252,7 +252,7 @@ type LocalGroupRequest struct {
 // open_im_sdk.User == imdb.User
 type LocalUser struct {
 	UserID              string `json:"userID" gorm:"column:user_id;primary_key;type:varchar(64)"`
-	FaceURL             string `json:"faceURL" gorm:"column:face_url;size:44;comment:头像文件名"`
+	FaceURL             string `json:"faceURL" gorm:"column:face_url;size:255;comment:头像文件名"`
 	Nickname            string `json:"nickname" gorm:"column:nickname;size:50;comment:用户昵称"`
 	Message             string `json:"message" gorm:"column:message;size:50;comment:个性签名"`
 	Code                string `json:"code" gorm:"column:code;size:6;uniqueIndex;comment:用户ID"`

@@ -267,25 +267,33 @@ func (u *LoginMgr) login(ctx context.Context, userID, token string) error {
 	}
 	log.ZDebug(ctx, "NewDataBase ok", "userID", userID, "dataDir", u.info.DataDir, "login cost time", time.Since(t1))
 	u.loginTime = time.Now().UnixNano() / 1e6
+	//用户
 	u.user = user.NewUser(u.db, u.loginUserID, u.conversationCh)
 	u.user.SetListener(u.userListener)
+	//文件
 	u.file = file.NewFile(u.db, u.loginUserID)
+	//好友
 	u.friend = friend.NewFriend(u.loginUserID, u.db, u.user, u.conversationCh)
 	u.friend.SetListener(u.friendListener)
 	u.friend.SetLoginTime(u.loginTime)
+	//群
 	u.group = group.NewGroup(u.loginUserID, u.db, u.conversationCh)
 	u.group.SetGroupListener(u.groupListener)
 	u.cache = cache.NewCache(u.user, u.friend)
 	u.full = full.NewFull(u.user, u.friend, u.group, u.conversationCh, u.cache, u.db)
+	// 业务信息
 	u.business = business.NewBusiness(u.db)
 	if u.businessListener != nil {
 		u.business.SetListener(u.businessListener)
 	}
+	//上传
 	u.push = third.NewPush(u.info.PlatformID, u.loginUserID)
 	log.ZDebug(ctx, "forcedSynchronization success...", "login cost time: ", time.Since(t1))
 
 	u.longConnMgr.Run(ctx)
+	//消息同步
 	u.msgSyncer, _ = interaction.NewMsgSyncer(ctx, u.conversationCh, u.pushMsgAndMaxSeqCh, u.loginUserID, u.longConnMgr, u.db, 0)
+	//会话同步
 	u.conversation = conv.NewConversation(ctx, u.longConnMgr, u.db, u.conversationCh,
 		u.friend, u.group, u.user, u.conversationListener, u.advancedMsgListener, u.business, u.cache, u.full, u.file)
 	u.conversation.SetLoginTime()

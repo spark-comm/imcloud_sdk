@@ -25,14 +25,22 @@ import (
 )
 
 func TestName(t *testing.T) {
-	userID := `11111112`
+	userID := `49389272901357568`
 	ctx := ccontext.WithInfo(context.Background(), &ccontext.GlobalConfig{
 		UserID: userID,
-		Token:  `eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJpbUNsb3VkIiwic3ViIjoie1widXNlcklkXCI6XCI0OTM4MzY3NTU5NDI4MDk2MFwiLFwicGxhdGZvcm1cIjpcIldpbmRvd3NcIixcInJvbGVcIjpcIlwifSIsImV4cCI6MTY5MTc1MjYzNiwibmJmIjoxNjkxMzkyNjM2LCJpYXQiOjE2OTEzOTI2MzZ9.FyBCcmzThoD9RFZCu9fwr_W8pvQ5VhMa-lisKOo5fv_gNqhGAFtpK_DnmOBgWC47JVIRvu2d6mksytGS-LykFw`,
+		Token:  `eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJpbUNsb3VkIiwic3ViIjoie1widXNlcklkXCI6XCI0OTM4OTI3MjkwMTM1NzU2OFwiLFwicGxhdGZvcm1cIjpcIldpbmRvd3NcIixcInJvbGVcIjpcIlwifSIsImV4cCI6MTY5MTgyNzE0NCwibmJmIjoxNjkxNDY3MTQ0LCJpYXQiOjE2OTE0NjcxNDR9._EQqOgC0JblO-CE9oBETgE62SbEt55bQCx__bumoPAAV8U3iegTkaLziTD-czjHdGoraN5zujdVpxRkquDkqpA`,
 		IMConfig: sdk_struct.IMConfig{
-			ApiAddr: "http://localhost:9099",
+			ApiAddr: "http://8.137.13.1:9099",
 		},
 	})
+	//userID := `49383675594280960`
+	//ctx := ccontext.WithInfo(context.Background(), &ccontext.GlobalConfig{
+	//	UserID: userID,
+	//	Token:  `eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJpbUNsb3VkIiwic3ViIjoie1widXNlcklkXCI6XCI0OTM4MzY3NTU5NDI4MDk2MFwiLFwicGxhdGZvcm1cIjpcIldpbmRvd3NcIixcInJvbGVcIjpcIlwifSIsImV4cCI6MTY5MTc1MjYzNiwibmJmIjoxNjkxMzkyNjM2LCJpYXQiOjE2OTEzOTI2MzZ9.FyBCcmzThoD9RFZCu9fwr_W8pvQ5VhMa-lisKOo5fv_gNqhGAFtpK_DnmOBgWC47JVIRvu2d6mksytGS-LykFw`,
+	//	IMConfig: sdk_struct.IMConfig{
+	//		ApiAddr: "http://localhost:9099",
+	//	},
+	//})
 	ctx = ccontext.WithOperationID(ctx, `test`)
 
 	database, err := db.NewDataBase(ctx, userID, `/Users/tang/workspace/go/openim/openim-sdk-core`)
@@ -42,7 +50,7 @@ func TestName(t *testing.T) {
 	f := NewFile(database, userID)
 
 	path := `/Users/tang/workspace`
-	path = filepath.Join(path, `bin.zip`)
+	path = filepath.Join(path, `icon.png`)
 	resp, err := f.UploadFile(ctx, &UploadFileReq{
 		Filepath: path,
 		Name:     filepath.Base(path),

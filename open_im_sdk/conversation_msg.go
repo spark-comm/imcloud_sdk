@@ -132,6 +132,8 @@ func CreateSoundMessageFromFullPath(operationID string, soundPath string, durati
 func CreateFileMessageFromFullPath(operationID string, fileFullPath, fileName string) string {
 	return syncCall(operationID, UserForSDK.Conversation().CreateFileMessageFromFullPath, fileFullPath, fileName)
 }
+
+// CreateImageMessage 创建图片消息
 func CreateImageMessage(operationID string, imagePath string) string {
 	return syncCall(operationID, UserForSDK.Conversation().CreateImageMessage, imagePath)
 }
@@ -267,9 +269,12 @@ func InsertGroupMessageToLocalStorage(callback open_im_sdk_callback.Base, operat
 	call(callback, operationID, UserForSDK.Conversation().InsertGroupMessageToLocalStorage, message, groupID, sendID)
 }
 
+// SearchLocalMessages 搜索本地消息
 func SearchLocalMessages(callback open_im_sdk_callback.Base, operationID string, searchParam string) {
 	call(callback, operationID, UserForSDK.Conversation().SearchLocalMessages, searchParam)
 }
+
+// SetMessageLocalEx 设置本地消息的ex字段属性
 func SetMessageLocalEx(callback open_im_sdk_callback.Base, operationID string, conversationID, clientMsgID, localEx string) {
 	call(callback, operationID, UserForSDK.Conversation().SetMessageLocalEx, conversationID, clientMsgID, localEx)
 }

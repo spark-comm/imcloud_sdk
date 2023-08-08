@@ -28,6 +28,7 @@ import (
 	utils2 "github.com/imCloud/im/pkg/utils"
 )
 
+// Work 会话工作
 func (c *Conversation) Work(c2v common.Cmd2Value) {
 	log.ZDebug(c2v.Ctx, "NotificationCmd start", "cmd", c2v.Cmd, "value", c2v.Value)
 	defer log.ZDebug(c2v.Ctx, "NotificationCmd end", "cmd", c2v.Cmd, "value", c2v.Value)

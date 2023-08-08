@@ -32,6 +32,8 @@ type MessageController struct {
 func NewMessageController(db db_interface.DataBase) *MessageController {
 	return &MessageController{db: db}
 }
+
+// BatchUpdateMessageList 批量更新消息
 func (m *MessageController) BatchUpdateMessageList(ctx context.Context, updateMsg map[string][]*model_struct.LocalChatLog) error {
 	if updateMsg == nil {
 		return nil
@@ -55,6 +57,7 @@ func (m *MessageController) BatchUpdateMessageList(ctx context.Context, updateMs
 	return nil
 }
 
+// BatchInsertMessageList 批量插入消息
 func (m *MessageController) BatchInsertMessageList(ctx context.Context, insertMsg map[string][]*model_struct.LocalChatLog) error {
 	if insertMsg == nil {
 		return nil
@@ -78,9 +81,12 @@ func (m *MessageController) BatchInsertMessageList(ctx context.Context, insertMs
 	return nil
 }
 
+// PullMessageBySeqs 根据seq拉取消息
 func (c *Conversation) PullMessageBySeqs(ctx context.Context, seqs []*sdkws.SeqRange) (*sdkws.PullMessageBySeqsResp, error) {
 	return util.CallApi[sdkws.PullMessageBySeqsResp](ctx, constant.PullUserMsgBySeqRouter, sdkws.PullMessageBySeqsReq{UserID: c.loginUserID, SeqRanges: seqs})
 }
+
+// SearchMessageByContentTypeAndKeyword 根据内容和关键字搜索消息
 func (m *MessageController) SearchMessageByContentTypeAndKeyword(ctx context.Context, contentType []int, keywordList []string,
 	keywordListMatchType int, startTime, endTime int64) (result []*model_struct.LocalChatLog, err error) {
 	var list []*model_struct.LocalChatLog

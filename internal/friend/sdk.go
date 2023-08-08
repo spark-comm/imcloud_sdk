@@ -17,12 +17,15 @@ package friend
 import (
 	"context"
 	"open_im_sdk/internal/util"
+	"open_im_sdk/pkg/common"
 	"open_im_sdk/pkg/constant"
 	"open_im_sdk/pkg/db/model_struct"
 	"open_im_sdk/pkg/db/pg"
 	sdk "open_im_sdk/pkg/sdk_params_callback"
 	"open_im_sdk/pkg/sdkerrs"
 	"open_im_sdk/pkg/server_api_params"
+	"sort"
+	"strings"
 
 	friendPb "github.com/imCloud/api/friend/v1"
 	"github.com/imCloud/im/pkg/common/log"
@@ -150,7 +153,13 @@ func (f *Friend) DeleteFriend(ctx context.Context, friendUserID string) error {
 	if err := util.ApiPost(ctx, constant.DeleteFriendRouter, &friend.DeleteFriendReq{OwnerUserID: f.loginUserID, FriendUserID: friendUserID}, nil); err != nil {
 		return err
 	}
+	//获取会话id
+	conversationID := f.getConversationIDBySessionType(friendUserID, constant.SingleChatType)
 	//删除好友后删除对应的会话消息
+	err := common.TriggerCmdDeleteConversationAndMessage(friendUserID, conversationID, constant.SingleChatType, f.conversationCh)
+	if err != nil {
+		log.ZDebug(ctx, "delete friend after delete conversation and message")
+	}
 	return f.syncDelFriend(ctx, friendUserID)
 }
 
@@ -159,22 +168,7 @@ func (f *Friend) GetFriendList(ctx context.Context) ([]*model_struct.LocalFriend
 	if err != nil {
 		return nil, err
 	}
-	//localBlackList, err := f.db.GetBlackListDB(ctx)
-	//if err != nil {
-	//	return nil, err
-	//}
-	//m := make(map[string]*model_struct.LocalBlack)
-	//for i, black := range localBlackList {
-	//	m[black.BlockUserID] = localBlackList[i]
-	//}
-	//res := make([]*server_api_params.FullUserInfo, 0, len(localFriendList))
-	//for _, localFriend := range localFriendList {
-	//	res = append(res, &server_api_params.FullUserInfo{
-	//		PublicInfo: nil,
-	//		FriendInfo: localFriend,
-	//		BlackInfo:  m[localFriend.FriendUserID],
-	//	})
-	//}
+
 	return localFriendList, nil
 }
 
@@ -183,22 +177,6 @@ func (f *Friend) GetFriendListPage(ctx context.Context, no, size int64) ([]*mode
 	if err != nil {
 		return nil, err
 	}
-	//localBlackList, err := f.db.GetBlackListDB(ctx)
-	//if err != nil {
-	//	return nil, err
-	//}
-	//m := make(map[string]*model_struct.LocalBlack)
-	//for i, black := range localBlackList {
-	//	m[black.BlockUserID] = localBlackList[i]
-	//}
-	//res := make([]*server_api_params.FullUserInfo, 0, len(localFriendList))
-	//for _, localFriend := range localFriendList {
-	//	res = append(res, &server_api_params.FullUserInfo{
-	//		PublicInfo: nil,
-	//		FriendInfo: localFriend,
-	//		BlackInfo:  m[localFriend.FriendUserID],
-	//	})
-	//}
 	return localFriendList, nil
 }
 
@@ -267,4 +245,21 @@ func (f *Friend) GetPageBlackList(ctx context.Context, no, size int64) ([]*model
 // GetUnprocessedNum 获取待处理的好友请求
 func (f *Friend) GetUnprocessedNum(ctx context.Context) (int64, error) {
 	return f.db.GetUnprocessedNum(ctx)
+}
+
+// getConversationIDBySessionType 获取会话类型
+func (f *Friend) getConversationIDBySessionType(sourceID string, sessionType int) string {
+	switch sessionType {
+	case constant.SingleChatType:
+		l := []string{f.loginUserID, sourceID}
+		sort.Strings(l)
+		return "si_" + strings.Join(l, "_") // single chat
+	case constant.GroupChatType:
+		return "g_" + sourceID // group chat
+	case constant.SuperGroupChatType:
+		return "sg_" + sourceID // super group chat
+	case constant.NotificationChatType:
+		return "sn_" + sourceID // server notification chat
+	}
+	return ""
 }

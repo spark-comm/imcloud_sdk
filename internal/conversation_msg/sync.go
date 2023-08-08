@@ -25,6 +25,7 @@ import (
 	"github.com/imCloud/im/pkg/common/log"
 )
 
+// SyncConversations 同步会话
 func (c *Conversation) SyncConversations(ctx context.Context) error {
 	ccTime := time.Now()
 	conversationsOnServer, err := c.getServerConversationList(ctx)

@@ -54,7 +54,7 @@ func (d *DataBase) GetAllFriendList(ctx context.Context) ([]*model_struct.LocalF
 	d.friendMtx.Lock()
 	defer d.friendMtx.Unlock()
 	var friendList []model_struct.LocalFriend
-	err := utils.Wrap(d.conn.WithContext(ctx).Where("owner_user_id = ?", d.loginUserID).Find(&friendList).Error,
+	err := utils.Wrap(d.conn.WithContext(ctx).Where("owner_user_id = ?", d.loginUserID).Order("nickname").Find(&friendList).Error,
 		"GetFriendList failed")
 	var transfer []*model_struct.LocalFriend
 	for _, v := range friendList {
@@ -68,7 +68,7 @@ func (d *DataBase) GetPageFriendList(ctx context.Context, offset, count int) ([]
 	d.friendMtx.Lock()
 	defer d.friendMtx.Unlock()
 	var friendList []*model_struct.LocalFriend
-	err := utils.Wrap(d.conn.WithContext(ctx).Where("owner_user_id = ?", d.loginUserID).Offset(offset).Limit(count).Order("name").Find(&friendList).Error,
+	err := utils.Wrap(d.conn.WithContext(ctx).Where("owner_user_id = ?", d.loginUserID).Offset(offset).Limit(count).Order("nickname").Find(&friendList).Error,
 		"GetFriendList failed")
 	return friendList, err
 }
@@ -103,7 +103,7 @@ func (d *DataBase) SearchFriendList(ctx context.Context, keyword string, isSearc
 		}
 		condition += fmt.Sprintf("remark like %q ", "%"+keyword+"%")
 	}
-	err := d.conn.WithContext(ctx).Where(condition).Order("create_at DESC").Find(&friendList).Error
+	err := d.conn.WithContext(ctx).Where(condition).Order("CONVERT(remark USING GBK) ASC").Order("CONVERT(nickname USING GBK) ASC").Find(&friendList).Error
 	var transfer []*model_struct.LocalFriend
 	for _, v := range friendList {
 		v1 := v

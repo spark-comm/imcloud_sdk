@@ -25,7 +25,6 @@ import (
 	"time"
 
 	groupv1 "github.com/imCloud/api/group/v1"
-	"github.com/imCloud/im/pkg/proto/group"
 	"github.com/imCloud/im/pkg/utils"
 )
 
@@ -369,7 +368,13 @@ func (g *Group) KickGroupMember(ctx context.Context, groupID string, reason stri
 }
 
 func (g *Group) TransferGroupOwner(ctx context.Context, groupID, newOwnerUserID string) error {
-	if err := util.ApiPost(ctx, constant.TransferGroupRouter, &group.TransferGroupOwnerReq{GroupID: groupID, OldOwnerUserID: g.loginUserID, NewOwnerUserID: newOwnerUserID}, nil); err != nil {
+	if err := util.ApiPost(ctx, constant.TransferGroupRouter, &groupv1.TransferGroupReq{
+		GroupID:        groupID,
+		NewOwnerUserID: newOwnerUserID,
+		UserID:         g.loginUserID,
+	},
+		//&group.TransferGroupOwnerReq{GroupID: groupID, OldOwnerUserID: g.loginUserID, NewOwnerUserID: newOwnerUserID},
+		nil); err != nil {
 		return err
 	}
 	if err := g.SyncJoinedGroup(ctx); err != nil {
@@ -382,7 +387,14 @@ func (g *Group) TransferGroupOwner(ctx context.Context, groupID, newOwnerUserID 
 }
 
 func (g *Group) InviteUserToGroup(ctx context.Context, groupID, reason string, userIDList []string) error {
-	if err := util.ApiPost(ctx, constant.InviteUserToGroupRouter, &group.InviteUserToGroupReq{GroupID: groupID, Reason: reason, InvitedUserIDs: userIDList}, nil); err != nil {
+	if err := util.ApiPost(ctx, constant.InviteUserToGroupRouter, &groupv1.InviteUserToGroupReq{
+		GroupID:           groupID,
+		InvitedUserIdList: userIDList,
+		Reason:            reason,
+		UserID:            g.loginUserID,
+	},
+		//group.InviteUserToGroupReq{GroupID: groupID, Reason: reason, InvitedUserIDs: userIDList},
+		nil); err != nil {
 		return nil
 	}
 	if err := g.SyncJoinedGroup(ctx); err != nil {

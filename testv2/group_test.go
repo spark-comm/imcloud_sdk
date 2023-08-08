@@ -264,7 +264,11 @@ func Test_TransferGroupOwner(t *testing.T) {
 }
 
 func Test_InviteUserToGroup(t *testing.T) {
-	err := open_im_sdk.UserForSDK.Group().InviteUserToGroup(ctx, "3459296007", "test", []string{"45644221123"})
+	err := open_im_sdk.UserForSDK.Group().InviteUserToGroup(
+		ctx,
+		"171491979169792",
+		"测试邀请人进群",
+		[]string{"1463426527031", "1463426528082"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -272,7 +276,8 @@ func Test_InviteUserToGroup(t *testing.T) {
 }
 
 func Test_SyncGroup(t *testing.T) {
-	err := open_im_sdk.UserForSDK.Group().SyncGroupMember(ctx, "3179997540")
+	err := open_im_sdk.UserForSDK.Group().SyncGroupMember(ctx,
+		"171491979169792")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -281,7 +286,8 @@ func Test_SyncGroup(t *testing.T) {
 
 func Test_GetGroup(t *testing.T) {
 	t.Log("--------------------------")
-	infos, err := open_im_sdk.UserForSDK.Group().GetSpecifiedGroupsInfo(ctx, []string{"3179997540"})
+	infos, err := open_im_sdk.UserForSDK.Group().GetSpecifiedGroupsInfo(ctx,
+		[]string{"171491979169792"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -308,7 +314,9 @@ func Test_GetGroupMemberList(t *testing.T) {
 		constant.GroupOrdinaryUsers: "成员",
 	}
 
-	members, err := open_im_sdk.UserForSDK.Group().GetGroupMemberList(ctx, "2246086342", 0, 0, 9999999)
+	members, err := open_im_sdk.UserForSDK.Group().GetGroupMemberList(
+		ctx,
+		"171491979169792", 0, 0, 9999999)
 	if err != nil {
 		panic(err)
 	}

@@ -17,6 +17,7 @@ package conversation_msg
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"github.com/imCloud/im/pkg/common/log"
 	"open_im_sdk/internal/file"
 	"open_im_sdk/pkg/db/db_interface"
@@ -46,12 +47,12 @@ func (c *msgUploadFileCallback) Open(size int64) {
 }
 func (c *msgUploadFileCallback) PartSize(partSize int64, num int) {
 	//TODO implement me
-	panic("implement me")
+	fmt.Println(partSize)
 }
 
 func (c *msgUploadFileCallback) HashPartProgress(index int, size int64, partHash string) {
 	//TODO implement me
-	panic("implement me")
+	fmt.Println(index)
 }
 
 func (c *msgUploadFileCallback) HashPartComplete(partsHash string, fileHash string) {

@@ -256,6 +256,7 @@ func (f *File) partMD5(parts []string) string {
 	return hex.EncodeToString(md5Sum[:])
 }
 
+// getUpload 文件上传
 func (f *File) getUpload(ctx context.Context, req *third.InitiateMultipartUploadReq) (*Bitmap, *model_struct.LocalUpload, *third.InitiateMultipartUploadResp, error) {
 	partNum := f.getPartNum(req.Size, req.PartSize)
 	dbUpload, err := f.database.GetUpload(ctx, req.Hash)

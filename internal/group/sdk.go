@@ -335,7 +335,18 @@ func (g *Group) SetGroupInfo(ctx context.Context, groupInfo *groupv1.EditGroupPr
 }
 
 func (g *Group) GetGroupMemberList(ctx context.Context, groupID string, filter, offset, count int32) ([]*model_struct.LocalGroupMember, error) {
-	return g.db.GetGroupMemberListSplit(ctx, groupID, filter, int(offset), int(count))
+	if offset == 0 {
+		offset = 1
+	}
+	if count == 0 {
+		count = 20
+	}
+	return g.db.GetGroupMemberListSplit(
+		ctx,
+		groupID,
+		filter,
+		int((offset-1)*count),
+		int(count))
 }
 
 func (g *Group) GetGroupMemberOwnerAndAdmin(ctx context.Context, groupID string) ([]*model_struct.LocalGroupMember, error) {
@@ -346,7 +357,20 @@ func (g *Group) GetGroupMemberListByJoinTimeFilter(ctx context.Context, groupID 
 	if joinTimeEnd == 0 {
 		joinTimeEnd = time.Now().UnixMilli()
 	}
-	return g.db.GetGroupMemberListSplitByJoinTimeFilter(ctx, groupID, int(offset), int(count), joinTimeBegin, joinTimeEnd, userIDs)
+	if offset == 0 {
+		offset = 1
+	}
+	if count == 0 {
+		count = 20
+	}
+	return g.db.GetGroupMemberListSplitByJoinTimeFilter(
+		ctx,
+		groupID,
+		int((offset-1)*count),
+		int(count),
+		joinTimeBegin,
+		joinTimeEnd,
+		userIDs)
 }
 
 func (g *Group) GetSpecifiedGroupMembersInfo(ctx context.Context, groupID string, userIDList []string) ([]*model_struct.LocalGroupMember, error) {
@@ -450,13 +474,19 @@ func (g *Group) HandlerGroupApplication(ctx context.Context, req *groupv1.Applic
 }
 
 func (g *Group) SearchGroupMembers(ctx context.Context, searchParam *sdk_params_callback.SearchGroupMembersParam) ([]*model_struct.LocalGroupMember, error) {
+	if searchParam.Offset == 0 {
+		searchParam.Offset = 1
+	}
+	if searchParam.Count == 0 {
+		searchParam.Count = 20
+	}
 	return g.db.SearchGroupMembersDB(
 		ctx,
 		searchParam.KeywordList[0],
 		searchParam.GroupID,
 		searchParam.IsSearchMemberNickname,
 		searchParam.IsSearchUserID,
-		searchParam.Offset,
+		(searchParam.Offset-1)*searchParam.Count,
 		searchParam.Count)
 }
 

@@ -17,13 +17,25 @@ package testv2
 import (
 	"open_im_sdk/open_im_sdk"
 	"open_im_sdk/pkg/constant"
+	"open_im_sdk/pkg/log"
 	"open_im_sdk/pkg/sdk_params_callback"
+	"open_im_sdk/pkg/utils"
 	"testing"
 	"time"
 
 	groupv1 "github.com/imCloud/api/group/v1"
 )
 
+type GroupCallback struct {
+}
+
+func (g *GroupCallback) OnError(errCode int32, errMsg string) {
+	log.Info("", "!!!!!!!OnError ")
+}
+
+func (g *GroupCallback) OnSuccess(data string) {
+	log.Info("", "!!!!!!!OnSuccess ")
+}
 func Test_CreateGroupV2(t *testing.T) {
 	req := &groupv1.CrateGroupReq{
 		MemberList:   []string{"1463426311015", "1463426512456", "1463426515762", "1463426574029"},
@@ -316,7 +328,7 @@ func Test_GetGroupMemberList(t *testing.T) {
 
 	members, err := open_im_sdk.UserForSDK.Group().GetGroupMemberList(
 		ctx,
-		"110076891238400", 1, 0, 9999999)
+		"503233625722880", 0, 0, 9999999)
 	if err != nil {
 		panic(err)
 	}
@@ -327,7 +339,11 @@ func Test_GetGroupMemberList(t *testing.T) {
 
 	t.Log("--------------------------")
 }
-
+func Test_GetGroupMemberList1(t *testing.T) {
+	open_im_sdk.GetGroupMemberList(&GroupCallback{}, utils.OperationIDGenerator(), "503233625722880", 0, 0, 9999999)
+	time.Sleep(time.Second * 4)
+	t.Log("--------------------------")
+}
 func Test_KickGroupUserList(t *testing.T) {
 	info, err := open_im_sdk.UserForSDK.Group().KickGroupMemberList(
 		ctx, &sdk_params_callback.GetKickGroupListReq{

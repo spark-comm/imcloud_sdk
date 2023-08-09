@@ -18,11 +18,27 @@ import (
 	"context"
 	"github.com/imCloud/im/pkg/proto/sdkws"
 	"open_im_sdk/open_im_sdk"
+	"open_im_sdk/pkg/log"
 	"open_im_sdk/pkg/sdk_params_callback"
 	"open_im_sdk/sdk_struct"
 	"testing"
 )
 
+type SendCallback struct {
+	clientMsgID string
+}
+
+func (b *SendCallback) OnError(errCode int32, errMsg string) {
+	log.Info("", "!!!!!!!OnError ")
+}
+
+func (b *SendCallback) OnSuccess(data string) {
+	log.Info("", "!!!!!!!OnSuccess ")
+}
+
+func (s *SendCallback) OnProgress(progress int) {
+	log.Info("", "上传进度", progress)
+}
 func Test_GetAllConversationList(t *testing.T) {
 	conversations, err := open_im_sdk.UserForSDK.Conversation().GetAllConversationList(ctx)
 	if err != nil {
@@ -163,7 +179,7 @@ func Test_GetTotalUnreadMsgCount(t *testing.T) {
 func Test_SendMessage(t *testing.T) {
 	ctx = context.WithValue(ctx, "callback", TestSendMsg{})
 	msg, _ := open_im_sdk.UserForSDK.Conversation().CreateTextMessage(ctx, "textMsg")
-	_, err := open_im_sdk.UserForSDK.Conversation().SendMessage(ctx, msg, "3411008330", "", nil)
+	_, err := open_im_sdk.UserForSDK.Conversation().SendMessage(ctx, msg, "", "151819082797056", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -317,11 +333,24 @@ func Test_MarkMsgsAsRead(t *testing.T) {
 
 func Test_SendImgMsg(t *testing.T) {
 	ctx = context.WithValue(ctx, "callback", TestSendMsg{})
-	msg, err := open_im_sdk.UserForSDK.Conversation().CreateImageMessage(ctx, "/Users/tang/workspace/icon.png")
+	msg, err := open_im_sdk.UserForSDK.Conversation().CreateImageMessageFromFullPath(ctx, "/Users/tang/workspace/icon.png")
 	if err != nil {
 		t.Fatal(err)
 	}
-	res, err := open_im_sdk.UserForSDK.Conversation().SendMessage(ctx, msg, "50891326056566784", "", nil)
+	res, err := open_im_sdk.UserForSDK.Conversation().SendMessage(ctx, msg, "49395156675203072", "", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Logf("send smg => %+v\n", res)
+}
+
+func Test_SendFileMsg(t *testing.T) {
+	ctx = context.WithValue(ctx, "callback", TestSendMsg{})
+	msg, err := open_im_sdk.UserForSDK.Conversation().CreateFileMessageFromFullPath(ctx, "/Users/tang/workspace/etcd.zip", "etcd.zip")
+	if err != nil {
+		t.Fatal(err)
+	}
+	res, err := open_im_sdk.UserForSDK.Conversation().SendMessage(ctx, msg, "49395156675203072", "", nil)
 	if err != nil {
 		t.Fatal(err)
 	}

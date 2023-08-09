@@ -133,8 +133,8 @@ type KickGroupList struct {
 }
 
 type SearchNotInGroupUserReq struct {
-	GroupId  string `json:"group_id"`
-	UserId   string `json:"user_id"`
+	GroupID  string `json:"group_id"`
+	UserID   string `json:"user_id"`
 	Name     string `json:"name"`
 	PageSize int    `json:"pageSize"`
 	PageNum  int    `json:"pageNum"`

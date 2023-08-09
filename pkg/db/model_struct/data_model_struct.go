@@ -148,7 +148,7 @@ type LocalGroup struct {
 	ApplyMemberFriend      int32  `json:"applyMemberFriend" gorm:"column:apply_member_friend;default:0;comment:是否可通过群加好友:0支持,1不支持" `
 	OnlyManageUpdateName   int32  `json:"onlyManageUpdateName" gorm:"column:only_manage_update_name;default:0;comment:是否仅管理员或群主能够更新群名称:"`
 	NotificationUpdateTime int64  `json:"notificationUpdateTime" gorm:"column:notification_update_time;comment:群公告更新时间"`
-	NotificationUserID     string `json:"notification_user_id" gorm:"column:notification_user_id;size:64;comment:更新公告用户id"`
+	NotificationUserID     string `json:"notificationUserID" gorm:"column:notification_user_id;size:64;comment:更新公告用户id"`
 	IsReal                 int32  `json:"isReal" gorm:"column:is_real;default:0;comment:是否实名认证，默认否"`
 	IsOpen                 uint   `json:"isOpen" gorm:"column:is_open;default:1;comment:是否公开群组,1:开启;2:关闭"`
 	AllowPrivateChat       uint   `json:"allowPrivateChat" gorm:"column:allow_private_chat;default:2;comment:允许成员私聊,1:开启;2:关闭"`

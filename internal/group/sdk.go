@@ -499,7 +499,7 @@ func (g *Group) KickGroupMemberList(ctx context.Context, searchParam *sdk_params
 	})
 }
 
-func (g *Group) GetNotInGroupFriendInfoList(ctx context.Context, searchParam *sdk_params_callback.GetKickGroupListReq) (sdk_params_callback.SearchNotInGroupUserInfoRes, error) {
+func (g *Group) GetNotInGroupFriendInfoList(ctx context.Context, searchParam *sdk_params_callback.SearchNotInGroupUserReq) (sdk_params_callback.SearchNotInGroupUserInfoRes, error) {
 	if searchParam.PageNum == 0 {
 		searchParam.PageNum = 1
 	}

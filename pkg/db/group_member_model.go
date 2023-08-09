@@ -311,7 +311,7 @@ func (d *DataBase) SearchKickMemberList(ctx context.Context, params sdk_params_c
 	tx1 := d.conn.WithContext(ctx).Model(&model_struct.LocalGroupMember{}).
 		Select([]string{
 			"group_id", "user_id", "nickname", "role_level", "join_time", "face_url",
-			"code", "phone", "gender",
+			"code", "phone", "gender", "group_user_name",
 		}).Where("group_id = ? AND user_id != ?", params.GroupID, params.UserID).
 		Scopes(func(db *gorm.DB) *gorm.DB {
 			if params.IsManger { //管理员只可踢普通用户
@@ -322,7 +322,7 @@ func (d *DataBase) SearchKickMemberList(ctx context.Context, params sdk_params_c
 		})
 	tx2 := d.conn.WithContext(ctx).Model(&model_struct.LocalGroupMember{}).Select([]string{
 		"group_id", "user_id", "nickname", "role_level", "join_time", "face_url",
-		"code", "phone", "gender",
+		"code", "phone", "gender", "group_user_name",
 	}).Where("group_id = ? AND user_id != ?", params.GroupID, params.UserID).
 		Scopes(func(db *gorm.DB) *gorm.DB {
 			if params.IsManger { //管理员只可踢普通用户
@@ -346,7 +346,7 @@ func (d *DataBase) SearchKickMemberList(ctx context.Context, params sdk_params_c
 	total := int64(0)
 	result := make([]*sdk_params_callback.KickGroupList, 0)
 	err := d.conn.WithContext(ctx).Table("(?) AS t", d.conn.Raw("? UNION ? UNION ?", tx1, tx2, tx3)).
-		Count(&total).Order("CONVERT(nickname USING gbk) COLLATE gbk_chinese_ci").
+		Count(&total).Order("join_time DESC").
 		Offset((params.PageNum - 1) * params.PageSize).Limit(params.PageSize).Find(&result).Error
 	return result, err
 }

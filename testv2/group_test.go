@@ -327,3 +327,38 @@ func Test_GetGroupMemberList(t *testing.T) {
 
 	t.Log("--------------------------")
 }
+
+func Test_KickGroupUserList(t *testing.T) {
+	info, err := open_im_sdk.UserForSDK.Group().KickGroupMemberList(
+		ctx, &sdk_params_callback.GetKickGroupListReq{
+			GroupID:  "171491979169792",
+			IsManger: false,
+			Name:     "月",
+			PageSize: 10,
+			PageNum:  1,
+		})
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Logf("GetGroupsInfo: %d\n", len(info))
+	for _, localGroup := range info {
+		t.Logf("%#v", localGroup)
+	}
+}
+
+func Test_GetNotInGroupFriendInfoList(t *testing.T) {
+	info, err := open_im_sdk.UserForSDK.Group().GetNotInGroupFriendInfoList(
+		ctx, &sdk_params_callback.SearchNotInGroupUserReq{
+			GroupID:  "171491979169792",
+			Name:     "月",
+			PageSize: 10,
+			PageNum:  1,
+		})
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Logf("GetGroupsInfo: %d\n", len(info.Friends))
+	for _, localGroup := range info.Friends {
+		t.Logf("%#v", localGroup)
+	}
+}

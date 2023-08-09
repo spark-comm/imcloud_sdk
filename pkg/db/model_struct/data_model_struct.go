@@ -60,6 +60,7 @@ type LocalFriend struct {
 	Ex             string `json:"ex" gorm:"column:ex;type:varchar(1024)"`
 	BackgroundURL  string `json:"backgroundURL" gorm:"column:background_url;type:varchar(255)"`
 	AttachedInfo   string `json:"attachedInfo" gorm:"column:attached_info;type:varchar(1024)"`
+	SortFlag       string `gorm:"column:sort_flag;type:varchar(2);comment:排序标志" json:"sortFlag"`
 }
 
 // message FriendRequest{
@@ -95,6 +96,7 @@ type LocalFriendRequest struct {
 	HandlerUserID string `gorm:"column:handler_user_id;type:varchar(64);comment:处理的用户id" json:"handlerUserID"`
 	HandleMsg     string `gorm:"column:handle_msg;type:varchar(255);comment:处理备注" json:"handleMsg"`
 	HandleTime    int64  `gorm:"column:handle_time;comment:处理时间" json:"handleTime"`
+	SortFlag      string `gorm:"column:sort_flag;type:varchar(2);comment:排序标志" json:"sortFlag"`
 	Ex            string `gorm:"column:ex;type:varchar(1024)" json:"ex"`
 	AttachedInfo  string `gorm:"column:attached_info;type:varchar(1024)" json:"attachedInfo"`
 }
@@ -298,6 +300,7 @@ type LocalBlack struct {
 	OperatorUserID string `gorm:"column:operator_user_id;type:varchar(64)" json:"operatorUserID"`
 	Ex             string `gorm:"column:ex;type:varchar(1024)" json:"ex"`
 	AttachedInfo   string `gorm:"column:attached_info;type:varchar(1024)" json:"attachedInfo"`
+	SortFlag       string `gorm:"column:sort_flag;type:varchar(2);comment:排序标志" json:"sortFlag"`
 }
 
 type LocalSeqData struct {

@@ -2,6 +2,7 @@ package friend
 
 import (
 	"open_im_sdk/pkg/db/model_struct"
+	"open_im_sdk/pkg/utils"
 
 	friendPb "github.com/imCloud/api/friend/v1"
 )
@@ -29,6 +30,7 @@ func ServerFriendRequestToLocalFriendRequest(info *friendPb.FriendRequests) *mod
 		HandleMsg:     info.HandleMsg,
 		HandleTime:    info.HandleTime,
 		Ex:            info.Ex,
+		SortFlag:      getSortFlag(info.ToNickname, info.ToNickname),
 	}
 }
 func ServerFriendToLocalFriend(info *friendPb.FriendInfo) *model_struct.LocalFriend {
@@ -48,6 +50,7 @@ func ServerFriendToLocalFriend(info *friendPb.FriendInfo) *model_struct.LocalFri
 		Email:          info.Email,
 		Birth:          info.Birth,
 		Gender:         info.Gender,
+		SortFlag:       getSortFlag(info.Remark, info.Nickname),
 	}
 }
 
@@ -63,5 +66,13 @@ func ServerBlackToLocalBlack(info *friendPb.BlackList) *model_struct.LocalBlack 
 		Message:        info.Message,
 		Code:           info.Code,
 		Ex:             info.Ex,
+		SortFlag:       getSortFlag(info.Nickname, info.Nickname),
 	}
+}
+
+func getSortFlag(remake, nickname string) string {
+	if remake != "" {
+		return utils.GetChineseFirstLetter(remake)
+	}
+	return utils.GetChineseFirstLetter(nickname)
 }

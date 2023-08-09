@@ -50,7 +50,7 @@ func (wsRouter *WsFuncRouter) CreateAdvancedTextMessage(input string, operationI
 	if !wsRouter.checkResourceLoadingAndKeysIn(userWorker, input, operationID, runFuncName(), m, "text", "messageEntityList") {
 		return
 	}
-	msg := userWorker.Conversation().CreateAdvancedTextMessage(m["text"].(string), m["messageEntityList"].(string), operationID)
+	msg, _ := userWorker.Conversation().CreateAdvancedTextMessage(m["text"].(string), m["messageEntityList"].(string), operationID)
 	wsRouter.GlobalSendMessage(EventData{cleanUpfuncName(runFuncName()), 0, "", msg, operationID})
 }
 

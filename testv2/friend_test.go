@@ -116,7 +116,7 @@ func Test_GetFriendList(t *testing.T) {
 }
 
 func Test_SearchFriends(t *testing.T) {
-	info, err := open_im_sdk.UserForSDK.Friend().SearchFriends(ctx, &sdk_params_callback.SearchFriendsParam{KeywordList: []string{"50122626445611008"}, IsSearchUserID: true})
+	info, err := open_im_sdk.UserForSDK.Friend().SearchFriends(ctx, &sdk_params_callback.SearchFriendsParam{KeywordList: []string{"我"}, IsSearchUserID: true, IsSearchRemark: true, IsSearchNickname: true})
 	if err != nil {
 		t.Fatal(err)
 	}

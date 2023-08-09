@@ -94,7 +94,7 @@ func (d *DataBase) SearchFriendList(ctx context.Context, keyword string, isSearc
 		if count > 0 {
 			condition += "or "
 		}
-		condition += fmt.Sprintf("name like %q ", "%"+keyword+"%")
+		condition += fmt.Sprintf("nickname like %q ", "%"+keyword+"%")
 		count++
 	}
 	if isSearchRemark {

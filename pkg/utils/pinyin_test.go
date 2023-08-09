@@ -5,6 +5,6 @@ import (
 )
 
 func Test_GetChineseFirstLetter(t *testing.T) {
-	initial := GetChineseFirstLetter("掌声sdfsdfsd")
+	initial := GetChineseFirstLetter("惠")
 	t.Logf(initial)
 }

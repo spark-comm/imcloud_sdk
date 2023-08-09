@@ -21,6 +21,7 @@ import (
 	"open_im_sdk/pkg/log"
 	"open_im_sdk/pkg/sdk_params_callback"
 	"open_im_sdk/sdk_struct"
+	"strings"
 	"testing"
 )
 
@@ -110,14 +111,14 @@ func Test_GetGetMultipleConversation(t *testing.T) {
 	}
 }
 
-// funcation Test_DeleteConversation(t *testing.T) {
-//	err := open_im_sdk.UserForSDK.Conversation().DeleteConversation(ctx, "group_17729585012")
-//	if err != nil {
-//		if !strings.Contains(err.Error(), "no update") {
-//			t.Fatal(err)
-//		}
-//	}
-// }
+func Test_DeleteConversation(t *testing.T) {
+	err := open_im_sdk.UserForSDK.Conversation().DeleteConversationAndDeleteAllMsg(ctx, "sg_486854059102208")
+	if err != nil {
+		if !strings.Contains(err.Error(), "no update") {
+			t.Fatal(err)
+		}
+	}
+}
 
 func Test_DeleteAllConversationFromLocal(t *testing.T) {
 	err := open_im_sdk.UserForSDK.Conversation().DeleteAllConversationFromLocal(ctx)

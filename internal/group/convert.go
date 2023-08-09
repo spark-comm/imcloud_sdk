@@ -15,6 +15,7 @@
 package group
 
 import (
+	"open_im_sdk/pkg/constant"
 	"open_im_sdk/pkg/db/model_struct"
 
 	groupv1 "github.com/imCloud/api/group/v1"
@@ -51,9 +52,20 @@ func ServerGroupToLocalGroup(info *groupv1.GroupInfo) *model_struct.LocalGroup {
 
 func ServerGroupMemberToLocalGroupMember(info *groupv1.MembersInfo) *model_struct.LocalGroupMember {
 	return &model_struct.LocalGroupMember{
-		GroupID:        info.GroupID,
-		UserID:         info.UserID,
-		RoleLevel:      info.RoleLevel,
+		GroupID: info.GroupID,
+		UserID:  info.UserID,
+		RoleLevel: func() int32 {
+			switch info.RoleLevel {
+			case constant.GroupFilterAdmin: //群主
+				return constant.GroupOwner
+			case constant.GroupFilterOwner: //普通成员
+				return constant.GroupOrdinaryUsers
+			case constant.GroupFilterOrdinaryUsers: //管理员:
+				return constant.GroupAdmin
+			default:
+				return 0
+			}
+		}(),
 		JoinTime:       info.JoinTime,
 		Nickname:       info.Nickname,
 		GroupUserName:  info.GroupUserName,

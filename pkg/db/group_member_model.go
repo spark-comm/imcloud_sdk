@@ -97,6 +97,7 @@ func (d *DataBase) GetGroupMemberListSplit(ctx context.Context, groupID string, 
 	switch filter {
 	case constant.GroupFilterAll:
 		err = d.conn.WithContext(ctx).Where("group_id = ?", groupID).Order("role_level DESC").Offset(offset).Limit(count).Find(&groupMemberList).Error
+		//Order("CASE role_level WHEN 2 THEN 1 WHEN 3 TEN 2 WHEN 1 THEN 3 ELSE 4 END").
 	case constant.GroupFilterOwner:
 		err = d.conn.WithContext(ctx).Where("group_id = ? And role_level = ?", groupID, constant.GroupOwner).Order("join_time DESC").Offset(offset).Limit(count).Find(&groupMemberList).Error
 	case constant.GroupFilterAdmin:

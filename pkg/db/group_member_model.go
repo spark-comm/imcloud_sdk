@@ -316,7 +316,7 @@ func (d *DataBase) SearchKickMemberList(ctx context.Context, params sdk_params_c
 		}).Where("group_id = ? AND user_id != ?", params.GroupID, params.UserID).
 		Scopes(func(db *gorm.DB) *gorm.DB {
 			if params.IsManger { //管理员只可踢普通用户
-				db.Where("role_level = ?", 1)
+				db.Where("role_level = ?", constant.GroupOrdinaryUsers)
 			}
 			db.Where("nickname LIKE ?", "%"+params.Name+"%")
 			return db
@@ -327,7 +327,7 @@ func (d *DataBase) SearchKickMemberList(ctx context.Context, params sdk_params_c
 	}).Where("group_id = ? AND user_id != ?", params.GroupID, params.UserID).
 		Scopes(func(db *gorm.DB) *gorm.DB {
 			if params.IsManger { //管理员只可踢普通用户
-				db.Where("role_level = ?", 1)
+				db.Where("role_level = ?", constant.GroupOrdinaryUsers)
 			}
 			db.Where("group_user_name LIKE ?", "%"+params.Name+"%")
 			return db
@@ -339,7 +339,7 @@ func (d *DataBase) SearchKickMemberList(ctx context.Context, params sdk_params_c
 		}).Where("group_id = ? AND user_id != ?", params.GroupID, params.UserID).
 		Scopes(func(db *gorm.DB) *gorm.DB {
 			if params.IsManger { //管理员只可踢普通用户
-				db.Where("role_level = ?", 1)
+				db.Where("role_level = ?", constant.GroupOrdinaryUsers)
 			}
 			db.Where("phone LIKE ?", "%"+params.Name+"%")
 			return db

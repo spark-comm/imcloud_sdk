@@ -120,29 +120,29 @@ type GetKickGroupListReq struct {
 }
 
 type KickGroupList struct {
-	GroupId       string `json:"group_id"`
-	UserId        string `json:"user_id"`
+	GroupId       string `json:"group_id" json:"groupID"`
+	UserId        string `json:"user_id" json:"userID"`
 	Nickname      string `json:"nickname"`
-	RoleLevel     int    `json:"role_level"`
-	JoinTime      int64  `json:"join_time"`
-	FaceURL       string `json:"face_url"`
+	RoleLevel     int    `json:"role_level" json:"roleLevel"`
+	JoinTime      int64  `json:"join_time" json:"joinTime"`
+	FaceURL       string `json:"face_url" json:"faceURL"`
 	Code          string `json:"code"`
 	Phone         string `json:"phone"`
 	Gender        int    `json:"gender"`
-	GroupUserName string `json:"group_user_name"`
+	GroupUserName string `json:"group_user_name" json:"groupUserName"`
 }
 
 type SearchNotInGroupUserReq struct {
-	GroupID  string `json:"group_id"`
-	UserID   string `json:"user_id"`
-	Name     string `json:"name"`
-	PageSize int    `json:"pageSize"`
-	PageNum  int    `json:"pageNum"`
+	GroupID  string `json:"group_id" json:"groupID"`
+	UserID   string `json:"user_id" json:"userID"`
+	Name     string `json:"name" json:"name"`
+	PageSize int    `json:"pageSize" json:"pageSize"`
+	PageNum  int    `json:"pageNum" json:"pageNum"`
 }
 
 type SearchNotInGroupUserResp struct {
-	FriendUserID string `json:"friend_user_id"`
-	FaceURL      string `json:"face_url"`
+	FriendUserID string `json:"friend_user_id" json:"friendUserID"`
+	FaceURL      string `json:"face_url" json:"faceURL"`
 	Nickname     string `json:"nickname"`
 	Code         string `json:"code"`
 	Phone        string `json:"phone"`

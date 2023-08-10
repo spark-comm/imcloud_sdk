@@ -145,3 +145,7 @@ func GetKickGroupMemberList(callback open_im_sdk_callback.Base, operationID, sea
 func SearchNotInGroupFriendList(callback open_im_sdk_callback.Base, operationID, searchParam string) {
 	call(callback, operationID, UserForSDK.Group().GetNotInGroupFriendInfoList, searchParam)
 }
+
+func GetUserOwnerJoinRequestNum(callback open_im_sdk_callback.Base, operationID string) {
+	call(callback, operationID, UserForSDK.Group().GetUserOwnerJoinRequestNum)
+}

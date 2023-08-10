@@ -561,3 +561,15 @@ func (g *Group) GetNotInGroupFriendInfoList(ctx context.Context, searchParam *sd
 	result.Friends = info
 	return result, nil
 }
+
+func (g *Group) GetUserOwnerJoinRequestNum(ctx context.Context) (groupv1.GetOwnerJoinRequestNumReps, error) {
+	resp := groupv1.GetOwnerJoinRequestNumReps{}
+	if err := util.ApiPost(ctx, constant.GetUserOwnerJoinRequestNumRouter,
+		&groupv1.GetOwnerJoinRequestNumReq{
+			UserID: g.loginUserID,
+		},
+		&resp); err != nil {
+		return resp, err
+	}
+	return resp, nil
+}

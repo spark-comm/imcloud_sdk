@@ -397,3 +397,15 @@ func Test_GetNotInGroupFriendInfoList(t *testing.T) {
 		t.Logf("%#v", localGroup)
 	}
 }
+
+func Test_GetUserOwnerJoinRequestNum(t *testing.T) {
+	info, err := open_im_sdk.UserForSDK.Group().GetUserOwnerJoinRequestNum(
+		ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	for _, localGroup := range info.Data {
+		t.Logf("%#v", localGroup)
+	}
+}

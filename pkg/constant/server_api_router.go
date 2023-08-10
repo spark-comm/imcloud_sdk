@@ -92,6 +92,7 @@ const (
 	SetGroupMemberInfoRouter          = BaseRouter + RouterGroup + "/set_group_member_info"
 	GetGroupAbstractInfoRouter        = BaseRouter + RouterGroup + "/get_group_abstract_info"
 
+	GetUserOwnerJoinRequestNumRouter   = BaseRouter + RouterGroup + "/get_user_owner_join_request_num"
 	SetReceiveMessageOptRouter         = BaseRouter + "/conversation/set_receive_message_opt"
 	GetReceiveMessageOptRouter         = BaseRouter + "/conversation/get_receive_message_opt"
 	GetAllConversationMessageOptRouter = BaseRouter + "/conversation/get_all_conversation_message_opt"

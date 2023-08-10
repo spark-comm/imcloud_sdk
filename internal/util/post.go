@@ -92,7 +92,7 @@ func ApiPost(ctx context.Context, api string, req, resp any) (err error) {
 		return sdkerrs.ErrSdkInternal.Wrap(fmt.Sprintf("api %s json.Unmarshal(%q, %T) failed %s", api, string(respBody), &baseApi, err.Error()))
 	}
 	if baseApi.Code != http.StatusOK {
-		err := sdkerrs.New(baseApi.Code, baseApi.ErrMsg, baseApi.Reason)
+		err := sdkerrs.New(baseApi.Code, baseApi.Msg, baseApi.Reason)
 		log.ZError(ctx, "ApiResponse", err, "type", "api code error", "msg", baseApi.ErrMsg, "dlt", baseApi.Reason)
 		return err
 	}

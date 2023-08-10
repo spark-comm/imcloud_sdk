@@ -17,6 +17,7 @@ package group
 import (
 	"open_im_sdk/pkg/constant"
 	"open_im_sdk/pkg/db/model_struct"
+	"open_im_sdk/pkg/utils"
 
 	groupv1 "github.com/imCloud/api/group/v1"
 )
@@ -66,8 +67,11 @@ func ServerGroupMemberToLocalGroupMember(info *groupv1.MembersInfo) *model_struc
 				return 0
 			}
 		}(),
-		JoinTime:       info.JoinTime,
-		Nickname:       info.Nickname,
+		JoinTime: info.JoinTime,
+		Nickname: info.Nickname,
+		SortFlag: func() string {
+			return utils.GetChineseFirstLetter(info.Nickname)
+		}(),
 		GroupUserName:  info.GroupUserName,
 		FaceURL:        info.FaceUrl,
 		AttachedInfo:   info.AttachedInfo,

@@ -29,6 +29,7 @@ require (
 replace github.com/imCloud => ../imcloud
 
 require (
+	github.com/Chain-Zhang/pinyin v0.1.3 // indirect
 	github.com/bwmarrin/snowflake v0.3.0 // indirect
 	github.com/envoyproxy/protoc-gen-validate v1.0.1 // indirect
 	github.com/go-kratos/kratos/v2 v2.6.3 // indirect

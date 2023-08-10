@@ -205,6 +205,7 @@ func (g *Group) SetGroupMemberRoleLevel(ctx context.Context, groupID, userID str
 		GroupID:   groupID,
 		UserID:    userID,
 		RoleLevel: rune(roleLevel),
+		PUserID:   g.loginUserID,
 	})
 }
 
@@ -213,11 +214,13 @@ func (g *Group) SetGroupMemberNickname(ctx context.Context, groupID, userID stri
 		GroupID:  groupID,
 		UserID:   userID,
 		Nickname: groupMemberNickname,
+		PUserID:  g.loginUserID,
 	})
 	//&group.SetGroupMemberInfo{GroupID: groupID, UserID: userID, Nickname: wrapperspb.String(groupMemberNickname)})
 }
 
 func (g *Group) SetGroupMemberInfo(ctx context.Context, groupMemberInfo *groupv1.SetGroupMemberInfo) error {
+	groupMemberInfo.PUserID = g.loginUserID
 	if err := util.ApiPost(ctx, constant.SetGroupMemberInfoRouter, &groupv1.SetGroupMemberInfoReq{
 		Members: []*groupv1.SetGroupMemberInfo{groupMemberInfo},
 	},
@@ -328,6 +331,7 @@ func (g *Group) SetGroupApplyMemberFriend(ctx context.Context, groupID string, r
 }
 
 func (g *Group) SetGroupInfo(ctx context.Context, groupInfo *groupv1.EditGroupProfileRequest) error {
+	groupInfo.UserID = g.loginUserID
 	if err := util.ApiPost(ctx, constant.SetGroupInfoRouter, &groupInfo, nil); err != nil {
 		return err
 	}

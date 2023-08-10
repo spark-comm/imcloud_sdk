@@ -347,7 +347,7 @@ func (d *DataBase) SearchKickMemberList(ctx context.Context, params sdk_params_c
 	total := int64(0)
 	result := make([]*sdk_params_callback.KickGroupList, 0)
 	err := d.conn.WithContext(ctx).Table("(?) AS t", d.conn.Raw("? UNION ? UNION ?", tx1, tx2, tx3)).
-		Count(&total).Order("join_time DESC").
+		Count(&total).Order("sort_flag").
 		Offset((params.PageNum - 1) * params.PageSize).Limit(params.PageSize).Find(&result).Error
 	return result, err
 }

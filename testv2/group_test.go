@@ -15,6 +15,7 @@
 package testv2
 
 import (
+	"encoding/json"
 	"open_im_sdk/open_im_sdk"
 	"open_im_sdk/pkg/constant"
 	"open_im_sdk/pkg/log"
@@ -39,7 +40,7 @@ func (g *GroupCallback) OnSuccess(data string) {
 func Test_CreateGroupV2(t *testing.T) {
 	req := &groupv1.CrateGroupReq{
 		MemberList:   []string{"1463426311015", "1463426512456", "1463426515762", "1463426574029"},
-		GroupName:    "盛世者的浮阳-13",
+		GroupName:    "kjfdg",
 		GroupType:    2,
 		Notification: "公告：这是一个荣誉",
 		Introduction: "洗脑群",
@@ -54,7 +55,7 @@ func Test_CreateGroupV2(t *testing.T) {
 
 func Test_JoinGroup(t *testing.T) {
 	err := open_im_sdk.UserForSDK.Group().JoinGroup(ctx,
-		"50069143293952",
+		"78877338636288",
 		"进群收钱呀",
 		1)
 	if err != nil {
@@ -64,7 +65,7 @@ func Test_JoinGroup(t *testing.T) {
 }
 
 func Test_QuitGroup(t *testing.T) {
-	err := open_im_sdk.UserForSDK.Group().QuitGroup(ctx, "106366035300352")
+	err := open_im_sdk.UserForSDK.Group().QuitGroup(ctx, "78877338636288")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -72,7 +73,7 @@ func Test_QuitGroup(t *testing.T) {
 }
 
 func Test_DismissGroup(t *testing.T) {
-	err := open_im_sdk.UserForSDK.Group().DismissGroup(ctx, "50069143293952")
+	err := open_im_sdk.UserForSDK.Group().DismissGroup(ctx, "127145259044864")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -80,7 +81,8 @@ func Test_DismissGroup(t *testing.T) {
 }
 
 func Test_ChangeGroupMute(t *testing.T) {
-	err := open_im_sdk.UserForSDK.Group().ChangeGroupMute(ctx, "50069143293952", true)
+	err := open_im_sdk.UserForSDK.Group().ChangeGroupMute(ctx,
+		"131860273303552", false)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -98,8 +100,8 @@ func Test_CancelMuteGroup(t *testing.T) {
 func Test_ChangeGroupMemberMute(t *testing.T) {
 	err := open_im_sdk.UserForSDK.Group().ChangeGroupMemberMute(
 		ctx,
-		"50069143293952",
-		"1463426574029",
+		"131860273303552",
+		"1463426527031",
 		10000)
 	if err != nil {
 		t.Fatal(err)
@@ -109,8 +111,8 @@ func Test_ChangeGroupMemberMute(t *testing.T) {
 
 func Test_CancelChangeGroupMemberMute(t *testing.T) {
 	err := open_im_sdk.UserForSDK.Group().ChangeGroupMemberMute(ctx,
-		"50069143293952",
-		"1463426574029",
+		"131860273303552",
+		"1463426527031",
 		0)
 	if err != nil {
 		t.Fatal(err)
@@ -134,9 +136,9 @@ func Test_SetGroupMemberRoleLevel(t *testing.T) {
 func Test_SetGroupMemberNickname(t *testing.T) {
 	err := open_im_sdk.UserForSDK.Group().SetGroupMemberNickname(
 		ctx,
-		"50069143293952",
-		"1463426574029",
-		"不灭之祸")
+		"131860273303552",
+		"1463426528082",
+		"头皮发麻")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -217,8 +219,8 @@ func Test_RefuseGroupApplication(t *testing.T) {
 	t.Log("operationID:", ctx.Value("operationID"))
 	err := open_im_sdk.UserForSDK.Group().RefuseGroupApplication(
 		ctx,
-		"171491979169792",
-		"1463426311015",
+		"78877338636288",
+		"1463426527031",
 		"test refuse")
 	if err != nil {
 		t.Fatal(err)
@@ -227,7 +229,13 @@ func Test_RefuseGroupApplication(t *testing.T) {
 }
 
 func Test_HandlerGroupApplication(t *testing.T) {
-	err := open_im_sdk.UserForSDK.Group().HandlerGroupApplication(ctx, nil)
+	err := open_im_sdk.UserForSDK.Group().HandlerGroupApplication(ctx, &groupv1.ApplicationResponseReq{
+		GroupID:      "78877338636288",
+		FromUserID:   "1463426527031",
+		HandledMsg:   "FDSFSFSF",
+		HandleResult: constant.GroupResponseAgree,
+		UserID:       "1463426574231",
+	})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -255,7 +263,7 @@ func Test_SearchGroupMembers(t *testing.T) {
 func Test_KickGroupMember(t *testing.T) {
 	err := open_im_sdk.UserForSDK.Group().KickGroupMember(
 		ctx,
-		"171491979169792",
+		"78877338636288",
 		"我要踢人",
 		[]string{"1463426512456"})
 	if err != nil {
@@ -267,8 +275,8 @@ func Test_KickGroupMember(t *testing.T) {
 func Test_TransferGroupOwner(t *testing.T) {
 	err := open_im_sdk.UserForSDK.Group().TransferGroupOwner(
 		ctx,
-		"171491979169792",
-		"1463426574029")
+		"78877338636288",
+		"1463426515762")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -278,9 +286,9 @@ func Test_TransferGroupOwner(t *testing.T) {
 func Test_InviteUserToGroup(t *testing.T) {
 	err := open_im_sdk.UserForSDK.Group().InviteUserToGroup(
 		ctx,
-		"171491979169792",
+		"131860273303552",
 		"测试邀请人进群",
-		[]string{"1463426527031", "1463426528082"})
+		[]string{"1463426528082", "1463426527031"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -341,6 +349,17 @@ func Test_GetGroupMemberList(t *testing.T) {
 }
 func Test_GetGroupMemberList1(t *testing.T) {
 	open_im_sdk.GetGroupMemberList(&GroupCallback{}, utils.OperationIDGenerator(), "503233625722880", 0, 0, 9999999)
+	time.Sleep(time.Second * 4)
+	t.Log("--------------------------")
+}
+
+func Test_SetGroupInfo(t *testing.T) {
+	s := groupv1.EditGroupProfileRequest{
+		GroupID:   "127145259044864",
+		GroupName: "1234",
+	}
+	bytes, _ := json.Marshal(&s)
+	open_im_sdk.SetGroupInfo(&GroupCallback{}, utils.OperationIDGenerator(), string(bytes))
 	time.Sleep(time.Second * 4)
 	t.Log("--------------------------")
 }

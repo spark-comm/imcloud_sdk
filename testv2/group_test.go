@@ -40,7 +40,7 @@ func (g *GroupCallback) OnSuccess(data string) {
 func Test_CreateGroupV2(t *testing.T) {
 	req := &groupv1.CrateGroupReq{
 		MemberList:   []string{"1463426311015", "1463426512456", "1463426515762", "1463426574029"},
-		GroupName:    "kjfdg",
+		GroupName:    "熔火之心",
 		GroupType:    2,
 		Notification: "公告：这是一个荣誉",
 		Introduction: "洗脑群",
@@ -366,7 +366,7 @@ func Test_SetGroupInfo(t *testing.T) {
 func Test_KickGroupUserList(t *testing.T) {
 	info, err := open_im_sdk.UserForSDK.Group().KickGroupMemberList(
 		ctx, &sdk_params_callback.GetKickGroupListReq{
-			GroupID:  "892999374475264",
+			GroupID:  "105110373928960",
 			IsManger: false,
 			Name:     "",
 			PageSize: 10,
@@ -375,8 +375,8 @@ func Test_KickGroupUserList(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	t.Logf("GetGroupsInfo: %d\n", len(info))
-	for _, localGroup := range info {
+	t.Logf("GetGroupsInfo: %d\n", len(info.KickGroupList))
+	for _, localGroup := range info.KickGroupList {
 		t.Logf("%#v", localGroup)
 	}
 }

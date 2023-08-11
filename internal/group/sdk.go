@@ -163,9 +163,14 @@ func (g *Group) ChangeGroupMute(ctx context.Context, groupID string, isMute bool
 	if err != nil {
 		return err
 	}
-	if err := g.SyncJoinedGroup(ctx); err != nil {
+	//更新群状态
+	if err := g.syncGroupStatus(ctx, groupID); err != nil {
 		return err
 	}
+
+	//if err := g.SyncJoinedGroup(ctx); err != nil {
+	//	return err
+	//}
 	return nil
 }
 

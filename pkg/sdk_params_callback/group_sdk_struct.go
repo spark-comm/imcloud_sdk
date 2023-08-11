@@ -125,7 +125,7 @@ type SearchKickGroupListInfoRes struct {
 
 type KickGroupList struct {
 	GroupId       string `gorm:"column:group_id" json:"groupID"`
-	UserId        string `gorm:"column:user_id" json:"userID"`
+	FriendUserID  string `gorm:"column:user_id" json:"friendUserID"`
 	Nickname      string `json:"nickname"`
 	RoleLevel     int    `gorm:"column:role_level" json:"roleLevel"`
 	JoinTime      int64  `gorm:"column:join_time" json:"joinTime"`

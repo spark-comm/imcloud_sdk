@@ -23,6 +23,7 @@ import (
 	"github.com/imCloud/im/pkg/proto/sdkws"
 	"open_im_sdk/internal/util"
 	"open_im_sdk/pkg/constant"
+	"open_im_sdk/pkg/sdkerrs"
 )
 
 // SyncGroupMember 同步群成员
@@ -164,4 +165,15 @@ func (g *Group) GetServerGroupMembers(ctx context.Context, groupID string) ([]*g
 	req := &group.GetGroupMemberListReq{GroupID: groupID, Pagination: &sdkws.RequestPagination{}}
 	fn := func(resp *groupv1.MemberListForSDKReps) []*groupv1.MembersInfo { return resp.Members }
 	return util.GetPageAll(ctx, constant.GetGroupMemberListRouter, req, fn)
+}
+
+func (g *Group) syncGroupStatus(ctx context.Context, groupID string) error {
+	svrGroup, err := g.getGroupsInfoFromSvr(ctx, []string{groupID})
+	if err != nil {
+		return err
+	}
+	if len(svrGroup) < 1 {
+		return sdkerrs.ErrGroupIDNotFound.Wrap("server not this group")
+	}
+	return g.db.UpdateGroup(ctx, ServerGroupToLocalGroup(svrGroup[0]))
 }

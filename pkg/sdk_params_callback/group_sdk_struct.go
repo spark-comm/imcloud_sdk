@@ -120,7 +120,7 @@ type GetKickGroupListReq struct {
 }
 type SearchKickGroupListInfoRes struct {
 	Total         int64            `json:"total"`
-	KickGroupList []*KickGroupList `json:"kick_group_list"`
+	KickGroupList []*KickGroupList `json:"kickGroupList"`
 }
 
 type KickGroupList struct {

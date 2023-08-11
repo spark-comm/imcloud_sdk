@@ -573,3 +573,18 @@ func (g *Group) GetUserOwnerJoinRequestNum(ctx context.Context) (groupv1.GetOwne
 	}
 	return resp, nil
 }
+
+func (g *Group) GetAppointGroupRequestInfo(ctx context.Context, groupID string, offset, count int) ([]model_struct.LocalGroupRequest, error) {
+	if offset == 0 {
+		offset = 1
+	}
+	if count == 0 {
+		count = 20
+	}
+	return g.db.GetOwnerOrAdminGroupReqInfo(
+		ctx,
+		groupID,
+		(offset-1)*count,
+		count,
+	)
+}

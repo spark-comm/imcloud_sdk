@@ -120,29 +120,29 @@ type GetKickGroupListReq struct {
 }
 
 type KickGroupList struct {
-	GroupId       string `json:"group_id" json:"groupID"`
-	UserId        string `json:"user_id" json:"userID"`
+	GroupId       string `gorm:"column:group_id" json:"groupID"`
+	UserId        string `gorm:"column:user_id" json:"userID"`
 	Nickname      string `json:"nickname"`
-	RoleLevel     int    `json:"role_level" json:"roleLevel"`
-	JoinTime      int64  `json:"join_time" json:"joinTime"`
-	FaceURL       string `json:"face_url" json:"faceURL"`
+	RoleLevel     int    `gorm:"column:role_level" json:"roleLevel"`
+	JoinTime      int64  `gorm:"column:join_time" json:"joinTime"`
+	FaceURL       string `gorm:"column:face_url" json:"faceURL"`
 	Code          string `json:"code"`
 	Phone         string `json:"phone"`
 	Gender        int    `json:"gender"`
-	GroupUserName string `json:"group_user_name" json:"groupUserName"`
+	GroupUserName string `gorm:"column:group_user_name" json:"groupUserName"`
 }
 
 type SearchNotInGroupUserReq struct {
-	GroupID  string `json:"group_id" json:"groupID"`
-	UserID   string `json:"user_id" json:"userID"`
-	Name     string `json:"name" json:"name"`
-	PageSize int    `json:"pageSize" json:"pageSize"`
-	PageNum  int    `json:"pageNum" json:"pageNum"`
+	GroupID  string `json:"groupID"`
+	UserID   string `json:"userID"`
+	Name     string `json:"name"`
+	PageSize int    `json:"pageSize"`
+	PageNum  int    `json:"pageNum"`
 }
 
 type SearchNotInGroupUserResp struct {
-	FriendUserID string `json:"friend_user_id" json:"friendUserID"`
-	FaceURL      string `json:"face_url" json:"faceURL"`
+	FriendUserID string `gorm:"column:friend_user_id" json:"friendUserID"`
+	FaceURL      string `gorm:"column:face_url" json:"faceURL"`
 	Nickname     string `json:"nickname"`
 	Code         string `json:"code"`
 	Phone        string `json:"phone"`

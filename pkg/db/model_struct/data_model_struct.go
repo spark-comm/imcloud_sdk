@@ -190,7 +190,7 @@ type LocalGroupMember struct {
 	Email          string `gorm:"column:email;size:36;comment:邮箱" json:"email"`
 	Birth          int64  `gorm:"column:birth;comment:生日" json:"birth"`
 	Gender         int32  `gorm:"column:gender;default:0;comment:性别，默认女" json:"gender"`
-	RoleLevel      int32  `gorm:"column:role_level;comment:角色1:普通用户2:群主；3:管理员" json:"roleLevel"`
+	RoleLevel      int32  `gorm:"column:role_level;comment:角色20:普通用户100:群主；60:管理员" json:"roleLevel"`
 	JoinTime       int64  `gorm:"column:join_time;index:index_join_tim;comment:加入时间" json:"joinTime"`
 	JoinSource     int32  `gorm:"column:join_source;comment:来源" json:"joinSource"`
 	InviterUserID  string `gorm:"column:inviter_user_id;size:64;comment:邀请用户id"  json:"inviterUserID"`

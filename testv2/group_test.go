@@ -366,9 +366,9 @@ func Test_SetGroupInfo(t *testing.T) {
 func Test_KickGroupUserList(t *testing.T) {
 	info, err := open_im_sdk.UserForSDK.Group().KickGroupMemberList(
 		ctx, &sdk_params_callback.GetKickGroupListReq{
-			GroupID:  "171491979169792",
+			GroupID:  "892999374475264",
 			IsManger: false,
-			Name:     "月",
+			Name:     "",
 			PageSize: 10,
 			PageNum:  1,
 		})

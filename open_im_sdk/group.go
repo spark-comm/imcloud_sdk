@@ -149,3 +149,7 @@ func SearchNotInGroupFriendList(callback open_im_sdk_callback.Base, operationID,
 func GetUserOwnerJoinRequestNum(callback open_im_sdk_callback.Base, operationID string) {
 	call(callback, operationID, UserForSDK.Group().GetUserOwnerJoinRequestNum)
 }
+
+func GetAppointGroupRequestInfo(callback open_im_sdk_callback.Base, operationID string, offset, count int) {
+	call(callback, operationID, UserForSDK.Group().GetAppointGroupRequestInfo)
+}

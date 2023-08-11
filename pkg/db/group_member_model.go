@@ -312,7 +312,7 @@ func (d *DataBase) SearchKickMemberList(ctx context.Context, params sdk_params_c
 	tx1 := d.conn.WithContext(ctx).Model(&model_struct.LocalGroupMember{}).
 		Select([]string{
 			"group_id", "user_id", "nickname", "role_level", "join_time", "face_url",
-			"code", "phone", "gender", "group_user_name",
+			"code", "phone", "gender", "group_user_name", "sort_flag",
 		}).Where("group_id = ? AND user_id != ?", params.GroupID, params.UserID).
 		Scopes(func(db *gorm.DB) *gorm.DB {
 			if params.IsManger { //管理员只可踢普通用户
@@ -323,7 +323,7 @@ func (d *DataBase) SearchKickMemberList(ctx context.Context, params sdk_params_c
 		})
 	tx2 := d.conn.WithContext(ctx).Model(&model_struct.LocalGroupMember{}).Select([]string{
 		"group_id", "user_id", "nickname", "role_level", "join_time", "face_url",
-		"code", "phone", "gender", "group_user_name",
+		"code", "phone", "gender", "group_user_name", "sort_flag",
 	}).Where("group_id = ? AND user_id != ?", params.GroupID, params.UserID).
 		Scopes(func(db *gorm.DB) *gorm.DB {
 			if params.IsManger { //管理员只可踢普通用户
@@ -335,7 +335,7 @@ func (d *DataBase) SearchKickMemberList(ctx context.Context, params sdk_params_c
 	tx3 := d.conn.WithContext(ctx).Model(&model_struct.LocalGroupMember{}).
 		Select([]string{
 			"group_id", "user_id", "nickname", "role_level", "join_time", "face_url",
-			"code", "phone", "gender", "group_user_name",
+			"code", "phone", "gender", "group_user_name", "sort_flag",
 		}).Where("group_id = ? AND user_id != ?", params.GroupID, params.UserID).
 		Scopes(func(db *gorm.DB) *gorm.DB {
 			if params.IsManger { //管理员只可踢普通用户
@@ -349,5 +349,16 @@ func (d *DataBase) SearchKickMemberList(ctx context.Context, params sdk_params_c
 	err := d.conn.WithContext(ctx).Table("(?) AS t", d.conn.Raw("? UNION ? UNION ?", tx1, tx2, tx3)).
 		Count(&total).Order("sort_flag").
 		Offset((params.PageNum - 1) * params.PageSize).Limit(params.PageSize).Find(&result).Error
+	return result, err
+}
+
+func (d *DataBase) GetOwnerOrAdminGroupReqInfo(ctx context.Context, groupID string, offset, count int) ([]model_struct.LocalGroupRequest, error) {
+	d.groupMtx.Lock()
+	defer d.groupMtx.Unlock()
+	var result = make([]model_struct.LocalGroupRequest, 0)
+	err := d.conn.WithContext(ctx).
+		Where("group_id = ?", groupID).
+		Order("req_time DESC").Offset(offset).
+		Limit(count).Find(&result).Error
 	return result, err
 }

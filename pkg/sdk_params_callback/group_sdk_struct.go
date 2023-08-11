@@ -118,6 +118,10 @@ type GetKickGroupListReq struct {
 	PageNum  int    `json:"pageNum"`
 	UserID   string `json:"userID"`
 }
+type SearchKickGroupListInfoRes struct {
+	Total         int64            `json:"total"`
+	KickGroupList []*KickGroupList `json:"kick_group_list"`
+}
 
 type KickGroupList struct {
 	GroupId       string `gorm:"column:group_id" json:"groupID"`

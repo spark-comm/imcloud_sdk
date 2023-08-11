@@ -516,14 +516,15 @@ func (g *Group) IsJoinGroup(ctx context.Context, groupID string) (bool, error) {
 	return false, nil
 }
 
-func (g *Group) KickGroupMemberList(ctx context.Context, searchParam *sdk_params_callback.GetKickGroupListReq) ([]*sdk_params_callback.KickGroupList, error) {
+func (g *Group) KickGroupMemberList(ctx context.Context, searchParam *sdk_params_callback.GetKickGroupListReq) (sdk_params_callback.SearchKickGroupListInfoRes, error) {
 	if searchParam.PageNum == 0 {
 		searchParam.PageNum = 1
 	}
 	if searchParam.PageSize == 0 {
 		searchParam.PageSize = 20
 	}
-	return g.db.SearchKickMemberList(ctx, sdk_params_callback.GetKickGroupListReq{
+	result := sdk_params_callback.SearchKickGroupListInfoRes{}
+	kickMemberList, total, err := g.db.SearchKickMemberList(ctx, sdk_params_callback.GetKickGroupListReq{
 		GroupID:  searchParam.GroupID,
 		IsManger: searchParam.IsManger,
 		Name:     searchParam.Name,
@@ -531,6 +532,12 @@ func (g *Group) KickGroupMemberList(ctx context.Context, searchParam *sdk_params
 		PageNum:  searchParam.PageNum,
 		UserID:   g.loginUserID,
 	})
+	if err != nil {
+		return result, err
+	}
+	result.Total = total
+	result.KickGroupList = kickMemberList
+	return result, nil
 }
 
 func (g *Group) GetNotInGroupFriendInfoList(ctx context.Context, searchParam *sdk_params_callback.SearchNotInGroupUserReq) (sdk_params_callback.SearchNotInGroupUserInfoRes, error) {

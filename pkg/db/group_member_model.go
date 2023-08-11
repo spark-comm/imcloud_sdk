@@ -306,7 +306,7 @@ func (d *DataBase) GetGroupMemberAllGroupIDs(ctx context.Context) ([]string, err
 	return groupIDs, nil
 }
 
-func (d *DataBase) SearchKickMemberList(ctx context.Context, params sdk_params_callback.GetKickGroupListReq) ([]*sdk_params_callback.KickGroupList, error) {
+func (d *DataBase) SearchKickMemberList(ctx context.Context, params sdk_params_callback.GetKickGroupListReq) ([]*sdk_params_callback.KickGroupList, int64, error) {
 	d.groupMtx.Lock()
 	defer d.groupMtx.Unlock()
 	tx1 := d.conn.WithContext(ctx).Model(&model_struct.LocalGroupMember{}).
@@ -349,7 +349,7 @@ func (d *DataBase) SearchKickMemberList(ctx context.Context, params sdk_params_c
 	err := d.conn.WithContext(ctx).Table("(?) AS t", d.conn.Raw("? UNION ? UNION ?", tx1, tx2, tx3)).
 		Count(&total).Order("sort_flag").
 		Offset((params.PageNum - 1) * params.PageSize).Limit(params.PageSize).Find(&result).Error
-	return result, err
+	return result, total, err
 }
 
 func (d *DataBase) GetOwnerOrAdminGroupReqInfo(ctx context.Context, groupID string, offset, count int) ([]model_struct.LocalGroupRequest, error) {

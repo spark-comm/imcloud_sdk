@@ -71,7 +71,7 @@ type GroupDatabase interface {
 	GetGroupMemberInfoIfOwnerOrAdmin(ctx context.Context) ([]*model_struct.LocalGroupMember, error)
 	SearchGroupMembersDB(ctx context.Context, keyword string, groupID string, isSearchMemberNickname, isSearchUserID bool, offset, count int) (result []*model_struct.LocalGroupMember, err error)
 	//SearchKickMemberList 获取可踢用户列表
-	SearchKickMemberList(ctx context.Context, params sdk_params_callback.GetKickGroupListReq) ([]*sdk_params_callback.KickGroupList, error)
+	SearchKickMemberList(ctx context.Context, params sdk_params_callback.GetKickGroupListReq) ([]*sdk_params_callback.KickGroupList, int64, error)
 	//获取指定群群id的加群申请
 	GetOwnerOrAdminGroupReqInfo(ctx context.Context, groupID string, offset, count int) ([]model_struct.LocalGroupRequest, error)
 }

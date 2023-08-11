@@ -88,6 +88,8 @@ func (f *File) UploadFile(ctx context.Context, req *UploadFileReq, cb UploadFile
 	defer file.Close()
 	fileSize := file.Size()
 	cb.Open(fileSize)
+	//给初始上传进度
+	cb.UploadComplete(fileSize, fileSize+1, 1)
 	info, err := f.getPartInfo(ctx, file, fileSize, cb)
 	if err != nil {
 		return nil, err

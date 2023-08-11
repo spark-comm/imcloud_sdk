@@ -86,6 +86,9 @@ func (c *msgUploadFileCallback) UploadComplete(fileSize int64, streamSize int64,
 		log.ZError(c.ctx, "update PutProgress message attached info failed", err)
 	}
 	value := int(float64(streamSize) / float64(fileSize) * 100)
+	if value < 1 {
+		value = 1
+	}
 	if c.value < value {
 		c.value = value
 		c.progress(value)

@@ -20,9 +20,11 @@ import (
 	"open_im_sdk/open_im_sdk"
 	"open_im_sdk/pkg/log"
 	"open_im_sdk/pkg/sdk_params_callback"
+	"open_im_sdk/pkg/utils"
 	"open_im_sdk/sdk_struct"
 	"strings"
 	"testing"
+	"time"
 )
 
 type SendCallback struct {
@@ -180,7 +182,7 @@ func Test_GetTotalUnreadMsgCount(t *testing.T) {
 func Test_SendMessage(t *testing.T) {
 	ctx = context.WithValue(ctx, "callback", TestSendMsg{})
 	msg, _ := open_im_sdk.UserForSDK.Conversation().CreateTextMessage(ctx, "textMsg")
-	_, err := open_im_sdk.UserForSDK.Conversation().SendMessage(ctx, msg, "", "151819082797056", nil)
+	_, err := open_im_sdk.UserForSDK.Conversation().SendMessage(ctx, msg, "1463426512456", "", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -189,7 +191,7 @@ func Test_SendMessage(t *testing.T) {
 func Test_SendMessageNotOss(t *testing.T) {
 	ctx = context.WithValue(ctx, "callback", TestSendMsg{})
 	msg, _ := open_im_sdk.UserForSDK.Conversation().CreateTextMessage(ctx, "textMsg")
-	_, err := open_im_sdk.UserForSDK.Conversation().SendMessageNotOss(ctx, msg, "3411008330", "", nil)
+	_, err := open_im_sdk.UserForSDK.Conversation().SendMessageNotOss(ctx, msg, "1463426512456", "", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -307,14 +309,14 @@ func Test_ClearConversationAndDeleteAllMsg(t *testing.T) {
 	}
 }
 
-// func Test_RevokeMessage(t *testing.T) {
-// 	err := open_im_sdk.UserForSDK.Conversation().RevokeMessage(ctx, &sdk_struct.MsgStruct{SessionType: 1, ContentType: 101,
-// 		ClientMsgID: "380e2eb1709875340d769880982ebb21", Seq: 57, SendID: "9169012630", RecvID: "2456093263"})
-// 	if err != nil {
-// 		t.Fatal(err)
-// 	}
-// 	time.Sleep(time.Second * 10)
-// }
+func Test_RevokeMessage(t *testing.T) {
+	conId := open_im_sdk.GetConversationIDBySessionType("ssss", "1463426512456", 1)
+	err := open_im_sdk.UserForSDK.Conversation().RevokeMessage(ctx, conId, "bf70f6d012eb3254c03595cc2c2e0dc2")
+	if err != nil {
+		t.Fatal(err)
+	}
+	time.Sleep(time.Second * 10)
+}
 
 func Test_MarkConversationMessageAsRead(t *testing.T) {
 	err := open_im_sdk.UserForSDK.Conversation().MarkConversationMessageAsRead(ctx, "si_2688118337_7249315132")
@@ -324,12 +326,17 @@ func Test_MarkConversationMessageAsRead(t *testing.T) {
 }
 
 func Test_MarkMsgsAsRead(t *testing.T) {
-	err := open_im_sdk.UserForSDK.Conversation().MarkMessagesAsReadByMsgID(ctx, "si_2688118337_7249315132",
-		[]string{"fb56ed151b675e0837ed3af79dbf66b1",
-			"635715c539be2e7812a0fc802f0cdc54", "1aba3fae3dc3f61c17e8eb09519cf8e1"})
+	conId := open_im_sdk.GetConversationIDBySessionType("ssss", "50122626445611008", 1)
+	err := open_im_sdk.UserForSDK.Conversation().MarkMessagesAsReadByMsgID(ctx, conId, []string{"e664dbd03600e798ea1c2351d6989b10"})
 	if err != nil {
 		t.Fatal(err)
 	}
+}
+
+func Test_MarkMessagesAsReadByMsgID(t *testing.T) {
+	conId := "si_50122626445611008_50891326056566784" //open_im_sdk.GetConversationIDBySessionType("ssss", "50891326056566784", 1)
+	open_im_sdk.MarkMessagesAsReadByMsgID(&SendCallback{}, utils.OperationIDGenerator(), conId, "[\"873e51d049f3aa28fc02bd0f6e0a47bc\",\"d81411a19c13f6783145db74e8e7f229\",\"9c6a75550045cab4cc7128b4de370222\",\"3f6bf3105ef5d8292ab952da54b36505\",\"ef6f904dc5c7fb9a996ee12d9b80c572\",\"db8e2564a911e25a89decced4f7da564\",\"e720dc443fcbed03566467932fbd6496\",\"9fec40158070b27dbf1734a977536571\"]")
+	time.Sleep(time.Second * 15)
 }
 
 func Test_SendImgMsg(t *testing.T) {
@@ -347,7 +354,7 @@ func Test_SendImgMsg(t *testing.T) {
 
 func Test_SendFileMsg(t *testing.T) {
 	ctx = context.WithValue(ctx, "callback", TestSendMsg{})
-	msg, err := open_im_sdk.UserForSDK.Conversation().CreateFileMessageFromFullPath(ctx, "/Users/tang/workspace/etcd.zip", "etcd.zip")
+	msg, err := open_im_sdk.UserForSDK.Conversation().CreateFileMessageFromFullPath(ctx, "/Users/tang/workspace/weisancloud.zip", "weisancloud.zip")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -359,6 +366,6 @@ func Test_SendFileMsg(t *testing.T) {
 }
 
 func Test_GetConversationIDBySessionType(t *testing.T) {
-	conId := open_im_sdk.GetConversationIDBySessionType("ssss", "12312", 1) //open_im_sdk.UserForSDK.Conversation().GetConversationIDBySessionType(context.Background(), "12312", 1)
+	conId := open_im_sdk.GetConversationIDBySessionType("ssss", "1463426512456", 1) //open_im_sdk.UserForSDK.Conversation().GetConversationIDBySessionType(context.Background(), "12312", 1)
 	t.Logf("send conId => %s\n", conId)
 }

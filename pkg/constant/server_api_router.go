@@ -25,13 +25,13 @@ const (
 	GetUsersInfoFromCacheRouter   = BaseRouter + "/user/get_users_info_from_cache"
 	SearchUserInfoRouter          = BaseRouter + "/user/search"
 
-	AddFriendRouter                    = BaseRouter + "/friend/add_friend"
-	DeleteFriendRouter                 = BaseRouter + "/friend/delete_friend"
-	GetFriendApplicationListRouter     = BaseRouter + "/friend/get_friend_apply_list"      //recv
-	GetSelfFriendApplicationListRouter = BaseRouter + "/friend/get_self_friend_apply_list" //send
-	GetFriendListRouter                = BaseRouter + "/friend/get_friend_list"
-	AddFriendResponse                  = BaseRouter + "/friend/add_friend_response"
-	SetFriendRemark                    = BaseRouter + "/friend/set_friend_remark"
+	AddFriendRouter                           = BaseRouter + "/friend/add_friend"
+	DeleteFriendRouter                        = BaseRouter + "/friend/delete_friend"
+	GetSelfFriendReceiveApplicationListRouter = BaseRouter + "/friend/get_self_receive_friend_apply_list" //recv
+	GetSelfFriendApplicationListRouter        = BaseRouter + "/friend/get_self_friend_apply_list"         //send
+	GetFriendListRouter                       = BaseRouter + "/friend/get_friend_list"
+	AddFriendResponse                         = BaseRouter + "/friend/add_friend_response"
+	SetFriendRemark                           = BaseRouter + "/friend/set_friend_remark"
 	// 黑明单
 	AddBlackRouter     = BaseRouter + "/friend/add_black"
 	RemoveBlackRouter  = BaseRouter + "/friend/remove_black"

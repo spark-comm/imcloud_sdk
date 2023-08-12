@@ -29,7 +29,7 @@ import (
 
 // SyncSelfFriendApplication 自己发送的好友请求
 func (f *Friend) SyncSelfFriendApplication(ctx context.Context) error {
-	req := &friend.GetPaginationFriendsApplyFromReq{UserID: f.loginUserID, Pagination: &sdkws.RequestPagination{}}
+	req := &friend.GetPaginationFriendsApplyToReq{UserID: f.loginUserID, Pagination: &sdkws.RequestPagination{}}
 	fn := func(resp *friendPb.GetPaginationFriendsApplyFromResp) []*friendPb.FriendRequests {
 		return resp.FriendRequests
 	}
@@ -47,8 +47,10 @@ func (f *Friend) SyncSelfFriendApplication(ctx context.Context) error {
 // SyncFriendApplication 同步自己收到的好友请求
 func (f *Friend) SyncFriendApplication(ctx context.Context) error {
 	req := &friend.GetPaginationFriendsApplyToReq{UserID: f.loginUserID, Pagination: &sdkws.RequestPagination{}}
-	fn := func(resp *friendPb.ListFriendApplyResponse) []*friendPb.FriendRequests { return resp.List }
-	requests, err := util.GetPageAll(ctx, constant.GetFriendApplicationListRouter, req, fn)
+	fn := func(resp *friendPb.GetPaginationFriendsApplyReceiveResp) []*friendPb.FriendRequests {
+		return resp.FriendRequests
+	}
+	requests, err := util.GetPageAll(ctx, constant.GetSelfFriendReceiveApplicationListRouter, req, fn)
 	if err != nil {
 		return err
 	}

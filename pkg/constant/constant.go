@@ -29,7 +29,7 @@ const (
 	CmdForceSyncLoginUerInfo      = "012"
 	CmdReLogin                    = "013"
 	CmdUnInit                     = "014"
-	CmdAcceptFriend               = "015"
+	CmdAcceptFriend               = "015" //好友请求被同意
 	CmdRefuseFriend               = "016"
 	CmdAddFriend                  = "017"
 

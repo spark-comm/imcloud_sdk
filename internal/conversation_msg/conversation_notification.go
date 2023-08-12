@@ -42,11 +42,19 @@ func (c *Conversation) Work(c2v common.Cmd2Value) {
 	case constant.CmdUpdateConversation:
 		c.doUpdateConversation(c2v)
 	case constant.CmdUpdateMessage:
+		//修改消息
 		c.doUpdateMessage(c2v)
 	case constant.CmSyncReactionExtensions:
 		//c.doSyncReactionExtensions(c2v)
 	case constant.CmdNotification:
+		//处理通知
 		c.doNotificationNew(c2v)
+	case constant.CmdAcceptFriend:
+		//好友请求被同意
+		c.doAddFriend(c2v)
+	case constant.CmdAddFriend:
+		//新增会话
+		c.doAddFriend(c2v)
 	}
 }
 
@@ -67,6 +75,19 @@ func (c *Conversation) doDeleteConversation(c2v common.Cmd2Value) {
 	c.doUpdateConversation(common.Cmd2Value{Value: common.UpdateConNode{"", constant.TotalUnreadMessageChanged, ""}})
 }
 
+// doAddFriend 新增好友处理
+func (c *Conversation) doAddFriend(c2v common.Cmd2Value) {
+	ctx := c2v.Ctx
+	node := c2v.Value.(common.SourceIDAndSessionType)
+	cl, err := c.GetOneConversation(ctx, int32(node.SessionType), node.SourceID)
+	if err != nil {
+		log.ZDebug(ctx, "do add friend error", err)
+		return
+	}
+	c.ConversationListener.OnNewConversation(utils.StructToJsonString([]*model_struct.LocalConversation{cl}))
+}
+
+// doUpdateConversation //更新会话
 func (c *Conversation) doUpdateConversation(c2v common.Cmd2Value) {
 	if c.ConversationListener == nil {
 		// log.Error("internal", "not set conversationListener")
@@ -652,8 +673,10 @@ func (c *Conversation) doNotificationNew(c2v common.Cmd2Value) {
 		for _, v := range msgs.Msgs {
 			switch {
 			case v.ContentType == constant.ConversationChangeNotification || v.ContentType == constant.ConversationPrivateChatNotification:
+				// 会话改变和私聊通知
 				c.DoNotification(ctx, v)
 			case v.ContentType == constant.ConversationUnreadNotification:
+				//会话未读通知
 				var tips sdkws.ConversationHasReadTips
 				_ = json.Unmarshal(v.Content, &tips)
 				c.doUpdateConversation(common.Cmd2Value{Value: common.UpdateConNode{ConID: tips.ConversationID, Action: constant.UnreadCountSetZero}})
@@ -661,20 +684,25 @@ func (c *Conversation) doNotificationNew(c2v common.Cmd2Value) {
 				c.doUpdateConversation(common.Cmd2Value{Value: common.UpdateConNode{Action: constant.ConChange, Args: []string{tips.ConversationID}}})
 				continue
 			case v.ContentType == constant.BusinessNotification:
+				//业务通知
 				c.business.DoNotification(ctx, v)
 				continue
 			case v.ContentType == constant.RevokeNotification:
+				//撤回通知
 				c.doRevokeMsg(ctx, v)
 			case v.ContentType == constant.ClearConversationNotification:
+				//清空会话通知
 				c.doClearConversations(ctx, v)
 			case v.ContentType == constant.DeleteMsgsNotification:
+				//删除消息通知
 				c.doDeleteMsgs(ctx, v)
 			case v.ContentType == constant.HasReadReceipt:
+				//已读回执
 				c.doReadDrawing(ctx, v)
 			}
-
 			switch v.SessionType {
 			case constant.SingleChatType:
+				//单聊
 				if v.ContentType > constant.FriendNotificationBegin && v.ContentType < constant.FriendNotificationEnd {
 					c.friend.DoNotification(ctx, v)
 				} else if v.ContentType > constant.UserNotificationBegin && v.ContentType < constant.UserNotificationEnd {
@@ -686,6 +714,7 @@ func (c *Conversation) doNotificationNew(c2v common.Cmd2Value) {
 					continue
 				}
 			case constant.GroupChatType, constant.SuperGroupChatType:
+				//群聊
 				if v.ContentType > constant.GroupNotificationBegin && v.ContentType < constant.GroupNotificationEnd {
 					c.group.DoNotification(ctx, v)
 				} else if v.ContentType > constant.SignalingNotificationBegin && v.ContentType < constant.SignalingNotificationEnd {

@@ -177,3 +177,44 @@ func (g *Group) syncGroupStatus(ctx context.Context, groupID string) error {
 	}
 	return g.db.UpdateGroup(ctx, ServerGroupToLocalGroup(svrGroup[0]))
 }
+
+func (g *Group) syncUserReqGroupInfo(ctx context.Context, fromUserID, groupID string) error {
+	//获取用户加入单个群的申请信息
+	req := groupv1.UserJoinGroupRequestReq{
+		GroupID: groupID,
+		UserID:  fromUserID,
+	}
+	reqInfos, err := util.CallApi[groupv1.UserJoinGroupRequestReps](ctx, constant.GetJoinGroupRequestDetailRouter, &req)
+	if err != nil {
+		return err
+	}
+	localGroupRequest := ServerGroupRequestToLocalGroupRequest(&groupv1.GroupRequestInfo{
+		GroupID:       groupID,
+		CreateTime:    reqInfos.CreateTime,
+		GroupName:     reqInfos.GroupName,
+		Notification:  reqInfos.Notification,
+		Introduction:  reqInfos.Introduction,
+		GroupFaceURL:  reqInfos.GroupFaceURL,
+		Status:        reqInfos.GroupStatus,
+		GroupType:     reqInfos.GroupType,
+		GroupCode:     reqInfos.GroupCode,
+		OwnerUserID:   reqInfos.OwnerUserID,
+		CreatorUserID: reqInfos.CreatorUserID,
+		MemberCount:   int32(reqInfos.MemberCount),
+		UserID:        fromUserID,
+		Nickname:      reqInfos.Nickname,
+		UserFaceURL:   reqInfos.FaceURL,
+		Gender:        reqInfos.Gender,
+		Code:          reqInfos.Code,
+		HandleResult:  reqInfos.HandleResult,
+		ReqMsg:        reqInfos.ReqMsg,
+		HandledMsg:    reqInfos.HandleMsg,
+		ReqTime:       reqInfos.ReqTime,
+		HandledTime:   reqInfos.HandleTime,
+		HandleUserID:  reqInfos.HandleUserID,
+		JoinSource:    reqInfos.JoinSource,
+		InviterUserID: reqInfos.InviterUserID,
+	})
+	g.db.UpdateGroupRequest(ctx, localGroupRequest)
+	return nil
+}

@@ -39,12 +39,13 @@ func (g *GroupCallback) OnSuccess(data string) {
 }
 func Test_CreateGroupV2(t *testing.T) {
 	req := &groupv1.CrateGroupReq{
-		MemberList:   []string{"1463426311015", "1463426512456", "1463426515762", "1463426574029"},
-		GroupName:    "熔火之心",
-		GroupType:    2,
-		Notification: "公告：这是一个荣誉",
-		Introduction: "洗脑群",
-		FaceURL:      "https://dfsjk/djfhsd/5d1f5562d/154452.jpg",
+		MemberList:       []string{"1463426311015", "1463426512456", "1463426515762"},
+		GroupName:        "神精榜",
+		GroupType:        2,
+		Notification:     "公告：这是一个荣誉",
+		Introduction:     "洗脑群",
+		FaceURL:          "https://dfsjk/djfhsd/5d1f5562d/154452.jpg",
+		NeedVerification: 1,
 	}
 	info, err := open_im_sdk.UserForSDK.Group().CreateGroup(ctx, req)
 	if err != nil {
@@ -55,7 +56,7 @@ func Test_CreateGroupV2(t *testing.T) {
 
 func Test_JoinGroup(t *testing.T) {
 	err := open_im_sdk.UserForSDK.Group().JoinGroup(ctx,
-		"78877338636288",
+		"50913016287232",
 		"进群收钱呀",
 		1)
 	if err != nil {
@@ -206,8 +207,8 @@ func Test_GetGroupApplicationListAsApplicant(t *testing.T) {
 
 func Test_AcceptGroupApplication(t *testing.T) {
 	err := open_im_sdk.UserForSDK.Group().AcceptGroupApplication(ctx,
-		"50069143293952",
-		"1463426515762",
+		"50913016287232",
+		"1463426528082",
 		"test accept")
 	if err != nil {
 		t.Fatal(err)
@@ -219,8 +220,8 @@ func Test_RefuseGroupApplication(t *testing.T) {
 	t.Log("operationID:", ctx.Value("operationID"))
 	err := open_im_sdk.UserForSDK.Group().RefuseGroupApplication(
 		ctx,
-		"78877338636288",
-		"1463426527031",
+		"50913016287232",
+		"1463426528082",
 		"test refuse")
 	if err != nil {
 		t.Fatal(err)
@@ -286,9 +287,9 @@ func Test_TransferGroupOwner(t *testing.T) {
 func Test_InviteUserToGroup(t *testing.T) {
 	err := open_im_sdk.UserForSDK.Group().InviteUserToGroup(
 		ctx,
-		"131860273303552",
+		"50913016287232",
 		"测试邀请人进群",
-		[]string{"1463426528082", "1463426527031"})
+		[]string{"49389272901357568"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -349,6 +350,22 @@ func Test_GetGroupMemberList(t *testing.T) {
 }
 func Test_GetGroupMemberList1(t *testing.T) {
 	open_im_sdk.GetGroupMemberList(&GroupCallback{}, utils.OperationIDGenerator(), "503233625722880", 0, 0, 9999999)
+	time.Sleep(time.Second * 4)
+	t.Log("--------------------------")
+}
+
+func Test_CreateGroup(t *testing.T) {
+	req := groupv1.CrateGroupReq{
+		MemberList:       []string{"1463426311015", "1463426512456", "1463426515762", "1463426574029"},
+		GroupName:        "九华",
+		GroupType:        2,
+		Notification:     "公告：这是一个荣誉",
+		Introduction:     "洗脑群",
+		FaceURL:          "https://dfsjk/djfhsd/5d1f5562d/154452.jpg",
+		NeedVerification: 1,
+	}
+	marshal, _ := json.Marshal(&req)
+	open_im_sdk.CreateGroup(&GroupCallback{}, utils.OperationIDGenerator(), string(marshal))
 	time.Sleep(time.Second * 4)
 	t.Log("--------------------------")
 }

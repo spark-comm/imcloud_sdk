@@ -478,8 +478,8 @@ func (g *Group) HandlerGroupApplication(ctx context.Context, req *groupv1.Applic
 	if err := util.ApiPost(ctx, constant.AcceptGroupApplicationRouter, req, nil); err != nil {
 		return err
 	}
-	// SyncAdminGroupApplication todo
-	return nil
+	//申请状态同步
+	return g.syncUserReqGroupInfo(ctx, req.FromUserID, req.GroupID)
 }
 
 func (g *Group) SearchGroupMembers(ctx context.Context, searchParam *sdk_params_callback.SearchGroupMembersParam) ([]*model_struct.LocalGroupMember, error) {

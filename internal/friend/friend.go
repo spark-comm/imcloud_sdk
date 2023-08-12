@@ -74,8 +74,10 @@ func (f *Friend) initSyncer() {
 				if server.Remark != "" {
 					server.Nickname = server.Remark
 				}
+				//更新会话
 				_ = common.TriggerCmdUpdateConversation(ctx, common.UpdateConNode{Action: constant.UpdateConFaceUrlAndNickName,
 					Args: common.SourceIDAndSessionType{SourceID: server.FriendUserID, SessionType: constant.SingleChatType, FaceURL: server.FaceURL, Nickname: server.Nickname}}, f.conversationCh)
+				//更新消息
 				_ = common.TriggerCmdUpdateMessage(ctx, common.UpdateMessageNode{Action: constant.UpdateMsgFaceUrlAndNickName,
 					Args: common.UpdateMessageInfo{UserID: server.FriendUserID, FaceURL: server.FaceURL, Nickname: server.Nickname}}, f.conversationCh)
 			}
@@ -158,6 +160,8 @@ func (f *Friend) initSyncer() {
 				f.friendListener.OnFriendApplicationAccepted(*server)
 			case constant.FriendResponseRefuse:
 				f.friendListener.OnFriendApplicationRejected(*server)
+			case constant.FriendResponseDefault:
+				f.friendListener.OnFriendApplicationAdded(*server)
 			}
 		}
 		return nil
@@ -225,5 +229,7 @@ func (f *Friend) syncFriendByNotification(ctx context.Context, fromUserID, frien
 	if err != nil {
 		return fmt.Errorf("friend  notification error, fromUserID: %s, toUserID: %s", fromUserID, friendId)
 	}
+	//生成对应的会话
+	_ = common.TriggerCmdAddFriendGenerateSession(ctx, common.SourceIDAndSessionType{SourceID: friendId, SessionType: constant.SingleChatType}, f.conversationCh)
 	return nil
 }

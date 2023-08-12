@@ -149,6 +149,17 @@ func TriggerCmdConnected(ctx context.Context, ch chan Cmd2Value) error {
 	return sendCmd(ch, c2v, 100)
 }
 
+// TriggerCmdAddFriendGenerateSession 新增好友生成会话
+func TriggerCmdAddFriendGenerateSession(ctx context.Context, node SourceIDAndSessionType, conversationCh chan<- Cmd2Value) error {
+	c2v := Cmd2Value{
+		Cmd:   constant.CmdAddFriend,
+		Value: node,
+		Ctx:   ctx,
+	}
+
+	return sendCmd(conversationCh, c2v, 100)
+}
+
 type DeleteConNode struct {
 	SourceID       string
 	ConversationID string

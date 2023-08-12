@@ -206,7 +206,7 @@ func (g *Group) ChangeGroupMemberMute(ctx context.Context, groupID, userID strin
 }
 
 func (g *Group) SetGroupMemberRoleLevel(ctx context.Context, groupID, userID string, roleLevel int) error {
-	return g.SetGroupMemberInfo(ctx, &groupv1.SetGroupMemberInfo{
+	return g.SetGroupMemberInfo(ctx, &groupv1.SetGroupMemberInfoReq{
 		GroupID:   groupID,
 		UserID:    userID,
 		RoleLevel: rune(roleLevel),
@@ -215,7 +215,7 @@ func (g *Group) SetGroupMemberRoleLevel(ctx context.Context, groupID, userID str
 }
 
 func (g *Group) SetGroupMemberNickname(ctx context.Context, groupID, userID string, groupMemberNickname string) error {
-	return g.SetGroupMemberInfo(ctx, &groupv1.SetGroupMemberInfo{
+	return g.SetGroupMemberInfo(ctx, &groupv1.SetGroupMemberInfoReq{
 		GroupID:  groupID,
 		UserID:   userID,
 		Nickname: groupMemberNickname,
@@ -224,11 +224,9 @@ func (g *Group) SetGroupMemberNickname(ctx context.Context, groupID, userID stri
 	//&group.SetGroupMemberInfo{GroupID: groupID, UserID: userID, Nickname: wrapperspb.String(groupMemberNickname)})
 }
 
-func (g *Group) SetGroupMemberInfo(ctx context.Context, groupMemberInfo *groupv1.SetGroupMemberInfo) error {
+func (g *Group) SetGroupMemberInfo(ctx context.Context, groupMemberInfo *groupv1.SetGroupMemberInfoReq) error {
 	groupMemberInfo.PUserID = g.loginUserID
-	if err := util.ApiPost(ctx, constant.SetGroupMemberInfoRouter, &groupv1.SetGroupMemberInfoReq{
-		Members: []*groupv1.SetGroupMemberInfo{groupMemberInfo},
-	},
+	if err := util.ApiPost(ctx, constant.SetGroupMemberInfoRouter, &groupMemberInfo,
 		//&group.SetGroupMemberInfoReq{Members: []*group.SetGroupMemberInfo{groupMemberInfo}},
 		nil); err != nil {
 		return err

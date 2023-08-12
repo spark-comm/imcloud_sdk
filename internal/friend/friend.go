@@ -230,6 +230,6 @@ func (f *Friend) syncFriendByNotification(ctx context.Context, fromUserID, frien
 		return fmt.Errorf("friend  notification error, fromUserID: %s, toUserID: %s", fromUserID, friendId)
 	}
 	//生成对应的会话
-	_ = common.TriggerCmdAddFriendGenerateSession(ctx, common.SourceIDAndSessionType{SourceID: friendId, SessionType: constant.SingleChatType}, f.conversationCh)
+	//_ = common.TriggerCmdAddFriendGenerateSession(ctx, common.SourceIDAndSessionType{SourceID: friendId, SessionType: constant.SingleChatType}, f.conversationCh)
 	return nil
 }

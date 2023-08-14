@@ -61,6 +61,7 @@ type LocalFriend struct {
 	BackgroundURL  string `json:"backgroundURL" gorm:"column:background_url;type:varchar(255)"`
 	AttachedInfo   string `json:"attachedInfo" gorm:"column:attached_info;type:varchar(1024)"`
 	SortFlag       string `gorm:"column:sort_flag;type:varchar(2);comment:排序标志" json:"sortFlag"`
+	NotPeersFriend int32  `json:"notPeersFriend" gorm:"column:not_peers_friend;default:0;comment:关系链是否完整；1303断裂"`
 }
 
 // message FriendRequest{

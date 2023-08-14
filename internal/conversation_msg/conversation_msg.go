@@ -18,6 +18,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"github.com/imCloud/im/pkg/proto/sdkws"
 	"open_im_sdk/internal/business"
 	"open_im_sdk/internal/cache"
 	"open_im_sdk/internal/file"
@@ -282,7 +283,9 @@ func (c *Conversation) doMsgNew(c2v common.Cmd2Value) {
 					}
 				}
 			} else { //Sent by others
-				if _, err := c.db.GetMessage(ctx, conversationID, msg.ClientMsgID); err != nil { //Deduplication operation
+				if _, err := c.db.GetMessage(ctx, conversationID, msg.ClientMsgID); err != nil {
+					//根据消息创建新的会话
+					//Deduplication operation
 					lc := model_struct.LocalConversation{
 						ConversationType:  v.SessionType,
 						LatestMsg:         utils.StructToJsonString(msg),
@@ -296,6 +299,7 @@ func (c *Conversation) doMsgNew(c2v common.Cmd2Value) {
 						lc.FaceURL = msg.SenderFaceURL
 					case constant.GroupChatType, constant.SuperGroupChatType:
 						lc.GroupID = v.GroupID
+						c.ProcessingGroupMessage(ctx, v, &lc)
 					case constant.NotificationChatType:
 						lc.UserID = v.SendID
 					}
@@ -399,7 +403,6 @@ func (c *Conversation) doMsgNew(c2v common.Cmd2Value) {
 	//log.Info(operationID, "trigger map is :", newConversationSet, conversationChangedSet)
 	if len(newConversationSet) > 0 {
 		c.doUpdateConversation(common.Cmd2Value{Value: common.UpdateConNode{Action: constant.NewConDirect, Args: utils.StructToJsonString(mapConversationToList(newConversationSet))}})
-
 	}
 	if len(conversationChangedSet) > 0 {
 		c.doUpdateConversation(common.Cmd2Value{Value: common.UpdateConNode{Action: constant.ConChangeDirect, Args: utils.StructToJsonString(mapConversationToList(conversationChangedSet))}})
@@ -411,6 +414,22 @@ func (c *Conversation) doMsgNew(c2v common.Cmd2Value) {
 	log.ZDebug(ctx, "insert msg", "cost time", time.Since(b), "len", len(allMsg))
 }
 
+// ProcessingGroupMessage 处理创建群的消息
+func (c *Conversation) ProcessingGroupMessage(ctx context.Context, v *sdkws.MsgData, lc *model_struct.LocalConversation) {
+	if v.ContentType == constant.GroupCreatedNotification {
+		content := v.Content
+		notificationElem := sdkws.NotificationElem{}
+		if err := json.Unmarshal(content, &notificationElem); err != nil {
+			log.ZDebug(ctx, "Unmarshal NotificationElem err", err)
+		}
+		tips := sdkws.GroupCreatedTips{}
+		if err := json.Unmarshal([]byte(notificationElem.Detail), &tips); err != nil {
+			log.ZDebug(ctx, "Unmarshal NotificationElem err", err)
+		}
+		lc.ShowName = tips.Group.GroupName
+		lc.FaceURL = tips.Group.FaceURL
+	}
+}
 func listToMap(list []*model_struct.LocalConversation, m map[string]*model_struct.LocalConversation) {
 	for _, v := range list {
 		m[v.ConversationID] = v
@@ -845,6 +864,8 @@ func (c *Conversation) msgHandleByContentType(msg *sdk_struct.MsgStruct) (err er
 
 	return utils.Wrap(err, "")
 }
+
+// 更新会话
 func (c *Conversation) updateConversation(lc *model_struct.LocalConversation, cs map[string]*model_struct.LocalConversation) {
 	if oldC, ok := cs[lc.ConversationID]; !ok {
 		cs[lc.ConversationID] = lc

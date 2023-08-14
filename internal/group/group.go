@@ -81,6 +81,8 @@ func (g *Group) initSyncer() {
 		switch state {
 		case syncer.Insert:
 			g.listener.OnJoinedGroupAdded(utils.StructToJsonString(server))
+			_ = common.TriggerCmdUpdateConversation(ctx, common.UpdateConNode{Action: constant.UpdateConFaceUrlAndNickName, Args: common.SourceIDAndSessionType{SourceID: server.GroupID,
+				SessionType: constant.SuperGroupChatType, FaceURL: server.FaceURL, Nickname: server.GroupName}}, g.conversationCh)
 		case syncer.Delete:
 			g.listener.OnJoinedGroupDeleted(utils.StructToJsonString(local))
 		case syncer.Update:

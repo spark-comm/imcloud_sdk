@@ -238,6 +238,7 @@ func (c *Conversation) doUpdateConversation(c2v common.Cmd2Value) {
 		}
 	case constant.ConChangeDirect:
 		cidList := node.Args.(string)
+
 		c.ConversationListener.OnConversationChanged(cidList)
 
 	case constant.NewConDirect:

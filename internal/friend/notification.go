@@ -54,10 +54,7 @@ func (f *Friend) doNotification(ctx context.Context, msg *sdkws.MsgData) error {
 		if err := utils.UnmarshalNotificationElem(msg.Content, &tips); err != nil {
 			return err
 		}
-		if tips.FromToUserID.FromUserID == f.loginUserID {
-			return f.syncFriendByNotification(ctx, tips.FromToUserID.FromUserID, tips.FromToUserID.ToUserID)
-		}
-		return nil
+		return f.syncFriendByNotification(ctx, f.loginUserID, tips.FromToUserID.FromUserID)
 	case constant.FriendRemarkSetNotification:
 		// 好友给设置备注
 		var tips sdkws.FriendInfoChangedTips

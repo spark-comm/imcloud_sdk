@@ -96,7 +96,7 @@ func Test_GetConversationRecvMessageOpt(t *testing.T) {
 
 func Test_GetGlobalRecvMessageOpt(t *testing.T) {
 	opt, err := open_im_sdk.UserForSDK.Conversation().
-		GetOneConversation(ctx, 3, "171491979169792")
+		GetOneConversation(ctx, 3, "27951173210112")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -137,7 +137,8 @@ func Test_SetConversationDraft(t *testing.T) {
 }
 
 func Test_ResetConversationGroupAtType(t *testing.T) {
-	err := open_im_sdk.UserForSDK.Conversation().ResetConversationGroupAtType(ctx, "group_17729585012")
+	err := open_im_sdk.UserForSDK.Conversation().ResetConversationGroupAtType(ctx,
+		"sg_27951173210112")
 	if err != nil {
 		t.Fatal(err)
 	}

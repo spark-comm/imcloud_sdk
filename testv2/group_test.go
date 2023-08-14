@@ -21,6 +21,7 @@ import (
 	"open_im_sdk/pkg/log"
 	"open_im_sdk/pkg/sdk_params_callback"
 	"open_im_sdk/pkg/utils"
+	"open_im_sdk/test"
 	"testing"
 	"time"
 
@@ -40,10 +41,10 @@ func (g *GroupCallback) OnSuccess(data string) {
 func Test_CreateGroupV2(t *testing.T) {
 	req := &groupv1.CrateGroupReq{
 		MemberList:       []string{"1463426311015", "1463426512456", "1463426515762"},
-		GroupName:        "神精榜",
+		GroupName:        "皓月",
 		GroupType:        2,
 		Notification:     "公告：这是一个荣誉",
-		Introduction:     "洗脑群",
+		Introduction:     "1234",
 		FaceURL:          "https://dfsjk/djfhsd/5d1f5562d/154452.jpg",
 		NeedVerification: 1,
 	}
@@ -51,6 +52,13 @@ func Test_CreateGroupV2(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	sessionType := int32(3)
+	open_im_sdk.GetOneConversation(
+		test.TestGetAllConversationListCallBack{},
+		utils.OperationIDGenerator(),
+		sessionType,
+		"27951173210112",
+	)
 	t.Logf("group info: %s", info.String())
 }
 

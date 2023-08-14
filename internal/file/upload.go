@@ -59,8 +59,8 @@ type partInfo struct {
 }
 
 func NewFile(ctx context.Context, database db_interface.DataBase, loginUserID string) *File {
-	info := ccontext.Info(ctx)
-	return &File{database: database, loginUserID: loginUserID, lock: &sync.Mutex{}, uploading: make(map[string]func()), dataDir: info.DataDir()}
+	conf := ctx.Value(ccontext.GlobalConfigKey{}).(*ccontext.GlobalConfig)
+	return &File{database: database, loginUserID: loginUserID, lock: &sync.Mutex{}, uploading: make(map[string]func()), info: *conf}
 }
 
 type File struct {
@@ -69,18 +69,26 @@ type File struct {
 	lock        sync.Locker
 	partLimit   *third.PartLimitResp
 	uploading   map[string]func()
-	dataDir     string
+	info        ccontext.GlobalConfig
 }
 
 // UploadFileFullPath 创建图片消息
 func (f *File) UploadFileFullPath(ctx context.Context, req *UploadFileReq, cb UploadFileCallback) (*UploadFileResp, error) {
-	imageFullPath := req.Filepath
-	dstFile := utils.FileTmpPath(imageFullPath, f.dataDir) //a->b
-	_, err := utils.CopyFile(imageFullPath, dstFile)
+	fullPath := req.Filepath
+	dstFile := utils.FileTmpPath(fullPath, f.info.DataDir) //a->b
+	_, err := utils.CopyFile(fullPath, dstFile)
 	if err != nil {
 		return nil, err
 	}
-	return f.UploadFile(ctx, req, cb)
+	req.Filepath = fullPath
+	ctx = ccontext.WithInfo(ctx, &f.info)
+	file, err := f.UploadFile(ctx, req, cb)
+	if file != nil {
+		return file, err
+	}
+	//上传后删除临时文件
+	err = utils.DelTmpFile(fullPath)
+	return file, err
 }
 
 // UploadFile 文件上传

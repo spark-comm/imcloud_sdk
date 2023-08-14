@@ -54,3 +54,10 @@ func FileExist(filename string) bool {
 	_, err := os.Stat(filename)
 	return err == nil || os.IsExist(err)
 }
+func DelTmpFile(ph string) error {
+	exist := FileExist(ph)
+	if exist {
+		return os.Remove(ph)
+	}
+	return nil
+}

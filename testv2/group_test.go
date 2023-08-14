@@ -21,7 +21,6 @@ import (
 	"open_im_sdk/pkg/log"
 	"open_im_sdk/pkg/sdk_params_callback"
 	"open_im_sdk/pkg/utils"
-	"open_im_sdk/test"
 	"testing"
 	"time"
 
@@ -41,7 +40,7 @@ func (g *GroupCallback) OnSuccess(data string) {
 func Test_CreateGroupV2(t *testing.T) {
 	req := &groupv1.CrateGroupReq{
 		MemberList:       []string{"1463426311015", "1463426512456", "1463426515762"},
-		GroupName:        "皓月",
+		GroupName:        "白玉",
 		GroupType:        2,
 		Notification:     "公告：这是一个荣誉",
 		Introduction:     "1234",
@@ -52,14 +51,22 @@ func Test_CreateGroupV2(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	sessionType := int32(3)
-	open_im_sdk.GetOneConversation(
-		test.TestGetAllConversationListCallBack{},
-		utils.OperationIDGenerator(),
-		sessionType,
-		"27951173210112",
-	)
 	t.Logf("group info: %s", info.String())
+	sessionType := int32(3)
+	conversation, err := open_im_sdk.UserForSDK.Conversation().GetOneConversation(
+		ctx,
+		sessionType,
+		"118482918182912",
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Logf("sduky51515154==========%+v==============", conversation)
+	dfsd, err := open_im_sdk.UserForSDK.Conversation().Get123dfsd(ctx, conversation.ConversationID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Logf("conversationInfo-------------------%+v---------------", dfsd)
 }
 
 func Test_JoinGroup(t *testing.T) {
@@ -275,9 +282,9 @@ func Test_SearchGroupMembers(t *testing.T) {
 func Test_KickGroupMember(t *testing.T) {
 	err := open_im_sdk.UserForSDK.Group().KickGroupMember(
 		ctx,
-		"120143539605504",
+		"166233316003840",
 		"我要踢人",
-		[]string{"49389272901357568"})
+		[]string{"50122749284192256"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -319,7 +326,7 @@ func Test_SyncGroup(t *testing.T) {
 func Test_GetGroup(t *testing.T) {
 	t.Log("--------------------------")
 	infos, err := open_im_sdk.UserForSDK.Group().GetSpecifiedGroupsInfo(ctx,
-		[]string{"171491979169792"})
+		[]string{"166233316003840"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -348,7 +355,7 @@ func Test_GetGroupMemberList(t *testing.T) {
 
 	members, err := open_im_sdk.UserForSDK.Group().GetGroupMemberList(
 		ctx,
-		"503233625722880", 0, 0, 9999999)
+		"152845764530176", 0, 1, 9999999)
 	if err != nil {
 		panic(err)
 	}
@@ -368,7 +375,7 @@ func Test_GetGroupMemberList1(t *testing.T) {
 func Test_CreateGroup(t *testing.T) {
 	req := groupv1.CrateGroupReq{
 		MemberList:       []string{"1463426311015", "1463426512456", "1463426515762", "1463426574029"},
-		GroupName:        "九华",
+		GroupName:        "123456789",
 		GroupType:        2,
 		Notification:     "公告：这是一个荣誉",
 		Introduction:     "洗脑群",
@@ -383,8 +390,8 @@ func Test_CreateGroup(t *testing.T) {
 
 func Test_SetGroupInfo(t *testing.T) {
 	s := groupv1.EditGroupProfileRequest{
-		GroupID:   "127145259044864",
-		GroupName: "1234",
+		GroupID:      "166233316003840",
+		Notification: "dsfsfsg4qeqw9desadwa84266546546549eqdf89d49-94",
 	}
 	bytes, _ := json.Marshal(&s)
 	open_im_sdk.SetGroupInfo(&GroupCallback{}, utils.OperationIDGenerator(), string(bytes))

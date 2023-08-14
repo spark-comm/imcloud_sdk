@@ -54,6 +54,13 @@ func (c *Conversation) GetAllConversationList(ctx context.Context) ([]*model_str
 }
 
 func (c *Conversation) GetConversationListSplit(ctx context.Context, offset, count int) ([]*model_struct.LocalConversation, error) {
+	if offset == 0 {
+		offset = 1
+	}
+	if count == 0 {
+		count = 1
+	}
+	offset = (offset - 1) * count
 	return c.db.GetConversationListSplitDB(ctx, offset, count)
 }
 
@@ -1167,3 +1174,7 @@ func (c *Conversation) GetMessageListReactionExtensions(ctx context.Context, con
 //	callback.OnSuccess(utils.StructToJsonString(result))
 //	log.NewInfo(operationID, utils.GetSelfFuncName(), "callback: ", utils.StructToJsonString(result))
 //}
+
+func (c *Conversation) Get123dfsd(ctx context.Context, conversationID string) (*model_struct.LocalConversation, error) {
+	return c.db.GetConversation(ctx, conversationID)
+}

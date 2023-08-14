@@ -30,7 +30,7 @@ const (
 	//UserID       = "2688118337"
 	//UserID       = "7204255074"
 	//UserID = "50122626445611008"
-	UserID       = "1463426574231"
+	UserID       = "49389272901357568"
 	friendUserID = "3281432310"
 	// APIADDR = "http://192.168.44.128:10002"
 	// WSADDR  = "ws://192.168.44.128:10001"
@@ -39,7 +39,7 @@ const (
 	//APIADDR = "http://59.36.173.89:10002"
 	//WSADDR  = "ws://59.36.173.89:10001"
 	//UserID  = "kernaltestuid9"
-	token = "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJpbUNsb3VkIiwic3ViIjoie1widXNlcklkXCI6XCI0OTM4MzY3NTU5NDI4MDk2MFwiLFwicGxhdGZvcm1cIjpcIldpbmRvd3NcIixcInJvbGVcIjpcIlwifSIsImV4cCI6MTY5MTc1MjYzNiwibmJmIjoxNjkxMzkyNjM2LCJpYXQiOjE2OTEzOTI2MzZ9.FyBCcmzThoD9RFZCu9fwr_W8pvQ5VhMa-lisKOo5fv_gNqhGAFtpK_DnmOBgWC47JVIRvu2d6mksytGS-LykFw"
+	token = "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJpbUNsb3VkIiwic3ViIjoie1widXNlcklkXCI6XCI0OTM5NTE1NjY3NTIwMzA3MlwiLFwicGxhdGZvcm1cIjpcIklPU1wiLFwicm9sZVwiOlwiXCJ9IiwiZXhwIjoxNjkyMzY2NDQ4LCJuYmYiOjE2OTIwMDY0NDgsImlhdCI6MTY5MjAwNjQ0OH0.jdeYzzp6E-b9YrG55iWP-Ckwq2egi42_9Y1GZp6DDtqmwe8EKhvEBNQ1hY3REQNk-9LnXXGq6BT0Rs-cElzejQ"
 )
 
 func getConf(APIADDR, WSADDR string) sdk_struct.IMConfig {

@@ -27,9 +27,11 @@ import (
 	"net/http"
 	"net/url"
 	"open_im_sdk/internal/util"
+	"open_im_sdk/pkg/ccontext"
 	"open_im_sdk/pkg/constant"
 	"open_im_sdk/pkg/db/db_interface"
 	"open_im_sdk/pkg/db/model_struct"
+	"open_im_sdk/pkg/utils"
 	"strings"
 	"sync"
 	"time"
@@ -56,8 +58,9 @@ type partInfo struct {
 	PartMd5s    []string
 }
 
-func NewFile(database db_interface.DataBase, loginUserID string) *File {
-	return &File{database: database, loginUserID: loginUserID, lock: &sync.Mutex{}, uploading: make(map[string]func())}
+func NewFile(ctx context.Context, database db_interface.DataBase, loginUserID string) *File {
+	info := ccontext.Info(ctx)
+	return &File{database: database, loginUserID: loginUserID, lock: &sync.Mutex{}, uploading: make(map[string]func()), dataDir: info.DataDir()}
 }
 
 type File struct {
@@ -66,8 +69,21 @@ type File struct {
 	lock        sync.Locker
 	partLimit   *third.PartLimitResp
 	uploading   map[string]func()
+	dataDir     string
 }
 
+// UploadFileFullPath 创建图片消息
+func (f *File) UploadFileFullPath(ctx context.Context, req *UploadFileReq, cb UploadFileCallback) (*UploadFileResp, error) {
+	imageFullPath := req.Filepath
+	dstFile := utils.FileTmpPath(imageFullPath, f.dataDir) //a->b
+	_, err := utils.CopyFile(imageFullPath, dstFile)
+	if err != nil {
+		return nil, err
+	}
+	return f.UploadFile(ctx, req, cb)
+}
+
+// UploadFile 文件上传
 func (f *File) UploadFile(ctx context.Context, req *UploadFileReq, cb UploadFileCallback) (*UploadFileResp, error) {
 	if cb == nil {
 		cb = emptyUploadCallback{}

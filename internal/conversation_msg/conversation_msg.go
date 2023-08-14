@@ -428,6 +428,8 @@ func (c *Conversation) ProcessingGroupMessage(ctx context.Context, v *sdkws.MsgD
 		}
 		lc.ShowName = tips.Group.GroupName
 		lc.FaceURL = tips.Group.FaceURL
+		c.group.SyncJoinedGroup(ctx)
+		c.group.SyncGroupMember(ctx, tips.Group.GroupID)
 	}
 }
 func listToMap(list []*model_struct.LocalConversation, m map[string]*model_struct.LocalConversation) {

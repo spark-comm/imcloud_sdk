@@ -246,9 +246,11 @@ func (g *Group) GetSpecifiedGroupsInfo(ctx context.Context, groupIDs []string) (
 	}
 	groupIDMap := utils.SliceSet(groupIDs)
 	bl := false
+	newRes := make([]*model_struct.LocalGroup, 0)
 	for _, group := range groupList {
 		if _, ok := groupIDMap[group.GroupID]; ok {
 			bl = true
+			newRes = append(newRes, group)
 			break
 		}
 	}
@@ -268,11 +270,9 @@ func (g *Group) GetSpecifiedGroupsInfo(ctx context.Context, groupIDs []string) (
 			//转换为本地的群组数据格式
 			res = append(res, util.Batch(ServerGroupToLocalGroup, groups.Data)...)
 		}
-		//同步数据
-		for _, re := range res {
-			g.db.UpdateGroup(ctx, re)
-		}
-		return res, nil
+	}
+	if len(res) == 0 {
+		return newRes, nil
 	}
 	return res, nil
 	//groupList, err := g.db.GetJoinedGroupListDB(ctx)

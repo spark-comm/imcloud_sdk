@@ -28,6 +28,8 @@ type GroupDatabase interface {
 	UpdateGroup(ctx context.Context, groupInfo *model_struct.LocalGroup) error
 	GetJoinedGroupListDB(ctx context.Context) ([]*model_struct.LocalGroup, error)
 	GetGroupInfoByGroupID(ctx context.Context, groupID string) (*model_struct.LocalGroup, error)
+	//GetGroupInfoByGroupIDs 根据id获取群信息
+	GetGroupInfoByGroupIDs(ctx context.Context, groupID ...string) ([]*model_struct.LocalGroup, error)
 	GetAllGroupInfoByGroupIDOrGroupName(ctx context.Context, keyword string, isSearchGroupID bool, isSearchGroupName bool) ([]*model_struct.LocalGroup, error)
 	AddMemberCount(ctx context.Context, groupID string) error
 	SubtractMemberCount(ctx context.Context, groupID string) error
@@ -233,6 +235,8 @@ type FriendDatabase interface {
 	SearchFriendList(ctx context.Context, keyword string, isSearchUserID, isSearchNickname, isSearchRemark bool) ([]*model_struct.LocalFriend, error)
 	GetFriendInfoByFriendUserID(ctx context.Context, FriendUserID string) (*model_struct.LocalFriend, error)
 	GetFriendInfoList(ctx context.Context, friendUserIDList []string) ([]*model_struct.LocalFriend, error)
+	// GetFriendInfoNotPeersList 不包含关系连条件的好友列表
+	GetFriendInfoNotPeersList(ctx context.Context, friendUserIDList []string) ([]*model_struct.LocalFriend, error)
 	InsertFriendRequest(ctx context.Context, friendRequest *model_struct.LocalFriendRequest) error
 	DeleteFriendRequestBothUserID(ctx context.Context, fromUserID, toUserID string) error
 	UpdateFriendRequest(ctx context.Context, friendRequest *model_struct.LocalFriendRequest) error

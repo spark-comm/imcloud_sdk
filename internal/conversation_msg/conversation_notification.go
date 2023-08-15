@@ -58,20 +58,25 @@ func (c *Conversation) Work(c2v common.Cmd2Value) {
 	}
 }
 
+// doDeleteConversation 删除会话
 func (c *Conversation) doDeleteConversation(c2v common.Cmd2Value) {
 	node := c2v.Value.(common.DeleteConNode)
 	ctx := c2v.Ctx
-	//Mark messages related to this conversation for deletion
+	// 将会话标记为删除
+	// Mark messages related to this conversation for deletion
 	err := c.db.UpdateMessageStatusBySourceID(context.Background(), node.SourceID, constant.MsgStatusHasDeleted, int32(node.SessionType))
 	if err != nil {
 		log.ZError(ctx, "setMessageStatusBySourceID", err)
 		return
 	}
+	//重置清空会话
 	//Reset the session information, empty session
 	err = c.db.ResetConversation(ctx, node.ConversationID)
 	if err != nil {
 		log.ZError(ctx, "ResetConversation err:", err)
 	}
+	//清空服务端会话的消息
+	c.clearConversationMsgFromSvr(ctx, node.ConversationID)
 	c.doUpdateConversation(common.Cmd2Value{Value: common.UpdateConNode{"", constant.TotalUnreadMessageChanged, ""}})
 }
 
@@ -346,268 +351,6 @@ func (c *Conversation) doUpdateMessage(c2v common.Cmd2Value) {
 
 }
 
-//funcation (c *Conversation) doSyncReactionExtensions(c2v common.Cmd2Value) {
-//	if c.ConversationListener == nil {
-//		// log.Error("internal", "not set conversationListener")
-//		return
-//	}
-//	node := c2v.Value.(common.SyncReactionExtensionsNode)
-//	ctx := mcontext.NewCtx(node.OperationID)
-//	switch node.Action {
-//	case constant.SyncMessageListReactionExtensions:
-//		args := node.Args.(syncReactionExtensionParams)
-//		// log.Error(node.OperationID, "come SyncMessageListReactionExtensions", args)
-//		var reqList []server_api_params.OperateMessageListReactionExtensionsReq
-//		for _, v := range args.MessageList {
-//			var temp server_api_params.OperateMessageListReactionExtensionsReq
-//			temp.ClientMsgID = v.ClientMsgID
-//			temp.MsgFirstModifyTime = v.MsgFirstModifyTime
-//			reqList = append(reqList, temp)
-//		}
-//		var apiReq server_api_params.GetMessageListReactionExtensionsReq
-//		apiReq.SourceID = args.SourceID
-//		apiReq.TypeKeyList = args.TypeKeyList
-//		apiReq.SessionType = args.SessionType
-//		apiReq.MessageReactionKeyList = reqList
-//		apiReq.IsExternalExtensions = args.IsExternalExtension
-//		apiReq.OperationID = node.OperationID
-//		apiResp, err := util.CallApi[server_api_params.GetMessageListReactionExtensionsResp](ctx, constant.GetMessageListReactionExtensionsRouter, &apiReq)
-//		if err != nil {
-//			// log.NewError(node.OperationID, utils.GetSelfFuncName(), "getMessageListReactionExtensions err:", err.Error())
-//			return
-//		}
-//		// for _, result := range apiResp {
-//		// 	log.Warn(node.OperationID, "api return reslut is:", result.ClientMsgID, result.ReactionExtensionList)
-//		// }
-//		onLocal := funcation(data []*model_struct.LocalChatLogReactionExtensions) []*server_api_params.SingleMessageExtensionResult {
-//			var result []*server_api_params.SingleMessageExtensionResult
-//			for _, v := range data {
-//				temp := new(server_api_params.SingleMessageExtensionResult)
-//				tempMap := make(map[string]*sdkws.KeyValue)
-//				_ = json.Unmarshal(v.LocalReactionExtensions, &tempMap)
-//				if len(args.TypeKeyList) != 0 {
-//					for s, _ := range tempMap {
-//						if !utils.IsContain(s, args.TypeKeyList) {
-//							delete(tempMap, s)
-//						}
-//					}
-//				}
-//
-//				temp.ReactionExtensionList = tempMap
-//				temp.ClientMsgID = v.ClientMsgID
-//				result = append(result, temp)
-//			}
-//			return result
-//		}(args.ExtendMessageList)
-//		var onServer []*server_api_params.SingleMessageExtensionResult
-//		for _, v := range *apiResp {
-//			if v.ErrCode == 0 {
-//				onServer = append(onServer, v)
-//			}
-//		}
-//		aInBNot, _, sameA, _ := common.CheckReactionExtensionsDiff(onServer, onLocal)
-//		for _, v := range aInBNot {
-//			// log.Error(node.OperationID, "come InsertMessageReactionExtension", args, v.ClientMsgID)
-//			if len(v.ReactionExtensionList) > 0 {
-//				temp := model_struct.LocalChatLogReactionExtensions{ClientMsgID: v.ClientMsgID, LocalReactionExtensions: []byte(utils.StructToJsonString(v.ReactionExtensionList))}
-//				err := c.db.InsertMessageReactionExtension(ctx, &temp)
-//				if err != nil {
-//					// log.Error(node.OperationID, "InsertMessageReactionExtension err:", err.Error())
-//					continue
-//				}
-//			}
-//			var changedKv []*sdkws.KeyValue
-//			for _, value := range v.ReactionExtensionList {
-//				changedKv = append(changedKv, value)
-//			}
-//			if len(changedKv) > 0 {
-//				c.msgListener.OnRecvMessageExtensionsChanged(v.ClientMsgID, utils.StructToJsonString(changedKv))
-//			}
-//		}
-//		// for _, result := range sameA {
-//		// log.ZWarn(ctx, "result", result.ReactionExtensionList, result.ClientMsgID)
-//		// }
-//		for _, v := range sameA {
-//			// log.Error(node.OperationID, "come sameA", v.ClientMsgID, v.ReactionExtensionList)
-//			tempMap := make(map[string]*sdkws.KeyValue)
-//			for _, extensions := range args.ExtendMessageList {
-//				if v.ClientMsgID == extensions.ClientMsgID {
-//					_ = json.Unmarshal(extensions.LocalReactionExtensions, &tempMap)
-//					break
-//				}
-//			}
-//			if len(v.ReactionExtensionList) == 0 {
-//				err := c.db.DeleteMessageReactionExtension(ctx, v.ClientMsgID)
-//				if err != nil {
-//					// log.Error(node.OperationID, "DeleteMessageReactionExtension err:", err.Error())
-//					continue
-//				}
-//				var deleteKeyList []string
-//				for key, _ := range tempMap {
-//					deleteKeyList = append(deleteKeyList, key)
-//				}
-//				if len(deleteKeyList) > 0 {
-//					c.msgListener.OnRecvMessageExtensionsDeleted(v.ClientMsgID, utils.StructToJsonString(deleteKeyList))
-//				}
-//			} else {
-//				deleteKeyList, changedKv := funcation(local, server map[string]*sdkws.KeyValue) ([]string, []*sdkws.KeyValue) {
-//					var deleteKeyList []string
-//					var changedKv []*sdkws.KeyValue
-//					for k, v := range local {
-//						ia, ok := server[k]
-//						if ok {
-//							//服务器不同的kv
-//							if ia.Value != v.Value {
-//								changedKv = append(changedKv, ia)
-//							}
-//						} else {
-//							//服务器已经没有kv
-//							deleteKeyList = append(deleteKeyList, k)
-//						}
-//					}
-//					//从服务器新增的kv
-//					for k, v := range server {
-//						_, ok := local[k]
-//						if !ok {
-//							changedKv = append(changedKv, v)
-//
-//						}
-//					}
-//					return deleteKeyList, changedKv
-//				}(tempMap, v.ReactionExtensionList)
-//				extendMsg := model_struct.LocalChatLogReactionExtensions{ClientMsgID: v.ClientMsgID, LocalReactionExtensions: []byte(utils.StructToJsonString(v.ReactionExtensionList))}
-//				err = c.db.UpdateMessageReactionExtension(ctx, &extendMsg)
-//				if err != nil {
-//					// log.Error(node.OperationID, "UpdateMessageReactionExtension err:", err.Error())
-//					continue
-//				}
-//				if len(deleteKeyList) > 0 {
-//					c.msgListener.OnRecvMessageExtensionsDeleted(v.ClientMsgID, utils.StructToJsonString(deleteKeyList))
-//				}
-//				if len(changedKv) > 0 {
-//					c.msgListener.OnRecvMessageExtensionsChanged(v.ClientMsgID, utils.StructToJsonString(changedKv))
-//				}
-//			}
-//			//err := c.db.GetAndUpdateMessageReactionExtension(v.ClientMsgID, v.ReactionExtensionList)
-//			//if err != nil {
-//			//	log.Error(node.OperationID, "GetAndUpdateMessageReactionExtension err:", err.Error())
-//			//	continue
-//			//}
-//			//var changedKv []*server_api_params.KeyValue
-//			//for _, value := range v.ReactionExtensionList {
-//			//	changedKv = append(changedKv, value)
-//			//}
-//			//if len(changedKv) > 0 {
-//			//	c.msgListener.OnRecvMessageExtensionsChanged(v.ClientMsgID, utils.StructToJsonString(changedKv))
-//			//}
-//		}
-//	case constant.SyncMessageListTypeKeyInfo:
-//		messageList := node.Args.([]*sdk_struct.MsgStruct)
-//		var sourceID string
-//		var sessionType int32
-//		var reqList []server_api_params.OperateMessageListReactionExtensionsReq
-//		var temp server_api_params.OperateMessageListReactionExtensionsReq
-//		for _, v := range messageList {
-//			//todo syncMessage must sync
-//			message, err := c.db.GetMessage(ctx, "", v.ClientMsgID)
-//			if err != nil {
-//				// log.Error(node.OperationID, "GetMessageController err:", err.Error(), *v)
-//				continue
-//			}
-//			temp.ClientMsgID = message.ClientMsgID
-//			temp.MsgFirstModifyTime = message.MsgFirstModifyTime
-//			reqList = append(reqList, temp)
-//			switch message.SessionType {
-//			case constant.SingleChatType:
-//				sourceID = message.SendID + message.RecvID
-//			case constant.NotificationChatType:
-//				sourceID = message.RecvID
-//			case constant.GroupChatType, constant.SuperGroupChatType:
-//				sourceID = message.RecvID
-//			}
-//			sessionType = message.SessionType
-//		}
-//		var apiReq server_api_params.GetMessageListReactionExtensionsReq
-//		apiReq.SourceID = sourceID
-//		apiReq.SessionType = sessionType
-//		apiReq.MessageReactionKeyList = reqList
-//		apiReq.OperationID = node.OperationID
-//		//var apiResp server_api_params.GetMessageListReactionExtensionsResp
-//
-//		apiResp, err := util.CallApi[server_api_params.GetMessageListReactionExtensionsResp](ctx, constant.GetMessageListReactionExtensionsRouter, &apiReq)
-//		if err != nil {
-//			// log.Error(node.OperationID, "GetMessageListReactionExtensions from server err:", err.Error(), apiReq)
-//			return
-//		}
-//		var messageChangedList []*messageKvList
-//		for _, v := range *apiResp {
-//			if v.ErrCode == 0 {
-//				var changedKv []*sdkws.KeyValue
-//				var prefixTypeKey []string
-//				extendMsg, _ := c.db.GetMessageReactionExtension(ctx, v.ClientMsgID)
-//				localKV := make(map[string]*sdkws.KeyValue)
-//				_ = json.Unmarshal(extendMsg.LocalReactionExtensions, &localKV)
-//				for typeKey, value := range v.ReactionExtensionList {
-//					oldValue, ok := localKV[typeKey]
-//					if ok {
-//						if !cmp.Equal(value, oldValue) {
-//							localKV[typeKey] = value
-//							prefixTypeKey = append(prefixTypeKey, getPrefixTypeKey(typeKey))
-//							changedKv = append(changedKv, value)
-//						}
-//					} else {
-//						localKV[typeKey] = value
-//						prefixTypeKey = append(prefixTypeKey, getPrefixTypeKey(typeKey))
-//						changedKv = append(changedKv, value)
-//
-//					}
-//
-//				}
-//				extendMsg.LocalReactionExtensions = []byte(utils.StructToJsonString(localKV))
-//				_ = c.db.UpdateMessageReactionExtension(ctx, extendMsg)
-//				if len(changedKv) > 0 {
-//					c.msgListener.OnRecvMessageExtensionsChanged(extendMsg.ClientMsgID, utils.StructToJsonString(changedKv))
-//				}
-//				prefixTypeKey = utils.RemoveRepeatedStringInList(prefixTypeKey)
-//				if len(prefixTypeKey) > 0 && c.msgKvListener != nil {
-//					var result []*sdk.SingleTypeKeyInfoSum
-//					oneMessageChanged := new(messageKvList)
-//					oneMessageChanged.ClientMsgID = extendMsg.ClientMsgID
-//					for _, v := range prefixTypeKey {
-//						singleResult := new(sdk.SingleTypeKeyInfoSum)
-//						singleResult.TypeKey = v
-//						for typeKey, value := range localKV {
-//							if strings.HasPrefix(typeKey, v) {
-//								singleTypeKeyInfo := new(sdk.SingleTypeKeyInfo)
-//								err := json.Unmarshal([]byte(value.Value), singleTypeKeyInfo)
-//								if err != nil {
-//									continue
-//								}
-//								if _, ok := singleTypeKeyInfo.InfoList[c.loginUserID]; ok {
-//									singleResult.IsContainSelf = true
-//								}
-//								for _, info := range singleTypeKeyInfo.InfoList {
-//									v := *info
-//									singleResult.InfoList = append(singleResult.InfoList, &v)
-//								}
-//								singleResult.Counter += singleTypeKeyInfo.Counter
-//							}
-//						}
-//						result = append(result, singleResult)
-//					}
-//					oneMessageChanged.ChangedKvList = result
-//					messageChangedList = append(messageChangedList, oneMessageChanged)
-//				}
-//			}
-//		}
-//		if len(messageChangedList) > 0 && c.msgKvListener != nil {
-//			c.msgKvListener.OnMessageKvInfoChanged(utils.StructToJsonString(messageChangedList))
-//		}
-//
-//	}
-//
-//}
-
 func (c *Conversation) DoNotification(ctx context.Context, msg *sdkws.MsgData) {
 	if msg.SendTime < c.LoginTime() || c.LoginTime() == 0 {
 		log.ZWarn(ctx, "ignore notification", nil, "clientMsgID", msg.ClientMsgID, "serverMsgID",
@@ -628,14 +371,6 @@ func (c *Conversation) doNotificationNew(c2v common.Cmd2Value) {
 	ctx := c2v.Ctx
 	allMsg := c2v.Value.(sdk_struct.CmdNewMsgComeToConversation).Msgs
 	syncFlag := c2v.Value.(sdk_struct.CmdNewMsgComeToConversation).SyncFlag
-	//if c.msgListener == nil || c.ConversationListener == nil {
-	//	for _, v := range allMsg {
-	//		if v.ContentType > constant.SignalingNotificationBegin && v.ContentType < constant.SignalingNotificationEnd {
-	//			c.signaling.DoNotification(ctx, v, c.GetCh())
-	//		}
-	//	}
-	//	return
-	//}
 	switch syncFlag {
 	case constant.MsgSyncBegin:
 		//开始同步数据
@@ -643,11 +378,11 @@ func (c *Conversation) doNotificationNew(c2v common.Cmd2Value) {
 		if err := c.SyncConversationHashReadSeqs(ctx); err != nil {
 			log.ZError(ctx, "SyncConversationHashReadSeqs err", err)
 		}
-
+		// 同步数据
 		for _, syncFunc := range []func(c context.Context) error{
 			c.user.SyncLoginUserInfo, c.SyncConversations,
-			c.friend.SyncBlackList, c.friend.SyncFriendList, c.friend.SyncFriendApplication, c.friend.SyncSelfFriendApplication,
-			c.group.SyncJoinedGroup, c.group.SyncAdminGroupApplication, c.group.SyncSelfGroupApplication, c.group.SyncJoinedGroupMember,
+			c.friend.SyncFriendList, c.group.SyncJoinedGroup, c.friend.SyncFriendApplication, c.friend.SyncSelfFriendApplication, c.group.SyncAdminGroupApplication, c.group.SyncSelfGroupApplication,
+			c.group.SyncJoinedGroupMember, c.friend.SyncBlackList,
 		} {
 			go func(syncFunc func(c context.Context) error) {
 				_ = syncFunc(ctx)

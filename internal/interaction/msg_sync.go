@@ -127,6 +127,7 @@ func (m *MsgSyncer) handlePushMsgAndEvent(cmd common.Cmd2Value) {
 	}
 }
 
+// compareSeqsAndBatchSync 批量同步消息
 func (m *MsgSyncer) compareSeqsAndBatchSync(ctx context.Context, maxSeqToSync map[string]int64, pullNums int64) {
 	needSyncSeqMap := make(map[string][2]int64)
 	for conversationID, maxSeq := range maxSeqToSync {
@@ -192,6 +193,7 @@ func (m *MsgSyncer) doConnected(ctx context.Context) {
 	var resp sdkws.GetMaxSeqResp
 	if err := m.longConnMgr.SendReqWaitResp(m.ctx, &sdkws.GetMaxSeqReq{UserID: m.loginUserID}, constant.GetNewestSeq, &resp); err != nil {
 		log.ZError(m.ctx, "get max seq error", err)
+		common.TriggerCmdNotification(m.ctx, sdk_struct.CmdNewMsgComeToConversation{SyncFlag: constant.MsgSyncFailed}, m.conversationCh)
 		return
 	} else {
 		log.ZDebug(m.ctx, "get max seq success", "resp", resp)
@@ -275,7 +277,7 @@ func (m *MsgSyncer) syncMsgBySeqs(ctx context.Context, conversationID string, se
 	return allMsgs, nil
 }
 
-// triggers a conversation with a new message.
+// triggers a conversation with a new message. 用新消息触发对话
 func (m *MsgSyncer) triggerConversation(ctx context.Context, msgs map[string]*sdkws.PullMsgs) error {
 	err := common.TriggerCmdNewMsgCome(ctx, sdk_struct.CmdNewMsgComeToConversation{Msgs: msgs}, m.conversationCh)
 	if err != nil {

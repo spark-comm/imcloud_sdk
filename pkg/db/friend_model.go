@@ -133,3 +133,16 @@ func (d *DataBase) GetFriendInfoList(ctx context.Context, friendUserIDList []str
 	}
 	return transfer, err
 }
+
+func (d *DataBase) GetFriendInfoNotPeersList(ctx context.Context, friendUserIDList []string) ([]*model_struct.LocalFriend, error) {
+	d.friendMtx.Lock()
+	defer d.friendMtx.Unlock()
+	var friendList []model_struct.LocalFriend
+	err := utils.Wrap(d.conn.WithContext(ctx).Where("friend_user_id IN ?", friendUserIDList).Find(&friendList).Error, "GetFriendInfoListByFriendUserID failed")
+	var transfer []*model_struct.LocalFriend
+	for _, v := range friendList {
+		v1 := v
+		transfer = append(transfer, &v1)
+	}
+	return transfer, err
+}

@@ -90,22 +90,27 @@ func (c *Conversation) SyncConversationHashReadSeqs(ctx context.Context) error {
 	}
 	var conversations []*model_struct.LocalConversation
 	var conversationIDs []string
+	allConversations, err := c.db.GetAllConversationIDList(ctx)
 	for conversationID, v := range seqs {
-		var unreadCount int32
 		c.maxSeqRecorder.Set(conversationID, v.MaxSeq)
+		if len(allConversations) == 0 {
+			continue
+		}
+		var unreadCount int32
 		if v.MaxSeq-v.HasReadSeq < 0 {
 			unreadCount = 0
 		} else {
 			unreadCount = int32(v.MaxSeq - v.HasReadSeq)
 		}
+		// 初次登录更新全会报错
 		if err := c.db.UpdateColumnsConversation(ctx, conversationID, map[string]interface{}{"unread_count": unreadCount, "has_read_seq": v.HasReadSeq}); err != nil {
 			log.ZError(ctx, "UpdateColumnsConversation err", err, "conversationID", conversationID)
 		}
 		conversationIDs = append(conversationIDs, conversationID)
 	}
 	log.ZDebug(ctx, "update conversations", "conversations", conversations)
-
-	common.TriggerCmdUpdateConversation(ctx, common.UpdateConNode{Action: constant.ConChange, Args: conversationIDs}, c.GetCh())
-	common.TriggerCmdUpdateConversation(ctx, common.UpdateConNode{Action: constant.TotalUnreadMessageChanged, Args: conversationIDs}, c.GetCh())
+	// 会话注册
+	//common.TriggerCmdUpdateConversation(ctx, common.UpdateConNode{Action: constant.ConChange, Args: conversationIDs}, c.GetCh())
+	//common.TriggerCmdUpdateConversation(ctx, common.UpdateConNode{Action: constant.TotalUnreadMessageChanged, Args: conversationIDs}, c.GetCh())
 	return nil
 }

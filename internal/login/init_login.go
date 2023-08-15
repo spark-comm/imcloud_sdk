@@ -294,8 +294,7 @@ func (u *LoginMgr) login(ctx context.Context, userID, token string) error {
 	//消息同步
 	u.msgSyncer, _ = interaction.NewMsgSyncer(ctx, u.conversationCh, u.pushMsgAndMaxSeqCh, u.loginUserID, u.longConnMgr, u.db, 0)
 	//会话同步
-	u.conversation = conv.NewConversation(ctx, u.longConnMgr, u.db, u.conversationCh,
-		u.friend, u.group, u.user, u.conversationListener, u.advancedMsgListener, u.business, u.cache, u.full, u.file)
+	u.conversation = conv.NewConversation(ctx, u.longConnMgr, u.db, u.conversationCh, u.friend, u.group, u.user, u.conversationListener, u.advancedMsgListener, u.business, u.cache, u.full, u.file)
 	u.conversation.SetLoginTime()
 	if u.batchMsgListener != nil {
 		u.conversation.SetBatchMsgListener(u.batchMsgListener)

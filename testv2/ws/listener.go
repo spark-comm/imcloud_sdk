@@ -56,6 +56,11 @@ type onConversationListener struct {
 	ctx context.Context
 }
 
+func (o *onConversationListener) OnSyncServerProgress(progress int) {
+	//TODO implement me
+	log.ZInfo(o.ctx, "OnSyncServerProgress", progress)
+}
+
 func (o *onConversationListener) OnSyncServerStart() {
 	log.ZInfo(o.ctx, "OnSyncServerStart")
 }

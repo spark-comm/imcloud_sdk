@@ -178,6 +178,24 @@ func (g *Group) syncGroupStatus(ctx context.Context, groupID string) error {
 	return g.db.UpdateGroup(ctx, ServerGroupToLocalGroup(svrGroup[0]))
 }
 
+// syncJoinedGroupByID 根据id同步群信息
+func (g *Group) syncJoinedGroupByID(ctx context.Context, id ...string) error {
+	//获取登录用户加入的群组列表（远程数据）
+	groups, err := g.getGroupsInfoFromSvr(ctx, id)
+	if err != nil {
+		return err
+	}
+	//本地所有群组数据
+	localData, err := g.db.GetGroupInfoByGroupIDs(ctx, id...)
+	if err != nil {
+		return err
+	}
+	if err := g.groupSyncer.Sync(ctx, util.Batch(ServerGroupToLocalGroup, groups), localData, nil); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (g *Group) syncUserReqGroupInfo(ctx context.Context, fromUserID, groupID string) error {
 	//获取用户加入单个群的申请信息
 	req := groupv1.UserJoinGroupRequestReq{

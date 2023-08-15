@@ -66,6 +66,13 @@ func (d *DataBase) GetGroupInfoByGroupID(ctx context.Context, groupID string) (*
 	var g model_struct.LocalGroup
 	return &g, utils.Wrap(d.conn.WithContext(ctx).Where("group_id = ?", groupID).Take(&g).Error, "GetGroupList failed")
 }
+func (d *DataBase) GetGroupInfoByGroupIDs(ctx context.Context, groupID ...string) ([]*model_struct.LocalGroup, error) {
+	d.groupMtx.Lock()
+	defer d.groupMtx.Unlock()
+	var gr []*model_struct.LocalGroup
+	return gr, utils.Wrap(d.conn.WithContext(ctx).Where("group_id in ?", groupID).Take(&gr).Error, "GetGroupList failed")
+}
+
 func (d *DataBase) GetAllGroupInfoByGroupIDOrGroupName(ctx context.Context, keyword string, isSearchGroupID bool, isSearchGroupName bool) ([]*model_struct.LocalGroup, error) {
 	d.groupMtx.Lock()
 	defer d.groupMtx.Unlock()

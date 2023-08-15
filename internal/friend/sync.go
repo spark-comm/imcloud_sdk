@@ -140,7 +140,7 @@ func (f *Friend) syncFriendById(ctx context.Context, fromUserID, friendId string
 
 // syncDelFriend 同步删除好友列表
 func (f *Friend) syncDelFriend(ctx context.Context, friendId string) error {
-	localData, err := f.db.GetFriendInfoList(ctx, []string{friendId})
+	localData, err := f.db.GetFriendInfoNotPeersList(ctx, []string{friendId})
 	if err != nil {
 		return err
 	}

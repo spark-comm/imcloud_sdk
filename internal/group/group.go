@@ -256,7 +256,8 @@ func (g *Group) GetJoinedDiffusionGroupIDListFromSvr(ctx context.Context) ([]str
 }
 
 func (g *Group) SyncJoinedGroupMember(ctx context.Context) error {
-	groups, err := g.syncJoinedGroup(ctx)
+	//从群中获取数据
+	groups, err := g.db.GetJoinedGroupListDB(ctx)
 	if err != nil {
 		return err
 	}

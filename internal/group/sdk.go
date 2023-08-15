@@ -143,6 +143,7 @@ func (g *Group) DismissGroup(ctx context.Context, groupID string) error {
 	if err := g.SyncGroupMember(ctx, groupID); err != nil {
 		return err
 	}
+
 	return nil
 }
 

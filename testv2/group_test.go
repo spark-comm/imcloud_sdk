@@ -89,7 +89,7 @@ func Test_QuitGroup(t *testing.T) {
 }
 
 func Test_DismissGroup(t *testing.T) {
-	err := open_im_sdk.UserForSDK.Group().DismissGroup(ctx, "114711123202048")
+	err := open_im_sdk.UserForSDK.Group().DismissGroup(ctx, "132420498100224")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -263,8 +263,8 @@ func Test_HandlerGroupApplication(t *testing.T) {
 
 func Test_SearchGroupMembers(t *testing.T) {
 	info, err := open_im_sdk.UserForSDK.Group().SearchGroupMembers(ctx, &sdk_params_callback.SearchGroupMembersParam{
-		GroupID:                "171491979169792",
-		KeywordList:            []string{"之"},
+		GroupID:                "57308482637824",
+		KeywordList:            []string{""},
 		IsSearchUserID:         false,
 		IsSearchMemberNickname: true,
 		Offset:                 0,

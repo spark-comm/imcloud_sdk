@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"github.com/imCloud/im/pkg/common/log"
 	"github.com/imCloud/im/pkg/proto/sdkws"
+	"open_im_sdk/pkg/common"
 	"open_im_sdk/pkg/constant"
 	"open_im_sdk/pkg/utils"
 )
@@ -162,6 +163,19 @@ func (g *Group) doNotification(ctx context.Context, msg *sdkws.MsgData) error {
 			g.listener.OnGroupInfoChanged(string(data))
 			return nil
 		} else { //仅群成员信息变动
+			//删除会话
+			conversationID := g.getConversationIDBySessionType(
+				detail.Group.GroupID,
+				constant.SuperGroupChatType,
+			)
+			err := common.TriggerCmdDeleteConversationAndMessage(
+				detail.Group.GroupID,
+				conversationID,
+				constant.SuperGroupChatType,
+				g.conversationCh)
+			if err != nil {
+				log.ZDebug(ctx, "delete conversation after delete conversation and message")
+			}
 			return g.SyncGroupMember(ctx, detail.Group.GroupID)
 		}
 		//退群通知

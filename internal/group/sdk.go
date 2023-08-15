@@ -22,6 +22,8 @@ import (
 	"open_im_sdk/pkg/db/model_struct"
 	"open_im_sdk/pkg/sdk_params_callback"
 	"open_im_sdk/pkg/sdkerrs"
+	"sort"
+	"strings"
 	"time"
 
 	groupv1 "github.com/imCloud/api/group/v1"
@@ -633,4 +635,19 @@ func (g *Group) GetAppointGroupRequestInfo(ctx context.Context, groupID string, 
 		(offset-1)*count,
 		count,
 	)
+}
+func (g *Group) getConversationIDBySessionType(sourceID string, sessionType int) string {
+	switch sessionType {
+	case constant.SingleChatType:
+		l := []string{g.loginUserID, sourceID}
+		sort.Strings(l)
+		return "si_" + strings.Join(l, "_") // single chat
+	case constant.GroupChatType:
+		return "g_" + sourceID // group chat
+	case constant.SuperGroupChatType:
+		return "sg_" + sourceID // super group chat
+	case constant.NotificationChatType:
+		return "sn_" + sourceID // server notification chat
+	}
+	return ""
 }

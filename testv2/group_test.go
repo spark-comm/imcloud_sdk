@@ -282,9 +282,9 @@ func Test_SearchGroupMembers(t *testing.T) {
 func Test_KickGroupMember(t *testing.T) {
 	err := open_im_sdk.UserForSDK.Group().KickGroupMember(
 		ctx,
-		"166233316003840",
+		"87797088129024",
 		"我要踢人",
-		[]string{"50122749284192256"})
+		[]string{"53302504384892928"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -390,8 +390,8 @@ func Test_CreateGroup(t *testing.T) {
 
 func Test_SetGroupInfo(t *testing.T) {
 	s := groupv1.EditGroupProfileRequest{
-		GroupID:      "166233316003840",
-		Notification: "dsfsfsg4qeqw9desadwa84266546546549eqdf89d49-94",
+		GroupID: "128959635263488",
+		FaceURL: "-dsfddfsghtrryrufsgd94",
 	}
 	bytes, _ := json.Marshal(&s)
 	open_im_sdk.SetGroupInfo(&GroupCallback{}, utils.OperationIDGenerator(), string(bytes))

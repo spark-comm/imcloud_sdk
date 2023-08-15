@@ -89,7 +89,7 @@ func Test_QuitGroup(t *testing.T) {
 }
 
 func Test_DismissGroup(t *testing.T) {
-	err := open_im_sdk.UserForSDK.Group().DismissGroup(ctx, "132420498100224")
+	err := open_im_sdk.UserForSDK.Group().DismissGroup(ctx, "139270752833536")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -282,9 +282,9 @@ func Test_SearchGroupMembers(t *testing.T) {
 func Test_KickGroupMember(t *testing.T) {
 	err := open_im_sdk.UserForSDK.Group().KickGroupMember(
 		ctx,
-		"87797088129024",
+		"57308482637824",
 		"我要踢人",
-		[]string{"53302504384892928"})
+		[]string{"49389272901357568"})
 	if err != nil {
 		t.Fatal(err)
 	}

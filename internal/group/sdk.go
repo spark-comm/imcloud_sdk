@@ -18,6 +18,7 @@ import (
 	"context"
 	"github.com/imCloud/im/pkg/common/log"
 	"open_im_sdk/internal/util"
+	"open_im_sdk/pkg/common"
 	"open_im_sdk/pkg/constant"
 	"open_im_sdk/pkg/db/model_struct"
 	"open_im_sdk/pkg/sdk_params_callback"
@@ -143,7 +144,20 @@ func (g *Group) DismissGroup(ctx context.Context, groupID string) error {
 	if err := g.SyncGroupMember(ctx, groupID); err != nil {
 		return err
 	}
-
+	//删除会话
+	conversationID := g.getConversationIDBySessionType(
+		groupID,
+		constant.SuperGroupChatType,
+	)
+	err := common.TriggerCmdDeleteConversationAndMessage(
+		groupID,
+		conversationID,
+		constant.SuperGroupChatType,
+		g.conversationCh)
+	if err != nil {
+		log.ZDebug(ctx, "delete conversation after delete conversation and message")
+	}
+	g.syncDelGroup(ctx, groupID)
 	return nil
 }
 
@@ -651,4 +665,12 @@ func (g *Group) getConversationIDBySessionType(sourceID string, sessionType int)
 		return "sn_" + sourceID // server notification chat
 	}
 	return ""
+}
+func (g *Group) syncDelGroup(ctx context.Context, groupID string) error {
+	localData, err := g.db.GetGroupInfoByGroupID(ctx, groupID)
+	if err != nil {
+		return err
+	}
+	log.ZDebug(ctx, "sync group", "data from local", localData)
+	return g.groupSyncer.Delete(ctx, []*model_struct.LocalGroup{localData}, nil)
 }

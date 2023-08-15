@@ -44,10 +44,11 @@ func (u *Full) GetUsersInfo(ctx context.Context, userIDs []string) ([]*api.FullU
 	userMap := make(map[string]*api.PublicUser)
 	for _, info := range users {
 		userMap[info.UserId] = &api.PublicUser{
-			UserID:   info.UserId,
-			Nickname: info.Nickname,
-			FaceURL:  info.FaceURL,
-			//Ex:         info.Ex,
+			UserID:     info.UserId,
+			Nickname:   info.Nickname,
+			FaceURL:    info.FaceURL,
+			Gender:     info.Gender,
+			Code:       info.Code,
 			CreateTime: info.CreatedAt.Seconds,
 		}
 	}

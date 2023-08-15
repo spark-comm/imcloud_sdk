@@ -35,6 +35,8 @@ type PublicUser struct {
 	UserID     string `json:"userID"`
 	Nickname   string `json:"nickname"`
 	FaceURL    string `json:"faceURL"`
+	Code       string `json:"code"`
+	Gender     int32  `json:"gender"`
 	Ex         string `json:"ex"`
 	CreateTime int64  `json:"createTime"`
 }

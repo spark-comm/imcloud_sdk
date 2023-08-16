@@ -236,3 +236,16 @@ func sendCmd(ch chan<- Cmd2Value, value Cmd2Value, timeout int64) error {
 		return errors.New("send cmd timeout")
 	}
 }
+
+func ListenerUserInfoChange(ctx context.Context, clChan chan bool, fn func()) {
+	for {
+		select {
+		case bl := <-clChan:
+			if bl {
+				fn()
+			}
+		case <-ctx.Done():
+			return
+		}
+	}
+}

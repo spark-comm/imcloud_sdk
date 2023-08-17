@@ -278,3 +278,8 @@ func SearchLocalMessages(callback open_im_sdk_callback.Base, operationID string,
 func SetMessageLocalEx(callback open_im_sdk_callback.Base, operationID string, conversationID, clientMsgID, localEx string) {
 	call(callback, operationID, UserForSDK.Conversation().SetMessageLocalEx, conversationID, clientMsgID, localEx)
 }
+
+// SyncConversationMsg 根据会话同步消息
+func SyncConversationMsg(callback open_im_sdk_callback.Base, operationID string, conversationID string) {
+	call(callback, operationID, UserForSDK.MsgSyncer().SyncConversationMsg, conversationID)
+}

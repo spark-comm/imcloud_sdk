@@ -130,6 +130,10 @@ func (u *LoginMgr) Conversation() *conv.Conversation {
 	return u.conversation
 }
 
+func (u *LoginMgr) MsgSyncer() *interaction.MsgSyncer {
+	return u.msgSyncer
+}
+
 func (u *LoginMgr) User() *user.User {
 	return u.user
 }

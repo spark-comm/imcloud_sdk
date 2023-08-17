@@ -16,44 +16,52 @@ package interaction
 
 import (
 	"context"
+	"github.com/imCloud/im/pkg/common/log"
+	"github.com/imCloud/im/pkg/proto/sdkws"
+	"math"
+	"open_im_sdk/pkg/ccontext"
 	"open_im_sdk/pkg/common"
 	"open_im_sdk/pkg/constant"
 	"open_im_sdk/pkg/db/db_interface"
+	"open_im_sdk/pkg/utils"
 	"open_im_sdk/sdk_struct"
-
-	"github.com/imCloud/im/pkg/common/log"
-	"github.com/imCloud/im/pkg/proto/sdkws"
 )
 
 const (
-	connectPullNums = 1
-	defaultPullNums = 10
+	connectPullNums = 15
+	defaultPullNums = 30
 )
 
 // The callback synchronization starts. The reconnection ends
 type MsgSyncer struct {
-	loginUserID        string                // login user ID
-	longConnMgr        *LongConnMgr          // long connection manager
-	PushMsgAndMaxSeqCh chan common.Cmd2Value // channel for receiving push messages and the maximum SEQ number
-	conversationCh     chan common.Cmd2Value // storage and session triggering
-	syncedMaxSeqs      map[string]int64      // map of the maximum synced SEQ numbers for all group IDs
-	db                 db_interface.DataBase // data store
-	syncTimes          int                   // times of sync
-	ctx                context.Context       // context
+	loginUserID            string                // login user ID
+	longConnMgr            *LongConnMgr          // long connection manager
+	PushMsgAndMaxSeqCh     chan common.Cmd2Value // channel for receiving push messages and the maximum SEQ number
+	conversationCh         chan common.Cmd2Value // storage and session triggering
+	msgSync                chan *sdkws.SeqRange  // channel sync message
+	syncedMaxSeqs          map[string]int64      // map of the maximum synced SEQ numbers for all group IDs
+	synceMinSeqs           map[string]int64      // 消息加载到的最小seq
+	conversationInitStatus map[string]bool       // 是否完成了会话的初始化加载
+	db                     db_interface.DataBase // data store
+	syncTimes              int                   // times of sync
+	ctx                    context.Context       // context
 }
 
 // NewMsgSyncer creates a new instance of the message synchronizer.
 func NewMsgSyncer(ctx context.Context, conversationCh, PushMsgAndMaxSeqCh chan common.Cmd2Value,
 	loginUserID string, longConnMgr *LongConnMgr, db db_interface.DataBase, syncTimes int) (*MsgSyncer, error) {
 	m := &MsgSyncer{
-		loginUserID:        loginUserID,
-		longConnMgr:        longConnMgr,
-		PushMsgAndMaxSeqCh: PushMsgAndMaxSeqCh,
-		conversationCh:     conversationCh,
-		ctx:                ctx,
-		syncedMaxSeqs:      make(map[string]int64),
-		db:                 db,
-		syncTimes:          syncTimes,
+		loginUserID:            loginUserID,
+		longConnMgr:            longConnMgr,
+		PushMsgAndMaxSeqCh:     PushMsgAndMaxSeqCh,
+		conversationCh:         conversationCh,
+		ctx:                    ctx,
+		syncedMaxSeqs:          make(map[string]int64),
+		synceMinSeqs:           make(map[string]int64),
+		conversationInitStatus: make(map[string]bool),
+		msgSync:                make(chan *sdkws.SeqRange, 1000),
+		db:                     db,
+		syncTimes:              syncTimes,
 	}
 	if err := m.loadSeq(ctx); err != nil {
 		log.ZError(ctx, "loadSeq err", err)
@@ -97,6 +105,8 @@ func (m *MsgSyncer) DoListener() {
 		select {
 		case cmd := <-m.PushMsgAndMaxSeqCh:
 			m.handlePushMsgAndEvent(cmd)
+		case seqRange := <-m.msgSync:
+			m.handleSync(seqRange)
 		case <-m.ctx.Done():
 			log.ZInfo(m.ctx, "msg syncer done, sdk logout.....")
 			return
@@ -113,7 +123,7 @@ func (m *MsgSyncer) getSeqsNeedSync(syncedMaxSeq, maxSeq int64) []int64 {
 	return seqs
 }
 
-// recv msg from
+// 处理消息推送事件
 func (m *MsgSyncer) handlePushMsgAndEvent(cmd common.Cmd2Value) {
 	switch cmd.Cmd {
 	case constant.CmdConnSuccesss:
@@ -142,6 +152,7 @@ func (m *MsgSyncer) compareSeqsAndBatchSync(ctx context.Context, maxSeqToSync ma
 	_ = m.syncAndTriggerMsgs(m.ctx, needSyncSeqMap, pullNums)
 }
 
+// compareSeqsAndSync 比较seq和同步消息
 func (m *MsgSyncer) compareSeqsAndSync(maxSeqToSync map[string]int64) {
 	for conversationID, maxSeq := range maxSeqToSync {
 		if syncedMaxSeq, ok := m.syncedMaxSeqs[conversationID]; ok {
@@ -154,12 +165,14 @@ func (m *MsgSyncer) compareSeqsAndSync(maxSeqToSync map[string]int64) {
 	}
 }
 
+// doPushMsg 处理在洗推送
 func (m *MsgSyncer) doPushMsg(ctx context.Context, push *sdkws.PushMessages) {
 	log.ZDebug(ctx, "push msgs", "push", push, "syncedMaxSeqs", m.syncedMaxSeqs)
 	m.pushTriggerAndSync(ctx, push.Msgs, m.triggerConversation)
 	m.pushTriggerAndSync(ctx, push.NotificationMsgs, m.triggerNotification)
 }
 
+// 推送和同步消息
 func (m *MsgSyncer) pushTriggerAndSync(ctx context.Context, pullMsgs map[string]*sdkws.PullMsgs, triggerFunc func(ctx context.Context, msgs map[string]*sdkws.PullMsgs) error) {
 	if len(pullMsgs) == 0 {
 		return
@@ -188,6 +201,7 @@ func (m *MsgSyncer) pushTriggerAndSync(ctx context.Context, pullMsgs map[string]
 }
 
 // Called after successful reconnection to synchronize the latest message
+// 在成功重新连接后调用以同步最新消息
 func (m *MsgSyncer) doConnected(ctx context.Context) {
 	common.TriggerCmdNotification(m.ctx, sdk_struct.CmdNewMsgComeToConversation{SyncFlag: constant.MsgSyncBegin}, m.conversationCh)
 	var resp sdkws.GetMaxSeqResp
@@ -203,6 +217,7 @@ func (m *MsgSyncer) doConnected(ctx context.Context) {
 }
 
 // Fragment synchronization message, seq refresh after successful trigger
+// 片段同步消息，成功触发后seq刷新
 func (m *MsgSyncer) syncAndTriggerMsgs(ctx context.Context, seqMap map[string][2]int64, syncMsgNum int64) error {
 	if len(seqMap) > 0 {
 		resp, err := m.pullMsgBySeqRange(ctx, seqMap, syncMsgNum)
@@ -212,8 +227,13 @@ func (m *MsgSyncer) syncAndTriggerMsgs(ctx context.Context, seqMap map[string][2
 		}
 		_ = m.triggerConversation(ctx, resp.Msgs)
 		_ = m.triggerNotification(ctx, resp.NotificationMsgs)
+		//更新最大wz
 		for conversationID, seqs := range seqMap {
 			m.syncedMaxSeqs[conversationID] = seqs[1]
+			//同步到的最小seq
+			m.synceMinSeqs[conversationID] = seqs[0]
+			//师傅初始化加载完成
+			m.conversationInitStatus[conversationID] = true
 		}
 		return err
 	}
@@ -235,21 +255,56 @@ func (m *MsgSyncer) splitSeqs(split int, seqsNeedSync []int64) (splitSeqs [][]in
 	return
 }
 
+// 根据seq区间拉取消息
 func (m *MsgSyncer) pullMsgBySeqRange(ctx context.Context, seqMap map[string][2]int64, syncMsgNum int64) (resp *sdkws.PullMessageBySeqsResp, err error) {
 	log.ZDebug(ctx, "pullMsgBySeqRange", "seqMap", seqMap, "syncMsgNum", syncMsgNum)
 
 	req := sdkws.PullMessageBySeqsReq{UserID: m.loginUserID}
 	for conversationID, seqs := range seqMap {
-		var pullNums int64 = syncMsgNum
-		if pullNums > seqs[1]-seqs[0] {
-			pullNums = seqs[1] - seqs[0]
+		var pullNums = syncMsgNum
+		minSeq := seqs[0]
+		maxSeq := seqs[1]
+		if pullNums > maxSeq-minSeq {
+			pullNums = maxSeq - minSeq
 		}
-		req.SeqRanges = append(req.SeqRanges, &sdkws.SeqRange{
-			ConversationID: conversationID,
-			Begin:          seqs[0],
-			End:            seqs[1],
-			Num:            pullNums,
-		})
+		// 计算需要同步的数量
+		needSyncNum := maxSeq - minSeq
+		if needSyncNum < syncMsgNum {
+			req.SeqRanges = append(req.SeqRanges, &sdkws.SeqRange{
+				ConversationID: conversationID,
+				Begin:          minSeq,
+				End:            maxSeq,
+				Num:            pullNums,
+			})
+		} else {
+			//spiltList := m.SpiltList(minSeq, maxSeq, syncMsgNum)
+			//var begin, end int64
+			//if len(spiltList) > 1 {
+			//	//先同步最大的
+			//	begin = spiltList[0][0]
+			//	end = spiltList[0][1]
+			//	//加入异步队列
+			//	//for i := 0; i < len(spiltList); i++ {
+			//	//	seqRange := spiltList[i]
+			//	//	m.msgSync <- &sdkws.SeqRange{
+			//	//		ConversationID: conversationID,
+			//	//		Begin:          seqRange[0],
+			//	//		End:            seqRange[1],
+			//	//		Num:            pullNums,
+			//	//	}
+			//	//}
+			//} else {
+			//	begin = spiltList[0][0]
+			//	end = spiltList[0][1]
+			//}
+			begin := maxSeq - pullNums
+			req.SeqRanges = append(req.SeqRanges, &sdkws.SeqRange{
+				ConversationID: conversationID,
+				Begin:          begin,
+				End:            maxSeq,
+				Num:            pullNums,
+			})
+		}
 	}
 	resp = &sdkws.PullMessageBySeqsResp{}
 	if err := m.longConnMgr.SendReqWaitResp(ctx, &req, constant.PullMsgBySeqList, resp); err != nil {
@@ -258,7 +313,20 @@ func (m *MsgSyncer) pullMsgBySeqRange(ctx context.Context, seqMap map[string][2]
 	return resp, nil
 }
 
+// handleSync 处理消息同步
+func (m *MsgSyncer) handleSync(seqRange *sdkws.SeqRange) {
+	req := sdkws.PullMessageBySeqsReq{UserID: m.loginUserID, SeqRanges: []*sdkws.SeqRange{seqRange}}
+	resp := &sdkws.PullMessageBySeqsResp{}
+	ctx := ccontext.WithOperationID(m.ctx, utils.OperationIDGenerator())
+	if err := m.longConnMgr.SendReqWaitResp(ctx, &req, constant.PullMsgBySeqList, resp); err != nil {
+		log.ZError(ctx, "sync message err", err)
+	}
+	_ = m.triggerConversation(ctx, resp.Msgs)
+	_ = m.triggerNotification(ctx, resp.NotificationMsgs)
+}
+
 // synchronizes messages by SEQs.
+// 根据seq触发同步
 func (m *MsgSyncer) syncMsgBySeqs(ctx context.Context, conversationID string, seqsNeedSync []int64) (allMsgs []*sdkws.MsgData, err error) {
 	pullMsgReq := sdkws.PullMessageBySeqsReq{}
 	pullMsgReq.UserID = m.loginUserID
@@ -293,4 +361,49 @@ func (m *MsgSyncer) triggerNotification(ctx context.Context, msgs map[string]*sd
 		log.ZError(ctx, "triggerCmdNewMsgCome err", err, "msgs", msgs)
 	}
 	return err
+}
+
+// SpiltList 分片
+func (m *MsgSyncer) SpiltList(min, max, size int64) [][]int64 {
+	mod := math.Ceil(float64((max - min) / size))
+	spiltList := make([][]int64, 0)
+	tem := max
+	for i := 0; i < int(mod); i++ {
+		tmpList := make([]int64, 2)
+		tmpList[1] = tem
+		start := tem - size
+		tmpList[0] = start
+		tem = start
+		spiltList = append(spiltList, tmpList)
+	}
+	if max%size > 0 {
+		tmpList := []int64{tem, tem - (max % size)}
+		spiltList = append(spiltList, tmpList)
+	}
+	return spiltList
+}
+
+// SyncConversationMsg 同步会话消息
+func (m *MsgSyncer) SyncConversationMsg(ctx context.Context, conversationID string) {
+	if status, b := m.conversationInitStatus[conversationID]; !status || b {
+		//获取当前同步的最小seq当作最大使用
+		minSeq := m.synceMinSeqs[conversationID]
+		if minSeq > 0 {
+			//有需要同步的数据
+			spiltList := m.SpiltList(0, minSeq, defaultPullNums)
+			// 有需要同步的数据
+			if len(spiltList) > 0 {
+				//加入异步队列
+				for i := 0; i < len(spiltList); i++ {
+					seqRange := spiltList[i]
+					m.msgSync <- &sdkws.SeqRange{
+						ConversationID: conversationID,
+						Begin:          seqRange[0],
+						End:            seqRange[1],
+						Num:            defaultPullNums,
+					}
+				}
+			}
+		}
+	}
 }

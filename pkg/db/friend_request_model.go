@@ -82,7 +82,7 @@ func (d *DataBase) GetRecvFriendApplicationList(ctx context.Context, page *pg.Pa
 	d.friendMtx.Lock()
 	defer d.friendMtx.Unlock()
 	transfer := make([]*model_struct.LocalFriendRequest, 0)
-	err := utils.Wrap(d.conn.WithContext(ctx).Where("to_user_id = ?", d.loginUserID).Scopes(pg.Operation(page)).Order("create_at DESC").Find(&transfer).Error, "GetRecvFriendApplication failed")
+	err := utils.Wrap(d.conn.WithContext(ctx).Where("to_user_id = ?", d.loginUserID).Scopes(pg.Operation(page)).Order("handle_result asc,create_at DESC").Find(&transfer).Error, "GetRecvFriendApplication failed")
 	return transfer, utils.Wrap(err, "GetRecvFriendApplication failed")
 }
 

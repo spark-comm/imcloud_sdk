@@ -379,11 +379,7 @@ func (c *Conversation) doNotificationNew(c2v common.Cmd2Value) {
 			log.ZError(ctx, "SyncConversationHashReadSeqs err", err)
 		}
 		// 同步数据
-		for _, syncFunc := range []func(c context.Context) error{
-			c.user.SyncLoginUserInfo, c.SyncConversations,
-			c.friend.SyncFriendList, c.group.SyncJoinedGroup, c.friend.SyncFriendApplication, c.friend.SyncSelfFriendApplication, c.group.SyncAdminGroupApplication, c.group.SyncSelfGroupApplication,
-			c.group.SyncJoinedGroupMember, c.friend.SyncBlackList,
-		} {
+		for _, syncFunc := range []func(c context.Context) error{c.user.SyncLoginUserInfo, c.SyncConversations} {
 			go func(syncFunc func(c context.Context) error) {
 				_ = syncFunc(ctx)
 			}(syncFunc)
@@ -394,6 +390,8 @@ func (c *Conversation) doNotificationNew(c2v common.Cmd2Value) {
 	case constant.MsgSyncEnd:
 		// 同步数据结束
 		defer c.ConversationListener.OnSyncServerFinish()
+		//同步其他数据
+		c.syncOtherInformation(ctx)
 	}
 
 	for conversationID, msgs := range allMsg {
@@ -464,4 +462,16 @@ func (c *Conversation) doNotificationNew(c2v common.Cmd2Value) {
 		}
 	}
 
+}
+
+// syncOtherInformation 同步其他信息
+func (c *Conversation) syncOtherInformation(ctx context.Context) {
+	// 同步数据
+	for _, syncFunc := range []func(c context.Context) error{c.friend.SyncFriendList, c.group.SyncJoinedGroup, c.friend.SyncFriendApplication, c.friend.SyncSelfFriendApplication, c.group.SyncAdminGroupApplication, c.group.SyncSelfGroupApplication,
+		c.group.SyncJoinedGroupMember, c.friend.SyncBlackList,
+	} {
+		go func(syncFunc func(c context.Context) error) {
+			_ = syncFunc(ctx)
+		}(syncFunc)
+	}
 }

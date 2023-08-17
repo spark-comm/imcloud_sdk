@@ -28,8 +28,8 @@ import (
 	"open_im_sdk/pkg/syncer"
 )
 
-func NewFriend(loginUserID string, db db_interface.DataBase, user *user.User, conversationCh chan common.Cmd2Value) *Friend {
-	f := &Friend{loginUserID: loginUserID, db: db, user: user, conversationCh: conversationCh}
+func NewFriend(loginUserID string, db db_interface.DataBase, user *user.User, conversationCh, groupCh chan common.Cmd2Value) *Friend {
+	f := &Friend{loginUserID: loginUserID, db: db, user: user, conversationCh: conversationCh, groupCh: groupCh}
 	f.initSyncer()
 	return f
 }
@@ -45,6 +45,7 @@ type Friend struct {
 	requestSendSyncer  *syncer.Syncer[*model_struct.LocalFriendRequest, [2]string]
 	loginTime          int64
 	conversationCh     chan common.Cmd2Value
+	groupCh            chan common.Cmd2Value
 	listenerForService open_im_sdk_callback.OnListenerForService
 }
 
@@ -80,6 +81,8 @@ func (f *Friend) initSyncer() {
 				//更新消息
 				_ = common.TriggerCmdUpdateMessage(ctx, common.UpdateMessageNode{Action: constant.UpdateMsgFaceUrlAndNickName,
 					Args: common.UpdateMessageInfo{UserID: server.FriendUserID, FaceURL: server.FaceURL, Nickname: server.Nickname}}, f.conversationCh)
+				//更新所在群的信息
+				_ = common.TriggerCmdGroupMemberChange(ctx, common.UpdateGroupMemberInfo{UserId: server.FriendUserID, Nickname: server.Nickname, FaceUrl: server.Nickname}, f.groupCh)
 			}
 
 		}

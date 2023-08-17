@@ -69,6 +69,7 @@ type GroupDatabase interface {
 	DeleteGroupMember(ctx context.Context, groupID, userID string) error
 	DeleteGroupAllMembers(ctx context.Context, groupID string) error
 	UpdateGroupMember(ctx context.Context, groupMember *model_struct.LocalGroupMember) error
+	UpdateGroupMemberInfo(ctx context.Context, userID string, args map[string]interface{}) error
 	UpdateGroupMemberField(ctx context.Context, groupID, userID string, args map[string]interface{}) error
 	GetGroupMemberInfoIfOwnerOrAdmin(ctx context.Context) ([]*model_struct.LocalGroupMember, error)
 	SearchGroupMembersDB(ctx context.Context, keyword string, groupID string, isSearchMemberNickname, isSearchUserID bool, offset, count int) (result []*model_struct.LocalGroupMember, err error)

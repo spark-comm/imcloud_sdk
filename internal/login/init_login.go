@@ -92,6 +92,7 @@ type LoginMgr struct {
 	heartbeatCmdCh     chan common.Cmd2Value
 	pushMsgAndMaxSeqCh chan common.Cmd2Value
 	loginMgrCh         chan common.Cmd2Value
+	groupCh            chan common.Cmd2Value
 
 	ctx       context.Context
 	cancel    context.CancelFunc
@@ -277,11 +278,11 @@ func (u *LoginMgr) login(ctx context.Context, userID, token string) error {
 	//文件
 	u.file = file.NewFile(ctx, u.db, u.loginUserID)
 	//好友
-	u.friend = friend.NewFriend(u.loginUserID, u.db, u.user, u.conversationCh)
+	u.friend = friend.NewFriend(u.loginUserID, u.db, u.user, u.conversationCh, u.groupCh)
 	u.friend.SetListener(u.friendListener)
 	u.friend.SetLoginTime(u.loginTime)
 	//群
-	u.group = group.NewGroup(u.loginUserID, u.db, u.conversationCh)
+	u.group = group.NewGroup(u.loginUserID, u.db, u.conversationCh, u.groupCh)
 	u.group.SetGroupListener(u.groupListener)
 	u.cache = cache.NewCache(u.user, u.friend)
 	u.full = full.NewFull(u.user, u.friend, u.group, u.conversationCh, u.cache, u.db)
@@ -360,6 +361,7 @@ func (u *LoginMgr) initResources() {
 	u.heartbeatCmdCh = make(chan common.Cmd2Value, 10)
 	u.pushMsgAndMaxSeqCh = make(chan common.Cmd2Value, 1000)
 	u.loginMgrCh = make(chan common.Cmd2Value)
+	u.groupCh = make(chan common.Cmd2Value)
 	u.setLoginStatus(Logout)
 	u.longConnMgr = interaction.NewLongConnMgr(u.ctx, u.connListener, u.heartbeatCmdCh, u.pushMsgAndMaxSeqCh, u.loginMgrCh)
 }
@@ -393,6 +395,10 @@ func (u *LoginMgr) setAppBackgroundStatus(ctx context.Context, isBackground bool
 		}
 		return nil
 	}
+}
+
+func (u *LoginMgr) GetAppBackgroundStatus() bool {
+	return u.longConnMgr.IsBackground
 }
 
 func (u *LoginMgr) GetLoginUserID() string {

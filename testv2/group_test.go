@@ -282,9 +282,9 @@ func Test_SearchGroupMembers(t *testing.T) {
 func Test_KickGroupMember(t *testing.T) {
 	err := open_im_sdk.UserForSDK.Group().KickGroupMember(
 		ctx,
-		"57308482637824",
+		"197403915325440",
 		"我要踢人",
-		[]string{"49389272901357568"})
+		[]string{"55224130529660928"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -419,8 +419,7 @@ func Test_KickGroupUserList(t *testing.T) {
 func Test_GetNotInGroupFriendInfoList(t *testing.T) {
 	info, err := open_im_sdk.UserForSDK.Group().GetNotInGroupFriendInfoList(
 		ctx, &sdk_params_callback.SearchNotInGroupUserReq{
-			GroupID:  "171491979169792",
-			Name:     "月",
+			GroupID:  "110908089044992",
 			PageSize: 10,
 			PageNum:  1,
 		})

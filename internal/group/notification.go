@@ -160,6 +160,19 @@ func (g *Group) doNotification(ctx context.Context, msg *sdkws.MsgData) error {
 			if err := g.db.DeleteGroup(ctx, detail.Group.GroupID); err != nil {
 				return err
 			}
+			//删除会话
+			conversationID := g.getConversationIDBySessionType(
+				detail.Group.GroupID,
+				constant.SuperGroupChatType,
+			)
+			err = common.TriggerCmdDeleteConversationAndMessage(
+				detail.Group.GroupID,
+				conversationID,
+				constant.SuperGroupChatType,
+				g.conversationCh)
+			if err != nil {
+				log.ZDebug(ctx, "delete conversation after delete conversation and message")
+			}
 			g.listener.OnGroupInfoChanged(string(data))
 			return nil
 		} else { //仅群成员信息变动

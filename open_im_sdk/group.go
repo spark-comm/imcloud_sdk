@@ -153,3 +153,7 @@ func GetUserOwnerJoinRequestNum(callback open_im_sdk_callback.Base, operationID 
 func GetAppointGroupRequestInfo(callback open_im_sdk_callback.Base, operationID, groupID string, offset, count int) {
 	call(callback, operationID, UserForSDK.Group().GetAppointGroupRequestInfo, groupID, offset, count)
 }
+
+func SearchGroupInfo(callback open_im_sdk_callback.Base, operationID, keyWord string, pageSize, pageNum int64) {
+	call(callback, operationID, UserForSDK.Group().SearchGroupInfo, keyWord, pageSize, pageNum)
+}

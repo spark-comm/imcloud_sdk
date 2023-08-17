@@ -243,6 +243,7 @@ func ListenerUserInfoChange(ctx context.Context, clChan chan bool, fn func()) {
 		case bl := <-clChan:
 			if bl {
 				fn()
+				return
 			}
 		case <-ctx.Done():
 			return

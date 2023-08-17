@@ -220,3 +220,14 @@ func (u *User) updateSelfUserInfo(ctx context.Context, userInfo *imUserPb.Update
 	_ = u.SyncLoginUserInfo(ctx)
 	return nil
 }
+
+func (u *User) getUserLoginStatus(ctx context.Context, userIDs []string) ([]*imUserPb.GetUserLoginStatusReps, error) {
+	resp := make([]*imUserPb.GetUserLoginStatusReps, 0)
+	err := util.ApiPost(ctx, constant.GetUserLoginStatusRouter, &imUserPb.GetUserLoginStatusReq{
+		UserID: userIDs,
+	}, resp)
+	if err != nil {
+		return resp, err
+	}
+	return resp, nil
+}

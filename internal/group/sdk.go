@@ -674,3 +674,16 @@ func (g *Group) syncDelGroup(ctx context.Context, groupID string) error {
 	log.ZDebug(ctx, "sync group", "data from local", localData)
 	return g.groupSyncer.Delete(ctx, []*model_struct.LocalGroup{localData}, nil)
 }
+
+func (g *Group) SearchGroupInfo(ctx context.Context, keyWord string, pageSize, pageNum int64) (groupv1.SearchGroupInfoResp, error) {
+	resp := groupv1.SearchGroupInfoResp{}
+	err := util.ApiPost(ctx, constant.SearchGroupInfoRouter, &groupv1.SearchGroupInfoReq{
+		KeyWord:  keyWord,
+		PageSize: pageSize,
+		PageNum:  pageNum,
+	}, &resp)
+	if err != nil {
+		return resp, err
+	}
+	return resp, nil
+}

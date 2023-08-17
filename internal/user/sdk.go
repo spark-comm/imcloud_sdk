@@ -55,3 +55,7 @@ func (u *User) UpdateMsgSenderInfo(ctx context.Context, nickname, faceURL string
 func (u *User) SearchUserInfo(ctx context.Context, searchValue string, searchType int) (*model_struct.LocalUser, error) {
 	return u.searchUser(ctx, searchValue, searchType)
 }
+
+func (u *User) GetUserLoginStatus(ctx context.Context, userIDs []string) ([]*imUserPb.GetUserLoginStatusReps, error) {
+	return u.getUserLoginStatus(ctx, userIDs)
+}

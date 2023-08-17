@@ -100,3 +100,14 @@ func Test_SearchUserInfo(t *testing.T) {
 	}
 	t.Log(userInfo)
 }
+
+func TestGetUserLoginStatus(t *testing.T) {
+	userInfo, err := open_im_sdk.UserForSDK.User().GetUserLoginStatus(ctx,
+		[]string{
+			"55474679036514304",
+		})
+	if err != nil {
+		t.Error(err)
+	}
+	t.Log(userInfo)
+}

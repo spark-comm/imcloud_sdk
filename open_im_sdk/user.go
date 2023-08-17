@@ -48,3 +48,7 @@ func UpdateMsgSenderInfo(callback open_im_sdk_callback.Base, operationID string,
 func SearchUser(callback open_im_sdk_callback.Base, operationID string, searchValue string, searchType int) {
 	call(callback, operationID, UserForSDK.User().SearchUserInfo, searchValue, searchType)
 }
+
+func GetLoginUserStatus(callback open_im_sdk_callback.Base, operationID string, userIDs []string) {
+	call(callback, operationID, UserForSDK.User().GetUserLoginStatus, userIDs)
+}

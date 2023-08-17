@@ -25,6 +25,8 @@ const (
 	GetUsersInfoFromCacheRouter   = BaseRouter + "/user/get_users_info_from_cache"
 	SearchUserInfoRouter          = BaseRouter + "/user/search"
 
+	GetUserLoginStatusRouter = BaseRouter + "/user/get_login_status"
+
 	AddFriendRouter                           = BaseRouter + "/friend/add_friend"
 	DeleteFriendRouter                        = BaseRouter + "/friend/delete_friend"
 	GetSelfFriendReceiveApplicationListRouter = BaseRouter + "/friend/get_self_receive_friend_apply_list" //recv
@@ -92,6 +94,7 @@ const (
 	SetGroupMemberInfoRouter          = BaseRouter + RouterGroup + "/set_group_member_info"
 	GetGroupAbstractInfoRouter        = BaseRouter + RouterGroup + "/get_group_abstract_info"
 
+	SearchGroupInfoRouter              = BaseRouter + RouterGroup + "/search_group_info"
 	GetJoinGroupRequestDetailRouter    = BaseRouter + RouterGroup + "/get_join_group_request_detail"
 	GetUserOwnerJoinRequestNumRouter   = BaseRouter + RouterGroup + "/get_user_owner_join_request_num"
 	SetReceiveMessageOptRouter         = BaseRouter + "/conversation/set_receive_message_opt"

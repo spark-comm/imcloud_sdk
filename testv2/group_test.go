@@ -39,11 +39,11 @@ func (g *GroupCallback) OnSuccess(data string) {
 }
 func Test_CreateGroupV2(t *testing.T) {
 	req := &groupv1.CrateGroupReq{
-		MemberList:       []string{"1463426311015", "1463426512456", "1463426515762"},
-		GroupName:        "白玉",
+		MemberList:       []string{"55476661776289792", "55474682626838528", "55474678449311744"},
+		GroupName:        "月华馥",
 		GroupType:        2,
-		Notification:     "公告：这是一个荣誉",
-		Introduction:     "1234",
+		Notification:     "公告：这是一个超级大群",
+		Introduction:     "介绍一下：大群",
 		FaceURL:          "https://dfsjk/djfhsd/5d1f5562d/154452.jpg",
 		NeedVerification: 1,
 	}
@@ -436,6 +436,22 @@ func Test_GetNotInGroupFriendInfoList(t *testing.T) {
 func Test_GetUserOwnerJoinRequestNum(t *testing.T) {
 	info, err := open_im_sdk.UserForSDK.Group().GetUserOwnerJoinRequestNum(
 		ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	for _, localGroup := range info.Data {
+		t.Logf("%#v", localGroup)
+	}
+}
+
+func Test_SearchGroupInfo(t *testing.T) {
+	info, err := open_im_sdk.UserForSDK.Group().SearchGroupInfo(
+		ctx,
+		"月华",
+		20,
+		1,
+	)
 	if err != nil {
 		t.Fatal(err)
 	}

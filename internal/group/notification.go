@@ -166,6 +166,7 @@ func (g *Group) doNotification(ctx context.Context, msg *sdkws.MsgData) error {
 				constant.SuperGroupChatType,
 			)
 			err = common.TriggerCmdDeleteConversationAndMessage(
+				ctx,
 				detail.Group.GroupID,
 				conversationID,
 				constant.SuperGroupChatType,
@@ -182,6 +183,7 @@ func (g *Group) doNotification(ctx context.Context, msg *sdkws.MsgData) error {
 				constant.SuperGroupChatType,
 			)
 			err := common.TriggerCmdDeleteConversationAndMessage(
+				ctx,
 				detail.Group.GroupID,
 				conversationID,
 				constant.SuperGroupChatType,
@@ -289,6 +291,7 @@ func (g *Group) doNotification(ctx context.Context, msg *sdkws.MsgData) error {
 			constant.SuperGroupChatType,
 		)
 		err := common.TriggerCmdDeleteConversationAndMessage(
+			ctx,
 			detail.Group.GroupID,
 			conversationID,
 			constant.SuperGroupChatType,

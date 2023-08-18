@@ -165,7 +165,7 @@ func (m *MsgSyncer) compareSeqsAndSync(maxSeqToSync map[string]int64) {
 	}
 }
 
-// doPushMsg 处理在洗推送
+// doPushMsg 处理在在线推送
 func (m *MsgSyncer) doPushMsg(ctx context.Context, push *sdkws.PushMessages) {
 	log.ZDebug(ctx, "push msgs", "push", push, "syncedMaxSeqs", m.syncedMaxSeqs)
 	m.pushTriggerAndSync(ctx, push.Msgs, m.triggerConversation)
@@ -277,26 +277,6 @@ func (m *MsgSyncer) pullMsgBySeqRange(ctx context.Context, seqMap map[string][2]
 				Num:            pullNums,
 			})
 		} else {
-			//spiltList := m.SpiltList(minSeq, maxSeq, syncMsgNum)
-			//var begin, end int64
-			//if len(spiltList) > 1 {
-			//	//先同步最大的
-			//	begin = spiltList[0][0]
-			//	end = spiltList[0][1]
-			//	//加入异步队列
-			//	//for i := 0; i < len(spiltList); i++ {
-			//	//	seqRange := spiltList[i]
-			//	//	m.msgSync <- &sdkws.SeqRange{
-			//	//		ConversationID: conversationID,
-			//	//		Begin:          seqRange[0],
-			//	//		End:            seqRange[1],
-			//	//		Num:            pullNums,
-			//	//	}
-			//	//}
-			//} else {
-			//	begin = spiltList[0][0]
-			//	end = spiltList[0][1]
-			//}
 			begin := maxSeq - pullNums
 			req.SeqRanges = append(req.SeqRanges, &sdkws.SeqRange{
 				ConversationID: conversationID,
@@ -363,10 +343,38 @@ func (m *MsgSyncer) triggerNotification(ctx context.Context, msgs map[string]*sd
 	return err
 }
 
+// SyncConversationMsg 同步会话消息
+func (m *MsgSyncer) SyncConversationMsg(ctx context.Context, conversationID string) {
+	if status, b := m.conversationInitStatus[conversationID]; !status || b {
+		//获取当前同步的最小seq当作最大使用
+		minSeq := m.synceMinSeqs[conversationID]
+		if minSeq > 0 {
+			//有需要同步的数据
+			spiltList := m.SpiltList(0, minSeq, constant.SplitPullMsgNum)
+			// 有需要同步的数据
+			if len(spiltList) > 0 {
+				//加入异步队列
+				for i := 0; i < len(spiltList); i++ {
+					seqRange := spiltList[i]
+					m.msgSync <- &sdkws.SeqRange{
+						ConversationID: conversationID,
+						Begin:          seqRange[0],
+						End:            seqRange[1],
+						Num:            constant.SplitPullMsgNum,
+					}
+				}
+			}
+		}
+	}
+}
+
 // SpiltList 分片
 func (m *MsgSyncer) SpiltList(min, max, size int64) [][]int64 {
-	mod := math.Ceil(float64((max - min) / size))
+	if (max - min) <= size {
+		return [][]int64{{min, max}}
+	}
 	spiltList := make([][]int64, 0)
+	mod := math.Ceil(float64((max - min) / size))
 	tem := max
 	for i := 0; i < int(mod); i++ {
 		tmpList := make([]int64, 2)
@@ -381,29 +389,4 @@ func (m *MsgSyncer) SpiltList(min, max, size int64) [][]int64 {
 		spiltList = append(spiltList, tmpList)
 	}
 	return spiltList
-}
-
-// SyncConversationMsg 同步会话消息
-func (m *MsgSyncer) SyncConversationMsg(ctx context.Context, conversationID string) {
-	if status, b := m.conversationInitStatus[conversationID]; !status || b {
-		//获取当前同步的最小seq当作最大使用
-		minSeq := m.synceMinSeqs[conversationID]
-		if minSeq > 0 {
-			//有需要同步的数据
-			spiltList := m.SpiltList(0, minSeq, defaultPullNums)
-			// 有需要同步的数据
-			if len(spiltList) > 0 {
-				//加入异步队列
-				for i := 0; i < len(spiltList); i++ {
-					seqRange := spiltList[i]
-					m.msgSync <- &sdkws.SeqRange{
-						ConversationID: conversationID,
-						Begin:          seqRange[0],
-						End:            seqRange[1],
-						Num:            defaultPullNums,
-					}
-				}
-			}
-		}
-	}
 }

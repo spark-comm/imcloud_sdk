@@ -74,6 +74,7 @@ type Conversation struct {
 	listenerForService   open_im_sdk_callback.OnListenerForService
 	markAsReadLock       sync.Mutex
 	loginTime            int64
+	ctxInfo              ccontext.ContextInfo
 }
 
 func (c *Conversation) SetListenerForService(listener open_im_sdk_callback.OnListenerForService) {
@@ -125,6 +126,7 @@ func NewConversation(ctx context.Context, longConnMgr *interaction.LongConnMgr, 
 		messageController:    NewMessageController(db),
 		IsExternalExtensions: info.IsExternalExtensions(),
 		maxSeqRecorder:       NewMaxSeqRecorder(),
+		ctxInfo:              info,
 	}
 	n.SetMsgListener(msgListener)
 	n.SetConversationListener(conversationListener)
@@ -208,6 +210,7 @@ func (c *Conversation) doMsgNew(c2v common.Cmd2Value) {
 		for _, v := range msgs.Msgs {
 			log.ZDebug(ctx, "parse message ", "conversationID", conversationID, "msg", v)
 			isHistory = utils.GetSwitchFromOptions(v.Options, constant.IsHistory)
+			//是否未读
 			isUnreadCount = utils.GetSwitchFromOptions(v.Options, constant.IsUnreadCount)
 			isConversationUpdate = utils.GetSwitchFromOptions(v.Options, constant.IsConversationUpdate)
 			isNotPrivate = utils.GetSwitchFromOptions(v.Options, constant.IsNotPrivate)

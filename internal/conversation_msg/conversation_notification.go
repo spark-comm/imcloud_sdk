@@ -17,6 +17,7 @@ package conversation_msg
 import (
 	"context"
 	"encoding/json"
+	"github.com/imCloud/im/pkg/common/mcontext"
 	"open_im_sdk/pkg/common"
 	"open_im_sdk/pkg/constant"
 	"open_im_sdk/pkg/db/model_struct"
@@ -67,7 +68,7 @@ func (c *Conversation) doDeleteConversation(c2v common.Cmd2Value) {
 	err := c.db.UpdateMessageStatusBySourceID(context.Background(), node.SourceID, constant.MsgStatusHasDeleted, int32(node.SessionType))
 	if err != nil {
 		log.ZError(ctx, "setMessageStatusBySourceID", err)
-		return
+		//return
 	}
 	//重置清空会话
 	//Reset the session information, empty session
@@ -75,6 +76,7 @@ func (c *Conversation) doDeleteConversation(c2v common.Cmd2Value) {
 	if err != nil {
 		log.ZError(ctx, "ResetConversation err:", err)
 	}
+	ctx = mcontext.SetOperationID(ctx, utils.OperationIDGenerator())
 	//清空服务端会话的消息
 	c.clearConversationMsgFromSvr(ctx, node.ConversationID)
 	c.doUpdateConversation(common.Cmd2Value{Value: common.UpdateConNode{"", constant.TotalUnreadMessageChanged, ""}})

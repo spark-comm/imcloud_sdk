@@ -150,6 +150,7 @@ func (g *Group) DismissGroup(ctx context.Context, groupID string) error {
 		constant.SuperGroupChatType,
 	)
 	err := common.TriggerCmdDeleteConversationAndMessage(
+		ctx,
 		groupID,
 		conversationID,
 		constant.SuperGroupChatType,

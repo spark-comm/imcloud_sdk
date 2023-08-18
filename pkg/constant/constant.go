@@ -39,6 +39,8 @@ const (
 	CmdReconnect = "020"
 	CmdInit      = "021"
 
+	CmdGroupMemberChange = "021"
+
 	CmdMaxSeq       = "maxSeq"
 	CmdPushMsg      = "pushMsg"
 	CmdConnSuccesss = "connSuccess"

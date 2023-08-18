@@ -238,7 +238,16 @@ func (d *DataBase) UpdateGroupMemberField(ctx context.Context, groupID, userID s
 	}
 	return utils.Wrap(t.Error, "UpdateGroupMemberField failed")
 }
-
+func (d *DataBase) UpdateGroupMemberInfo(ctx context.Context, userID string, args map[string]interface{}) error {
+	d.groupMtx.Lock()
+	defer d.groupMtx.Unlock()
+	c := model_struct.LocalGroupMember{UserID: userID}
+	t := d.conn.WithContext(ctx).Model(&c).Updates(args)
+	if t.RowsAffected == 0 {
+		return utils.Wrap(errors.New("RowsAffected == 0"), "no update")
+	}
+	return utils.Wrap(t.Error, "UpdateGroupMemberField failed")
+}
 func (d *DataBase) GetGroupMemberInfoIfOwnerOrAdmin(ctx context.Context) ([]*model_struct.LocalGroupMember, error) {
 	var ownerAndAdminList []*model_struct.LocalGroupMember
 	groupList, err := d.GetJoinedGroupListDB(ctx)

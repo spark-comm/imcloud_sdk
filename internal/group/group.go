@@ -32,10 +32,11 @@ import (
 )
 
 func NewGroup(loginUserID string, db db_interface.DataBase,
-	conversationCh chan common.Cmd2Value) *Group {
+	conversationCh, groupCh chan common.Cmd2Value) *Group {
 	g := &Group{
 		loginUserID:    loginUserID,
 		db:             db,
+		groupCh:        groupCh,
 		conversationCh: conversationCh,
 	}
 	g.initSyncer()
@@ -54,13 +55,25 @@ type Group struct {
 	loginTime               int64
 	joinedSuperGroupCh      chan common.Cmd2Value
 	heartbeatCmdCh          chan common.Cmd2Value
-
-	conversationCh chan common.Cmd2Value
+	groupCh                 chan common.Cmd2Value
+	conversationCh          chan common.Cmd2Value
 	//	memberSyncMutex sync.RWMutex
 
 	listenerForService open_im_sdk_callback.OnListenerForService
 }
 
+// Work 群工作
+func (g *Group) Work(c2v common.Cmd2Value) {
+	switch c2v.Cmd {
+	case constant.CmdGroupMemberChange:
+		g.handelGroupMemberInfo(c2v)
+	}
+}
+
+// GetCh 获取通道
+func (g *Group) GetCh() chan common.Cmd2Value {
+	return g.groupCh
+}
 func (g *Group) initSyncer() {
 	g.groupSyncer = syncer.New(func(ctx context.Context, value *model_struct.LocalGroup) error {
 		return g.db.InsertGroup(ctx, value)
@@ -273,4 +286,15 @@ func (g *Group) SyncJoinedGroupMember(ctx context.Context) error {
 	}
 	wg.Wait()
 	return nil
+}
+
+func (g *Group) handelGroupMemberInfo(c2v common.Cmd2Value) {
+	info := c2v.Value.(common.UpdateGroupMemberInfo)
+	agrs := make(map[string]interface{})
+	agrs["face_url"] = info.FaceUrl
+	agrs["nickname"] = info.Nickname
+	ctx := context.Background()
+	if err := g.db.UpdateGroupMemberInfo(ctx, info.UserId, agrs); err != nil {
+		log.ZError(ctx, "update group member info err", err)
+	}
 }

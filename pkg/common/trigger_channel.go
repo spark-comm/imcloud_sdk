@@ -149,6 +149,16 @@ func TriggerCmdConnected(ctx context.Context, ch chan Cmd2Value) error {
 	return sendCmd(ch, c2v, 100)
 }
 
+// TriggerCmdGroupMemberChange 更新群成员信息
+func TriggerCmdGroupMemberChange(ctx context.Context, node UpdateGroupMemberInfo, conversationCh chan<- Cmd2Value) error {
+	c2v := Cmd2Value{
+		Cmd:   constant.CmdGroupMemberChange,
+		Value: node,
+		Ctx:   ctx,
+	}
+	return sendCmd(conversationCh, c2v, 100)
+}
+
 // TriggerCmdAddFriendGenerateSession 新增好友生成会话
 func TriggerCmdAddFriendGenerateSession(ctx context.Context, node SourceIDAndSessionType, conversationCh chan<- Cmd2Value) error {
 	c2v := Cmd2Value{
@@ -156,7 +166,6 @@ func TriggerCmdAddFriendGenerateSession(ctx context.Context, node SourceIDAndSes
 		Value: node,
 		Ctx:   ctx,
 	}
-
 	return sendCmd(conversationCh, c2v, 100)
 }
 
@@ -202,6 +211,15 @@ type SourceIDAndSessionType struct {
 	SessionType int
 	FaceURL     string
 	Nickname    string
+}
+
+// UpdateGroupMemberInfo 更新群成员信息
+type UpdateGroupMemberInfo struct {
+	// 用户id
+	UserId   string
+	Nickname string
+	FaceUrl  string
+	GroupId  string
 }
 
 func UnInitAll(conversationCh chan Cmd2Value) error {

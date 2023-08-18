@@ -16,6 +16,7 @@ package testv2
 
 import (
 	"encoding/json"
+	"fmt"
 	"open_im_sdk/open_im_sdk"
 	"open_im_sdk/pkg/constant"
 	"open_im_sdk/pkg/log"
@@ -458,4 +459,15 @@ func Test_SearchGroupInfo(t *testing.T) {
 	for _, localGroup := range info.Data {
 		t.Logf("%#v", localGroup)
 	}
+}
+
+func Test_GetAppointGroupRequestInfo(t *testing.T) {
+	info, err := open_im_sdk.UserForSDK.Group().GetAppointGroupRequestInfo(
+		ctx,
+		"45362416979968", 1, 20,
+	)
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Sprintf("%+v", info)
 }

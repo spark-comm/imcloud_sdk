@@ -49,6 +49,6 @@ func SearchUser(callback open_im_sdk_callback.Base, operationID string, searchVa
 	call(callback, operationID, UserForSDK.User().SearchUserInfo, searchValue, searchType)
 }
 
-func GetLoginUserStatus(callback open_im_sdk_callback.Base, operationID string, userIDs []string) {
-	call(callback, operationID, UserForSDK.User().GetUserLoginStatus, userIDs)
+func GetLoginUserStatus(callback open_im_sdk_callback.Base, operationID string, userID string) {
+	call(callback, operationID, UserForSDK.User().GetUserLoginStatus, userID)
 }

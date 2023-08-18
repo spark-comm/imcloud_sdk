@@ -36,8 +36,9 @@ func Test_GetSpecifiedFriendsInfo(t *testing.T) {
 
 func Test_AddFriend(t *testing.T) {
 	err := open_im_sdk.UserForSDK.Friend().AddFriend(ctx, &friend.AddFriendRequest{
-		ToUserID: "50891326056566784",
-		ReqMsg:   "test add",
+		ToUserID:  "49389272901357568",
+		ReqMsg:    "test add",
+		RemarkMsg: "天加",
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -86,7 +87,7 @@ func Test_RefuseFriendApplication(t *testing.T) {
 }
 
 func Test_CheckFriend(t *testing.T) {
-	res, err := open_im_sdk.UserForSDK.Friend().CheckFriend(ctx, []string{"48672487050842112", "48676976868724736"})
+	res, err := open_im_sdk.UserForSDK.Friend().CheckFriend(ctx, []string{"50122897452175360"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -106,6 +107,18 @@ func Test_DeleteFriend(t *testing.T) {
 
 func Test_GetFriendList(t *testing.T) {
 	infos, err := open_im_sdk.UserForSDK.Friend().GetFriendList(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log("GetFriendList success", ctx.Value("operationID"))
+	for _, info := range infos {
+		t.Logf("PublicInfo: %#v", info)
+	}
+}
+
+// Test_GetPageFriendList 分页获取好友数据
+func Test_GetPageFriendList(t *testing.T) {
+	infos, err := open_im_sdk.UserForSDK.Friend().GetFriendListPage(ctx, 1, 20)
 	if err != nil {
 		t.Fatal(err)
 	}

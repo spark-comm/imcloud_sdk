@@ -244,6 +244,10 @@ func (c *conversationCallBack) OnSyncServerFinish() {
 
 }
 
+func (c *conversationCallBack) OnDeleteConversation(str string) {
+	log.Info("", utils.GetSelfFuncName())
+}
+
 func (c *conversationCallBack) OnSyncServerFailed() {
 	log.Info("", utils.GetSelfFuncName())
 }

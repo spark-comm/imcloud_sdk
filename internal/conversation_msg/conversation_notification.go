@@ -78,8 +78,9 @@ func (c *Conversation) doDeleteConversation(c2v common.Cmd2Value) {
 	}
 	ctx = mcontext.SetOperationID(ctx, utils.OperationIDGenerator())
 	//清空服务端会话的消息
-	c.clearConversationMsgFromSvr(ctx, node.ConversationID)
+	c.DeleteConversationAndDeleteAllMsg(ctx, node.ConversationID)
 	c.doUpdateConversation(common.Cmd2Value{Value: common.UpdateConNode{"", constant.TotalUnreadMessageChanged, ""}})
+	c.ConversationListener.OnDeleteConversation(utils.StructToJsonString([]string{node.ConversationID}))
 }
 
 // doAddFriend 新增好友处理

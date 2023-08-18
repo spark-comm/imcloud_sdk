@@ -16,6 +16,7 @@ package testv2
 
 import (
 	"context"
+	"fmt"
 	"github.com/imCloud/im/pkg/proto/sdkws"
 	"open_im_sdk/open_im_sdk"
 	"open_im_sdk/pkg/log"
@@ -23,6 +24,7 @@ import (
 	"open_im_sdk/pkg/utils"
 	"open_im_sdk/sdk_struct"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 )
@@ -188,7 +190,25 @@ func Test_SendMessage(t *testing.T) {
 		t.Fatal(err)
 	}
 }
-
+func Test_SendMessage1(t *testing.T) {
+	ids := []string{"55122332112392192", "55122332229832704", "55122332330496000", "55122332447936512", "55122332565377024", "55122332682817536", "55122332783480832", "55122332884144128", "55122332984807424", "55122333085470720", "55122333186134016", "55122333286797312"}
+	var wg sync.WaitGroup
+	for _, id := range ids {
+		wg.Add(1)
+		go func(userId string) {
+			defer wg.Done()
+			for i := 0; i < 2000; i++ {
+				ctx = context.WithValue(ctx, "callback", TestSendMsg{})
+				msg, _ := open_im_sdk.UserForSDK.Conversation().CreateTextMessage(ctx, fmt.Sprintf("textMsg_%d", i))
+				open_im_sdk.UserForSDK.Conversation().SendMessage(ctx, msg, userId, "", nil)
+				//if err != nil {
+				//	t.Fatal(err)
+				//}
+			}
+		}(id)
+	}
+	wg.Wait()
+}
 func Test_SendMessageNotOss(t *testing.T) {
 	ctx = context.WithValue(ctx, "callback", TestSendMsg{})
 	msg, _ := open_im_sdk.UserForSDK.Conversation().CreateTextMessage(ctx, "textMsg")

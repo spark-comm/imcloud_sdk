@@ -664,6 +664,11 @@ func (c *conversationCallBack) OnSyncServerFinish() {
 
 }
 
+func (c *conversationCallBack) OnDeleteConversation(str string) {
+	c.SyncFlag = 1
+	log.Info("", utils.GetSelfFuncName())
+
+}
 func (c *conversationCallBack) OnSyncServerFailed() {
 	log.Info("", utils.GetSelfFuncName())
 }

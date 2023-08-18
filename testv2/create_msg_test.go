@@ -183,3 +183,23 @@ func Test_CreateForwardMessage(t *testing.T) {
 	}
 	t.Log(message)
 }
+
+//func Test_UploadFileFullPath(t *testing.T) {
+//	message, err := open_im_sdk.UserForSDK.File().UploadFileFullPath(&TestCallBack{}, ".\\test.png", "mp4", 10, "")
+//	if err != nil {
+//		t.Error(err)
+//	}
+//	t.Log(message)
+//}
+//
+//type TestCallBack struct {
+//}
+//
+//func (t *TestCallBack) OnError(errCode int32, errMsg string) {
+//	log.Info("test_openim:  error")
+//
+//}
+//
+//func (t *TestCallBack) OnSuccess(data string) {
+//	log.Info("test_openim:  success")
+//}

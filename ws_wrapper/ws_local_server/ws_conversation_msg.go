@@ -180,6 +180,13 @@ func (c *ConversationCallback) OnSyncServerFinish() {
 	ed.ErrCode = 0
 	SendOneUserMessage(ed, c.uid)
 }
+
+func (c *ConversationCallback) OnDeleteConversation(str string) {
+	var ed EventData
+	ed.Event = cleanUpfuncName(runFuncName())
+	ed.ErrCode = 0
+	SendOneUserMessage(ed, c.uid)
+}
 func (c *ConversationCallback) OnSyncServerFailed() {
 	var ed EventData
 	ed.Event = cleanUpfuncName(runFuncName())

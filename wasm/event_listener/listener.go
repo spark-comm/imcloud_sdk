@@ -71,7 +71,9 @@ func (c ConversationCallback) OnSyncServerStart() {
 func (c ConversationCallback) OnSyncServerFinish() {
 	c.CallbackWriter.SetEvent(utils.GetSelfFuncName()).SendMessage()
 }
-
+func (c *conversationCallBack) OnDeleteConversation(str string) {
+	c.CallbackWriter.SetEvent(utils.GetSelfFuncName()).SetData(str).SendMessage()
+}
 func (c ConversationCallback) OnSyncServerFailed() {
 	c.CallbackWriter.SetEvent(utils.GetSelfFuncName()).SendMessage()
 

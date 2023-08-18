@@ -119,6 +119,20 @@ func (g *Group) QuitGroup(ctx context.Context, groupID string) error {
 		nil); err != nil {
 		return err
 	}
+	//删除会话
+	conversationID := g.getConversationIDBySessionType(
+		groupID,
+		constant.SuperGroupChatType,
+	)
+	err := common.TriggerCmdDeleteConversationAndMessage(
+		ctx,
+		groupID,
+		conversationID,
+		constant.SuperGroupChatType,
+		g.conversationCh)
+	if err != nil {
+		log.ZDebug(ctx, "QuitGroup  after delete conversation err", err)
+	}
 	if err := g.db.DeleteGroupAllMembers(ctx, groupID); err != nil {
 		return err
 	}

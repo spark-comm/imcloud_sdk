@@ -33,7 +33,7 @@ func (f *Friend) doNotification(ctx context.Context, msg *sdkws.MsgData, blChan 
 		if err := f.syncApplicationByNotification(ctx, tips.FromToUserID); err != nil {
 			return err
 		}
-		return f.syncFriendByNotification(ctx, tips.FromToUserID.FromUserID, tips.FromToUserID.ToUserID)
+		return f.syncFriendByNotification(ctx, f.loginUserID, tips.FromToUserID.ToUserID)
 	case constant.FriendApplicationRejectedNotification:
 		//发起的好友请求被拒绝
 		var tips sdkws.FriendApplicationRejectedTips
@@ -47,7 +47,7 @@ func (f *Friend) doNotification(ctx context.Context, msg *sdkws.MsgData, blChan 
 		if err := utils.UnmarshalNotificationElem(msg.Content, &tips); err != nil {
 			return err
 		}
-		return f.syncFriendByNotification(ctx, tips.OpUser.UserID, tips.Friend.FriendUser.UserID)
+		return f.syncFriendByNotification(ctx, f.loginUserID, tips.Friend.OwnerUserID)
 	case constant.FriendDeletedNotification:
 		//好友被删除通知
 		var tips sdkws.FriendDeletedTips

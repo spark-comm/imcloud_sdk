@@ -441,6 +441,7 @@ func (c *Conversation) doNotificationNew(c2v common.Cmd2Value) {
 			go common.ListenerUserInfoChange(ctx, bChan, func() {
 				c.group.SyncJoinedGroupMember(ctx)
 			})
+
 			switch v.SessionType {
 			case constant.SingleChatType:
 				//单聊

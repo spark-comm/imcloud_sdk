@@ -332,9 +332,12 @@ func (c *Conversation) checkID(ctx context.Context, s *sdk_struct.MsgStruct,
 		lc.GroupID = groupID
 		gm, err := c.db.GetGroupMemberInfoByGroupIDUserID(ctx, groupID, c.loginUserID)
 		if err == nil && gm != nil {
-			if gm.Nickname != "" {
-				s.SenderNickname = gm.Nickname
+			//发送者名称处理
+			sendNickname := gm.Nickname
+			if gm.GroupUserName != "" {
+				sendNickname = gm.GroupUserName
 			}
+			s.SenderNickname = sendNickname
 		}
 		var attachedInfo sdk_struct.AttachedInfoElem
 		attachedInfo.GroupHasReadInfo.GroupMemberCount = g.MemberCount

@@ -93,10 +93,10 @@ const (
 	SetGroupMemberNicknameRouter      = BaseRouter + RouterGroup + "/set_group_member_nickname"
 	SetGroupMemberInfoRouter          = BaseRouter + RouterGroup + "/set_group_member_info"
 	GetGroupAbstractInfoRouter        = BaseRouter + RouterGroup + "/get_group_abstract_info"
+	SearchGroupInfoRouter             = BaseRouter + RouterGroup + "/search_group_info"
+	GetJoinGroupRequestDetailRouter   = BaseRouter + RouterGroup + "/get_join_group_request_detail"
+	GetUserOwnerJoinRequestNumRouter  = BaseRouter + RouterGroup + "/get_user_owner_join_request_num"
 
-	SearchGroupInfoRouter              = BaseRouter + RouterGroup + "/search_group_info"
-	GetJoinGroupRequestDetailRouter    = BaseRouter + RouterGroup + "/get_join_group_request_detail"
-	GetUserOwnerJoinRequestNumRouter   = BaseRouter + RouterGroup + "/get_user_owner_join_request_num"
 	SetReceiveMessageOptRouter         = BaseRouter + "/conversation/set_receive_message_opt"
 	GetReceiveMessageOptRouter         = BaseRouter + "/conversation/get_receive_message_opt"
 	GetAllConversationMessageOptRouter = BaseRouter + "/conversation/get_all_conversation_message_opt"

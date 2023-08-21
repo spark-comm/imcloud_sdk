@@ -21,7 +21,6 @@ import (
 	"fmt"
 	"github.com/imCloud/im/pkg/common/log"
 	"github.com/imCloud/im/pkg/proto/sdkws"
-	"open_im_sdk/pkg/common"
 	"open_im_sdk/pkg/constant"
 	"open_im_sdk/pkg/utils"
 )
@@ -141,13 +140,6 @@ func (g *Group) doNotification(ctx context.Context, msg *sdkws.MsgData) error {
 				}
 				g.listener.OnGroupMemberDeleted(string(data))
 			}
-			//for _, member := range util.Batch(ServerGroupMemberToLocalGroupMember, detail.KickedUserList) {
-			//	data, err := json.Marshal(member)
-			//	if err != nil {
-			//		return err
-			//	}
-			//	g.listener.OnGroupMemberDeleted(string(data))
-			//}
 			group, err := g.db.GetGroupInfoByGroupID(ctx, detail.Group.GroupID)
 			if err != nil {
 				return err
@@ -162,36 +154,12 @@ func (g *Group) doNotification(ctx context.Context, msg *sdkws.MsgData) error {
 				return err
 			}
 			//删除会话
-			conversationID := g.getConversationIDBySessionType(
-				detail.Group.GroupID,
-				constant.SuperGroupChatType,
-			)
-			err = common.TriggerCmdDeleteConversationAndMessage(
-				ctx,
-				detail.Group.GroupID,
-				conversationID,
-				constant.SuperGroupChatType,
-				g.conversationCh)
-			if err != nil {
-				log.ZDebug(ctx, "delete conversation after delete conversation and message")
-			}
+			g.DelGroupConversation(ctx, detail.Group.GroupID)
 			g.listener.OnGroupInfoChanged(string(data))
 			return nil
 		} else { //仅群成员信息变动
 			//删除会话
-			conversationID := g.getConversationIDBySessionType(
-				detail.Group.GroupID,
-				constant.SuperGroupChatType,
-			)
-			err := common.TriggerCmdDeleteConversationAndMessage(
-				ctx,
-				detail.Group.GroupID,
-				conversationID,
-				constant.SuperGroupChatType,
-				g.conversationCh)
-			if err != nil {
-				log.ZDebug(ctx, "delete conversation after delete conversation and message")
-			}
+			g.DelGroupConversation(ctx, detail.Group.GroupID)
 			return g.SyncGroupMember(ctx, detail.Group.GroupID)
 		}
 		//退群通知
@@ -261,27 +229,7 @@ func (g *Group) doNotification(ctx context.Context, msg *sdkws.MsgData) error {
 		if err := utils.UnmarshalNotificationElem(msg.Content, &detail); err != nil {
 			return err
 		}
-		if err := g.db.DeleteGroupAllMembers(ctx, detail.Group.GroupID); err != nil {
-			return err
-		}
-		//删除会话
-		conversationID := g.getConversationIDBySessionType(
-			detail.Group.GroupID,
-			constant.SuperGroupChatType,
-		)
-		err := common.TriggerCmdDeleteConversationAndMessage(
-			ctx,
-			detail.Group.GroupID,
-			conversationID,
-			constant.SuperGroupChatType,
-			g.conversationCh)
-		if err != nil {
-			log.ZDebug(ctx, "delete conversation after delete conversation and message")
-		}
-		if err := g.SyncJoinedGroup(ctx); err != nil {
-			return err
-		}
-		return g.SyncGroupMember(ctx, detail.Group.GroupID)
+		return g.DismissedNotification(ctx, &detail)
 		//群成员禁言通知
 	case constant.GroupMemberMutedNotification: // 1512
 		var detail sdkws.GroupMemberMutedTips
@@ -338,4 +286,15 @@ func (g *Group) doNotification(ctx context.Context, msg *sdkws.MsgData) error {
 	default:
 		return fmt.Errorf("unknown tips type: %d", msg.ContentType)
 	}
+}
+
+// DismissedNotification 群解散处理
+func (g *Group) DismissedNotification(ctx context.Context, detail *sdkws.GroupDismissedTips) error {
+	//删除会话
+	g.DelGroupConversation(ctx, detail.Group.GroupID)
+	//删除群成员
+	if err := g.db.DeleteGroupAllMembers(ctx, detail.Group.GroupID); err != nil {
+		return err
+	}
+	return g.db.DeleteGroup(ctx, detail.Group.GroupID)
 }

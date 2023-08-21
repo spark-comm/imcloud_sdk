@@ -23,8 +23,6 @@ import (
 	"open_im_sdk/pkg/db/model_struct"
 	"open_im_sdk/pkg/sdk_params_callback"
 	"open_im_sdk/pkg/sdkerrs"
-	"sort"
-	"strings"
 	"time"
 
 	groupv1 "github.com/imCloud/api/group/v1"
@@ -642,21 +640,8 @@ func (g *Group) GetAppointGroupRequestInfo(ctx context.Context, groupID string, 
 		count,
 	)
 }
-func (g *Group) getConversationIDBySessionType(sourceID string, sessionType int) string {
-	switch sessionType {
-	case constant.SingleChatType:
-		l := []string{g.loginUserID, sourceID}
-		sort.Strings(l)
-		return "si_" + strings.Join(l, "_") // single chat
-	case constant.GroupChatType:
-		return "g_" + sourceID // group chat
-	case constant.SuperGroupChatType:
-		return "sg_" + sourceID // super group chat
-	case constant.NotificationChatType:
-		return "sn_" + sourceID // server notification chat
-	}
-	return ""
-}
+
+// syncDelGroup 同步删除群
 func (g *Group) syncDelGroup(ctx context.Context, groupID string) error {
 	localData, err := g.db.GetGroupInfoByGroupID(ctx, groupID)
 	if err != nil {
@@ -666,6 +651,7 @@ func (g *Group) syncDelGroup(ctx context.Context, groupID string) error {
 	return g.groupSyncer.Delete(ctx, []*model_struct.LocalGroup{localData}, nil)
 }
 
+// SearchGroupInfo 搜索群
 func (g *Group) SearchGroupInfo(ctx context.Context, keyWord string, pageSize, pageNum int64) (groupv1.SearchGroupInfoResp, error) {
 	resp := groupv1.SearchGroupInfoResp{}
 	err := util.ApiPost(ctx, constant.SearchGroupInfoRouter, &groupv1.SearchGroupInfoReq{
@@ -682,10 +668,7 @@ func (g *Group) SearchGroupInfo(ctx context.Context, keyWord string, pageSize, p
 // DelGroupConversation 删除群会话
 func (g *Group) DelGroupConversation(ctx context.Context, groupID string) {
 	//删除会话
-	conversationID := g.getConversationIDBySessionType(
-		groupID,
-		constant.SuperGroupChatType,
-	)
+	conversationID := utils.GetConversationIDBySessionType(constant.SuperGroupChatType, groupID)
 	err := common.TriggerCmdDeleteConversationAndMessage(
 		ctx,
 		groupID,

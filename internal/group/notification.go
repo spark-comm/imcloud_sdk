@@ -83,6 +83,7 @@ func (g *Group) doNotification(ctx context.Context, msg *sdkws.MsgData) error {
 		//if detail.ReceiverAs == 1 {
 		//	return g.SyncAdminGroupApplication(ctx)
 		//}
+		g.SyncGroupMember(ctx, detail.Group.GroupID)
 		return g.SyncJoinedGroup(ctx)
 		//群请求拒绝通知
 	case constant.GroupApplicationRejectedNotification: // 1506

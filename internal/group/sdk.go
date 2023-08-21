@@ -272,64 +272,26 @@ func (g *Group) GetJoinedGroupList(ctx context.Context) ([]*model_struct.LocalGr
 
 func (g *Group) GetSpecifiedGroupsInfo(ctx context.Context, groupIDs []string) ([]*model_struct.LocalGroup, error) {
 
-	groupList, err := g.db.GetJoinedGroupListDB(ctx)
-	if err != nil {
-		return nil, err
-	}
-	groupIDMap := utils.SliceSet(groupIDs)
-	bl := false
-	newRes := make([]*model_struct.LocalGroup, 0)
-	for _, group := range groupList {
-		if _, ok := groupIDMap[group.GroupID]; ok {
-			bl = true
-			newRes = append(newRes, group)
-			break
-		}
-	}
-	res := make([]*model_struct.LocalGroup, 0)
-	if bl && len(groupIDs) > 0 {
-		groups, err := util.CallApi[groupv1.GetGroupInfoResponse](
-			ctx,
-			constant.GetGroupsInfoRouter,
-			&groupv1.GetGroupInfoReq{GroupID: groupIDs})
-		if err != nil {
-			log.ZError(ctx, "Call GetGroupsInfoRouter", err)
-		}
-		if groups != nil && len(groups.Data) > 0 {
-			for i := range groups.Data {
-				groups.Data[i].MemberCount = 0
-			}
-			//转换为本地的群组数据格式
-			res = append(res, util.Batch(ServerGroupToLocalGroup, groups.Data)...)
-		}
-	}
-	if len(res) == 0 {
-		return newRes, nil
-	}
-	return res, nil
 	//groupList, err := g.db.GetJoinedGroupListDB(ctx)
 	//if err != nil {
 	//	return nil, err
 	//}
-	//superGroupList, err := g.db.GetJoinedSuperGroupList(ctx)
-	//if err != nil {
-	//	return nil, err
-	//}
 	//groupIDMap := utils.SliceSet(groupIDs)
-	////获取所有群数据（普通群和超级群）
-	//groups := append(groupList, superGroupList...)
-	//res := make([]*model_struct.LocalGroup, 0, len(groupIDs))
-	//for i, v := range groups {
-	//	if _, ok := groupIDMap[v.GroupID]; ok {
-	//		delete(groupIDMap, v.GroupID)
-	//		res = append(res, groups[i])
+	//bl := false
+	//newRes := make([]*model_struct.LocalGroup, 0)
+	//for _, group := range groupList {
+	//	if _, ok := groupIDMap[group.GroupID]; ok {
+	//		bl = true
+	//		newRes = append(newRes, group)
+	//		break
 	//	}
 	//}
-	//if len(groupIDMap) > 0 {
+	//res := make([]*model_struct.LocalGroup, 0)
+	//if bl && len(groupIDs) > 0 {
 	//	groups, err := util.CallApi[groupv1.GetGroupInfoResponse](
 	//		ctx,
 	//		constant.GetGroupsInfoRouter,
-	//		&groupv1.GetGroupInfoReq{GroupID: utils.Keys(groupIDMap)})
+	//		&groupv1.GetGroupInfoReq{GroupID: groupIDs})
 	//	if err != nil {
 	//		log.ZError(ctx, "Call GetGroupsInfoRouter", err)
 	//	}
@@ -341,7 +303,45 @@ func (g *Group) GetSpecifiedGroupsInfo(ctx context.Context, groupIDs []string) (
 	//		res = append(res, util.Batch(ServerGroupToLocalGroup, groups.Data)...)
 	//	}
 	//}
+	//if len(res) == 0 {
+	//	return newRes, nil
+	//}
 	//return res, nil
+	groupList, err := g.db.GetJoinedGroupListDB(ctx)
+	if err != nil {
+		return nil, err
+	}
+	superGroupList, err := g.db.GetJoinedSuperGroupList(ctx)
+	if err != nil {
+		return nil, err
+	}
+	groupIDMap := utils.SliceSet(groupIDs)
+	//获取所有群数据（普通群和超级群）
+	groups := append(groupList, superGroupList...)
+	res := make([]*model_struct.LocalGroup, 0, len(groupIDs))
+	for i, v := range groups {
+		if _, ok := groupIDMap[v.GroupID]; ok {
+			delete(groupIDMap, v.GroupID)
+			res = append(res, groups[i])
+		}
+	}
+	if len(groupIDMap) > 0 {
+		groups, err := util.CallApi[groupv1.GetGroupInfoResponse](
+			ctx,
+			constant.GetGroupsInfoRouter,
+			&groupv1.GetGroupInfoReq{GroupID: utils.Keys(groupIDMap)})
+		if err != nil {
+			log.ZError(ctx, "Call GetGroupsInfoRouter", err)
+		}
+		if groups != nil && len(groups.Data) > 0 {
+			for i := range groups.Data {
+				groups.Data[i].MemberCount = 0
+			}
+			//转换为本地的群组数据格式
+			res = append(res, util.Batch(ServerGroupToLocalGroup, groups.Data)...)
+		}
+	}
+	return res, nil
 }
 
 // SearchGroups 本地数据过滤
@@ -652,15 +652,18 @@ func (g *Group) GetUserOwnerJoinRequestNum(ctx context.Context) (groupv1.GetOwne
 	return resp, nil
 }
 
-func (g *Group) GetAppointGroupRequestInfo(ctx context.Context, groupID string, offset, count int) ([]*model_struct.LocalAdminGroupRequest, error) {
+func (g *Group) GetAppointGroupRequestInfo(ctx context.Context, groupID string, offset, count int) ([]model_struct.LocalGroupRequest, error) {
 	if offset == 0 {
 		offset = 1
 	}
 	if count == 0 {
 		count = 20
 	}
-	return g.db.GetAdminGroupApplication(
+	return g.db.GetOwnerOrAdminGroupReqInfo(
 		ctx,
+		groupID,
+		(offset-1)*count,
+		count,
 	)
 }
 func (g *Group) getConversationIDBySessionType(sourceID string, sessionType int) string {

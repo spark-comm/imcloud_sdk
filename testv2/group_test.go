@@ -192,7 +192,7 @@ func Test_GetJoinedGroupList(t *testing.T) {
 
 func Test_GetSpecifiedGroupsInfo(t *testing.T) {
 	info, err := open_im_sdk.UserForSDK.Group().GetSpecifiedGroupsInfo(
-		ctx, []string{"50069143293952"})
+		ctx, []string{"136998765465600"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -226,8 +226,8 @@ func Test_GetGroupApplicationListAsApplicant(t *testing.T) {
 
 func Test_AcceptGroupApplication(t *testing.T) {
 	err := open_im_sdk.UserForSDK.Group().AcceptGroupApplication(ctx,
-		"50913016287232",
-		"1463426528082",
+		"391667123228672",
+		"55122326609465344",
 		"test accept")
 	if err != nil {
 		t.Fatal(err)
@@ -306,9 +306,9 @@ func Test_TransferGroupOwner(t *testing.T) {
 func Test_InviteUserToGroup(t *testing.T) {
 	err := open_im_sdk.UserForSDK.Group().InviteUserToGroup(
 		ctx,
-		"120143539605504",
+		"106234346737664",
 		"测试邀请人进群",
-		[]string{"49389272901357568"})
+		[]string{"55122324243877888", "55122324344541184", "55122324461981696", "55122324579422208"})
 	if err != nil {
 		t.Fatal(err)
 	}

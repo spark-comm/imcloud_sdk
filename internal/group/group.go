@@ -141,6 +141,7 @@ func (g *Group) initSyncer() {
 				if server.GroupUserName != "" {
 					nickname = server.GroupUserName
 				}
+				// 更新本地消息
 				_ = common.TriggerCmdUpdateMessage(ctx, common.UpdateMessageNode{Action: constant.UpdateMsgFaceUrlAndNickName, Args: common.UpdateMessageInfo{UserID: server.UserID, FaceURL: server.FaceURL,
 					Nickname: nickname, GroupID: server.GroupID}}, g.conversationCh)
 			}

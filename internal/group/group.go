@@ -136,9 +136,13 @@ func (g *Group) initSyncer() {
 			g.listener.OnGroupMemberDeleted(utils.StructToJsonString(local))
 		case syncer.Update:
 			g.listener.OnGroupMemberInfoChanged(utils.StructToJsonString(server))
-			if server.Nickname != local.Nickname || server.FaceURL != local.FaceURL {
+			if server.Nickname != local.Nickname || server.FaceURL != local.FaceURL || server.GroupUserName != local.GroupUserName {
+				nickname := server.Nickname
+				if server.GroupUserName != "" {
+					nickname = server.GroupUserName
+				}
 				_ = common.TriggerCmdUpdateMessage(ctx, common.UpdateMessageNode{Action: constant.UpdateMsgFaceUrlAndNickName, Args: common.UpdateMessageInfo{UserID: server.UserID, FaceURL: server.FaceURL,
-					Nickname: server.Nickname, GroupID: server.GroupID}}, g.conversationCh)
+					Nickname: nickname, GroupID: server.GroupID}}, g.conversationCh)
 			}
 		}
 		return nil

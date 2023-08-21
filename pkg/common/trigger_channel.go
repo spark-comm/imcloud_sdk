@@ -151,13 +151,13 @@ func TriggerCmdConnected(ctx context.Context, ch chan Cmd2Value) error {
 }
 
 // TriggerCmdGroupMemberChange 更新群成员信息
-func TriggerCmdGroupMemberChange(ctx context.Context, node UpdateGroupMemberInfo, conversationCh chan<- Cmd2Value) error {
+func TriggerCmdGroupMemberChange(ctx context.Context, node UpdateGroupMemberInfo, groupCh chan<- Cmd2Value) error {
 	c2v := Cmd2Value{
 		Cmd:   constant.CmdGroupMemberChange,
 		Value: node,
 		Ctx:   ctx,
 	}
-	return sendCmd(conversationCh, c2v, 100)
+	return sendCmd(groupCh, c2v, 100)
 }
 
 // TriggerCmdAddFriendGenerateSession 新增好友生成会话

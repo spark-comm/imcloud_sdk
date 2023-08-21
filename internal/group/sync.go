@@ -161,6 +161,7 @@ func (g *Group) GetServerSelfGroupApplication(ctx context.Context) ([]*groupv1.G
 	return util.GetPageAll(ctx, constant.GetSendGroupApplicationListRouter, req, fn)
 }
 
+// GetServerGroupMembers 远程获取群成员
 func (g *Group) GetServerGroupMembers(ctx context.Context, groupID string) ([]*groupv1.MembersInfo, error) {
 	req := &group.GetGroupMemberListReq{GroupID: groupID, Pagination: &sdkws.RequestPagination{}}
 	fn := func(resp *groupv1.MemberListForSDKReps) []*groupv1.MembersInfo { return resp.Members }

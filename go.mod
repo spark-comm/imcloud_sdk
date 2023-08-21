@@ -22,14 +22,14 @@ require (
 )
 
 require (
-	golang.org/x/net v0.11.0
+	golang.org/x/net v0.14.0
+	golang.org/x/text v0.12.0
 	gorm.io/driver/sqlite v1.5.2
 )
 
-replace github.com/imCloud => ../imcloud
+replace github.com/imCloud => ../../imcloud
 
 require (
-	github.com/Chain-Zhang/pinyin v0.1.3 // indirect
 	github.com/bwmarrin/snowflake v0.3.0 // indirect
 	github.com/envoyproxy/protoc-gen-validate v1.0.1 // indirect
 	github.com/go-kratos/kratos/v2 v2.6.3 // indirect
@@ -51,14 +51,11 @@ require (
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.8.0 // indirect
 	go.uber.org/zap v1.24.0 // indirect
-	golang.org/x/crypto v0.10.0 // indirect
+	golang.org/x/crypto v0.12.0 // indirect
 	golang.org/x/image v0.7.0 // indirect
-	golang.org/x/mobile v0.0.0-20230531173138-3c911d8e3eda // indirect
-	golang.org/x/mod v0.10.0 // indirect
-	golang.org/x/sync v0.2.0 // indirect
-	golang.org/x/sys v0.9.0 // indirect
-	golang.org/x/text v0.10.0 // indirect
-	golang.org/x/tools v0.8.0 // indirect
+	golang.org/x/mobile v0.0.0-20230818142238-7088062f872d // indirect
+	golang.org/x/sync v0.3.0 // indirect
+	golang.org/x/sys v0.11.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20230626202813-9b080da550b3 // indirect
 	google.golang.org/grpc v1.56.2 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect

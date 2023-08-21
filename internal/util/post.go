@@ -119,7 +119,7 @@ func GetPageAll[A interface {
 	GetPagination() *sdkws.RequestPagination
 }, B, C any](ctx context.Context, api string, req A, fn func(resp *B) []C) ([]C, error) {
 	if req.GetPagination().ShowNumber <= 0 {
-		req.GetPagination().ShowNumber = 100
+		req.GetPagination().ShowNumber = 50
 	}
 	var res []C
 	for i := int32(0); ; i++ {
@@ -134,5 +134,22 @@ func GetPageAll[A interface {
 			break
 		}
 	}
+	return res, nil
+}
+
+// GetFirstPage 获取第一页数据
+func GetFirstPage[A interface {
+	GetPagination() *sdkws.RequestPagination
+}, B, C any](ctx context.Context, api string, req A, fn func(resp *B) []C) ([]C, error) {
+	if req.GetPagination().ShowNumber <= 0 {
+		req.GetPagination().ShowNumber = 50
+	}
+	var res []C
+	memberResp, err := CallApi[B](ctx, api, req)
+	if err != nil {
+		return nil, err
+	}
+	list := fn(memberResp)
+	res = append(res, list...)
 	return res, nil
 }

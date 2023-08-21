@@ -9,7 +9,7 @@ import (
 	"open_im_sdk/pkg/utils"
 )
 
-func (f *Friend) doNotification(ctx context.Context, msg *sdkws.MsgData, blChan chan bool) error {
+func (f *Friend) doNotification(ctx context.Context, msg *sdkws.MsgData) error {
 	if f.friendListener == nil {
 		return errors.New("f.friendListener == nil")
 	}
@@ -71,7 +71,7 @@ func (f *Friend) doNotification(ctx context.Context, msg *sdkws.MsgData, blChan 
 		if err := utils.UnmarshalNotificationElem(msg.Content, &tips); err != nil {
 			return err
 		}
-		blChan <- true
+		//blChan <- true
 		return f.syncFriendByNotification(ctx, f.loginUserID, tips.UserID)
 	case constant.BlackAddedNotification:
 		//被好友拉黑

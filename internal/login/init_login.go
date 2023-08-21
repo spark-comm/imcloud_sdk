@@ -306,6 +306,8 @@ func (u *LoginMgr) login(ctx context.Context, userID, token string) error {
 		log.ZDebug(ctx, "SetBatchMsgListener", "batchMsgListener", u.batchMsgListener)
 	}
 	go common.DoListener(u.conversation, u.ctx)
+	//监听通道
+	go common.DoListener(u.group, u.ctx)
 	go func() {
 		memberGroupIDs, err := u.db.GetGroupMemberAllGroupIDs(ctx)
 		if err != nil {

@@ -293,6 +293,7 @@ func (g *Group) SyncJoinedGroupMember(ctx context.Context) error {
 	return nil
 }
 
+// handelGroupMemberInfo 处理群成员信息变更
 func (g *Group) handelGroupMemberInfo(c2v common.Cmd2Value) {
 	info := c2v.Value.(common.UpdateGroupMemberInfo)
 	agrs := make(map[string]interface{})

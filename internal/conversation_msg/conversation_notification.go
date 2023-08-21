@@ -437,16 +437,11 @@ func (c *Conversation) doNotificationNew(c2v common.Cmd2Value) {
 				//已读回执
 				c.doReadDrawing(ctx, v)
 			}
-			bChan := make(chan bool, 1)
-			go common.ListenerUserInfoChange(ctx, bChan, func() {
-				c.group.SyncJoinedGroupMember(ctx)
-			})
-
 			switch v.SessionType {
 			case constant.SingleChatType:
 				//单聊
 				if v.ContentType > constant.FriendNotificationBegin && v.ContentType < constant.FriendNotificationEnd {
-					c.friend.DoNotification(ctx, v, bChan)
+					c.friend.DoNotification(ctx, v)
 				} else if v.ContentType > constant.UserNotificationBegin && v.ContentType < constant.UserNotificationEnd {
 					c.user.DoNotification(ctx, v)
 				} else if utils2.Contain(v.ContentType, constant.GroupApplicationRejectedNotification, constant.GroupApplicationAcceptedNotification, constant.JoinGroupApplicationNotification) {

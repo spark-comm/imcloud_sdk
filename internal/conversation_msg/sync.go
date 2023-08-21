@@ -110,7 +110,7 @@ func (c *Conversation) SyncConversationHashReadSeqs(ctx context.Context) error {
 	}
 	log.ZDebug(ctx, "update conversations", "conversations", conversations)
 	// 会话注册
-	//common.TriggerCmdUpdateConversation(ctx, common.UpdateConNode{Action: constant.ConChange, Args: conversationIDs}, c.GetCh())
-	//common.TriggerCmdUpdateConversation(ctx, common.UpdateConNode{Action: constant.TotalUnreadMessageChanged, Args: conversationIDs}, c.GetCh())
+	common.TriggerCmdUpdateConversation(ctx, common.UpdateConNode{Action: constant.ConChange, Args: conversationIDs}, c.GetCh())
+	common.TriggerCmdUpdateConversation(ctx, common.UpdateConNode{Action: constant.TotalUnreadMessageChanged, Args: conversationIDs}, c.GetCh())
 	return nil
 }

@@ -908,7 +908,7 @@ func (c *Conversation) TypingStatusUpdate(ctx context.Context, recvID, msgTip st
 // 	_ = common.TriggerCmdUpdateConversation(ctx, common.UpdateConNode{ConID: conversationID, Action: constant.ConChange, Args: []string{conversationID}}, c.GetCh())
 // }
 
-// read draw
+// MarkConversationMessageAsRead  标记消息已读
 func (c *Conversation) MarkConversationMessageAsRead(ctx context.Context, conversationID string) error {
 	return c.markConversationMessageAsRead(ctx, conversationID)
 }

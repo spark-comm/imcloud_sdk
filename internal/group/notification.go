@@ -200,25 +200,10 @@ func (g *Group) doNotification(ctx context.Context, msg *sdkws.MsgData) error {
 		if err := utils.UnmarshalNotificationElem(msg.Content, &detail); err != nil {
 			return err
 		}
-		if detail.QuitUser.UserID == g.loginUserID { //退群为自己  删除操作
-			//if err := g.db.DeleteGroupAllMembers(ctx, detail.Group.GroupID); err != nil {
-			//	return err
-			//}
-			//return g.SyncJoinedGroup(ctx)
-			//group, err := g.db.GetGroupInfoByGroupID(ctx, detail.Group.GroupID)
-			//if err != nil {
-			//	return err
-			//}
-			//group.MemberCount = 0
-			//data, err := json.Marshal(group)
-			//if err != nil {
-			//	return err
-			//}
-			//if err := g.db.DeleteGroup(ctx, detail.Group.GroupID); err != nil {
-			//	return err
-			//}
-			//g.listener.OnGroupInfoChanged(string(data))
-			//return nil
+		if detail.QuitUser.UserID == g.loginUserID {
+			//退群为自己  删除操作
+			//删除会话
+			g.DelGroupConversation(ctx, detail.Group.GroupID)
 			members, err := g.db.GetGroupMemberListSplit(ctx, detail.Group.GroupID, 0, 0, 999999)
 			if err != nil {
 				return err
@@ -233,13 +218,6 @@ func (g *Group) doNotification(ctx context.Context, msg *sdkws.MsgData) error {
 				}
 				g.listener.OnGroupMemberDeleted(string(data))
 			}
-			//for _, member := range util.Batch(ServerGroupMemberToLocalGroupMember, detail.KickedUserList) {
-			//	data, err := json.Marshal(member)
-			//	if err != nil {
-			//		return err
-			//	}
-			//	g.listener.OnGroupMemberDeleted(string(data))
-			//}
 			group, err := g.db.GetGroupInfoByGroupID(ctx, detail.Group.GroupID)
 			if err != nil {
 				return err

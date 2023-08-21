@@ -120,19 +120,7 @@ func (g *Group) QuitGroup(ctx context.Context, groupID string) error {
 		return err
 	}
 	//删除会话
-	conversationID := g.getConversationIDBySessionType(
-		groupID,
-		constant.SuperGroupChatType,
-	)
-	err := common.TriggerCmdDeleteConversationAndMessage(
-		ctx,
-		groupID,
-		conversationID,
-		constant.SuperGroupChatType,
-		g.conversationCh)
-	if err != nil {
-		log.ZDebug(ctx, "QuitGroup  after delete conversation err", err)
-	}
+	//g.DelGroupConversation(ctx, groupID)
 	if err := g.db.DeleteGroupAllMembers(ctx, groupID); err != nil {
 		return err
 	}
@@ -159,19 +147,7 @@ func (g *Group) DismissGroup(ctx context.Context, groupID string) error {
 		return err
 	}
 	//删除会话
-	conversationID := g.getConversationIDBySessionType(
-		groupID,
-		constant.SuperGroupChatType,
-	)
-	err := common.TriggerCmdDeleteConversationAndMessage(
-		ctx,
-		groupID,
-		conversationID,
-		constant.SuperGroupChatType,
-		g.conversationCh)
-	if err != nil {
-		log.ZDebug(ctx, "delete conversation after delete conversation and message")
-	}
+	g.DelGroupConversation(ctx, groupID)
 	g.syncDelGroup(ctx, groupID)
 	return nil
 }
@@ -701,4 +677,22 @@ func (g *Group) SearchGroupInfo(ctx context.Context, keyWord string, pageSize, p
 		return resp, err
 	}
 	return resp, nil
+}
+
+// DelGroupConversation 删除群会话
+func (g *Group) DelGroupConversation(ctx context.Context, groupID string) {
+	//删除会话
+	conversationID := g.getConversationIDBySessionType(
+		groupID,
+		constant.SuperGroupChatType,
+	)
+	err := common.TriggerCmdDeleteConversationAndMessage(
+		ctx,
+		groupID,
+		conversationID,
+		constant.SuperGroupChatType,
+		g.conversationCh)
+	if err != nil {
+		log.ZDebug(ctx, "QuitGroup  after delete conversation err", err)
+	}
 }

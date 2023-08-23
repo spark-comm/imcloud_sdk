@@ -125,11 +125,11 @@ func TriggerCmdPushMsg(ctx context.Context, msg *sdkws.PushMessages, ch chan Cmd
 }
 
 // seq trigger
-func TriggerCmdMaxSeq(ctx context.Context, seq *sdk_struct.CmdMaxSeqToMsgSync, ch chan Cmd2Value) error {
+func TriggerCmdPushSeqCh(ctx context.Context, seq *sdkws.GetMaxSeqResp, ch chan Cmd2Value) error {
 	if ch == nil {
 		return utils.Wrap(errors.New("ch == nil"), "")
 	}
-	c2v := Cmd2Value{Cmd: constant.CmdMaxSeq, Value: seq, Ctx: ctx}
+	c2v := Cmd2Value{Cmd: constant.CmdPushSeq, Value: seq, Ctx: ctx}
 	return sendCmd(ch, c2v, 100)
 }
 

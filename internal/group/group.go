@@ -232,6 +232,7 @@ func (g *Group) GetGroupOwnerIDAndAdminIDList(ctx context.Context, groupID strin
 	return localGroup.OwnerUserID, adminIDList, nil
 }
 
+// GetGroupInfoFromLocal2Svr 从服务端获取群信息
 func (g *Group) GetGroupInfoFromLocal2Svr(ctx context.Context, groupID string) (*model_struct.LocalGroup, error) {
 	localGroup, err := g.db.GetGroupInfoByGroupID(ctx, groupID)
 	if err == nil {
@@ -247,6 +248,7 @@ func (g *Group) GetGroupInfoFromLocal2Svr(ctx context.Context, groupID string) (
 	return ServerGroupToLocalGroup(svrGroup[0]), nil
 }
 
+// getGroupsInfoFromSvr 从服务端获取群数据
 func (g *Group) getGroupsInfoFromSvr(ctx context.Context, groupIDs []string) ([]*groupv1.GroupInfo, error) {
 	resp, err := util.CallApi[groupv1.GetGroupInfoResponse](ctx, constant.GetGroupsInfoRouter, &group.GetGroupsInfoReq{GroupIDs: groupIDs})
 	if err != nil {

@@ -26,7 +26,6 @@ import (
 	"open_im_sdk/pkg/constant"
 	"open_im_sdk/pkg/sdkerrs"
 	"open_im_sdk/pkg/utils"
-	"open_im_sdk/sdk_struct"
 	"runtime"
 	"strconv"
 	"strings"
@@ -81,18 +80,18 @@ type LongConnMgr struct {
 	conn     LongConn
 	listener open_im_sdk_callback.OnConnListener
 	// Buffered channel of outbound messages.
-	send               chan Message
-	pushMsgAndMaxSeqCh chan common.Cmd2Value
-	conversationCh     chan common.Cmd2Value
-	loginMgrCh         chan common.Cmd2Value
-	heartbeatCh        chan common.Cmd2Value
-	closedErr          error
-	ctx                context.Context
-	IsCompression      bool
-	Syncer             *WsRespAsyn
-	encoder            Encoder
-	compressor         Compressor
-	IsBackground       bool
+	send           chan Message
+	pushSeqCh      chan common.Cmd2Value
+	conversationCh chan common.Cmd2Value
+	loginMgrCh     chan common.Cmd2Value
+	heartbeatCh    chan common.Cmd2Value
+	closedErr      error
+	ctx            context.Context
+	IsCompression  bool
+	Syncer         *WsRespAsyn
+	encoder        Encoder
+	compressor     Compressor
+	IsBackground   bool
 	// write conn lock
 	connWrite *sync.Mutex
 }
@@ -102,8 +101,8 @@ type Message struct {
 	Resp    chan *GeneralWsResp
 }
 
-func NewLongConnMgr(ctx context.Context, listener open_im_sdk_callback.OnConnListener, heartbeatCmdCh, pushMsgAndMaxSeqCh, loginMgrCh chan common.Cmd2Value) *LongConnMgr {
-	l := &LongConnMgr{listener: listener, pushMsgAndMaxSeqCh: pushMsgAndMaxSeqCh,
+func NewLongConnMgr(ctx context.Context, listener open_im_sdk_callback.OnConnListener, heartbeatCmdCh, pushSeqCh, loginMgrCh chan common.Cmd2Value) *LongConnMgr {
+	l := &LongConnMgr{listener: listener, pushSeqCh: pushSeqCh,
 		loginMgrCh: loginMgrCh, IsCompression: true,
 		Syncer: NewWsRespAsyn(), encoder: NewGobEncoder(), compressor: NewGzipCompressor()}
 	l.send = make(chan Message, 10)
@@ -292,6 +291,8 @@ func getGoroutineID() int64 {
 	}
 	return id
 }
+
+// sendPingToServer 发送ping到服务端
 func (c *LongConnMgr) sendPingToServer(ctx context.Context) {
 	if c.conn == nil {
 		return
@@ -327,10 +328,10 @@ func (c *LongConnMgr) sendPingToServer(ctx context.Context) {
 		if err != nil {
 			log.ZError(sCtx, "proto.Unmarshal", err)
 		}
-		var cmd sdk_struct.CmdMaxSeqToMsgSync
-		cmd.ConversationMaxSeqOnSvr = wsSeqResp.MaxSeqs
+		//var cmd sdk_struct.CmdMaxSeqToMsgSync
+		//cmd.ConversationMaxSeqOnSvr = wsSeqResp.MaxSeqs
 
-		err := common.TriggerCmdMaxSeq(sCtx, &cmd, c.pushMsgAndMaxSeqCh)
+		err := common.TriggerCmdPushSeqCh(sCtx, &wsSeqResp, c.pushSeqCh)
 		if err != nil {
 			log.ZError(sCtx, "TriggerCmdMaxSeq failed", err)
 		}
@@ -521,7 +522,7 @@ func (c *LongConnMgr) reConn(ctx context.Context, num *int) error {
 	c.w.Unlock()
 	*num++
 	log.ZInfo(c.ctx, "long conn establish success", "localAddr", c.conn.LocalAddr(), "connNum", *num)
-	_ = common.TriggerCmdConnected(ctx, c.pushMsgAndMaxSeqCh)
+	_ = common.TriggerCmdConnected(ctx, c.pushSeqCh)
 	return nil
 }
 
@@ -531,7 +532,7 @@ func (c *LongConnMgr) doPushMsg(ctx context.Context, wsResp GeneralWsResp) error
 	if err != nil {
 		return err
 	}
-	return common.TriggerCmdPushMsg(ctx, &msg, c.pushMsgAndMaxSeqCh)
+	return common.TriggerCmdPushMsg(ctx, &msg, c.pushSeqCh)
 }
 func (c *LongConnMgr) Close(ctx context.Context) {
 	if c.GetConnectionStatus() == Connected {

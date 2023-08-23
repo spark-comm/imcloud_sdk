@@ -41,7 +41,7 @@ const (
 
 	CmdGroupMemberChange = "021"
 
-	CmdMaxSeq       = "maxSeq"
+	CmdPushSeq      = "maxSeq"
 	CmdPushMsg      = "pushMsg"
 	CmdConnSuccesss = "connSuccess"
 	CmdWakeUp       = "wakeUp"

@@ -139,12 +139,14 @@ func (g *Group) SyncAdminGroupApplication(ctx context.Context) error {
 	return g.groupAdminRequestSyncer.Sync(ctx, util.Batch(ServerGroupRequestToLocalAdminGroupRequest, requests), localData, nil)
 }
 
+// GetServerJoinGroup  获取服务端加入的群
 func (g *Group) GetServerJoinGroup(ctx context.Context) ([]*groupv1.GroupInfo, error) {
 	fn := func(resp *groupv1.UserJoinGroupInfoList) []*groupv1.GroupInfo { return resp.Groups }
 	req := &group.GetJoinedGroupListReq{FromUserID: g.loginUserID, Pagination: &sdkws.RequestPagination{}}
 	return util.GetPageAll(ctx, constant.GetJoinedGroupListRouter, req, fn)
 }
 
+// GetServerAdminGroupApplicationList 获取服务端加群申请
 func (g *Group) GetServerAdminGroupApplicationList(ctx context.Context) ([]*groupv1.GroupRequestInfo, error) {
 	fn := func(resp *groupv1.GetRecvGroupApplicationListResp) []*groupv1.GroupRequestInfo {
 		return resp.GroupRequests
@@ -153,6 +155,7 @@ func (g *Group) GetServerAdminGroupApplicationList(ctx context.Context) ([]*grou
 	return util.GetPageAll(ctx, constant.GetRecvGroupApplicationListRouter, req, fn)
 }
 
+// GetServerSelfGroupApplication 获取服务端的自己的加群请求
 func (g *Group) GetServerSelfGroupApplication(ctx context.Context) ([]*groupv1.GroupRequestInfo, error) {
 	fn := func(resp *groupv1.GetRecvGroupApplicationListResp) []*groupv1.GroupRequestInfo {
 		return resp.GroupRequests
@@ -181,12 +184,12 @@ func (g *Group) syncGroupStatus(ctx context.Context, groupID string) error {
 
 // syncJoinedGroupByID 根据id同步群信息
 func (g *Group) syncJoinedGroupByID(ctx context.Context, id ...string) error {
-	//获取登录用户加入的群组列表（远程数据）
+	//根据id获取群（远程数据）
 	groups, err := g.getGroupsInfoFromSvr(ctx, id)
 	if err != nil {
 		return err
 	}
-	//本地所有群组数据
+	//根据id获取本地群数据
 	localData, err := g.db.GetGroupInfoByGroupIDs(ctx, id...)
 	if err != nil {
 		return err
@@ -197,6 +200,14 @@ func (g *Group) syncJoinedGroupByID(ctx context.Context, id ...string) error {
 	return nil
 }
 
+// syncGroupAndMember 同步群和群成员
+func (g *Group) syncGroupAndMember(ctx context.Context, groupId string, memberId ...string) {
+	//同步群数据
+	if err := g.syncJoinedGroupByID(ctx, groupId); err != nil {
+		log.ZDebug(ctx, "syncGroupAndMember->syncJoinedGroupByID err", err)
+	}
+	//同步群成员数据
+}
 func (g *Group) syncUserReqGroupInfo(ctx context.Context, fromUserID, groupID string) error {
 	//获取用户加入单个群的申请信息
 	req := groupv1.UserJoinGroupRequestReq{

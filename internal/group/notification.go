@@ -79,9 +79,6 @@ func (g *Group) doNotification(ctx context.Context, msg *sdkws.MsgData) error {
 		if detail.OpUser.UserID == g.loginUserID || detail.ReceiverAs == 1 {
 			return g.SyncAdminGroupApplication(ctx)
 		}
-		//if detail.ReceiverAs == 1 {
-		//	return g.SyncAdminGroupApplication(ctx)
-		//}
 		g.SyncGroupMember(ctx, detail.Group.GroupID)
 		return g.SyncJoinedGroup(ctx)
 		//群请求拒绝通知
@@ -246,10 +243,18 @@ func (g *Group) doNotification(ctx context.Context, msg *sdkws.MsgData) error {
 		return g.SyncGroupMember(ctx, detail.Group.GroupID)
 		//群禁言通知
 	case constant.GroupMutedNotification: // 1514
-		return g.SyncJoinedGroup(ctx)
+		var detail sdkws.GroupMutedTips
+		if err := utils.UnmarshalNotificationElem(msg.Content, &detail); err != nil {
+			return err
+		}
+		return g.syncJoinedGroupByID(ctx, detail.Group.GroupID)
 		//群禁言解除通知
 	case constant.GroupCancelMutedNotification: // 1515
-		return g.SyncJoinedGroup(ctx)
+		var detail sdkws.GroupCancelMutedTips
+		if err := utils.UnmarshalNotificationElem(msg.Content, &detail); err != nil {
+			return err
+		}
+		return g.syncJoinedGroupByID(ctx, detail.Group.GroupID)
 		//设置群成员信息
 	case constant.GroupMemberInfoSetNotification: // 1516
 		var detail sdkws.GroupMemberInfoSetTips

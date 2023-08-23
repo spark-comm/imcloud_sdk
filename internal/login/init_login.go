@@ -87,12 +87,12 @@ type LoginMgr struct {
 	signalingListenerFroService open_im_sdk_callback.OnSignalingListener
 	businessListener            open_im_sdk_callback.OnCustomBusinessListener
 
-	conversationCh     chan common.Cmd2Value
-	cmdWsCh            chan common.Cmd2Value
-	heartbeatCmdCh     chan common.Cmd2Value
-	pushMsgAndMaxSeqCh chan common.Cmd2Value
-	loginMgrCh         chan common.Cmd2Value
-	groupCh            chan common.Cmd2Value
+	conversationCh chan common.Cmd2Value
+	cmdWsCh        chan common.Cmd2Value
+	heartbeatCmdCh chan common.Cmd2Value
+	pushSeqCh      chan common.Cmd2Value
+	loginMgrCh     chan common.Cmd2Value
+	groupCh        chan common.Cmd2Value
 
 	ctx       context.Context
 	cancel    context.CancelFunc
@@ -297,7 +297,7 @@ func (u *LoginMgr) login(ctx context.Context, userID, token string) error {
 
 	u.longConnMgr.Run(ctx)
 	//消息同步
-	u.msgSyncer, _ = interaction.NewMsgSyncer(ctx, u.conversationCh, u.pushMsgAndMaxSeqCh, u.loginUserID, u.longConnMgr, u.db, 0)
+	u.msgSyncer, _ = interaction.NewMsgSyncer(ctx, u.conversationCh, u.pushSeqCh, u.loginUserID, u.longConnMgr, u.db, 0)
 	//会话同步
 	u.conversation = conv.NewConversation(ctx, u.longConnMgr, u.db, u.conversationCh, u.friend, u.group, u.user, u.conversationListener, u.advancedMsgListener, u.business, u.cache, u.full, u.file)
 	u.conversation.SetLoginTime()
@@ -361,11 +361,11 @@ func (u *LoginMgr) initResources() {
 	u.ctx, u.cancel = context.WithCancel(ctx)
 	u.conversationCh = make(chan common.Cmd2Value, 1000)
 	u.heartbeatCmdCh = make(chan common.Cmd2Value, 10)
-	u.pushMsgAndMaxSeqCh = make(chan common.Cmd2Value, 1000)
+	u.pushSeqCh = make(chan common.Cmd2Value, 1000)
 	u.loginMgrCh = make(chan common.Cmd2Value)
 	u.groupCh = make(chan common.Cmd2Value)
 	u.setLoginStatus(Logout)
-	u.longConnMgr = interaction.NewLongConnMgr(u.ctx, u.connListener, u.heartbeatCmdCh, u.pushMsgAndMaxSeqCh, u.loginMgrCh)
+	u.longConnMgr = interaction.NewLongConnMgr(u.ctx, u.connListener, u.heartbeatCmdCh, u.pushSeqCh, u.loginMgrCh)
 }
 
 func (u *LoginMgr) logout(ctx context.Context) error {

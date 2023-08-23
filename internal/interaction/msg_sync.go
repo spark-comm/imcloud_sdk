@@ -36,7 +36,7 @@ const (
 type MsgSyncer struct {
 	loginUserID            string                // login user ID
 	longConnMgr            *LongConnMgr          // long connection manager
-	PushMsgAndMaxSeqCh     chan common.Cmd2Value // channel for receiving push messages and the maximum SEQ number
+	PushSeqCh              chan common.Cmd2Value // channel for receiving push messages and the maximum SEQ number
 	conversationCh         chan common.Cmd2Value // storage and session triggering
 	msgSync                chan *sdkws.SeqRange  // channel sync message
 	syncedMaxSeqs          map[string]int64      // map of the maximum synced SEQ numbers for all group IDs
@@ -48,12 +48,12 @@ type MsgSyncer struct {
 }
 
 // NewMsgSyncer creates a new instance of the message synchronizer.
-func NewMsgSyncer(ctx context.Context, conversationCh, PushMsgAndMaxSeqCh chan common.Cmd2Value,
+func NewMsgSyncer(ctx context.Context, conversationCh, PushSeqCh chan common.Cmd2Value,
 	loginUserID string, longConnMgr *LongConnMgr, db db_interface.DataBase, syncTimes int) (*MsgSyncer, error) {
 	m := &MsgSyncer{
 		loginUserID:            loginUserID,
 		longConnMgr:            longConnMgr,
-		PushMsgAndMaxSeqCh:     PushMsgAndMaxSeqCh,
+		PushSeqCh:              PushSeqCh,
 		conversationCh:         conversationCh,
 		ctx:                    ctx,
 		syncedMaxSeqs:          make(map[string]int64),
@@ -103,7 +103,7 @@ func (m *MsgSyncer) loadSeq(ctx context.Context) error {
 func (m *MsgSyncer) DoListener() {
 	for {
 		select {
-		case cmd := <-m.PushMsgAndMaxSeqCh:
+		case cmd := <-m.PushSeqCh:
 			m.handlePushMsgAndEvent(cmd)
 		case seqRange := <-m.msgSync:
 			m.handleSync(seqRange)
@@ -129,16 +129,18 @@ func (m *MsgSyncer) handlePushMsgAndEvent(cmd common.Cmd2Value) {
 	case constant.CmdConnSuccesss:
 		log.ZInfo(cmd.Ctx, "recv long conn mgr connected", "cmd", cmd.Cmd, "value", cmd.Value)
 		m.doConnected(cmd.Ctx)
-	case constant.CmdMaxSeq:
+	case constant.CmdPushSeq:
 		log.ZInfo(cmd.Ctx, "recv max seqs from long conn mgr, start sync msgs", "cmd", cmd.Cmd, "value", cmd.Value)
-		m.compareSeqsAndBatchSync(cmd.Ctx, cmd.Value.(*sdk_struct.CmdMaxSeqToMsgSync).ConversationMaxSeqOnSvr, defaultPullNums)
+		wsSeqResp := cmd.Value.(*sdkws.GetMaxSeqResp)
+		//同步消息
+		m.compareSeqsAndBatchSync(cmd.Ctx, wsSeqResp.MaxSeqs, wsSeqResp.MinSeqs, defaultPullNums)
 	case constant.CmdPushMsg:
 		m.doPushMsg(cmd.Ctx, cmd.Value.(*sdkws.PushMessages))
 	}
 }
 
 // compareSeqsAndBatchSync 批量同步消息
-func (m *MsgSyncer) compareSeqsAndBatchSync(ctx context.Context, maxSeqToSync map[string]int64, pullNums int64) {
+func (m *MsgSyncer) compareSeqsAndBatchSync(ctx context.Context, maxSeqToSync map[string]int64, minSeqToSync map[string]int64, pullNums int64) {
 	needSyncSeqMap := make(map[string][2]int64)
 	for conversationID, maxSeq := range maxSeqToSync {
 		if syncedMaxSeq, ok := m.syncedMaxSeqs[conversationID]; ok {
@@ -146,7 +148,14 @@ func (m *MsgSyncer) compareSeqsAndBatchSync(ctx context.Context, maxSeqToSync ma
 				needSyncSeqMap[conversationID] = [2]int64{syncedMaxSeq, maxSeq}
 			}
 		} else {
-			needSyncSeqMap[conversationID] = [2]int64{0, maxSeq}
+			//使用服务端的最小seq
+			syncedMinSeq := int64(0)
+			if minSeqToSync != nil {
+				if i, ok1 := minSeqToSync[conversationID]; ok1 {
+					syncedMinSeq = i
+				}
+			}
+			needSyncSeqMap[conversationID] = [2]int64{syncedMinSeq, maxSeq}
 		}
 	}
 	_ = m.syncAndTriggerMsgs(m.ctx, needSyncSeqMap, pullNums)
@@ -212,7 +221,8 @@ func (m *MsgSyncer) doConnected(ctx context.Context) {
 	} else {
 		log.ZDebug(m.ctx, "get max seq success", "resp", resp)
 	}
-	m.compareSeqsAndBatchSync(ctx, resp.MaxSeqs, connectPullNums)
+	//根据seq同步消息
+	m.compareSeqsAndBatchSync(ctx, resp.MaxSeqs, resp.MinSeqs, connectPullNums)
 	common.TriggerCmdNotification(m.ctx, sdk_struct.CmdNewMsgComeToConversation{SyncFlag: constant.MsgSyncEnd}, m.conversationCh)
 }
 

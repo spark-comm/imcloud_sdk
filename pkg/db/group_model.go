@@ -53,7 +53,10 @@ func (d *DataBase) GetJoinedGroupListDB(ctx context.Context) ([]*model_struct.Lo
 	defer d.groupMtx.Unlock()
 	var groupList []model_struct.LocalGroup
 	err := d.conn.WithContext(ctx).Find(&groupList).Error
-	var transfer []*model_struct.LocalGroup
+	transfer := make([]*model_struct.LocalGroup, 0)
+	if err == gorm.ErrRecordNotFound {
+		return transfer, nil
+	}
 	for _, v := range groupList {
 		v1 := v
 		transfer = append(transfer, &v1)

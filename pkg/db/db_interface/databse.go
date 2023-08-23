@@ -67,6 +67,7 @@ type GroupDatabase interface {
 	InsertGroupMember(ctx context.Context, groupMember *model_struct.LocalGroupMember) error
 	BatchInsertGroupMember(ctx context.Context, groupMemberList []*model_struct.LocalGroupMember) error
 	DeleteGroupMember(ctx context.Context, groupID, userID string) error
+	DeleteGroupMembers(ctx context.Context, groupID string, userID ...string) error
 	DeleteGroupAllMembers(ctx context.Context, groupID string) error
 	UpdateGroupMember(ctx context.Context, groupMember *model_struct.LocalGroupMember) error
 	UpdateGroupMemberInfo(ctx context.Context, userID string, args map[string]interface{}) error

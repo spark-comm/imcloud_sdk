@@ -33,23 +33,23 @@ type onListenerForService struct {
 }
 
 func (o *onListenerForService) OnGroupApplicationAdded(groupApplication string) {
-	log.ZInfo(o.ctx, "OnGroupApplicationAdded", "groupApplication", groupApplication)
+	log.ZDebug(o.ctx, "OnGroupApplicationAdded", "groupApplication", groupApplication)
 }
 
 func (o *onListenerForService) OnGroupApplicationAccepted(groupApplication string) {
-	log.ZInfo(o.ctx, "OnGroupApplicationAccepted", "groupApplication", groupApplication)
+	log.ZDebug(o.ctx, "OnGroupApplicationAccepted", "groupApplication", groupApplication)
 }
 
 func (o *onListenerForService) OnFriendApplicationAdded(friendApplication string) {
-	log.ZInfo(o.ctx, "OnFriendApplicationAdded", "friendApplication", friendApplication)
+	log.ZDebug(o.ctx, "OnFriendApplicationAdded", "friendApplication", friendApplication)
 }
 
 func (o *onListenerForService) OnFriendApplicationAccepted(groupApplication string) {
-	log.ZInfo(o.ctx, "OnFriendApplicationAccepted", "groupApplication", groupApplication)
+	log.ZDebug(o.ctx, "OnFriendApplicationAccepted", "groupApplication", groupApplication)
 }
 
 func (o *onListenerForService) OnRecvNewMessage(message string) {
-	log.ZInfo(o.ctx, "OnRecvNewMessage", "message", message)
+	log.ZDebug(o.ctx, "OnRecvNewMessage", "message", message)
 }
 
 type onConversationListener struct {
@@ -58,36 +58,36 @@ type onConversationListener struct {
 
 func (o *onConversationListener) OnDeleteConversation(conversationList string) {
 	//TODO implement me
-	log.ZInfo(o.ctx, "OnSyncServerProgress")
+	log.ZDebug(o.ctx, "OnSyncServerProgress")
 }
 
 func (o *onConversationListener) OnSyncServerProgress(progress int) {
 	//TODO implement me
-	log.ZInfo(o.ctx, "OnSyncServerProgress", progress)
+	log.ZDebug(o.ctx, "OnSyncServerProgress", progress)
 }
 
 func (o *onConversationListener) OnSyncServerStart() {
-	log.ZInfo(o.ctx, "OnSyncServerStart")
+	log.ZDebug(o.ctx, "OnSyncServerStart")
 }
 
 func (o *onConversationListener) OnSyncServerFinish() {
-	log.ZInfo(o.ctx, "OnSyncServerFinish")
+	log.ZDebug(o.ctx, "OnSyncServerFinish")
 }
 
 func (o *onConversationListener) OnSyncServerFailed() {
-	log.ZInfo(o.ctx, "OnSyncServerFailed")
+	log.ZDebug(o.ctx, "OnSyncServerFailed")
 }
 
 func (o *onConversationListener) OnNewConversation(conversationList string) {
-	log.ZInfo(o.ctx, "OnNewConversation", "conversationList", conversationList)
+	log.ZDebug(o.ctx, "OnNewConversation", "conversationList", conversationList)
 }
 
 func (o *onConversationListener) OnConversationChanged(conversationList string) {
-	log.ZInfo(o.ctx, "OnConversationChanged", "conversationList", conversationList)
+	log.ZDebug(o.ctx, "OnConversationChanged", "conversationList", conversationList)
 }
 
 func (o *onConversationListener) OnTotalUnreadMessageCountChanged(totalUnreadCount int32) {
-	log.ZInfo(o.ctx, "OnTotalUnreadMessageCountChanged", "totalUnreadCount", totalUnreadCount)
+	log.ZDebug(o.ctx, "OnTotalUnreadMessageCountChanged", "totalUnreadCount", totalUnreadCount)
 }
 
 type onGroupListener struct {
@@ -95,47 +95,47 @@ type onGroupListener struct {
 }
 
 func (o *onGroupListener) OnGroupDismissed(groupInfo string) {
-	log.ZInfo(o.ctx, "OnGroupDismissed", "groupInfo", groupInfo)
+	log.ZDebug(o.ctx, "OnGroupDismissed", "groupInfo", groupInfo)
 }
 
 func (o *onGroupListener) OnJoinedGroupAdded(groupInfo string) {
-	log.ZInfo(o.ctx, "OnJoinedGroupAdded", "groupInfo", groupInfo)
+	log.ZDebug(o.ctx, "OnJoinedGroupAdded", "groupInfo", groupInfo)
 }
 
 func (o *onGroupListener) OnJoinedGroupDeleted(groupInfo string) {
-	log.ZInfo(o.ctx, "OnJoinedGroupDeleted", "groupInfo", groupInfo)
+	log.ZDebug(o.ctx, "OnJoinedGroupDeleted", "groupInfo", groupInfo)
 }
 
 func (o *onGroupListener) OnGroupMemberAdded(groupMemberInfo string) {
-	log.ZInfo(o.ctx, "OnGroupMemberAdded", "groupMemberInfo", groupMemberInfo)
+	log.ZDebug(o.ctx, "OnGroupMemberAdded", "groupMemberInfo", groupMemberInfo)
 }
 
 func (o *onGroupListener) OnGroupMemberDeleted(groupMemberInfo string) {
-	log.ZInfo(o.ctx, "OnGroupMemberDeleted", "groupMemberInfo", groupMemberInfo)
+	log.ZDebug(o.ctx, "OnGroupMemberDeleted", "groupMemberInfo", groupMemberInfo)
 }
 
 func (o *onGroupListener) OnGroupApplicationAdded(groupApplication string) {
-	log.ZInfo(o.ctx, "OnGroupApplicationAdded", "groupApplication", groupApplication)
+	log.ZDebug(o.ctx, "OnGroupApplicationAdded", "groupApplication", groupApplication)
 }
 
 func (o *onGroupListener) OnGroupApplicationDeleted(groupApplication string) {
-	log.ZInfo(o.ctx, "OnGroupApplicationDeleted", "groupApplication", groupApplication)
+	log.ZDebug(o.ctx, "OnGroupApplicationDeleted", "groupApplication", groupApplication)
 }
 
 func (o *onGroupListener) OnGroupInfoChanged(groupInfo string) {
-	log.ZInfo(o.ctx, "OnGroupInfoChanged", "groupInfo", groupInfo)
+	log.ZDebug(o.ctx, "OnGroupInfoChanged", "groupInfo", groupInfo)
 }
 
 func (o *onGroupListener) OnGroupMemberInfoChanged(groupMemberInfo string) {
-	log.ZInfo(o.ctx, "OnGroupMemberInfoChanged", "groupMemberInfo", groupMemberInfo)
+	log.ZDebug(o.ctx, "OnGroupMemberInfoChanged", "groupMemberInfo", groupMemberInfo)
 }
 
 func (o *onGroupListener) OnGroupApplicationAccepted(groupApplication string) {
-	log.ZInfo(o.ctx, "OnGroupApplicationAccepted", "groupApplication", groupApplication)
+	log.ZDebug(o.ctx, "OnGroupApplicationAccepted", "groupApplication", groupApplication)
 }
 
 func (o *onGroupListener) OnGroupApplicationRejected(groupApplication string) {
-	log.ZInfo(o.ctx, "OnGroupApplicationRejected", "groupApplication", groupApplication)
+	log.ZDebug(o.ctx, "OnGroupApplicationRejected", "groupApplication", groupApplication)
 }
 
 type onAdvancedMsgListener struct {
@@ -148,51 +148,51 @@ func (o *onAdvancedMsgListener) OnRecvOfflineNewMessage(message string) {
 }
 
 func (o *onAdvancedMsgListener) OnMsgDeleted(message string) {
-	log.ZInfo(o.ctx, "OnMsgDeleted", "message", message)
+	log.ZDebug(o.ctx, "OnMsgDeleted", "message", message)
 }
 
 //funcation (o *onAdvancedMsgListener) OnMsgDeleted(messageList string) {
-//	log.ZInfo(o.ctx, "OnRecvOfflineNewMessages", "messageList", messageList)
+//	log.ZDebug(o.ctx, "OnRecvOfflineNewMessages", "messageList", messageList)
 //}
 //
 //funcation (o *onAdvancedMsgListener) OnMsgDeleted(message string) {
-//	log.ZInfo(o.ctx, "OnMsgDeleted", "message", message)
+//	log.ZDebug(o.ctx, "OnMsgDeleted", "message", message)
 //}
 
 func (o *onAdvancedMsgListener) OnRecvOfflineNewMessages(messageList string) {
-	log.ZInfo(o.ctx, "OnRecvOfflineNewMessages", "messageList", messageList)
+	log.ZDebug(o.ctx, "OnRecvOfflineNewMessages", "messageList", messageList)
 }
 
 func (o *onAdvancedMsgListener) OnRecvNewMessage(message string) {
-	log.ZInfo(o.ctx, "OnRecvNewMessage", "message", message)
+	log.ZDebug(o.ctx, "OnRecvNewMessage", "message", message)
 }
 
 func (o *onAdvancedMsgListener) OnRecvC2CReadReceipt(msgReceiptList string) {
-	log.ZInfo(o.ctx, "OnRecvC2CReadReceipt", "msgReceiptList", msgReceiptList)
+	log.ZDebug(o.ctx, "OnRecvC2CReadReceipt", "msgReceiptList", msgReceiptList)
 }
 
 func (o *onAdvancedMsgListener) OnRecvGroupReadReceipt(groupMsgReceiptList string) {
-	log.ZInfo(o.ctx, "OnRecvGroupReadReceipt", "groupMsgReceiptList", groupMsgReceiptList)
+	log.ZDebug(o.ctx, "OnRecvGroupReadReceipt", "groupMsgReceiptList", groupMsgReceiptList)
 }
 
 func (o *onAdvancedMsgListener) OnRecvMessageRevoked(msgID string) {
-	log.ZInfo(o.ctx, "OnRecvMessageRevoked", "msgID", msgID)
+	log.ZDebug(o.ctx, "OnRecvMessageRevoked", "msgID", msgID)
 }
 
 func (o *onAdvancedMsgListener) OnNewRecvMessageRevoked(messageRevoked string) {
-	log.ZInfo(o.ctx, "OnNewRecvMessageRevoked", "messageRevoked", messageRevoked)
+	log.ZDebug(o.ctx, "OnNewRecvMessageRevoked", "messageRevoked", messageRevoked)
 }
 
 func (o *onAdvancedMsgListener) OnRecvMessageExtensionsChanged(msgID string, reactionExtensionList string) {
-	log.ZInfo(o.ctx, "OnRecvMessageExtensionsChanged", "msgID", msgID, "reactionExtensionList", reactionExtensionList)
+	log.ZDebug(o.ctx, "OnRecvMessageExtensionsChanged", "msgID", msgID, "reactionExtensionList", reactionExtensionList)
 }
 
 func (o *onAdvancedMsgListener) OnRecvMessageExtensionsDeleted(msgID string, reactionExtensionKeyList string) {
-	log.ZInfo(o.ctx, "OnRecvMessageExtensionsDeleted", "msgID", msgID, "reactionExtensionKeyList", reactionExtensionKeyList)
+	log.ZDebug(o.ctx, "OnRecvMessageExtensionsDeleted", "msgID", msgID, "reactionExtensionKeyList", reactionExtensionKeyList)
 }
 
 func (o *onAdvancedMsgListener) OnRecvMessageExtensionsAdded(msgID string, reactionExtensionList string) {
-	log.ZInfo(o.ctx, "OnRecvMessageExtensionsAdded", "msgID", msgID, "reactionExtensionList", reactionExtensionList)
+	log.ZDebug(o.ctx, "OnRecvMessageExtensionsAdded", "msgID", msgID, "reactionExtensionList", reactionExtensionList)
 }
 
 type onFriendListener struct {

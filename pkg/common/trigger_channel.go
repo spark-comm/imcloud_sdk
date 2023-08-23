@@ -160,6 +160,25 @@ func TriggerCmdGroupMemberChange(ctx context.Context, node UpdateGroupMemberInfo
 	return sendCmd(groupCh, c2v, 100)
 }
 
+// TriggerCmdJoinGroup 同步群信息
+func TriggerCmdJoinGroup(ctx context.Context, groupCh chan<- Cmd2Value) error {
+	c2v := Cmd2Value{
+		Cmd: constant.CmdSyncGroup,
+		Ctx: ctx,
+	}
+	return sendCmd(groupCh, c2v, 100)
+}
+
+// TriggerCmdSyncGroupMembers 同步群成员信息
+func TriggerCmdSyncGroupMembers(ctx context.Context, groupId string, groupCh chan<- Cmd2Value) error {
+	c2v := Cmd2Value{
+		Cmd:   constant.CmdSyncGroupMembers,
+		Value: groupId,
+		Ctx:   ctx,
+	}
+	return sendCmd(groupCh, c2v, 100)
+}
+
 // TriggerCmdAddFriendGenerateSession 新增好友生成会话
 func TriggerCmdAddFriendGenerateSession(ctx context.Context, node SourceIDAndSessionType, conversationCh chan<- Cmd2Value) error {
 	c2v := Cmd2Value{

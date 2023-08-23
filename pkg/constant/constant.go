@@ -40,6 +40,8 @@ const (
 	CmdInit      = "021"
 
 	CmdGroupMemberChange = "021"
+	CmdSyncGroup         = "022"
+	CmdSyncGroupMembers  = "023"
 
 	CmdPushSeq      = "maxSeq"
 	CmdPushMsg      = "pushMsg"

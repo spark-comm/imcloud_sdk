@@ -251,7 +251,7 @@ func (c *Conversation) doMsgNew(c2v common.Cmd2Value) {
 				// Messages sent by myself  //if  sent through  this terminal
 				m, err := c.db.GetMessage(ctx, conversationID, msg.ClientMsgID)
 				if err == nil {
-					log.ZInfo(ctx, "have message", "msg", msg)
+					log.ZDebug(ctx, "have message", "msg", msg)
 					if m.Seq == 0 {
 						if !isConversationUpdate {
 							msg.Status = constant.MsgStatusFiltered
@@ -261,7 +261,7 @@ func (c *Conversation) doMsgNew(c2v common.Cmd2Value) {
 						exceptionMsg = append(exceptionMsg, c.msgStructToLocalErrChatLog(msg))
 					}
 				} else {
-					log.ZInfo(ctx, "sync message", "msg", msg)
+					log.ZDebug(ctx, "sync message", "msg", msg)
 					lc := model_struct.LocalConversation{
 						ConversationType:  v.SessionType,
 						LatestMsg:         utils.StructToJsonString(msg),
@@ -348,7 +348,7 @@ func (c *Conversation) doMsgNew(c2v common.Cmd2Value) {
 	listToMap(list, m)
 	log.ZDebug(ctx, "listToMap: ", "local conversation", list, "generated c map", conversationSet)
 	c.diff(ctx, m, conversationSet, conversationChangedSet, newConversationSet)
-	log.ZInfo(ctx, "trigger map is :", "newConversations", newConversationSet, "changedConversations", conversationChangedSet)
+	log.ZDebug(ctx, "trigger map is :", "newConversations", newConversationSet, "changedConversations", conversationChangedSet)
 
 	//seq sync message update
 	if err := c.messageController.BatchUpdateMessageList(ctx, updateMsg); err != nil {
@@ -431,9 +431,10 @@ func (c *Conversation) ProcessingGroupMessage(ctx context.Context, v *sdkws.MsgD
 		}
 		lc.ShowName = tips.Group.GroupName
 		lc.FaceURL = tips.Group.FaceURL
-		c.group.SyncJoinedGroup(ctx)
-		c.group.SyncGroupMember(ctx, tips.Group.GroupID)
+		//c.group.SyncJoinedGroup(ctx)
+		//c.group.SyncGroupMember(ctx, tips.Group.GroupID)
 	}
+	//log.ZInfo(ctx, fmt.Sprintf("新增群会话:%v", lc))
 }
 func listToMap(list []*model_struct.LocalConversation, m map[string]*model_struct.LocalConversation) {
 	for _, v := range list {

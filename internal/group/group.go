@@ -25,10 +25,10 @@ import (
 	"open_im_sdk/pkg/constant"
 	"open_im_sdk/pkg/db/db_interface"
 	"open_im_sdk/pkg/db/model_struct"
+	"open_im_sdk/pkg/delayqueue"
 	"open_im_sdk/pkg/sdkerrs"
 	"open_im_sdk/pkg/syncer"
 	"open_im_sdk/pkg/utils"
-	"sync"
 )
 
 func NewGroup(loginUserID string, db db_interface.DataBase,
@@ -37,7 +37,9 @@ func NewGroup(loginUserID string, db db_interface.DataBase,
 		loginUserID:    loginUserID,
 		db:             db,
 		groupCh:        groupCh,
+		syncGroup:      make(map[string]bool),
 		conversationCh: conversationCh,
+		syncGroupQueue: delayqueue.New[int](),
 	}
 	g.initSyncer()
 	return g
@@ -57,8 +59,9 @@ type Group struct {
 	heartbeatCmdCh          chan common.Cmd2Value
 	groupCh                 chan common.Cmd2Value
 	conversationCh          chan common.Cmd2Value
-	//	memberSyncMutex sync.RWMutex
-
+	syncGroup               map[string]bool
+	// 同步群组信息延迟队列
+	syncGroupQueue     *delayqueue.DelayQueue[int]
 	listenerForService open_im_sdk_callback.OnListenerForService
 }
 
@@ -67,6 +70,12 @@ func (g *Group) Work(c2v common.Cmd2Value) {
 	switch c2v.Cmd {
 	case constant.CmdGroupMemberChange:
 		g.handelGroupMemberInfo(c2v)
+	case constant.CmdSyncGroup:
+		//延迟同步群信息
+		g.delaySyncJoinGroup(c2v.Ctx)
+	case constant.CmdSyncGroupMembers:
+		//同步群成员
+		g.SyncAllGroupMember(c2v.Ctx, c2v.Value.(string))
 	}
 }
 
@@ -273,26 +282,6 @@ func (g *Group) GetJoinedDiffusionGroupIDListFromSvr(ctx context.Context) ([]str
 		}
 	}
 	return groupIDs, nil
-}
-
-func (g *Group) SyncJoinedGroupMember(ctx context.Context) error {
-	//从群中获取数据
-	groups, err := g.db.GetJoinedGroupListDB(ctx)
-	if err != nil {
-		return err
-	}
-	var wg sync.WaitGroup
-	for _, group := range groups {
-		wg.Add(1)
-		go func(groupID string) {
-			defer wg.Done()
-			if err := g.SyncGroupMember(ctx, groupID); err != nil {
-				log.ZError(ctx, "SyncGroupMember failed", err)
-			}
-		}(group.GroupID)
-	}
-	wg.Wait()
-	return nil
 }
 
 // handelGroupMemberInfo 处理群成员信息变更

@@ -210,12 +210,17 @@ func (d *DataBase) DeleteGroupMember(ctx context.Context, groupID, userID string
 	groupMember := model_struct.LocalGroupMember{}
 	return d.conn.WithContext(ctx).Where("group_id=? and user_id=?", groupID, userID).Delete(&groupMember).Error
 }
-
+func (d *DataBase) DeleteGroupMembers(ctx context.Context, groupID string, userID ...string) error {
+	d.groupMtx.Lock()
+	defer d.groupMtx.Unlock()
+	groupMember := model_struct.LocalGroupMember{}
+	return d.conn.Unscoped().WithContext(ctx).Where("group_id=? and user_id in ?", groupID, userID).Delete(&groupMember).Error
+}
 func (d *DataBase) DeleteGroupAllMembers(ctx context.Context, groupID string) error {
 	d.groupMtx.Lock()
 	defer d.groupMtx.Unlock()
 	groupMember := model_struct.LocalGroupMember{}
-	return d.conn.WithContext(ctx).Where("group_id=? ", groupID).Delete(&groupMember).Error
+	return d.conn.Unscoped().WithContext(ctx).Where("group_id=? ", groupID).Delete(&groupMember).Error
 }
 
 func (d *DataBase) UpdateGroupMember(ctx context.Context, groupMember *model_struct.LocalGroupMember) error {

@@ -107,7 +107,6 @@ func NewDataBase(ctx context.Context, loginUserID string, dbDir string) (*DataBa
 			return dataBase, utils.Wrap(err, "initDB failed "+dbDir)
 		}
 		UserDBMap[loginUserID] = dataBase
-		//log.Info(operationID, "open db", loginUserID)
 	}
 	dataBase.setChatLogFailedStatus(ctx)
 	return dataBase, nil
@@ -169,7 +168,7 @@ func (d *DataBase) initDB(ctx context.Context) error {
 	log.ZInfo(ctx, "sqlite", "path", dbFileName)
 	// slowThreshold := 500
 	// sqlLogger := log.NewSqlLogger(logger.LogLevel(sdk_struct.SvrConf.LogLevel), true, time.Duration(slowThreshold)*time.Millisecond)
-	db, err := gorm.Open(sqlite.Open(dbFileName), &gorm.Config{Logger: log.NewSqlLogger(logger.LogLevel(logger.Info), false, time.Millisecond*200)})
+	db, err := gorm.Open(sqlite.Open(dbFileName), &gorm.Config{Logger: log.NewSqlLogger(logger.LogLevel(logger.Error), false, time.Millisecond*200)})
 	if err != nil {
 		return utils.Wrap(err, "open db failed "+dbFileName)
 	}

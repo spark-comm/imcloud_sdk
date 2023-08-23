@@ -28,7 +28,7 @@ import (
 )
 
 const (
-	connectPullNums = 15
+	connectPullNums = 1
 	defaultPullNums = 30
 )
 
@@ -127,10 +127,10 @@ func (m *MsgSyncer) getSeqsNeedSync(syncedMaxSeq, maxSeq int64) []int64 {
 func (m *MsgSyncer) handlePushMsgAndEvent(cmd common.Cmd2Value) {
 	switch cmd.Cmd {
 	case constant.CmdConnSuccesss:
-		log.ZInfo(cmd.Ctx, "recv long conn mgr connected", "cmd", cmd.Cmd, "value", cmd.Value)
+		log.ZDebug(cmd.Ctx, "recv long conn mgr connected", "cmd", cmd.Cmd, "value", cmd.Value)
 		m.doConnected(cmd.Ctx)
 	case constant.CmdPushSeq:
-		log.ZInfo(cmd.Ctx, "recv max seqs from long conn mgr, start sync msgs", "cmd", cmd.Cmd, "value", cmd.Value)
+		log.ZDebug(cmd.Ctx, "recv max seqs from long conn mgr, start sync msgs", "cmd", cmd.Cmd, "value", cmd.Value)
 		wsSeqResp := cmd.Value.(*sdkws.GetMaxSeqResp)
 		//同步消息
 		m.compareSeqsAndBatchSync(cmd.Ctx, wsSeqResp.MaxSeqs, wsSeqResp.MinSeqs, defaultPullNums)

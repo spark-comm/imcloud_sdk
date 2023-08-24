@@ -21,6 +21,7 @@ import (
 	"context"
 	"errors"
 	"open_im_sdk/pkg/db/model_struct"
+	"open_im_sdk/pkg/db/pg"
 	"open_im_sdk/pkg/utils"
 )
 
@@ -51,6 +52,22 @@ func (d *DataBase) GetAdminGroupApplication(ctx context.Context) ([]*model_struc
 	defer d.groupMtx.Unlock()
 	var groupRequestList []model_struct.LocalAdminGroupRequest
 	err := utils.Wrap(d.conn.WithContext(ctx).Order("create_time DESC").Find(&groupRequestList).Error, "")
+	if err != nil {
+		return nil, utils.Wrap(err, "")
+	}
+	var transfer []*model_struct.LocalAdminGroupRequest
+	for _, v := range groupRequestList {
+		v1 := v
+		transfer = append(transfer, &v1)
+	}
+	return transfer, nil
+}
+
+func (d *DataBase) GetPageGroupApplicationListAsRecipient(ctx context.Context, groupId string, page *pg.Page) ([]*model_struct.LocalAdminGroupRequest, error) {
+	d.groupMtx.Lock()
+	defer d.groupMtx.Unlock()
+	var groupRequestList []model_struct.LocalAdminGroupRequest
+	err := utils.Wrap(d.conn.WithContext(ctx).Where("group_id = ?", groupId).Scopes(pg.Operation(page)).Order("handle_result asc,create_time DESC").Find(&groupRequestList).Error, "")
 	if err != nil {
 		return nil, utils.Wrap(err, "")
 	}

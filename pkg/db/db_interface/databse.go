@@ -40,6 +40,8 @@ type GroupDatabase interface {
 	DeleteAdminGroupRequest(ctx context.Context, groupID, userID string) error
 	UpdateAdminGroupRequest(ctx context.Context, groupRequest *model_struct.LocalAdminGroupRequest) error
 	GetAdminGroupApplication(ctx context.Context) ([]*model_struct.LocalAdminGroupRequest, error)
+	// GetPageGroupApplicationListAsRecipient 分页获取待处理的请求
+	GetPageGroupApplicationListAsRecipient(ctx context.Context, groupId string, page *pg.Page) ([]*model_struct.LocalAdminGroupRequest, error)
 	InsertGroupRequest(ctx context.Context, groupRequest *model_struct.LocalGroupRequest) error
 	DeleteGroupRequest(ctx context.Context, groupID, userID string) error
 	UpdateGroupRequest(ctx context.Context, groupRequest *model_struct.LocalGroupRequest) error

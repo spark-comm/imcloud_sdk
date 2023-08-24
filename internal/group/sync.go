@@ -145,6 +145,21 @@ func (g *Group) SyncAdminGroupApplication(ctx context.Context) error {
 	return g.groupAdminRequestSyncer.Sync(ctx, util.Batch(ServerGroupRequestToLocalAdminGroupRequest, requests), localData, nil)
 }
 
+// SyncAdminGroupUntreatedApplication 获取未处理的加群请求
+func (g *Group) SyncAdminGroupUntreatedApplication(ctx context.Context) error {
+	//(以管理员或群主身份)获取群的加群申请（远程数据）
+	requests, err := g.GetServerAdminGroupUntreatedApplicationList(ctx)
+	if err != nil {
+		return err
+	}
+	//本地加群申请数据
+	localData, err := g.db.GetAdminGroupApplication(ctx)
+	if err != nil {
+		return err
+	}
+	return g.groupAdminRequestSyncer.Sync(ctx, util.Batch(ServerGroupRequestToLocalAdminGroupRequest, requests), localData, nil)
+}
+
 // GetServerJoinGroup  获取服务端加入的群
 func (g *Group) GetServerJoinGroup(ctx context.Context) ([]*groupv1.GroupInfo, error) {
 	fn := func(resp *groupv1.UserJoinGroupInfoList) []*groupv1.GroupInfo { return resp.Groups }
@@ -175,6 +190,15 @@ func (g *Group) GetServerSelfGroupApplication(ctx context.Context) ([]*groupv1.G
 	}
 	req := &group.GetUserReqApplicationListReq{UserID: g.loginUserID, Pagination: &sdkws.RequestPagination{}}
 	return util.GetPageAll(ctx, constant.GetSendGroupApplicationListRouter, req, fn)
+}
+
+// GetServerAdminGroupUntreatedApplicationList 获取服务端未处理加群申请
+func (g *Group) GetServerAdminGroupUntreatedApplicationList(ctx context.Context) ([]*groupv1.GroupRequestInfo, error) {
+	fn := func(resp *groupv1.GetUntreatedGroupApplicationListReply) []*groupv1.GroupRequestInfo {
+		return resp.GroupRequests
+	}
+	req := &group.GetGroupApplicationListReq{FromUserID: g.loginUserID, Pagination: &sdkws.RequestPagination{}}
+	return util.GetPageAll(ctx, constant.GetUntreatedRecvGroupApplicationListRouter, req, fn)
 }
 
 // GetServerGroupMembers 远程获取群成员

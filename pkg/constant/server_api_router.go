@@ -84,6 +84,9 @@ const (
 	KickGroupMemberRouter             = BaseRouter + RouterGroup + "/kick_group"
 	TransferGroupRouter               = BaseRouter + RouterGroup + "/transfer_group"
 	GetRecvGroupApplicationListRouter = BaseRouter + RouterGroup + "/get_recv_group_applicationList"
+	// 以群主或管理员身份获取未处理的加群请求
+	GetUntreatedRecvGroupApplicationListRouter = BaseRouter + RouterGroup + "/get_untreated_recv_group_application_list"
+
 	GetSendGroupApplicationListRouter = BaseRouter + RouterGroup + "/get_user_req_group_applicationList"
 	AcceptGroupApplicationRouter      = BaseRouter + RouterGroup + "/group_application_response"
 	RefuseGroupApplicationRouter      = BaseRouter + RouterGroup + "/group_application_response"

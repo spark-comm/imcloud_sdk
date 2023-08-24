@@ -112,6 +112,14 @@ func GetGroupApplicationListAsRecipient(callback open_im_sdk_callback.Base, oper
 	call(callback, operationID, UserForSDK.Group().GetGroupApplicationListAsRecipient)
 }
 
+// GetPageGroupApplicationListAsRecipient 分页获取指定群的加群请求
+// groupId string  群id
+// no      number  页码
+// size    size    每页长度
+func GetPageGroupApplicationListAsRecipient(callback open_im_sdk_callback.Base, operationID string, groupId string, no, size int64) {
+	call(callback, operationID, UserForSDK.Group().GetPageGroupApplicationListAsRecipient, groupId, no, size)
+}
+
 func GetGroupApplicationListAsApplicant(callback open_im_sdk_callback.Base, operationID string) {
 	call(callback, operationID, UserForSDK.Group().GetGroupApplicationListAsApplicant)
 }

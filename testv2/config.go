@@ -29,7 +29,7 @@ const (
 	//UserID       = "2688118337"
 	//UserID       = "7204255074"
 	//UserID = "50122626445611008"
-	UserID       = "55122356376440832"
+	UserID       = "55122326508802048"
 	friendUserID = "3281432310"
 	// APIADDR = "http://192.168.44.128:10002"
 	// WSADDR  = "ws://192.168.44.128:10001"
@@ -48,7 +48,7 @@ func getConf(APIADDR, WSADDR string) sdk_struct.IMConfig {
 	cf.DataDir = "../"
 	cf.LogLevel = 6
 	cf.IsExternalExtensions = true
-	cf.PlatformID = 1
+	cf.PlatformID = 2
 	cf.LogFilePath = ""
 	cf.IsLogStandardOutput = true
 	return cf

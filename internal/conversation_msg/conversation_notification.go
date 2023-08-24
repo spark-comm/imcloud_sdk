@@ -470,7 +470,7 @@ func (c *Conversation) syncOtherInformation(ctx context.Context) {
 		c.group.InitSyncData,
 		c.friend.SyncUntreatedFriendReceiveFriendApplication, //同步未处理的好友请求
 		//c.friend.SyncSelfFriendApplication, //自己发出的好友请求，暂时业务上没有需要
-		c.group.SyncAdminGroupApplication,
+		c.group.SyncAdminGroupUntreatedApplication, //获取未处理的加群请求
 		//c.group.SyncSelfGroupApplication, // 自己发出的加群申请，暂时业务上没有需要
 		c.friend.SyncBlackList} {
 		go func(syncFunc func(c context.Context) error) {

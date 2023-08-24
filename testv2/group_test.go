@@ -213,6 +213,17 @@ func Test_GetGroupApplicationListAsRecipient(t *testing.T) {
 	}
 }
 
+func Test_GetPageGroupApplicationListAsRecipient(t *testing.T) {
+	info, err := open_im_sdk.UserForSDK.Group().GetPageGroupApplicationListAsRecipient(ctx, "181523118559232", 1, 20)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Logf("GetSendGroupApplicationList: %d\n", len(info))
+	for _, localGroup := range info {
+		t.Logf("%#v", localGroup)
+	}
+}
+
 func Test_GetGroupApplicationListAsApplicant(t *testing.T) {
 	info, err := open_im_sdk.UserForSDK.Group().GetGroupApplicationListAsApplicant(ctx)
 	if err != nil {

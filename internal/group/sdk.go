@@ -21,6 +21,7 @@ import (
 	"open_im_sdk/pkg/common"
 	"open_im_sdk/pkg/constant"
 	"open_im_sdk/pkg/db/model_struct"
+	"open_im_sdk/pkg/db/pg"
 	"open_im_sdk/pkg/sdk_params_callback"
 	"open_im_sdk/pkg/sdkerrs"
 	"time"
@@ -381,6 +382,15 @@ func (g *Group) GetGroupApplicationListAsRecipient(ctx context.Context) ([]*mode
 	return g.db.GetAdminGroupApplication(ctx)
 }
 
+// GetPageGroupApplicationListAsRecipient 分页获取加群请求数据
+func (g *Group) GetPageGroupApplicationListAsRecipient(ctx context.Context, groupId string, no, size int64) ([]*model_struct.LocalAdminGroupRequest, error) {
+	return g.db.GetPageGroupApplicationListAsRecipient(ctx, groupId, &pg.Page{
+		NO:   no,
+		Size: size,
+	})
+}
+
+// GetGroupApplicationListAsApplicant 获取发出的群请求
 func (g *Group) GetGroupApplicationListAsApplicant(ctx context.Context) ([]*model_struct.LocalGroupRequest, error) {
 	return g.db.GetSendGroupApplication(ctx)
 }

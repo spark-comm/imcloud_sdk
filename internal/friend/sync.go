@@ -25,6 +25,7 @@ import (
 	"open_im_sdk/internal/util"
 	"open_im_sdk/pkg/constant"
 	"open_im_sdk/pkg/db/model_struct"
+	"time"
 )
 
 // SyncSelfFriendApplication 自己发送的好友请求
@@ -94,6 +95,31 @@ func (f *Friend) SyncFriendList(ctx context.Context) error {
 	}
 	log.ZDebug(ctx, "sync friend", "data from server", friends, "data from local", localData)
 	return f.friendSyncer.Sync(ctx, util.Batch(ServerFriendToLocalFriend, friends), localData, nil)
+}
+
+// SyncFirstFriendList 同步第一页好友列表
+func (f *Friend) SyncFirstFriendList(ctx context.Context) error {
+	req := &friend.GetPaginationFriendsReq{UserID: f.loginUserID, Pagination: &sdkws.RequestPagination{
+		ShowNumber: 10,
+	}}
+	fn := func(resp *friendPb.ListFriendReply) []*friendPb.FriendInfo {
+		return resp.List
+	}
+	friends, err := util.GetFirstPage(ctx, constant.GetFriendListRouter, req, fn)
+	if err != nil {
+		return err
+	}
+	localData, err := f.db.GetAllFriendList(ctx)
+	if err != nil {
+		return err
+	}
+	log.ZDebug(ctx, "sync friend", "data from server", friends, "data from local", localData)
+	if err = f.friendSyncer.Sync(ctx, util.Batch(ServerFriendToLocalFriend, friends), localData, nil); err != nil {
+		log.ZDebug(ctx, "sync first page friend error", err)
+	}
+	//加入延迟队列做同步
+	f.syncFriendQueue.Push(1, time.Second*20)
+	return err
 }
 
 // SyncBlackList 同步黑名单信息

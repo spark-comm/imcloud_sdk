@@ -278,7 +278,7 @@ func (u *LoginMgr) login(ctx context.Context, userID, token string) error {
 	//文件
 	u.file = file.NewFile(ctx, u.db, u.loginUserID)
 	//好友
-	u.friend = friend.NewFriend(u.loginUserID, u.db, u.user, u.conversationCh, u.groupCh)
+	u.friend = friend.NewFriend(ctx, u.loginUserID, u.db, u.user, u.conversationCh, u.groupCh)
 	u.friend.SetListener(u.friendListener)
 	u.friend.SetLoginTime(u.loginTime)
 	//群

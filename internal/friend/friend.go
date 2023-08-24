@@ -25,27 +25,39 @@ import (
 	"open_im_sdk/pkg/constant"
 	"open_im_sdk/pkg/db/db_interface"
 	"open_im_sdk/pkg/db/model_struct"
+	"open_im_sdk/pkg/delayqueue"
 	"open_im_sdk/pkg/syncer"
+	"time"
 )
 
-func NewFriend(loginUserID string, db db_interface.DataBase, user *user.User, conversationCh, groupCh chan common.Cmd2Value) *Friend {
-	f := &Friend{loginUserID: loginUserID, db: db, user: user, conversationCh: conversationCh, groupCh: groupCh}
+func NewFriend(ctx context.Context, loginUserID string, db db_interface.DataBase, user *user.User, conversationCh, groupCh chan common.Cmd2Value) *Friend {
+	f := &Friend{loginUserID: loginUserID, db: db, user: user, conversationCh: conversationCh, groupCh: groupCh, syncFriendQueue: delayqueue.New[int]()}
 	f.initSyncer()
+	go func() {
+		ctx1, cl := context.WithTimeout(ctx, time.Minute*5)
+		defer cl()
+		for emtry := range f.syncFriendQueue.Channel(ctx, 1) {
+			log.ZDebug(ctx1, "delay sync join group", emtry)
+			f.SyncFriendList(ctx1)
+		}
+	}()
 	return f
 }
 
 type Friend struct {
-	friendListener     open_im_sdk_callback.OnFriendshipListenerSdk
-	loginUserID        string
-	db                 db_interface.DataBase
-	user               *user.User
-	friendSyncer       *syncer.Syncer[*model_struct.LocalFriend, [2]string]
-	blockSyncer        *syncer.Syncer[*model_struct.LocalBlack, [2]string]
-	requestRecvSyncer  *syncer.Syncer[*model_struct.LocalFriendRequest, [2]string]
-	requestSendSyncer  *syncer.Syncer[*model_struct.LocalFriendRequest, [2]string]
-	loginTime          int64
-	conversationCh     chan common.Cmd2Value
-	groupCh            chan common.Cmd2Value
+	friendListener    open_im_sdk_callback.OnFriendshipListenerSdk
+	loginUserID       string
+	db                db_interface.DataBase
+	user              *user.User
+	friendSyncer      *syncer.Syncer[*model_struct.LocalFriend, [2]string]
+	blockSyncer       *syncer.Syncer[*model_struct.LocalBlack, [2]string]
+	requestRecvSyncer *syncer.Syncer[*model_struct.LocalFriendRequest, [2]string]
+	requestSendSyncer *syncer.Syncer[*model_struct.LocalFriendRequest, [2]string]
+	loginTime         int64
+	conversationCh    chan common.Cmd2Value
+	groupCh           chan common.Cmd2Value
+	// 同步群组信息延迟队列
+	syncFriendQueue    *delayqueue.DelayQueue[int]
 	listenerForService open_im_sdk_callback.OnListenerForService
 }
 

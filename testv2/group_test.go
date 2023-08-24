@@ -222,6 +222,7 @@ func Test_GetPageGroupApplicationListAsRecipient(t *testing.T) {
 	for _, localGroup := range info {
 		t.Logf("%#v", localGroup)
 	}
+	time.Sleep(time.Minute * 2)
 }
 
 func Test_GetGroupApplicationListAsApplicant(t *testing.T) {

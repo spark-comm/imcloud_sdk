@@ -466,7 +466,8 @@ func (c *Conversation) doNotificationNew(c2v common.Cmd2Value) {
 // syncOtherInformation 同步其他信息
 func (c *Conversation) syncOtherInformation(ctx context.Context) {
 	// 同步数据
-	for _, syncFunc := range []func(c context.Context) error{c.friend.SyncFriendList,
+	for _, syncFunc := range []func(c context.Context) error{
+		c.friend.SyncFirstFriendList, //先同步首页数据
 		c.group.InitSyncData,
 		c.friend.SyncUntreatedFriendReceiveFriendApplication, //同步未处理的好友请求
 		//c.friend.SyncSelfFriendApplication, //自己发出的好友请求，暂时业务上没有需要

@@ -316,7 +316,7 @@ func Test_InviteUserToGroup(t *testing.T) {
 }
 
 func Test_SyncGroup(t *testing.T) {
-	err := open_im_sdk.UserForSDK.Group().SyncGroupMember(ctx,
+	err := open_im_sdk.UserForSDK.Group().SyncGroups(ctx,
 		"171491979169792")
 	if err != nil {
 		t.Fatal(err)

@@ -304,6 +304,7 @@ func (c *Conversation) fileName(ftype string, id string) string {
 }
 func (c *Conversation) checkID(ctx context.Context, s *sdk_struct.MsgStruct,
 	recvID, groupID string, options map[string]bool) (*model_struct.LocalConversation, error) {
+	log.ZInfo(ctx, fmt.Sprintf("接收到的：group:%s,接收到的revid：%s", groupID, recvID))
 	if recvID == "" && groupID == "" {
 		return nil, sdkerrs.ErrArgs
 	}
@@ -316,6 +317,7 @@ func (c *Conversation) checkID(ctx context.Context, s *sdk_struct.MsgStruct,
 		if err != nil {
 			return nil, err
 		}
+		log.ZDebug(ctx, "获取到的群信息为%s", utils.StructToJsonString(g))
 		lc.ShowName = g.GroupName
 		lc.FaceURL = g.FaceURL
 		switch g.GroupType {

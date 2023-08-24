@@ -29,37 +29,6 @@ import (
 	"github.com/imCloud/im/pkg/utils"
 )
 
-// // deprecated use CreateGroup
-//
-//	funcation (g *Group) CreateGroup(ctx context.Context, groupBaseInfo sdk_params_callback.CreateGroupBaseInfoParam, memberList sdk_params_callback.CreateGroupMemberRoleParam) (*sdkws.GroupInfo, error) {
-//		req := &group.CreateGroupReq{
-//			GroupInfo: &sdkws.GroupInfo{
-//				GroupName:    groupBaseInfo.GroupName,
-//				Notification: groupBaseInfo.Notification,
-//				Introduction: groupBaseInfo.Introduction,
-//				FaceURL:      groupBaseInfo.FaceURL,
-//				Ex:           groupBaseInfo.Ex,
-//				GroupType:    groupBaseInfo.GroupType,
-//			},
-//		}
-//		if groupBaseInfo.NeedVerification != nil {
-//			req.GroupInfo.NeedVerification = *groupBaseInfo.NeedVerification
-//		}
-//		for _, info := range memberList {
-//			switch info.RoleLevel {
-//			case constant.GroupOrdinaryUsers:
-//				req.InitMembers = append(req.InitMembers, info.UserID)
-//			case constant.GroupOwner:
-//				req.OwnerUserID = info.UserID
-//			case constant.GroupAdmin:
-//				req.AdminUserIDs = append(req.AdminUserIDs, info.UserID)
-//			default:
-//				return nil, sdkerrs.ErrArgs.Wrap(fmt.Sprintf("CreateGroup: invalid role level %d", info.RoleLevel))
-//			}
-//		}
-//		return g.CreateGroup(ctx, req)
-//	}
-//
 // CreateGroup 创建群
 func (g *Group) CreateGroup(ctx context.Context, req *groupv1.CrateGroupReq) (*groupv1.GroupInfo, error) {
 	if req.CreatorUserID == "" {

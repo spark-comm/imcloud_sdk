@@ -61,6 +61,23 @@ func (f *Friend) SyncFriendApplication(ctx context.Context) error {
 	return f.requestRecvSyncer.Sync(ctx, util.Batch(ServerFriendRequestToLocalFriendRequest, requests), localData, nil)
 }
 
+// SyncUntreatedFriendReceiveFriendApplication 同步未处理的好友请求
+func (f *Friend) SyncUntreatedFriendReceiveFriendApplication(ctx context.Context) error {
+	req := &friend.GetPaginationFriendsApplyToReq{UserID: f.loginUserID, Pagination: &sdkws.RequestPagination{}}
+	fn := func(resp *friendPb.GetUntreatedFriendsApplyReceiveReply) []*friendPb.FriendRequests {
+		return resp.FriendRequests
+	}
+	requests, err := util.GetPageAll(ctx, constant.GetUntreatedFriendsApplyReceive, req, fn)
+	if err != nil {
+		return err
+	}
+	localData, err := f.db.GetRecvFriendApplication(ctx)
+	if err != nil {
+		return err
+	}
+	return f.requestRecvSyncer.Sync(ctx, util.Batch(ServerFriendRequestToLocalFriendRequest, requests), localData, nil)
+}
+
 // SyncFriendList 同步好友列表
 func (f *Friend) SyncFriendList(ctx context.Context) error {
 	req := &friend.GetPaginationFriendsReq{UserID: f.loginUserID, Pagination: &sdkws.RequestPagination{}}

@@ -244,7 +244,7 @@ func (g *Group) GetGroupOwnerIDAndAdminIDList(ctx context.Context, groupID strin
 // GetGroupInfoFromLocal2Svr 从服务端获取群信息
 func (g *Group) GetGroupInfoFromLocal2Svr(ctx context.Context, groupID string) (*model_struct.LocalGroup, error) {
 	localGroup, err := g.db.GetGroupInfoByGroupID(ctx, groupID)
-	if err == nil {
+	if err == nil && localGroup.GroupID != "" {
 		return localGroup, nil
 	}
 	svrGroup, err := g.getGroupsInfoFromSvr(ctx, []string{groupID})
@@ -254,12 +254,15 @@ func (g *Group) GetGroupInfoFromLocal2Svr(ctx context.Context, groupID string) (
 	if len(svrGroup) == 0 {
 		return nil, sdkerrs.ErrGroupIDNotFound.Wrap("server not this group")
 	}
+	if err := g.groupSyncer.Sync(ctx, util.Batch(ServerGroupToLocalGroup, svrGroup), []*model_struct.LocalGroup{localGroup}, nil); err != nil {
+		log.ZDebug(ctx, "sync group info err:%v", err)
+	}
 	return ServerGroupToLocalGroup(svrGroup[0]), nil
 }
 
 // getGroupsInfoFromSvr 从服务端获取群数据
 func (g *Group) getGroupsInfoFromSvr(ctx context.Context, groupIDs []string) ([]*groupv1.GroupInfo, error) {
-	resp, err := util.CallApi[groupv1.GetGroupInfoResponse](ctx, constant.GetGroupsInfoRouter, &group.GetGroupsInfoReq{GroupIDs: groupIDs})
+	resp, err := util.CallApi[groupv1.GetGroupInfoResponse](ctx, constant.GetGroupsInfoRouter, &groupv1.GetGroupInfoReq{GroupID: groupIDs})
 	if err != nil {
 		return nil, err
 	}

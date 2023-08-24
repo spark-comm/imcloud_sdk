@@ -146,6 +146,7 @@ func (c *LongConnMgr) SendReqWaitResp(ctx context.Context, m proto.Message, reqI
 			return errs.NewCodeError(v.ErrCode, v.ErrMsg)
 		}
 		if err := proto.Unmarshal(v.Data, resp); err != nil {
+			log.ZDebug(ctx, "序列化数据异常", "msg", m, "reqIdentifier", reqIdentifier)
 			return sdkerrs.ErrArgs
 		}
 		return nil

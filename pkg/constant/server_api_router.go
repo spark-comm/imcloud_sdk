@@ -34,6 +34,8 @@ const (
 	GetFriendListRouter                       = BaseRouter + "/friend/get_friend_list"
 	AddFriendResponse                         = BaseRouter + "/friend/add_friend_response"
 	SetFriendRemark                           = BaseRouter + "/friend/set_friend_remark"
+	// 获取未处理的好友请求
+	GetUntreatedFriendsApplyReceive = BaseRouter + "/friend/get_untreated_friend_apply_receive"
 	// 黑明单
 	AddBlackRouter     = BaseRouter + "/friend/add_black"
 	RemoveBlackRouter  = BaseRouter + "/friend/remove_black"

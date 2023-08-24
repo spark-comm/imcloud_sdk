@@ -67,7 +67,7 @@ func (d *DataBase) GetPageGroupApplicationListAsRecipient(ctx context.Context, g
 	d.groupMtx.Lock()
 	defer d.groupMtx.Unlock()
 	var groupRequestList []model_struct.LocalAdminGroupRequest
-	err := utils.Wrap(d.conn.WithContext(ctx).Where("group_id = ?", groupId).Scopes(pg.Operation(page)).Order("handle_result asc,create_time DESC").Find(&groupRequestList).Error, "")
+	err := utils.Wrap(d.conn.WithContext(ctx).Where("group_id = ?", groupId).Scopes(pg.Operation(page)).Order("handle_result asc,req_time DESC").Find(&groupRequestList).Error, "")
 	if err != nil {
 		return nil, utils.Wrap(err, "")
 	}

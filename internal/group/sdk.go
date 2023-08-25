@@ -68,9 +68,8 @@ func (g *Group) JoinGroup(ctx context.Context, groupID, reqMsg string, joinSourc
 
 // QuitGroup 退出群聊
 func (g *Group) QuitGroup(ctx context.Context, groupID string) error {
-	if err := util.ApiPost(ctx, constant.QuitGroupRouter, groupv1.CancelMuteGroupMemberReq{
-		GroupID: groupID,
-		UserID:  g.loginUserID,
+	if err := util.ApiPost(ctx, constant.QuitGroupRouter, groupv1.QuitAllGroupsReq{
+		UserID: g.loginUserID,
 	}, nil); err != nil {
 		return err
 	}

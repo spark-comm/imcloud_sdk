@@ -39,8 +39,8 @@ var (
 	//会话相关
 	ErrNotSupportOpt = errs.NewCodeError(NotSupportOptError, "super group not support this opt")
 	//群组相关
-
-	ErrGroupType = errs.NewCodeError(GroupTypeErr, "group type error")
+	ErrGroupMemberNotFound = errs.NewCodeError(ErrGroupMemberNotFoundError, "ErrGroupMemberNotFound")
+	ErrGroupType           = errs.NewCodeError(GroupTypeErr, "group type error")
 
 	ErrLoginOut    = errs.NewCodeError(LoginOutError, "LoginOutError")
 	ErrLoginRepeat = errs.NewCodeError(LoginRepeatError, "LoginRepeatError")

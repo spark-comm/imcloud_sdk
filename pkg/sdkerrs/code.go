@@ -41,7 +41,8 @@ const (
 	NotSupportOptError = 10301 //不支持的操作
 
 	//群组相关
-	GroupIDNotFoundError = 10400 //GroupID不存在
-	GroupTypeErr         = 10401 //群组类型错误
+	GroupIDNotFoundError        = 10400 //GroupID不存在
+	ErrGroupMemberNotFoundError = 10402
+	GroupTypeErr                = 10401 //群组类型错误
 
 )

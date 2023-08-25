@@ -287,6 +287,25 @@ func (g *Group) GetJoinedDiffusionGroupIDListFromSvr(ctx context.Context) ([]str
 	return groupIDs, nil
 }
 
+// GetGroupMemberFromLocal2Svr 从本地和服务端获取群成员数据
+func (g *Group) GetGroupMemberFromLocal2Svr(ctx context.Context, groupID string, userIDList []string) ([]*model_struct.LocalGroupMember, error) {
+	localGroupMembers, err := g.db.GetGroupSomeMemberInfo(ctx, groupID, userIDList)
+	if err == nil && len(localGroupMembers) > 0 {
+		return localGroupMembers, nil
+	}
+	svrGroupMembers, err := g.GetDesignatedGroupMembers(ctx, groupID, userIDList...)
+	if err != nil {
+		return nil, err
+	}
+	if len(svrGroupMembers) == 0 {
+		return nil, sdkerrs.ErrGroupMemberNotFound.Wrap("group member not found")
+	}
+	if err := g.groupMemberSyncer.Sync(ctx, util.Batch(ServerGroupMemberToLocalGroupMember, svrGroupMembers), localGroupMembers, nil); err != nil {
+		log.ZDebug(ctx, "sync group member info err:%v", err)
+	}
+	return util.Batch(ServerGroupMemberToLocalGroupMember, svrGroupMembers), nil
+}
+
 // handelGroupMemberInfo 处理群成员信息变更
 func (g *Group) handelGroupMemberInfo(c2v common.Cmd2Value) {
 	info := c2v.Value.(common.UpdateGroupMemberInfo)

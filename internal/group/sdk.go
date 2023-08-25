@@ -324,8 +324,9 @@ func (g *Group) GetGroupMemberListByJoinTimeFilter(ctx context.Context, groupID 
 		userIDs)
 }
 
+// GetSpecifiedGroupMembersInfo 获取群成员信息
 func (g *Group) GetSpecifiedGroupMembersInfo(ctx context.Context, groupID string, userIDList []string) ([]*model_struct.LocalGroupMember, error) {
-	return g.db.GetGroupSomeMemberInfo(ctx, groupID, userIDList)
+	return g.GetGroupMemberFromLocal2Svr(ctx, groupID, userIDList)
 }
 
 func (g *Group) KickGroupMember(ctx context.Context, groupID string, reason string, userIDList []string) error {

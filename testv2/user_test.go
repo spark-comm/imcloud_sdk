@@ -103,7 +103,7 @@ func Test_SearchUserInfo(t *testing.T) {
 
 func TestGetUserLoginStatus(t *testing.T) {
 	userInfo, err := open_im_sdk.UserForSDK.User().GetUserLoginStatus(ctx,
-		"55474679036514304",
+		"55122332112392192",
 	)
 	if err != nil {
 		t.Error(err)

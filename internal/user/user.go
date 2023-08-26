@@ -105,6 +105,7 @@ func (u *User) DoNotification(ctx context.Context, msg *sdkws.MsgData) {
 		// log.Error(operationID, "listener == nil")
 		return
 	}
+	//小于用户的登录时间忽略通知
 	if msg.SendTime < u.loginTime {
 		log.ZWarn(ctx, "ignore notification ", nil, "msg", *msg)
 		return
@@ -221,8 +222,8 @@ func (u *User) updateSelfUserInfo(ctx context.Context, userInfo *imUserPb.Update
 	return nil
 }
 
-func (u *User) getUserLoginStatus(ctx context.Context, userIDs string) ([]*imUserPb.GetUserLoginStatusReps, error) {
-	resp := make([]*imUserPb.GetUserLoginStatusReps, 0)
+func (u *User) getUserLoginStatus(ctx context.Context, userIDs string) (*imUserPb.GetUserLoginStatusReps, error) {
+	resp := &imUserPb.GetUserLoginStatusReps{}
 	err := util.ApiPost(ctx, constant.GetUserLoginStatusRouter, &imUserPb.GetUserLoginStatusReq{
 		UserID: userIDs,
 	}, resp)

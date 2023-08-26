@@ -56,6 +56,6 @@ func (u *User) SearchUserInfo(ctx context.Context, searchValue string, searchTyp
 	return u.searchUser(ctx, searchValue, searchType)
 }
 
-func (u *User) GetUserLoginStatus(ctx context.Context, userIDs string) ([]*imUserPb.GetUserLoginStatusReps, error) {
+func (u *User) GetUserLoginStatus(ctx context.Context, userIDs string) (*imUserPb.GetUserLoginStatusReps, error) {
 	return u.getUserLoginStatus(ctx, userIDs)
 }

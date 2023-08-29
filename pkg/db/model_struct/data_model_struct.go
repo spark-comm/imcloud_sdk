@@ -199,6 +199,7 @@ type LocalGroupMember struct {
 	OperatorUserID string `gorm:"column:operator_user_id;type:varchar(64)" json:"operatorUserID"`
 	Ex             string `gorm:"column:ex;type:varchar(1024)" json:"ex"`
 	AttachedInfo   string `gorm:"column:attached_info;type:varchar(1024)" json:"attachedInfo"`
+	BackgroundURL  string `json:"backgroundURL" gorm:"column:background_url;type:varchar(255)"`
 }
 
 // message GroupRequest{

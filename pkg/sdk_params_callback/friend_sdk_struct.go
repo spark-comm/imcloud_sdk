@@ -80,8 +80,9 @@ type SearchFriendItem struct {
 
 // 1
 type SetFriendRemarkParams struct {
-	ToUserID string `json:"toUserID" validate:"required"`
-	Remark   string `json:"remark" validate:"required"`
+	ToUserID      string `json:"toUserID" validate:"required"`
+	Remark        string `json:"remark" validate:"required"`
+	BackgroundUrl string `json:"backgroundUrl,omitempty"` //背景图片
 }
 
 // type SetFriendRemarkCallback struct{}

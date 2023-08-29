@@ -212,13 +212,26 @@ func (f *Friend) SearchFriends(ctx context.Context, param *sdk.SearchFriendsPara
 	return res, nil
 }
 
+// SetFriendRemark 设置备注
 func (f *Friend) SetFriendRemark(ctx context.Context, userIDRemark *sdk.SetFriendRemarkParams) error {
-	if err := util.ApiPost(ctx, constant.SetFriendRemark, &friend.SetFriendRemarkReq{OwnerUserID: f.loginUserID, FriendUserID: userIDRemark.ToUserID, Remark: userIDRemark.Remark}, nil); err != nil {
-		return err
-	}
-	return f.SyncFriendList(ctx)
+	return f.SetFriendInfo(ctx, userIDRemark)
 }
 
+// SetBackgroundUrl 设置聊天背景图片
+func (f *Friend) SetBackgroundUrl(ctx context.Context, friendId, backgroundUrl string) error {
+	return f.SetFriendInfo(ctx, &sdk.SetFriendRemarkParams{
+		ToUserID:      friendId,
+		BackgroundUrl: backgroundUrl,
+	})
+}
+
+// SetFriendInfo 设置好友信息
+func (f *Friend) SetFriendInfo(ctx context.Context, userIDRemark *sdk.SetFriendRemarkParams) error {
+	if err := util.ApiPost(ctx, constant.SetFriendInfoRouter, &friendPb.SetFriendInfoRequest{FromUserID: f.loginUserID, ToUserID: userIDRemark.ToUserID, Remark: userIDRemark.Remark, BackgroundUrl: userIDRemark.BackgroundUrl}, nil); err != nil {
+		return err
+	}
+	return f.syncFriendById(ctx, f.loginUserID, userIDRemark.ToUserID)
+}
 func (f *Friend) AddBlack(ctx context.Context, blackUserID string) error {
 	if err := util.ApiPost(ctx, constant.AddBlackRouter, &friend.AddBlackReq{OwnerUserID: f.loginUserID, BlackUserID: blackUserID}, nil); err != nil {
 		return err

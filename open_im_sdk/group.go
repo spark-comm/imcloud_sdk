@@ -136,6 +136,12 @@ func SetGroupMemberNickname(callback open_im_sdk_callback.Base, operationID stri
 	call(callback, operationID, UserForSDK.Group().SetGroupMemberNickname, groupID, userID, groupMemberNickname)
 }
 
+// SetGroupChatBackground 设置聊天背景
+// groupID   string 群id
+// backgroundUrl string 聊天背景地址
+func SetGroupChatBackground(callback open_im_sdk_callback.Base, operationID string, groupID string, backgroundUrl string) {
+	call(callback, operationID, UserForSDK.Group().SetBackgroundUrl, groupID, backgroundUrl)
+}
 func SearchGroupMembers(callback open_im_sdk_callback.Base, operationID string, searchParam string) {
 	call(callback, operationID, UserForSDK.Group().SearchGroupMembers, searchParam)
 }

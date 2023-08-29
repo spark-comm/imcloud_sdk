@@ -24,7 +24,7 @@ import (
 )
 
 func Test_GetSpecifiedFriendsInfo(t *testing.T) {
-	info, err := open_im_sdk.UserForSDK.Friend().GetSpecifiedFriendsInfo(ctx, []string{"45644221123"})
+	info, err := open_im_sdk.UserForSDK.Friend().GetSpecifiedFriendsInfo(ctx, []string{"55122326609465344"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -226,4 +226,13 @@ func Test_GetUnprocessedNum(t *testing.T) {
 	t.Log("GetPageBlackList success", ctx.Value("operationID"))
 
 	t.Log("unprocessed num ", count)
+}
+
+func Test_SetFriendChatBackground(t *testing.T) {
+	err := open_im_sdk.UserForSDK.Friend().SetBackgroundUrl(ctx, "55224333915656192", "背景1是群1")
+	if err != nil {
+		t.Fatal(err)
+	}
+	time.Sleep(time.Second * 10)
+	t.Log("SetFriendChatBackground success")
 }

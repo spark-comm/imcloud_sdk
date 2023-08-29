@@ -33,7 +33,7 @@ const (
 	GetSelfFriendApplicationListRouter        = BaseRouter + "/friend/get_self_friend_apply_list"         //send
 	GetFriendListRouter                       = BaseRouter + "/friend/get_friend_list"
 	AddFriendResponse                         = BaseRouter + "/friend/add_friend_response"
-	SetFriendRemark                           = BaseRouter + "/friend/set_friend_remark"
+	SetFriendInfoRouter                       = BaseRouter + "/friend/set_friend_info"
 	// 获取未处理的好友请求
 	GetUntreatedFriendsApplyReceive = BaseRouter + "/friend/get_untreated_friend_apply_receive"
 	// 黑明单

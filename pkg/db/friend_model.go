@@ -53,15 +53,10 @@ func (d *DataBase) UpdateFriend(ctx context.Context, friend *model_struct.LocalF
 func (d *DataBase) GetAllFriendList(ctx context.Context) ([]*model_struct.LocalFriend, error) {
 	d.friendMtx.Lock()
 	defer d.friendMtx.Unlock()
-	var friendList []model_struct.LocalFriend
+	var friendList []*model_struct.LocalFriend
 	err := utils.Wrap(d.conn.WithContext(ctx).Where("owner_user_id = ?", d.loginUserID).Order("sort_flag").Find(&friendList).Error,
 		"GetFriendList failed")
-	var transfer []*model_struct.LocalFriend
-	for _, v := range friendList {
-		v1 := v
-		transfer = append(transfer, &v1)
-	}
-	return transfer, err
+	return friendList, err
 }
 
 func (d *DataBase) GetPageFriendList(ctx context.Context, offset, count int) ([]*model_struct.LocalFriend, error) {

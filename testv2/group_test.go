@@ -339,7 +339,7 @@ func Test_SyncGroup(t *testing.T) {
 func Test_GetGroup(t *testing.T) {
 	t.Log("--------------------------")
 	infos, err := open_im_sdk.UserForSDK.Group().GetSpecifiedGroupsInfo(ctx,
-		[]string{"166233316003840"})
+		[]string{"105942007943168"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -482,4 +482,12 @@ func Test_GetAppointGroupRequestInfo(t *testing.T) {
 		fmt.Println(err)
 	}
 	fmt.Sprintf("%+v", info)
+}
+
+func Test_SetGroupChatBackground(t *testing.T) {
+	err := open_im_sdk.UserForSDK.Group().SetBackgroundUrl(ctx, "105942007943168", "背景")
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log("SetFriendChatBackground success")
 }

@@ -74,6 +74,7 @@ func ServerGroupMemberToLocalGroupMember(info *groupv1.MembersInfo) *model_struc
 		Birth:          info.Birth,
 		Gender:         info.Gender,
 		InviterUserID:  info.InviterUserID,
+		BackgroundURL:  info.BackgroundUrl,
 	}
 }
 

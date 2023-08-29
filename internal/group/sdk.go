@@ -164,6 +164,16 @@ func (g *Group) SetGroupMemberNickname(ctx context.Context, groupID, userID stri
 	})
 }
 
+// SetBackgroundUrl 设置聊天背景图片
+func (g *Group) SetBackgroundUrl(ctx context.Context, groupID, backgroundUrl string) error {
+	return g.SetGroupMemberInfo(ctx, &groupv1.SetGroupMemberInfoReq{
+		GroupID:       groupID,
+		UserID:        g.loginUserID,
+		BackgroundUrl: backgroundUrl,
+		PUserID:       g.loginUserID,
+	})
+}
+
 // SetGroupMemberInfo 设置群信息
 func (g *Group) SetGroupMemberInfo(ctx context.Context, groupMemberInfo *groupv1.SetGroupMemberInfoReq) error {
 	groupMemberInfo.PUserID = g.loginUserID

@@ -52,6 +52,7 @@ func ServerFriendToLocalFriend(info *friendPb.FriendInfo) *model_struct.LocalFri
 		Gender:         info.Gender,
 		SortFlag:       getSortFlag(info.Remark, info.Nickname),
 		NotPeersFriend: info.NotPeersFriend,
+		BackgroundURL:  info.BackgroundUrl,
 	}
 }
 

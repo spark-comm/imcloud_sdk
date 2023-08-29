@@ -64,6 +64,13 @@ func SetFriendRemark(callback open_im_sdk_callback.Base, operationID string, use
 	call(callback, operationID, UserForSDK.Friend().SetFriendRemark, userIDRemark)
 }
 
+// SetFriendChatBackground 设置聊天背景
+// friendId   string 好友id
+// backgroundUrl string 聊天背景地址
+func SetFriendChatBackground(callback open_im_sdk_callback.Base, operationID string, friendId string, backgroundUrl string) {
+	call(callback, operationID, UserForSDK.Friend().SetBackgroundUrl, friendId, backgroundUrl)
+}
+
 // DeleteFriend 删除好友
 // par operationID  链路id
 // par friendUserID  要删除的用户ID

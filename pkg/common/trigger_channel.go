@@ -104,6 +104,21 @@ func TriggerCmdUpdateConversation(ctx context.Context, node UpdateConNode, conve
 	return sendCmd(conversationCh, c2v, 100)
 }
 
+// TriggerCmdUpdateConversationBackgroundURL 更新聊天背景
+func TriggerCmdUpdateConversationBackgroundURL(ctx context.Context, conversationId, backgroundURl string, conversationCh chan<- Cmd2Value) error {
+	c2v := Cmd2Value{
+		Cmd: constant.CmdUpdateConversation,
+		Value: UpdateConNode{
+			Action: constant.UpdateBackgroundURL,
+			ConID:  conversationId,
+			Args:   backgroundURl,
+		},
+		Ctx: ctx,
+	}
+
+	return sendCmd(conversationCh, c2v, 100)
+}
+
 func TriggerCmdUpdateMessage(ctx context.Context, node UpdateMessageNode, conversationCh chan Cmd2Value) error {
 	c2v := Cmd2Value{
 		Cmd:   constant.CmdUpdateMessage,

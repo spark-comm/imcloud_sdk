@@ -489,5 +489,6 @@ func Test_SetGroupChatBackground(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	time.Sleep(time.Second * 10)
 	t.Log("SetFriendChatBackground success")
 }

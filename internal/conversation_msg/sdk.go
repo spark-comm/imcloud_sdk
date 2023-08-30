@@ -211,6 +211,16 @@ func (c *Conversation) SetOneConversationRecvMessageOpt(ctx context.Context, con
 	return c.setConversationAndSync(ctx, conversationID, &pbConversation.ConversationReq{RecvMsgOpt: &wrapperspb.Int32Value{Value: int32(opt)}})
 }
 
+// SetBackgroundURL 设置聊天背景
+func (c *Conversation) SetBackgroundURL(ctx context.Context, conversationID, backgroundURL string) error {
+	lc, err := c.db.GetConversation(ctx, conversationID)
+	if err != nil {
+		return err
+	}
+	req := &pbConversation.ConversationReq{Ex: &wrapperspb.StringValue{Value: backgroundURL}}
+	apiReq := &pbConversation.SetConversationsReq{Conversation: req}
+	return c.setConversation(ctx, apiReq, lc)
+}
 func (c *Conversation) GetTotalUnreadMsgCount(ctx context.Context) (totalUnreadCount int32, err error) {
 	return c.db.GetTotalUnreadMsgCountDB(ctx)
 }

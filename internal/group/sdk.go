@@ -24,6 +24,8 @@ import (
 	"open_im_sdk/pkg/db/pg"
 	"open_im_sdk/pkg/sdk_params_callback"
 	"open_im_sdk/pkg/sdkerrs"
+	"sort"
+	"strings"
 	"time"
 
 	groupv1 "github.com/imCloud/api/group/v1"
@@ -166,12 +168,18 @@ func (g *Group) SetGroupMemberNickname(ctx context.Context, groupID, userID stri
 
 // SetBackgroundUrl 设置聊天背景图片
 func (g *Group) SetBackgroundUrl(ctx context.Context, groupID, backgroundUrl string) error {
-	return g.SetGroupMemberInfo(ctx, &groupv1.SetGroupMemberInfoReq{
+	err := g.SetGroupMemberInfo(ctx, &groupv1.SetGroupMemberInfoReq{
 		GroupID:       groupID,
 		UserID:        g.loginUserID,
 		BackgroundUrl: backgroundUrl,
 		PUserID:       g.loginUserID,
 	})
+	if err != nil {
+		return err
+	}
+	//设置会话的聊天背景
+	common.TriggerCmdUpdateConversationBackgroundURL(ctx, g.getConversationIDBySessionType(groupID, constant.SuperGroup), backgroundUrl, g.conversationCh)
+	return nil
 }
 
 // SetGroupMemberInfo 设置群信息
@@ -596,4 +604,21 @@ func (g *Group) DelGroupConversation(ctx context.Context, groupID string) {
 	if err != nil {
 		log.ZDebug(ctx, "QuitGroup  after delete conversation err", err)
 	}
+}
+
+// getConversationIDBySessionType 获取会话类型
+func (g *Group) getConversationIDBySessionType(sourceID string, sessionType int) string {
+	switch sessionType {
+	case constant.SingleChatType:
+		l := []string{g.loginUserID, sourceID}
+		sort.Strings(l)
+		return "si_" + strings.Join(l, "_") // single chat
+	case constant.GroupChatType:
+		return "g_" + sourceID // group chat
+	case constant.SuperGroupChatType:
+		return "sg_" + sourceID // super group chat
+	case constant.NotificationChatType:
+		return "sn_" + sourceID // server notification chat
+	}
+	return ""
 }

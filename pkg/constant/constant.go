@@ -263,9 +263,9 @@ const (
 	SyncConversation                  = 15
 	SyncMessageListReactionExtensions = 16
 	SyncMessageListTypeKeyInfo        = 17
-
-	HasRead = 1
-	NotRead = 0
+	UpdateBackgroundURL               = 18
+	HasRead                           = 1
+	NotRead                           = 0
 
 	IsFilter  = 1
 	NotFilter = 0

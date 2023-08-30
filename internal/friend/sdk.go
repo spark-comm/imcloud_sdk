@@ -219,10 +219,16 @@ func (f *Friend) SetFriendRemark(ctx context.Context, userIDRemark *sdk.SetFrien
 
 // SetBackgroundUrl 设置聊天背景图片
 func (f *Friend) SetBackgroundUrl(ctx context.Context, friendId, backgroundUrl string) error {
-	return f.SetFriendInfo(ctx, &sdk.SetFriendRemarkParams{
+	err := f.SetFriendInfo(ctx, &sdk.SetFriendRemarkParams{
 		ToUserID:      friendId,
 		BackgroundUrl: backgroundUrl,
 	})
+	if err != nil {
+		return err
+	}
+	//设置会话的聊天背景
+	common.TriggerCmdUpdateConversationBackgroundURL(ctx, f.getConversationIDBySessionType(friendId, constant.SingleChatType), backgroundUrl, f.conversationCh)
+	return nil
 }
 
 // SetFriendInfo 设置好友信息

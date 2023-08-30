@@ -302,7 +302,19 @@ func (c *Conversation) doUpdateConversation(c2v common.Cmd2Value) {
 		} else {
 			c.ConversationListener.OnTotalUnreadMessageCountChanged(totalUnreadCount)
 		}
-
+	case constant.UpdateBackgroundURL:
+		oc, err := c.db.GetConversation(ctx, node.ConID)
+		backgroundURL := node.Args.(string)
+		if err == nil {
+			err := c.db.UpdateColumnsConversation(ctx, node.ConID, map[string]interface{}{"background_url": backgroundURL})
+			if err != nil {
+				log.ZError(c2v.Ctx, "updateConversationLatestMsgModel err: ", err)
+			} else {
+				oc.BackgroundURL = backgroundURL
+				c.ConversationListener.OnConversationChanged(utils.StructToJsonString([]*model_struct.LocalConversation{oc}))
+			}
+		}
+		c.SetBackgroundURL(c2v.Ctx, node.ConID, backgroundURL)
 	}
 }
 

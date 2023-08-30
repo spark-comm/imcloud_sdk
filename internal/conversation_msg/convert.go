@@ -32,7 +32,7 @@ func ServerConversationToLocal(conversation *pbConversation.Conversation) *model
 		BurnDuration:     conversation.BurnDuration,
 		IsPrivateChat:    conversation.IsPrivateChat,
 		AttachedInfo:     conversation.AttachedInfo,
-		Ex:               conversation.Ex,
+		BackgroundURL:    conversation.Ex,
 		MsgDestructTime:  conversation.MsgDestructTime,
 		IsMsgDestruct:    conversation.IsMsgDestruct,
 	}

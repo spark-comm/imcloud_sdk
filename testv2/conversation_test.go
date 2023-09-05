@@ -249,7 +249,12 @@ func Test_GetHistoryMessageList(t *testing.T) {
 }
 
 func Test_GetAdvancedHistoryMessageList(t *testing.T) {
-	msgs, err := open_im_sdk.UserForSDK.Conversation().GetAdvancedHistoryMessageList(ctx, sdk_params_callback.GetAdvancedHistoryMessageListParams{})
+	msgs, err := open_im_sdk.UserForSDK.Conversation().GetAdvancedHistoryMessageList(ctx, sdk_params_callback.GetAdvancedHistoryMessageListParams{
+		LastMinSeq:     0,
+		UserID:         `55224175421296640`,
+		Count:          20,
+		ConversationID: `si_55223677259616256_55224175421296640`,
+	})
 	if err != nil {
 		t.Fatal(err)
 	}

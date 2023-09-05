@@ -402,7 +402,7 @@ func Test_SetGroupInfo(t *testing.T) {
 func Test_KickGroupUserList(t *testing.T) {
 	info, err := open_im_sdk.UserForSDK.Group().KickGroupMemberList(
 		ctx, &sdk_params_callback.GetKickGroupListReq{
-			GroupID:  "105110373928960",
+			GroupID:  "136998765465600",
 			IsManger: false,
 			Name:     "",
 			PageSize: 10,

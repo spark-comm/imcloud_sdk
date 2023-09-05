@@ -16,9 +16,10 @@ package user
 
 import (
 	"context"
-	imUserPb "github.com/imCloud/api/user/v1"
 	"open_im_sdk/pkg/constant"
 	"open_im_sdk/pkg/db/model_struct"
+
+	imUserPb "github.com/imCloud/api/user/v1"
 )
 
 // GetUsersInfo 获取用户信息直接查服务器
@@ -58,4 +59,11 @@ func (u *User) SearchUserInfo(ctx context.Context, searchValue string, searchTyp
 
 func (u *User) GetUserLoginStatus(ctx context.Context, userIDs string) (*imUserPb.GetUserLoginStatusReps, error) {
 	return u.getUserLoginStatus(ctx, userIDs)
+}
+
+// SetUsersOption 设置用户配置项
+// @par option string  配置项
+// @par value  number  值
+func (u *User) SetUsersOption(ctx context.Context, option string, value int32) error {
+	return u.setUsersOption(ctx, option, value)
 }

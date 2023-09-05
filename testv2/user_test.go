@@ -16,10 +16,11 @@ package testv2
 
 import (
 	"fmt"
-	imUserPb "github.com/imCloud/api/user/v1"
 	"open_im_sdk/open_im_sdk"
 	"testing"
 	"time"
+
+	imUserPb "github.com/imCloud/api/user/v1"
 )
 
 func Test_GetSelfUserInfo(t *testing.T) {
@@ -52,8 +53,8 @@ func Test_SetSelfInfo(t *testing.T) {
 		newNickName := "test5"
 		newFaceURL := "http://localhost:9099/api/app/object/48672487050842112/icon.png"
 		err := open_im_sdk.UserForSDK.User().SetSelfInfo(ctx, &imUserPb.UpdateProfileReq{
-			Nickname: newNickName,
-			FaceURL:  newFaceURL,
+			Nickname: &newNickName,
+			FaceURL:  &newFaceURL,
 		})
 		if err != nil {
 			t.Error(err)
@@ -109,4 +110,15 @@ func TestGetUserLoginStatus(t *testing.T) {
 		t.Error(err)
 	}
 	t.Log(userInfo)
+}
+func Test_SetUsersOption(t *testing.T) {
+	err := open_im_sdk.UserForSDK.User().SetUsersOption(ctx, "qRCodeAdd", 1)
+	if err != nil {
+		t.Error(err)
+	}
+	lu, err := open_im_sdk.UserForSDK.User().GetSelfUserInfo(ctx)
+	if err != nil {
+		t.Error(err)
+	}
+	t.Log(lu)
 }

@@ -52,3 +52,9 @@ type GetSelfUserInfoResp struct {
 	UserInfo *sdkws.UserInfo        `json:"-"`
 	Data     map[string]interface{} `json:"data"`
 }
+
+type SetOptionReqReq struct {
+	UserID string `json:"userId,omitempty"` // 用户 id
+	Option string `json:"option,omitempty"` // 配置项类型
+	Value  int32  `json:"value,omitempty"`  // 值
+}

@@ -15,9 +15,11 @@
 package user
 
 import (
+	"encoding/json"
+	"open_im_sdk/pkg/db/model_struct"
+
 	imUserPb "github.com/imCloud/api/user/v1"
 	"github.com/jinzhu/copier"
-	"open_im_sdk/pkg/db/model_struct"
 )
 
 func ServerUserToLocalUser(user *imUserPb.ProfileReply) (*model_struct.LocalUser, error) {
@@ -26,5 +28,10 @@ func ServerUserToLocalUser(user *imUserPb.ProfileReply) (*model_struct.LocalUser
 		return nil, err
 	}
 	loginUser.UserID = user.UserId
+	b, err := json.Marshal(user.Options)
+	if err != nil {
+		return nil, err
+	}
+	loginUser.Options = string(b)
 	return &loginUser, nil
 }

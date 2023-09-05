@@ -29,11 +29,7 @@ const (
 	//UserID       = "2688118337"
 	//UserID       = "7204255074"
 	//UserID = "50122626445611008"
-<<<<<<< HEAD
-	UserID       = "55122326508802048"
-=======
-	UserID       = "55223677259616256"
->>>>>>> f807f59 (自定义赋值修改)
+	UserID       = "55122356376440832"
 	friendUserID = "3281432310"
 	// APIADDR = "http://192.168.44.128:10002"
 	// WSADDR  = "ws://192.168.44.128:10001"
@@ -42,7 +38,7 @@ const (
 	//APIADDR = "http://59.36.173.89:10002"
 	//WSADDR  = "ws://59.36.173.89:10001"
 	//UserID  = "kernaltestuid9"
-	token = "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJpbUNsb3VkIiwic3ViIjoie1widXNlcklkXCI6XCI1NTEyMjM1NjM3NjQ0MDgzMlwiLFwicGxhdGZvcm1cIjpcIkFuZHJvaWRcIixcInJvbGVcIjpcIlVTRVJcIn0iLCJleHAiOjE2OTMyMTY4NDksIm5iZiI6MTY5Mjg1Njg0OSwiaWF0IjoxNjkyODU2ODQ5fQ.9tLji42-DlAxfnBGaKRT7nfEj5WEhbE5tf7tjJXowcNVa3P00dwDnvePzfQI_9e-JIo0PZJL-1VcXendSL-KmA"
+	token = "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJpbUNsb3VkIiwic3ViIjoie1widXNlcklkXCI6XCI1NTEyMjM1NjM3NjQ0MDgzMlwiLFwicGxhdGZvcm1cIjpcIkFuZHJvaWRcIixcInJvbGVcIjpcIlVTRVJcIn0iLCJleHAiOjE2OTQyNzI4MTgsIm5iZiI6MTY5MzkxMjgxOCwiaWF0IjoxNjkzOTEyODE4fQ.NP76Xq4dnEfxZl_DY0frWupF0r063lupcBJV7Q6RY_yIhvVjzP-ZaasMmZc1lGmOYIpwG2ry4bX7fr8rrtyjYA"
 )
 
 func getConf(APIADDR, WSADDR string) sdk_struct.IMConfig {

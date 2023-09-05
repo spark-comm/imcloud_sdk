@@ -21,17 +21,19 @@ import (
 	"open_im_sdk/pkg/db/db_interface"
 	"open_im_sdk/pkg/db/model_struct"
 	"open_im_sdk/pkg/sdkerrs"
+	"open_im_sdk/pkg/server_api_params"
 	"open_im_sdk/pkg/syncer"
+
+	"open_im_sdk/open_im_sdk_callback"
+	"open_im_sdk/pkg/common"
+	"open_im_sdk/pkg/constant"
+	"open_im_sdk/pkg/utils"
 
 	imUserPb "github.com/imCloud/api/user/v1"
 	"github.com/imCloud/im/pkg/common/log"
 	authPb "github.com/imCloud/im/pkg/proto/auth"
 	"github.com/imCloud/im/pkg/proto/sdkws"
 	userPb "github.com/imCloud/im/pkg/proto/user"
-	"open_im_sdk/open_im_sdk_callback"
-	"open_im_sdk/pkg/common"
-	"open_im_sdk/pkg/constant"
-	"open_im_sdk/pkg/utils"
 )
 
 // User is a struct that represents a user in the system.
@@ -231,4 +233,17 @@ func (u *User) getUserLoginStatus(ctx context.Context, userIDs string) (*imUserP
 		return resp, err
 	}
 	return resp, nil
+}
+
+func (u *User) setUsersOption(ctx context.Context, option string, value int32) error {
+	err := util.ApiPost(ctx, constant.SetUsersOption, &server_api_params.SetOptionReqReq{
+		UserID: u.loginUserID,
+		Option: option,
+		Value:  value,
+	}, nil)
+	if err != nil {
+		return err
+	}
+	_ = u.SyncLoginUserInfo(ctx)
+	return nil
 }

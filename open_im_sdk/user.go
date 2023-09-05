@@ -49,9 +49,17 @@ func SearchUser(callback open_im_sdk_callback.Base, operationID string, searchVa
 	call(callback, operationID, UserForSDK.User().SearchUserInfo, searchValue, searchType)
 }
 
-// GetLoginUserStatus
+// GetLoginUserStatus 获取用户状态
 // par operationID  链路id
 // par userID  用户id
 func GetLoginUserStatus(callback open_im_sdk_callback.Base, operationID string, userID string) {
 	call(callback, operationID, UserForSDK.User().GetUserLoginStatus, userID)
+}
+
+// SetUsersOption 设置用户配置项
+// par operationID  链路id
+// @par option string  配置项
+// @par value  number  值
+func SetUsersOption(callback open_im_sdk_callback.Base, operationID, option string, value int32) {
+	call(callback, operationID, UserForSDK.User().SetUsersOption, option, value)
 }

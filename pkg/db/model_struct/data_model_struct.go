@@ -257,28 +257,18 @@ type LocalGroupRequest struct {
 // int32 AppMangerLevel = 10;
 // open_im_sdk.User == imdb.User
 type LocalUser struct {
-	UserID              string `json:"userID" gorm:"column:user_id;primary_key;type:varchar(64)"`
-	FaceURL             string `json:"faceURL" gorm:"column:face_url;size:255;comment:头像文件名"`
-	Nickname            string `json:"nickname" gorm:"column:nickname;size:50;comment:用户昵称"`
-	Message             string `json:"message" gorm:"column:message;size:50;comment:个性签名"`
-	Code                string `json:"code" gorm:"column:code;size:6;uniqueIndex;comment:用户ID"`
-	Phone               string `json:"phone" gorm:"column:phone;size:16;uniqueIndex;comment:手机号码"`
-	Email               string `json:"email" gorm:"column:email;size:36;comment:邮箱"`
-	Birth               int64  `json:"birth" gorm:"column:birth;comment:生日"`
-	Gender              int32  `gorm:"column:gender;comment:性别" json:"gender"`
-	ShareCode           string `json:"shareCode" gorm:"column:share_code;size:20;not null;default:'';comment:分享码"`
-	IsOpenMoments       uint   `json:"isOpenMoments" gorm:"column:is_open_moments;default:1;comment:是否公开朋友圈,1:不公开;2:公开"`
-	LastLogin           int64  `json:"lastLogin" gorm:"column:last_login;default:0;comment:上次登陆时间"`
-	QRCodeAdd           uint   `json:"qRCodeAdd" gorm:"column:qr_code_add;default:1;comment:是否开启二维码,1:开启;0:关闭"`
-	CardAdd             uint   `json:"cardAdd" gorm:"column:card_add;default:1;comment:是否开启名片,1:开启;0:关闭"`
-	GroupAdd            uint   `json:"groupAdd" gorm:"column:group_add;default:1;comment:是否开启群添加,1:开启;0:关闭"`
-	CodeAdd             uint   `json:"codeAdd" gorm:"column:code_add;default:1;comment:开启code,1:开启;0:关闭"`
-	PhoneAdd            uint   `json:"phoneAdd" gorm:"column:phone_add;default:1;comment:开启手机号,1:开启;0:关闭"`
-	ShowLastLogin       uint   `json:"showLastLogin" gorm:"column:show_last_login;default:2;comment:好友是否可见我的上线时间,1:开启;0:关闭"`
-	MultipleDeviceLogin uint   `json:"multipleDeviceLogin" gorm:"column:multiple_device_login;default:1;comment:是否允许多设备登陆,1:允许;2:不允许"`
-	AccountStatus       int    `json:"accountStatus" gorm:"column:account_status;default:1;comment:账户状态 1 -> 正常,2->冻结"`
-	GlobalRecvMsgOpt    int32  `json:"globalRecvMsgOpt" gorm:"column:global_recv_msg_opt;default:1;comment:用户全局接收消息选项0：正常；1：不接受消息；2：接受在线消息不接受离线消息；"`
-	AppMangerLevel      int32  `json:"appMangerLevel" gorm:"column:app_manger_level;default:1;comment:app管理等级"`
+	UserID    string `json:"userID" gorm:"column:user_id;primary_key;type:varchar(64)"`
+	FaceURL   string `json:"faceURL" gorm:"column:face_url;size:255;comment:头像文件名"`
+	Nickname  string `json:"nickname" gorm:"column:nickname;size:50;comment:用户昵称"`
+	Message   string `json:"message" gorm:"column:message;size:50;comment:个性签名"`
+	Code      string `json:"code" gorm:"column:code;size:6;uniqueIndex;comment:用户ID"`
+	Phone     string `json:"phone" gorm:"column:phone;size:16;uniqueIndex;comment:手机号码"`
+	Email     string `json:"email" gorm:"column:email;size:36;comment:邮箱"`
+	Birth     int64  `json:"birth" gorm:"column:birth;comment:生日"`
+	Gender    int32  `gorm:"column:gender;comment:性别" json:"gender"`
+	ShareCode string `json:"shareCode" gorm:"column:share_code;size:20;not null;default:'';comment:分享码"`
+	LastLogin int64  `json:"lastLogin" gorm:"column:last_login;default:0;comment:上次登陆时间"`
+	Options   string `json:"options" gorm:"column:optionst;default:1;size:3000;comment:用户配置项"`
 }
 
 // message BlackInfo{

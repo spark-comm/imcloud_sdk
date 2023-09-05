@@ -24,8 +24,8 @@ const (
 	SetGlobalRecvMessageOptRouter = BaseRouter + "/user/set_global_msg_recv_opt"
 	GetUsersInfoFromCacheRouter   = BaseRouter + "/user/get_users_info_from_cache"
 	SearchUserInfoRouter          = BaseRouter + "/user/search"
-
-	GetUserLoginStatusRouter = BaseRouter + "/user/get_login_status"
+	SetUsersOption                = BaseRouter + "/user/set_option"
+	GetUserLoginStatusRouter      = BaseRouter + "/user/get_login_status"
 
 	AddFriendRouter                           = BaseRouter + "/friend/add_friend"
 	DeleteFriendRouter                        = BaseRouter + "/friend/delete_friend"

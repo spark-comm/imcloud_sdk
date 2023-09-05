@@ -27,13 +27,12 @@ require (
 	gorm.io/driver/sqlite v1.5.2
 )
 
-replace github.com/imCloud => ../../imcloud
+replace github.com/imCloud => ../imcloud
 
 require (
 	github.com/bwmarrin/snowflake v0.3.0 // indirect
 	github.com/envoyproxy/protoc-gen-validate v1.0.1 // indirect
 	github.com/go-kratos/kratos/v2 v2.6.3 // indirect
-	github.com/go-stack/stack v1.8.0 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
@@ -54,19 +53,8 @@ require (
 	go.uber.org/zap v1.24.0 // indirect
 	golang.org/x/crypto v0.12.0 // indirect
 	golang.org/x/image v0.7.0 // indirect
-<<<<<<< HEAD
-	golang.org/x/mobile v0.0.0-20230818142238-7088062f872d // indirect
-	golang.org/x/mod v0.12.0 // indirect
 	golang.org/x/sync v0.3.0 // indirect
 	golang.org/x/sys v0.11.0 // indirect
-	golang.org/x/tools v0.12.1-0.20230818130535-1517d1a3ba60 // indirect
-=======
-	golang.org/x/mobile v0.0.0-20230531173138-3c911d8e3eda // indirect
-	golang.org/x/mod v0.12.0 // indirect
-	golang.org/x/sync v0.3.0 // indirect
-	golang.org/x/sys v0.11.0 // indirect
-	golang.org/x/tools v0.11.0 // indirect
->>>>>>> f807f59 (自定义赋值修改)
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20230626202813-9b080da550b3 // indirect
 	google.golang.org/grpc v1.57.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect

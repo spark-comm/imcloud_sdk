@@ -205,7 +205,7 @@ func (g *Group) GetServerAdminGroupUntreatedApplicationList(ctx context.Context)
 
 // GetServerGroupMembers 远程获取群成员
 func (g *Group) GetServerGroupMembers(ctx context.Context, groupID string) ([]*groupv1.MembersInfo, error) {
-	req := &group.GetGroupMemberListReq{GroupID: groupID, Pagination: &sdkws.RequestPagination{}}
+	req := &group.GetGroupMemberListReq{GroupID: groupID, Pagination: &sdkws.RequestPagination{ShowNumber: 100}}
 	fn := func(resp *groupv1.MemberListForSDKReps) []*groupv1.MembersInfo { return resp.Members }
 	return util.GetPageAll(ctx, constant.GetGroupMemberListRouter, req, fn)
 }

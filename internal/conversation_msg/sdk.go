@@ -576,7 +576,8 @@ func (c *Conversation) SendMessage(ctx context.Context, s *sdk_struct.MsgStruct,
 	case constant.Location:
 		s.Content = utils.StructToJsonString(s.LocationElem)
 	case constant.Custom:
-		s.Content = utils.StructToJsonString(s.CustomElem)
+		//s.Content = utils.StructToJsonString(s.CustomElem)
+		s.Content = utils.StructToJsonString(s.Content)
 	case constant.Merger:
 		s.Content = utils.StructToJsonString(s.MergeElem)
 	case constant.Quote:
@@ -721,6 +722,7 @@ func (c *Conversation) SendMessageByBuffer(ctx context.Context, s *sdk_struct.Ms
 		case constant.AtText:
 		case constant.Location:
 		case constant.Custom:
+			s.Content = utils.StructToJsonString(s.Content)
 		case constant.Merger:
 		case constant.Quote:
 		case constant.Card:

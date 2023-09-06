@@ -16,7 +16,6 @@ package group
 
 import (
 	"context"
-	"github.com/imCloud/im/pkg/common/log"
 	"open_im_sdk/internal/util"
 	"open_im_sdk/pkg/common"
 	"open_im_sdk/pkg/constant"
@@ -27,6 +26,8 @@ import (
 	"sort"
 	"strings"
 	"time"
+
+	"github.com/imCloud/im/pkg/common/log"
 
 	groupv1 "github.com/imCloud/api/group/v1"
 	"github.com/imCloud/im/pkg/utils"
@@ -294,26 +295,40 @@ func (g *Group) GetGroupMemberList(ctx context.Context, groupID string, filter, 
 	if count == 0 {
 		count = 20
 	}
+	return g.db.GetGroupMemberListSplit(
+		ctx,
+		groupID,
+		filter,
+		int((offset-1)*count),
+		int(count))
 	// 检查是否同步过
-	if _, ok := g.syncGroup[groupID]; ok {
-		return g.db.GetGroupMemberListSplit(
-			ctx,
-			groupID,
-			filter,
-			int((offset-1)*count),
-			int(count))
-	} else {
-		//从远端读取
-		members, err := g.GetServerFirstPageGroupMembers(ctx, groupID)
-		if err != nil {
-			return nil, err
-		}
-		if len(members) >= 20 {
-			//通知同步群成员
-			common.TriggerCmdSyncGroupMembers(ctx, groupID, g.groupCh)
-		}
-		return util.Batch(ServerGroupMemberToLocalGroupMember, members), nil
-	}
+	// i, err := g.db.GetGroupMemberCount(ctx, groupID)
+	// if i == 0 || err != nil {
+	// 	if err := g.SyncAllGroupMember(ctx, groupID); err != nil {
+	// 		return nil, err
+	// 	}
+	// }
+	// return g.db.GetGroupMemberListSplit(
+	// 	ctx,
+	// 	groupID,
+	// 	filter,
+	// 	int(pg.BuildOffsetByPage(int(offset), int(count))),
+	// 	int(count))
+	//检查是否同步过
+	// 检查是否同步过
+	// i, err := g.db.GetGroupMemberCount(ctx, groupID)
+	// if i == 0 || err != nil {
+	// 	//从远端读取
+	// 	members, err := g.GetServerFirstPageGroupMembers(ctx, groupID)
+	// 	if err != nil {
+	// 		return nil, err
+	// 	}
+	// 	//通知同步群成员
+	// 	common.TriggerCmdSyncGroupMembers(ctx, groupID, g.groupCh)
+	// 	return util.Batch(ServerGroupMemberToLocalGroupMember, members), nil
+	// } else {
+
+	// }
 }
 
 // GetGroupMemberOwnerAndAdmin 获取群主和管理员

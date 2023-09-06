@@ -16,8 +16,6 @@ package interaction
 
 import (
 	"context"
-	"github.com/imCloud/im/pkg/common/log"
-	"github.com/imCloud/im/pkg/proto/sdkws"
 	"math"
 	"open_im_sdk/pkg/ccontext"
 	"open_im_sdk/pkg/common"
@@ -25,11 +23,16 @@ import (
 	"open_im_sdk/pkg/db/db_interface"
 	"open_im_sdk/pkg/utils"
 	"open_im_sdk/sdk_struct"
+	"strings"
+
+	"github.com/imCloud/im/pkg/common/log"
+	"github.com/imCloud/im/pkg/proto/sdkws"
 )
 
 const (
 	connectPullNums = 1
 	defaultPullNums = 30
+	SplitPullMsgNum = 100
 )
 
 // The callback synchronization starts. The reconnection ends
@@ -226,29 +229,94 @@ func (m *MsgSyncer) doConnected(ctx context.Context) {
 	common.TriggerCmdNotification(m.ctx, sdk_struct.CmdNewMsgComeToConversation{SyncFlag: constant.MsgSyncEnd}, m.conversationCh)
 }
 
+// IsNotification 是否通知
+func IsNotification(conversationID string) bool {
+	return strings.HasPrefix(conversationID, "n_")
+}
+
 // Fragment synchronization message, seq refresh after successful trigger
-// 片段同步消息，成功触发后seq刷新
 func (m *MsgSyncer) syncAndTriggerMsgs(ctx context.Context, seqMap map[string][2]int64, syncMsgNum int64) error {
 	if len(seqMap) > 0 {
-		resp, err := m.pullMsgBySeqRange(ctx, seqMap, syncMsgNum)
+		tempSeqMap := make(map[string][2]int64, 50)
+		msgNum := 0
+		for k, v := range seqMap {
+
+			oneConversationSyncNum := v[1] - v[0]
+			if (oneConversationSyncNum/SplitPullMsgNum) > 1 && IsNotification(k) {
+				nSeqMap := make(map[string][2]int64, 1)
+				nSeqMap[k] = [2]int64{v[0], v[0] + oneConversationSyncNum/2}
+				for i := 0; i < 2; i++ {
+					resp, err := m.pullMsgBySeqRange(ctx, nSeqMap, syncMsgNum)
+					if err != nil {
+						log.ZError(ctx, "syncMsgFromSvr err", err, "nSeqMap", nSeqMap)
+						return err
+					}
+					_ = m.triggerConversation(ctx, resp.Msgs)
+					_ = m.triggerNotification(ctx, resp.NotificationMsgs)
+					for conversationID, seqs := range nSeqMap {
+						m.syncedMaxSeqs[conversationID] = seqs[1]
+					}
+					nSeqMap[k] = [2]int64{v[0] + oneConversationSyncNum/2 + 1, v[1]}
+				}
+				continue
+			}
+			tempSeqMap[k] = v
+			if oneConversationSyncNum > 0 {
+				msgNum += int(oneConversationSyncNum)
+			}
+			if msgNum >= SplitPullMsgNum {
+				resp, err := m.pullMsgBySeqRange(ctx, tempSeqMap, syncMsgNum)
+				if err != nil {
+					log.ZError(ctx, "syncMsgFromSvr err", err, "tempSeqMap", tempSeqMap)
+					return err
+				}
+				_ = m.triggerConversation(ctx, resp.Msgs)
+				_ = m.triggerNotification(ctx, resp.NotificationMsgs)
+				for conversationID, seqs := range tempSeqMap {
+					m.syncedMaxSeqs[conversationID] = seqs[1]
+				}
+				tempSeqMap = make(map[string][2]int64, 50)
+				msgNum = 0
+			}
+		}
+
+		resp, err := m.pullMsgBySeqRange(ctx, tempSeqMap, syncMsgNum)
 		if err != nil {
 			log.ZError(ctx, "syncMsgFromSvr err", err, "seqMap", seqMap)
 			return err
 		}
 		_ = m.triggerConversation(ctx, resp.Msgs)
 		_ = m.triggerNotification(ctx, resp.NotificationMsgs)
-		//更新最大wz
 		for conversationID, seqs := range seqMap {
 			m.syncedMaxSeqs[conversationID] = seqs[1]
-			//同步到的最小seq
-			m.synceMinSeqs[conversationID] = seqs[0]
-			//师傅初始化加载完成
-			m.conversationInitStatus[conversationID] = true
 		}
-		return err
 	}
 	return nil
 }
+
+// Fragment synchronization message, seq refresh after successful trigger
+// 片段同步消息，成功触发后seq刷新
+// func (m *MsgSyncer) syncAndTriggerMsgs(ctx context.Context, seqMap map[string][2]int64, syncMsgNum int64) error {
+// 	if len(seqMap) > 0 {
+// 		resp, err := m.pullMsgBySeqRange(ctx, seqMap, syncMsgNum)
+// 		if err != nil {
+// 			log.ZError(ctx, "syncMsgFromSvr err", err, "seqMap", seqMap)
+// 			return err
+// 		}
+// 		_ = m.triggerConversation(ctx, resp.Msgs)
+// 		_ = m.triggerNotification(ctx, resp.NotificationMsgs)
+// 		//更新最大wz
+// 		for conversationID, seqs := range seqMap {
+// 			m.syncedMaxSeqs[conversationID] = seqs[1]
+// 			//同步到的最小seq
+// 			m.synceMinSeqs[conversationID] = seqs[0]
+// 			//师傅初始化加载完成
+// 			m.conversationInitStatus[conversationID] = true
+// 		}
+// 		return err
+// 	}
+// 	return nil
+// }
 
 func (m *MsgSyncer) splitSeqs(split int, seqsNeedSync []int64) (splitSeqs [][]int64) {
 	if len(seqsNeedSync) <= split {

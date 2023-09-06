@@ -17,12 +17,13 @@ package conversation_msg
 import (
 	"context"
 	"encoding/json"
-	"github.com/imCloud/im/pkg/common/mcontext"
 	"open_im_sdk/pkg/common"
 	"open_im_sdk/pkg/constant"
 	"open_im_sdk/pkg/db/model_struct"
 	"open_im_sdk/pkg/utils"
 	"open_im_sdk/sdk_struct"
+
+	"github.com/imCloud/im/pkg/common/mcontext"
 
 	"github.com/imCloud/im/pkg/common/log"
 	"github.com/imCloud/im/pkg/proto/sdkws"
@@ -480,7 +481,7 @@ func (c *Conversation) syncOtherInformation(ctx context.Context) {
 	// 同步数据
 	for _, syncFunc := range []func(c context.Context) error{
 		c.friend.SyncFirstFriendList, //先同步首页数据
-		c.group.InitSyncData,
+		c.group.SyncAllJoinedGroupsAndMembers,
 		c.friend.SyncUntreatedFriendReceiveFriendApplication, //同步未处理的好友请求
 		//c.friend.SyncSelfFriendApplication, //自己发出的好友请求，暂时业务上没有需要
 		c.group.SyncAdminGroupUntreatedApplication, //获取未处理的加群请求

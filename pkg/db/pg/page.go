@@ -26,3 +26,8 @@ func Operation(r *Page) func(db *gorm.DB) *gorm.DB {
 		return db.Offset(offset).Limit(int(r.Size))
 	}
 }
+
+// BuildOffsetByPage 构建分页的offset
+func BuildOffsetByPage(pageNum, pageSize int) int {
+	return int((pageNum - 1) * pageSize)
+}

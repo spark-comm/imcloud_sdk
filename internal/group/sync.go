@@ -17,15 +17,17 @@ package group
 import (
 	"context"
 	"encoding/json"
-	groupv1 "github.com/imCloud/api/group/v1"
-	"github.com/imCloud/im/pkg/common/log"
-	"github.com/imCloud/im/pkg/proto/group"
-	"github.com/imCloud/im/pkg/proto/sdkws"
 	"open_im_sdk/internal/util"
 	"open_im_sdk/pkg/common"
 	"open_im_sdk/pkg/constant"
 	"open_im_sdk/pkg/utils"
+	"sync"
 	"time"
+
+	groupv1 "github.com/imCloud/api/group/v1"
+	"github.com/imCloud/im/pkg/common/log"
+	"github.com/imCloud/im/pkg/proto/group"
+	"github.com/imCloud/im/pkg/proto/sdkws"
 )
 
 // SyncAllGroupMember 同步所有群成员
@@ -250,6 +252,30 @@ func (g *Group) deleteGroup(ctx context.Context, groupID string) error {
 	g.DelGroupConversation(ctx, groupInfo.GroupID)
 	// 触发群改变通知
 	g.listener.OnGroupInfoChanged(utils.StructToJsonString(groupInfo))
+	return nil
+}
+
+// SyncAllJoinedGroupsAndMembers 同步所有的群和群成员
+func (g *Group) SyncAllJoinedGroupsAndMembers(ctx context.Context) error {
+	err := g.SyncAllJoinedGroups(ctx)
+	if err != nil {
+		return err
+	}
+	groups, err := g.db.GetJoinedGroupListDB(ctx)
+	if err != nil {
+		return err
+	}
+	var wg sync.WaitGroup
+	for _, group := range groups {
+		wg.Add(1)
+		go func(groupID string) {
+			defer wg.Done()
+			if err := g.SyncAllGroupMember(ctx, groupID); err != nil {
+				log.ZError(ctx, "SyncGroupMember failed", err)
+			}
+		}(group.GroupID)
+	}
+	wg.Wait()
 	return nil
 }
 

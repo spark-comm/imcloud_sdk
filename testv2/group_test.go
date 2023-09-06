@@ -368,7 +368,7 @@ func Test_GetGroupMemberList(t *testing.T) {
 
 	members, err := open_im_sdk.UserForSDK.Group().GetGroupMemberList(
 		ctx,
-		"152845764530176", 0, 1, 9999999)
+		"129345192464384", 0, 2, 20)
 	if err != nil {
 		panic(err)
 	}

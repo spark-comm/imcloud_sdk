@@ -392,7 +392,7 @@ func (g *Group) InitSyncData(ctx context.Context) error {
 	if err := g.groupSyncer.Sync(ctx, util.Batch(ServerGroupToLocalGroup, serveGroups), groups, nil); err != nil {
 		return err
 	}
-	//延迟一分钟同步全量数据
+	//延迟30秒同步全量数据
 	g.syncGroupQueue.Push(1, time.Second*30)
 	// 发出同步的通知
 	common.TriggerCmdJoinGroup(ctx, g.groupCh)
@@ -406,9 +406,35 @@ func (g *Group) delaySyncJoinGroup(ctx context.Context) {
 	//从延迟队列中取数据
 	for emtry := range g.syncGroupQueue.Channel(ctx1, 1) {
 		log.ZDebug(ctx1, "delay sync join group", emtry)
-		g.SyncAllJoinedGroups(ctx1)
+		err := g.SyncAllJoinedGroups(ctx)
+		if err != nil {
+			log.ZError(ctx, "SyncAllJoinedGroups failed", err)
+		}
+		// 同步所有群成员
+		go g.SyncAllJoinedGroupMembers(ctx1)
 	}
 }
+
+// SyncAllJoinedGroupMembers 同步所有加入群的群成员
+func (g *Group) SyncAllJoinedGroupMembers(ctx context.Context) error {
+	groups, err := g.db.GetJoinedGroupListDB(ctx)
+	if err != nil {
+		return err
+	}
+	var wg sync.WaitGroup
+	for _, group := range groups {
+		wg.Add(1)
+		go func(groupID string) {
+			defer wg.Done()
+			if err := g.SyncAllGroupMember(ctx, groupID); err != nil {
+				log.ZError(ctx, "SyncGroupMember failed", err)
+			}
+		}(group.GroupID)
+	}
+	wg.Wait()
+	return nil
+}
+
 func (g *Group) syncUserReqGroupInfo(ctx context.Context, fromUserID, groupID string) error {
 	//获取用户加入单个群的申请信息
 	req := groupv1.UserJoinGroupRequestReq{

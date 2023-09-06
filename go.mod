@@ -27,7 +27,7 @@ require (
 	gorm.io/driver/sqlite v1.5.2
 )
 
-replace github.com/imCloud => ../imcloud
+replace github.com/imCloud => ../../imcloud
 
 require (
 	github.com/bwmarrin/snowflake v0.3.0 // indirect
@@ -52,9 +52,11 @@ require (
 	go.uber.org/multierr v1.8.0 // indirect
 	go.uber.org/zap v1.24.0 // indirect
 	golang.org/x/crypto v0.12.0 // indirect
-	golang.org/x/image v0.7.0 // indirect
+	golang.org/x/exp v0.0.0-20230905200255-921286631fa9 // indirect
+	golang.org/x/image v0.11.0 // indirect
+	golang.org/x/mobile v0.0.0-20230906021930-dc64209e86f1 // indirect
 	golang.org/x/sync v0.3.0 // indirect
-	golang.org/x/sys v0.11.0 // indirect
+	golang.org/x/sys v0.12.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20230626202813-9b080da550b3 // indirect
 	google.golang.org/grpc v1.57.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect

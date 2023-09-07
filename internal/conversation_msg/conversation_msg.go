@@ -834,6 +834,7 @@ func (c *Conversation) msgHandleByContentType(msg *sdk_struct.MsgStruct) (err er
 		err = utils.JsonStringToStruct(msg.Content, &t)
 		msg.LocationElem = &t
 	case constant.Custom:
+
 		fallthrough
 	case constant.CustomMsgNotTriggerConversation:
 		fallthrough
@@ -866,7 +867,7 @@ func (c *Conversation) msgHandleByContentType(msg *sdk_struct.MsgStruct) (err er
 		err = utils.JsonStringToStruct(msg.Content, &t)
 		msg.NotificationElem = &t
 	}
-	msg.Content = ""
+	//msg.Content = ""
 
 	return utils.Wrap(err, "")
 }

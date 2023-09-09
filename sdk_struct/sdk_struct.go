@@ -198,7 +198,15 @@ type AdvancedTextElem struct {
 type TypingElem struct {
 	MsgTips string `json:"msgTips,omitempty"`
 }
-
+type RedPacketElem struct {
+	Amount     string `protobuf:"bytes,1,opt,name=amount,proto3" json:"amount,omitempty"`
+	BusinessID string `protobuf:"bytes,2,opt,name=businessID,proto3" json:"businessID,omitempty"`
+	Content    string `protobuf:"bytes,3,opt,name=content,proto3" json:"content,omitempty"`
+	GroupID    string `protobuf:"bytes,4,opt,name=groupID,proto3" json:"groupID,omitempty"`
+	IsOver     bool   `protobuf:"varint,5,opt,name=isOver,proto3" json:"isOver,omitempty"`
+	Number     string `protobuf:"bytes,6,opt,name=number,proto3" json:"number,omitempty"`
+	RedID      string `protobuf:"bytes,7,opt,name=redID,proto3" json:"redID,omitempty"`
+}
 type MsgStruct struct {
 	ClientMsgID          string                 `json:"clientMsgID,omitempty"`
 	ServerMsgID          string                 `json:"serverMsgID,omitempty"`
@@ -239,6 +247,7 @@ type MsgStruct struct {
 	AdvancedTextElem     *AdvancedTextElem      `json:"advancedTextElem,omitempty"`
 	TypingElem           *TypingElem            `json:"typingElem,omitempty"`
 	AttachedInfoElem     *AttachedInfoElem      `json:"attachedInfoElem,omitempty"`
+	RedPacketElem        *RedPacketElem         `json:"redPacketElem,omitempty"`
 }
 
 type AtInfo struct {

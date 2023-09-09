@@ -834,7 +834,6 @@ func (c *Conversation) msgHandleByContentType(msg *sdk_struct.MsgStruct) (err er
 		err = utils.JsonStringToStruct(msg.Content, &t)
 		msg.LocationElem = &t
 	case constant.Custom:
-
 		fallthrough
 	case constant.CustomMsgNotTriggerConversation:
 		fallthrough
@@ -862,6 +861,10 @@ func (c *Conversation) msgHandleByContentType(msg *sdk_struct.MsgStruct) (err er
 		t := sdk_struct.CardElem{}
 		err = utils.JsonStringToStruct(msg.Content, &t)
 		msg.CardElem = &t
+	case constant.RedMsg:
+		t := sdk_struct.RedPacketElem{}
+		err = utils.JsonStringToStruct(msg.Content, &t)
+		msg.RedPacketElem = &t
 	default:
 		t := sdk_struct.NotificationElem{}
 		err = utils.JsonStringToStruct(msg.Content, &t)

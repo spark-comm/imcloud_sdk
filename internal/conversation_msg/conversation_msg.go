@@ -863,7 +863,7 @@ func (c *Conversation) msgHandleByContentType(msg *sdk_struct.MsgStruct) (err er
 		msg.CardElem = &t
 	case constant.RedMsg:
 		t := sdk_struct.RedPacketElem{}
-		err = utils.JsonStringToStruct(msg.Content, &t)
+		err = json.Unmarshal([]byte(msg.Content), &t)
 		msg.RedPacketElem = &t
 	default:
 		t := sdk_struct.NotificationElem{}

@@ -257,6 +257,8 @@ func (c *Conversation) msgStructToLocalChatLog(src *sdk_struct.MsgStruct) *model
 	case constant.Custom:
 		//lc.Content = utils.StructToJsonString(src.CustomElem)
 		lc.Content = utils.StructToJsonString(src.Content)
+	case constant.RedMsg:
+		lc.Content = utils.StructToJsonString(src.Content)
 	case constant.Quote:
 		lc.Content = utils.StructToJsonString(src.QuoteElem)
 	case constant.Face:

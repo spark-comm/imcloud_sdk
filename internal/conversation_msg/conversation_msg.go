@@ -47,7 +47,7 @@ import (
 	"github.com/jinzhu/copier"
 )
 
-var SearchContentType = []int{constant.Text, constant.AtText, constant.File}
+var SearchContentType = []int{constant.Text, constant.AtText, constant.File, constant.Quote}
 
 type Conversation struct {
 	*interaction.LongConnMgr

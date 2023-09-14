@@ -58,3 +58,8 @@ type SetOptionReqReq struct {
 	Option string `json:"option,omitempty"` // 配置项类型
 	Value  int32  `json:"value,omitempty"`  // 值
 }
+
+type GetUserOperation struct {
+	UserID           string   `json:"userID"`
+	OperationKeyWord []string `json:"operationKeyWord"`
+}

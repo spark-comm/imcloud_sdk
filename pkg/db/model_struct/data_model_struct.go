@@ -268,7 +268,7 @@ type LocalUser struct {
 	Gender    int32  `gorm:"column:gender;comment:性别" json:"gender"`
 	ShareCode string `json:"shareCode" gorm:"column:share_code;size:20;not null;default:'';comment:分享码"`
 	LastLogin int64  `json:"lastLogin" gorm:"column:last_login;default:0;comment:上次登陆时间"`
-	Options   string `json:"options" gorm:"column:optionst;default:1;size:3000;comment:用户配置项"`
+	Options   string `json:"options" gorm:"column:optionst;default:'';size:3000;comment:用户配置项"`
 }
 
 // message BlackInfo{

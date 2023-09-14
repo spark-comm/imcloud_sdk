@@ -26,6 +26,7 @@ const (
 	SearchUserInfoRouter          = BaseRouter + "/user/search"
 	SetUsersOption                = BaseRouter + "/user/set_option"
 	GetUserLoginStatusRouter      = BaseRouter + "/user/get_login_status"
+	GetUserOperation              = BaseRouter + "/user/get_user_operation"
 
 	AddFriendRouter                           = BaseRouter + "/friend/add_friend"
 	DeleteFriendRouter                        = BaseRouter + "/friend/delete_friend"

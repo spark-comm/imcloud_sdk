@@ -63,3 +63,8 @@ func GetLoginUserStatus(callback open_im_sdk_callback.Base, operationID string, 
 func SetUsersOption(callback open_im_sdk_callback.Base, operationID, option string, value int32) {
 	call(callback, operationID, UserForSDK.User().SetUsersOption, option, value)
 }
+
+// SyncUsersWalletOption 同步用户钱包是否开通状态
+func SyncUsersWalletOption(callback open_im_sdk_callback.Base, operationID string) {
+	call(callback, operationID, UserForSDK.User().SyncUserOperation)
+}

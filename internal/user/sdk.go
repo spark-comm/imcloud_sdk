@@ -67,3 +67,7 @@ func (u *User) GetUserLoginStatus(ctx context.Context, userIDs string) (*imUserP
 func (u *User) SetUsersOption(ctx context.Context, option string, value int32) error {
 	return u.setUsersOption(ctx, option, value)
 }
+
+func (u *User) SyncUserOperation(ctx context.Context, userID string) error {
+	return u.syncUserOperation(ctx)
+}

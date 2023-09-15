@@ -256,11 +256,7 @@ const (
 func (u *User) syncUserOperation(ctx context.Context) error {
 	//获取远程operation数据
 	resp := imUserPb.GetOperationResp{}
-	err := util.ApiPost(ctx, constant.GetUserOperation, &imUserPb.GetOperationReq{
-		OperationKeyWord: []string{
-			WalletOperation, //只获取钱包数据
-		},
-	}, &resp)
+	err := util.ApiPost(ctx, constant.GetUserOperation, &imUserPb.GetOperationReq{}, &resp)
 	if err != nil {
 		return err
 	}
@@ -273,25 +269,25 @@ func (u *User) syncUserOperation(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	userOperation := make(map[string]int32)
-	err = json.Unmarshal([]byte(localUser.Options), &userOperation)
-	if err != nil {
-		userOperation[WalletOperation] = respMap[WalletOperation]
-		marshal, err := json.Marshal(userOperation)
-		if err != nil {
-			return err
-		}
-		return u.DataBase.UpdateLoginUserByMap(ctx, localUser, map[string]interface{}{
-			"optionst": string(marshal),
-		})
-	}
-	if val, ok := userOperation[WalletOperation]; ok {
-		if val == respMap[WalletOperation] {
-			return nil
-		}
-	}
-	userOperation[WalletOperation] = respMap[WalletOperation]
-	marshal, err := json.Marshal(userOperation)
+	//userOperation := make(map[string]int32)
+	//err = json.Unmarshal([]byte(localUser.Options), &userOperation)
+	//if err != nil {
+	//	userOperation[WalletOperation] = respMap[WalletOperation]
+	//	marshal, err := json.Marshal(userOperation)
+	//	if err != nil {
+	//		return err
+	//	}
+	//	return u.DataBase.UpdateLoginUserByMap(ctx, localUser, map[string]interface{}{
+	//		"optionst": string(marshal),
+	//	})
+	//}
+	//if val, ok := userOperation[WalletOperation]; ok {
+	//	if val == respMap[WalletOperation] {
+	//		return nil
+	//	}
+	//}
+	//userOperation[WalletOperation] = respMap[WalletOperation]
+	marshal, err := json.Marshal(respMap)
 	if err != nil {
 		return err
 	}

@@ -16,7 +16,6 @@ package user
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"open_im_sdk/internal/util"
 	"open_im_sdk/pkg/db/db_interface"
@@ -254,21 +253,22 @@ const (
 )
 
 func (u *User) syncUserOperation(ctx context.Context) error {
-	//获取远程operation数据
-	resp := imUserPb.GetOperationResp{}
-	err := util.ApiPost(ctx, constant.GetUserOperation, &imUserPb.GetOperationReq{}, &resp)
-	if err != nil {
-		return err
-	}
-	respMap := resp.UserOperationMap
-	if _, ok := respMap[WalletOperation]; !ok {
-		return nil
-	}
-	//获取本地数据比对
-	localUser, err := u.GetLoginUser(ctx, u.loginUserID)
-	if err != nil {
-		return err
-	}
+	return u.SyncLoginUserInfo(ctx)
+	////获取远程operation数据
+	//resp := imUserPb.GetOperationResp{}
+	//err := util.ApiPost(ctx, constant.GetUserOperation, &imUserPb.GetOperationReq{}, &resp)
+	//if err != nil {
+	//	return err
+	//}
+	//respMap := resp.UserOperationMap
+	//if _, ok := respMap[WalletOperation]; !ok {
+	//	return nil
+	//}
+	////获取本地数据比对
+	//localUser, err := u.GetLoginUser(ctx, u.loginUserID)
+	//if err != nil {
+	//	return err
+	//}
 	//userOperation := make(map[string]int32)
 	//err = json.Unmarshal([]byte(localUser.Options), &userOperation)
 	//if err != nil {
@@ -287,11 +287,11 @@ func (u *User) syncUserOperation(ctx context.Context) error {
 	//	}
 	//}
 	//userOperation[WalletOperation] = respMap[WalletOperation]
-	marshal, err := json.Marshal(respMap)
-	if err != nil {
-		return err
-	}
-	return u.DataBase.UpdateLoginUserByMap(ctx, localUser, map[string]interface{}{
-		"optionst": string(marshal),
-	})
+	//marshal, err := json.Marshal(respMap)
+	//if err != nil {
+	//	return err
+	//}
+	//return u.DataBase.UpdateLoginUserByMap(ctx, localUser, map[string]interface{}{
+	//	"optionst": string(marshal),
+	//})
 }

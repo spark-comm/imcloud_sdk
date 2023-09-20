@@ -64,7 +64,7 @@ func SetUsersOption(callback open_im_sdk_callback.Base, operationID, option stri
 	call(callback, operationID, UserForSDK.User().SetUsersOption, option, value)
 }
 
-// SyncUsersWalletOption 同步用户钱包是否开通状态
-func SyncUsersWalletOption(callback open_im_sdk_callback.Base, operationID string) {
+// SyncUsersOption 同步用户配置状态
+func SyncUsersOption(callback open_im_sdk_callback.Base, operationID string) {
 	call(callback, operationID, UserForSDK.User().SyncUserOperation)
 }

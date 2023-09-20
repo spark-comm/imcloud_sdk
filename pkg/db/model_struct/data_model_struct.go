@@ -63,6 +63,7 @@ type LocalFriend struct {
 	SortFlag       string `gorm:"column:sort_flag;type:varchar(2);comment:排序标志" json:"sortFlag"`
 	NotPeersFriend int32  `json:"notPeersFriend" gorm:"column:not_peers_friend;default:0;comment:关系链是否完整；1303断裂"`
 	IsComplete     int32  `gorm:"column:is_complete;default:1;comment:同步完成" json:"isComplete"`
+	IsDestroyMsg   int32  `gorm:"column:is_destroy_msg;not null;tinyint;default:0;comment:阅后即焚开关0-关闭 1-开启" json:"isDestroyMsg" `
 }
 
 // message FriendRequest{

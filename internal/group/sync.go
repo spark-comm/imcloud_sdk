@@ -506,7 +506,7 @@ func (g *Group) InitSyncGroupData(ctx context.Context) error {
 	//从群中获取数据
 	groups, err := g.db.GetJoinedGroupListDB(ctx)
 	if err != nil {
-		return err
+		log.ZError(ctx, "InitSyncGroupData err", err)
 	}
 	//获取远程数据
 	fn := func(resp *groupv1.GetSyncGroupResp) []*groupv1.GetSyncGroupRespInfo { return resp.List }

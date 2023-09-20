@@ -17,6 +17,9 @@ package friend
 import (
 	"context"
 	"github.com/golang/protobuf/ptypes/empty"
+	friendPb "github.com/imCloud/api/friend/v1"
+	"github.com/imCloud/im/pkg/common/log"
+	"github.com/imCloud/im/pkg/proto/friend"
 	"open_im_sdk/internal/util"
 	"open_im_sdk/pkg/common"
 	"open_im_sdk/pkg/constant"
@@ -27,12 +30,6 @@ import (
 	"open_im_sdk/pkg/server_api_params"
 	"sort"
 	"strings"
-	"time"
-
-	commonPb "github.com/imCloud/api/common"
-	friendPb "github.com/imCloud/api/friend/v1"
-	"github.com/imCloud/im/pkg/common/log"
-	"github.com/imCloud/im/pkg/proto/friend"
 )
 
 func (f *Friend) GetSpecifiedFriendsInfo(ctx context.Context, friendUserIDList []string) ([]*server_api_params.FullUserInfo, error) {
@@ -51,46 +48,33 @@ func (f *Friend) GetSpecifiedFriendsInfo(ctx context.Context, friendUserIDList [
 		m[black.BlackUserID] = blackList[i]
 	}
 	res := make([]*server_api_params.FullUserInfo, 0, len(localFriendList))
-	var notCompleteList = make([]string, 0)
-	var notCompleteData = make([]*model_struct.LocalFriend, 0)
-	for _, localFriend := range localFriendList {
-		if localFriend.IsComplete == IsNotComplete {
-			notCompleteList = append(notCompleteList, localFriend.FriendUserID)
-			notCompleteData = append(notCompleteData, localFriend)
-			continue
+	//判断是否有信息未同步的好友
+	completed, notCompleteIds := f.CheckCompleted(localFriendList)
+	localFriends := make([]*model_struct.LocalFriend, len(friendUserIDList))
+	if len(notCompleteIds) > 0 || len(localFriendList) == 0 {
+		friendInfos, err := f.GetFriendByIdsSvr(ctx, friendUserIDList)
+		if err != nil {
+			return nil, err
 		}
+		if len(friendInfos) > 0 {
+			serverFriends := util.Batch(ServerFriendToLocalFriend, friendInfos)
+			if len(notCompleteIds) == len(localFriendList) {
+				localFriends = serverFriends
+			} else {
+				localFriends = append(completed, serverFriends...)
+			}
+			go f.syncFriendByInfo(ctx, serverFriends)
+		}
+	} else {
+		localFriends = localFriendList
+	}
+	for _, localFriend := range localFriends {
 		res = append(res, &server_api_params.FullUserInfo{
 			PublicInfo: nil,
 			FriendInfo: localFriend,
 			BlackInfo:  m[localFriend.FriendUserID],
 		})
 	}
-	//获取远程未完全同步的数据
-	req := &friendPb.GetPaginationFriendsInfo{UserID: f.loginUserID, Pagination: &commonPb.RequestPagination{}}
-	fn := func(resp *friendPb.ListFriendReply) []*friendPb.FriendInfo {
-		return resp.List
-	}
-	resp := &friendPb.ListFriendReply{}
-	respList, err := util.GetPageAll(ctx, constant.GetFriendListRouter, req, resp, fn)
-	if err != nil {
-		return nil, err
-	}
-	friends := util.Batch(ServerFriendToLocalFriend, respList)
-	for _, localFriend := range friends {
-		res = append(res, &server_api_params.FullUserInfo{
-			PublicInfo: nil,
-			FriendInfo: localFriend,
-			BlackInfo:  m[localFriend.FriendUserID],
-		})
-	}
-	//异步同步这些数据
-	go func(a, b []*model_struct.LocalFriend) {
-		if err = f.friendSyncer.Sync(ctx, a, b, nil); err != nil {
-			log.ZDebug(ctx, "sync first page friend error", err)
-		}
-		//加入延迟队列做同步
-		f.syncFriendQueue.Push(1, time.Second*20)
-	}(friends, notCompleteData)
 	return res, nil
 }
 
@@ -354,6 +338,24 @@ func (f *Friend) GetUnprocessedNum(ctx context.Context) (int64, error) {
 	return f.db.GetUnprocessedNum(ctx)
 }
 
+// SetFriendDestroyMsgStatus 设置好友阅后即焚
+// friendID   string 好友状态
+// status     int  状态1:开启,0:关闭
+func (f *Friend) SetFriendDestroyMsgStatus(ctx context.Context, friendID string, status int) error {
+	if _, err := util.ProtoApiPost[friendPb.SetDestroyMsgStatusReq, empty.Empty](
+		ctx,
+		constant.SetDestroyMsgStatus,
+		&friendPb.SetDestroyMsgStatusReq{
+			OwnerUserId:  f.loginUserID,
+			FriendUserId: friendID,
+			Status:       uint32(status),
+		},
+	); err != nil {
+		return err
+	}
+	return f.syncFriendById(ctx, f.loginUserID, friendID)
+}
+
 // getConversationIDBySessionType 获取会话类型
 func (f *Friend) getConversationIDBySessionType(sourceID string, sessionType int) string {
 	switch sessionType {
@@ -369,4 +371,20 @@ func (f *Friend) getConversationIDBySessionType(sourceID string, sessionType int
 		return "sn_" + sourceID // server notification chat
 	}
 	return ""
+}
+
+// CheckCompleted 检查数据是否完整
+func (f *Friend) CheckCompleted(friends []*model_struct.LocalFriend) ([]*model_struct.LocalFriend, []string) {
+	completed := make([]*model_struct.LocalFriend, 0)
+	ids := make([]string, 0)
+	if friends != nil && len(friends) > 0 {
+		for _, v := range friends {
+			if v.IsComplete == IsNotComplete {
+				ids = append(ids, v.FriendUserID)
+			} else {
+				completed = append(completed, v)
+			}
+		}
+	}
+	return completed, ids
 }

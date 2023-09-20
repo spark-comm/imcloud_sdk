@@ -178,18 +178,9 @@ func (f *Friend) syncFriendApplicationById(ctx context.Context, fromUserID, toUs
 func (f *Friend) syncFriendById(ctx context.Context, fromUserID, friendId string) error {
 	//req := &friendPb.ListFriendByIdsReq{UserID: fromUserID, FriendIds: []string{friendId}}
 	//res, err := util.CallApi[friendPb.ListFriendByIdsReply](ctx, constant.GetFriendByAppIdsRouter, req)
-	res := &friendPb.ListFriendByIdsReply{}
-	err := util.CallPostApi[*friendPb.ListFriendByIdsReq, *friendPb.ListFriendByIdsReply](
-		ctx, constant.GetFriendByAppIdsRouter,
-		&friendPb.ListFriendByIdsReq{UserID: fromUserID, FriendIds: []string{friendId}},
-		res,
-	)
-	if err != nil {
-		return err
-	}
-	if res.FriendsInfo == nil {
-		log.ZDebug(ctx, "SyncFriendApplicationById res friend request nill")
-		return nil
+	svr, err1 := f.GetFriendByIdsSvr(ctx, []string{fromUserID})
+	if err1 != nil {
+		return err1
 	}
 	localData, err := f.db.GetFriendInfoList(ctx, []string{friendId})
 	localList := make([]*model_struct.LocalFriend, 0)
@@ -198,7 +189,26 @@ func (f *Friend) syncFriendById(ctx context.Context, fromUserID, friendId string
 	} else {
 		localList = append(localList, localData...)
 	}
-	return f.friendSyncer.Sync(ctx, util.Batch(ServerFriendToLocalFriend, res.FriendsInfo), localData, nil, true)
+	return f.friendSyncer.Sync(ctx, util.Batch(ServerFriendToLocalFriend, svr), localData, nil, true)
+}
+
+// syncFriendByInfo 同步指定好友信息
+func (f *Friend) syncFriendByInfo(ctx context.Context, data []*model_struct.LocalFriend) error {
+	if data == nil || len(data) == 0 {
+		return nil
+	}
+	friendIds := make([]string, len(data))
+	for i, v := range data {
+		friendIds[i] = v.FriendUserID
+	}
+	localData, err := f.db.GetFriendInfoList(ctx, friendIds)
+	localList := make([]*model_struct.LocalFriend, 0)
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return err
+	} else {
+		localList = append(localList, localData...)
+	}
+	return f.friendSyncer.Sync(ctx, data, localData, nil, true)
 }
 
 // syncDelFriend 同步删除好友列表

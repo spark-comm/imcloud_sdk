@@ -16,8 +16,8 @@ package sdkerrs
 
 import "github.com/imCloud/im/pkg/errs"
 
-func New(code int, msg string, dtl string) errs.CodeError {
-	return errs.NewCodeError(code, msg).WithDetail(dtl)
+func New(code int, msg string, dtl, reson string) errs.CodeError {
+	return errs.NewCodeError(code, msg).WithDetail(dtl).WithReson(reson)
 }
 
 var Warp = errs.Wrap

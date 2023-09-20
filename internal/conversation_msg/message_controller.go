@@ -83,7 +83,19 @@ func (m *MessageController) BatchInsertMessageList(ctx context.Context, insertMs
 
 // PullMessageBySeqs 根据seq拉取消息
 func (c *Conversation) PullMessageBySeqs(ctx context.Context, seqs []*sdkws.SeqRange) (*sdkws.PullMessageBySeqsResp, error) {
-	return util.CallApi[sdkws.PullMessageBySeqsResp](ctx, constant.PullUserMsgBySeqRouter, sdkws.PullMessageBySeqsReq{UserID: c.loginUserID, SeqRanges: seqs})
+	//return util.CallApi[sdkws.PullMessageBySeqsResp](ctx,
+	//	constant.PullUserMsgBySeqRouter, sdkws.PullMessageBySeqsReq{UserID: c.loginUserID, SeqRanges: seqs})
+	resp := &sdkws.PullMessageBySeqsResp{}
+	err := util.CallPostApi[*sdkws.PullMessageBySeqsReq, *sdkws.PullMessageBySeqsResp](
+		ctx,
+		constant.PullUserMsgBySeqRouter,
+		&sdkws.PullMessageBySeqsReq{UserID: c.loginUserID, SeqRanges: seqs},
+		resp,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return resp, nil
 }
 
 // SearchMessageByContentTypeAndKeyword 根据内容和关键字搜索消息

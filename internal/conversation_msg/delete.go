@@ -16,6 +16,7 @@ package conversation_msg
 
 import (
 	"context"
+	"github.com/golang/protobuf/ptypes/empty"
 	"open_im_sdk/internal/util"
 	"open_im_sdk/pkg/common"
 	"open_im_sdk/pkg/constant"
@@ -77,7 +78,15 @@ func (c *Conversation) clearConversationMsgFromSvr(ctx context.Context, conversa
 	var apiReq pbMsg.ClearConversationsMsgReq
 	apiReq.UserID = c.loginUserID
 	apiReq.ConversationIDs = []string{conversationID}
-	return util.ApiPost(ctx, constant.ClearConversationMsgRouter, &apiReq, nil)
+	_, err := util.ProtoApiPost[pbMsg.ClearConversationsMsgReq, empty.Empty](
+		ctx,
+		constant.ClearConversationMsgRouter,
+		&apiReq)
+	if err != nil {
+		return err
+	}
+	return nil
+	//return util.ApiPost(ctx, constant.ClearConversationMsgRouter, &apiReq, nil)
 }
 
 // Delete all messages
@@ -99,7 +108,12 @@ func (c *Conversation) deleteAllMessage(ctx context.Context) error {
 func (c *Conversation) deleteAllMessageFromSvr(ctx context.Context) error {
 	var apiReq pbMsg.UserClearAllMsgReq
 	apiReq.UserID = c.loginUserID
-	err := util.ApiPost(ctx, constant.ClearAllMsgRouter, &apiReq, nil)
+	//err := util.ApiPost(ctx, constant.ClearAllMsgRouter, &apiReq, nil)
+	_, err := util.ProtoApiPost[pbMsg.UserClearAllMsgReq, empty.Empty](
+		ctx,
+		constant.ClearAllMsgRouter,
+		&apiReq,
+	)
 	if err != nil {
 		return err
 	}
@@ -145,11 +159,20 @@ func (c *Conversation) deleteMessageFromSvr(ctx context.Context, conversationID 
 	if err != nil {
 		return err
 	}
-	var apiReq pbMsg.DeleteMsgsReq
-	apiReq.UserID = c.loginUserID
-	apiReq.Seqs = []int64{localMessage.Seq}
-	apiReq.ConversationID = conversationID
-	return util.ApiPost(ctx, constant.DeleteMsgsRouter, &apiReq, nil)
+	_, err = util.ProtoApiPost[pbMsg.DeleteMsgsReq, empty.Empty](
+		ctx,
+		constant.DeleteMsgsRouter,
+		&pbMsg.DeleteMsgsReq{
+			UserID:         c.loginUserID,
+			Seqs:           []int64{localMessage.Seq},
+			ConversationID: conversationID,
+		},
+	)
+	if err != nil {
+		return err
+	}
+	return nil
+	//return util.ApiPost(ctx, constant.DeleteMsgsRouter, &apiReq, nil)
 }
 
 // Delete messages from local

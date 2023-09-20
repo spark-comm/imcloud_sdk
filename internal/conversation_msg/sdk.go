@@ -18,6 +18,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"github.com/golang/protobuf/ptypes/empty"
 	"image"
 	"open_im_sdk/internal/file"
 	"open_im_sdk/internal/util"
@@ -65,7 +66,16 @@ func (c *Conversation) GetConversationListSplit(ctx context.Context, offset, cou
 }
 
 func (c *Conversation) SetGlobalRecvMessageOpt(ctx context.Context, opt int) error {
-	if err := util.ApiPost(ctx, constant.SetGlobalRecvMessageOptRouter, &pbUser.SetGlobalRecvMessageOptReq{UserID: c.loginUserID, GlobalRecvMsgOpt: int32(opt)}, nil); err != nil {
+	//if err := util.ApiPost(ctx, constant.SetGlobalRecvMessageOptRouter, &pbUser.SetGlobalRecvMessageOptReq{UserID: c.loginUserID, GlobalRecvMsgOpt: int32(opt)}, nil); err != nil {
+	//	return err
+	//}
+	if _, err := util.ProtoApiPost[pbUser.SetGlobalRecvMessageOptReq, empty.Empty](
+		ctx,
+		constant.SetGlobalRecvMessageOptRouter,
+		&pbUser.SetGlobalRecvMessageOptReq{
+			UserID: c.loginUserID,
+			GlobalRecvMsgOpt: int32(opt)},
+	); err != nil {
 		return err
 	}
 	c.user.SyncLoginUserInfo(ctx)

@@ -44,10 +44,12 @@ const (
 	// GetFriendRequestByApplicantRouter 通过申请与被申请人获取好友请求详情
 	GetFriendRequestByApplicantRouter = BaseRouter + "/friend/get_friend_request_by_applicant"
 	GetFriendByAppIdsRouter           = BaseRouter + "/friend/get_friend_by_ids"
-	SendMsgRouter                     = "/chat/send_msg"
-	PullUserMsgRouter                 = "/chat/pull_msg"
-	PullUserMsgBySeqRouter            = BaseRouter + "/msg/pull_msg_by_seq"
-	NewestSeqRouter                   = "/chat/newest_seq"
+
+	GetSyncFriendList      = BaseRouter + "/friend/get_sync_friend_list"
+	SendMsgRouter          = "/chat/send_msg"
+	PullUserMsgRouter      = "/chat/pull_msg"
+	PullUserMsgBySeqRouter = BaseRouter + "/msg/pull_msg_by_seq"
+	NewestSeqRouter        = "/chat/newest_seq"
 
 	//msg
 	ClearConversationMsgRouter             = BaseRouter + RouterMsg + "/clear_conversation_msg" // Clear the message of the specified conversation
@@ -104,6 +106,8 @@ const (
 	GetUserOwnerJoinRequestNumRouter  = BaseRouter + RouterGroup + "/get_user_owner_join_request_num"
 	// GetGroupMemberByIdsRouter 根据群成员id获取群信息
 	GetGroupMemberByIdsRouter = BaseRouter + RouterGroup + "/get_member_by_ids"
+
+	GetSyncGroupInfoList = BaseRouter + RouterGroup + "/get_sync_group_list"
 	group
 	SetReceiveMessageOptRouter         = BaseRouter + "/conversation/set_receive_message_opt"
 	GetReceiveMessageOptRouter         = BaseRouter + "/conversation/get_receive_message_opt"

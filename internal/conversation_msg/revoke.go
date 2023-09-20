@@ -17,6 +17,7 @@ package conversation_msg
 import (
 	"context"
 	"errors"
+	"github.com/golang/protobuf/ptypes/empty"
 	"open_im_sdk/internal/util"
 	"open_im_sdk/pkg/common"
 	"open_im_sdk/pkg/constant"
@@ -186,7 +187,17 @@ func (c *Conversation) revokeOneMessage(ctx context.Context, conversationID, cli
 			}
 		}
 	}
-	if err := util.ApiPost(ctx, constant.RevokeMsgRouter, pbMsg.RevokeMsgReq{ConversationID: conversationID, Seq: message.Seq, UserID: c.loginUserID}, nil); err != nil {
+	//if err := util.ApiPost(ctx, constant.RevokeMsgRouter, pbMsg.RevokeMsgReq{ConversationID: conversationID, Seq: message.Seq, UserID: c.loginUserID}, nil); err != nil {
+	//	return err
+	//}
+	if _, err := util.ProtoApiPost[pbMsg.RevokeMsgReq, empty.Empty](
+		ctx,
+		constant.RevokeMsgRouter,
+		&pbMsg.RevokeMsgReq{
+			ConversationID: conversationID,
+			Seq:            message.Seq,
+			UserID:         c.loginUserID},
+	); err != nil {
 		return err
 	}
 	c.revokeMessage(ctx, &sdkws.RevokeMsgTips{

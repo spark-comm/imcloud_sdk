@@ -62,6 +62,7 @@ type LocalFriend struct {
 	AttachedInfo   string `json:"attachedInfo" gorm:"column:attached_info;type:varchar(1024)"`
 	SortFlag       string `gorm:"column:sort_flag;type:varchar(2);comment:排序标志" json:"sortFlag"`
 	NotPeersFriend int32  `json:"notPeersFriend" gorm:"column:not_peers_friend;default:0;comment:关系链是否完整；1303断裂"`
+	IsComplete     int32  `gorm:"column:is_complete;default:1;comment:同步完成" json:"isComplete"`
 }
 
 // message FriendRequest{
@@ -155,6 +156,7 @@ type LocalGroup struct {
 	IsReal                 int32  `json:"isReal" gorm:"column:is_real;default:0;comment:是否实名认证，默认否"`
 	IsOpen                 uint   `json:"isOpen" gorm:"column:is_open;default:1;comment:是否公开群组,1:开启;2:关闭"`
 	AllowPrivateChat       uint   `json:"allowPrivateChat" gorm:"column:allow_private_chat;default:2;comment:允许成员私聊,1:开启;2:关闭"`
+	IsComplete             int32  `gorm:"column:is_complete;default:1;comment:同步完成" json:"isComplete"`
 }
 
 //message GroupMemberFullInfo {

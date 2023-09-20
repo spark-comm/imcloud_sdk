@@ -16,6 +16,7 @@ package group
 
 import (
 	"context"
+	"github.com/golang/protobuf/ptypes/empty"
 	"open_im_sdk/internal/util"
 	"open_im_sdk/pkg/common"
 	"open_im_sdk/pkg/constant"
@@ -41,7 +42,9 @@ func (g *Group) CreateGroup(ctx context.Context, req *groupv1.CrateGroupReq) (*g
 	if req.GroupType != constant.WorkingGroup {
 		return nil, sdkerrs.ErrGroupType
 	}
-	resp, err := util.CallApi[groupv1.GroupInfo](ctx, constant.CreateGroupRouter, req)
+	//resp, err := util.CallApi[groupv1.GroupInfo](ctx, constant.CreateGroupRouter, req)
+	resp := &groupv1.GroupInfo{}
+	err := util.CallPostApi[*groupv1.CrateGroupReq, *groupv1.GroupInfo](ctx, constant.CreateGroupRouter, req, resp)
 	if err != nil {
 		return nil, err
 	}
@@ -53,14 +56,15 @@ func (g *Group) CreateGroup(ctx context.Context, req *groupv1.CrateGroupReq) (*g
 
 // JoinGroup 加入群
 func (g *Group) JoinGroup(ctx context.Context, groupID, reqMsg string, joinSource int32) error {
-	if err := util.ApiPost(ctx, constant.JoinGroupRouter,
+	if _, err := util.ProtoApiPost[groupv1.JoinGroupReq, empty.Empty](
+		ctx,
+		constant.JoinGroupRouter,
 		&groupv1.JoinGroupReq{
 			GroupID:  groupID,
 			Remark:   reqMsg,
 			SourceID: joinSource,
 			UserID:   g.loginUserID,
-		},
-		nil); err != nil {
+		}); err != nil {
 		return err
 	}
 	if err := g.SyncSelfGroupApplications(ctx, groupID); err != nil {
@@ -71,9 +75,17 @@ func (g *Group) JoinGroup(ctx context.Context, groupID, reqMsg string, joinSourc
 
 // QuitGroup 退出群聊
 func (g *Group) QuitGroup(ctx context.Context, groupID string) error {
-	if err := util.ApiPost(ctx, constant.QuitGroupRouter, groupv1.QuitAllGroupsReq{
-		UserID: g.loginUserID,
-	}, nil); err != nil {
+	//if err := util.ApiPost(ctx, constant.QuitGroupRouter, groupv1.QuitAllGroupsReq{
+	//	UserID: g.loginUserID,
+	//}, nil); err != nil {
+	//	return err
+	//}
+
+	if _, err := util.ProtoApiPost[groupv1.QuitAllGroupsReq, empty.Empty](
+		ctx,
+		constant.QuitGroupRouter,
+		&groupv1.QuitAllGroupsReq{UserID: g.loginUserID},
+	); err != nil {
 		return err
 	}
 	//删除群信息
@@ -85,10 +97,20 @@ func (g *Group) QuitGroup(ctx context.Context, groupID string) error {
 
 // DismissGroup 解散群
 func (g *Group) DismissGroup(ctx context.Context, groupID string) error {
-	if err := util.ApiPost(ctx, constant.DismissGroupRouter, &groupv1.IsGroupMemberReq{
-		GroupID: groupID,
-		UserID:  g.loginUserID,
-	}, nil); err != nil {
+	//if err := util.ApiPost(ctx, constant.DismissGroupRouter, &groupv1.IsGroupMemberReq{
+	//	GroupID: groupID,
+	//	UserID:  g.loginUserID,
+	//}, nil); err != nil {
+	//	return err
+	//}
+	if _, err := util.ProtoApiPost[groupv1.IsGroupMemberReq, empty.Empty](
+		ctx,
+		constant.DismissGroupRouter,
+		&groupv1.IsGroupMemberReq{
+			GroupID: groupID,
+			UserID:  g.loginUserID,
+		},
+	); err != nil {
 		return err
 	}
 	if err := g.deleteGroup(ctx, groupID); err != nil {
@@ -100,15 +122,31 @@ func (g *Group) DismissGroup(ctx context.Context, groupID string) error {
 // ChangeGroupMute 群禁言状态改变
 func (g *Group) ChangeGroupMute(ctx context.Context, groupID string, isMute bool) (err error) {
 	if isMute {
-		err = util.ApiPost(ctx, constant.MuteGroupRouter, &groupv1.IsGroupMemberReq{
-			GroupID: groupID,
-			UserID:  g.loginUserID,
-		}, nil)
+		//err = util.ApiPost(ctx, constant.MuteGroupRouter, &groupv1.IsGroupMemberReq{
+		//	GroupID: groupID,
+		//	UserID:  g.loginUserID,
+		//}, nil)
+		_, err = util.ProtoApiPost[groupv1.IsGroupMemberReq, empty.Empty](
+			ctx,
+			constant.MuteGroupRouter,
+			&groupv1.IsGroupMemberReq{
+				GroupID: groupID,
+				UserID:  g.loginUserID,
+			},
+		)
 	} else {
-		err = util.ApiPost(ctx, constant.CancelMuteGroupRouter, &groupv1.CancelMuteGroupMemberReq{
-			GroupID: groupID,
-			UserID:  g.loginUserID,
-		}, nil)
+		//err = util.ApiPost(ctx, constant.CancelMuteGroupRouter, &groupv1.CancelMuteGroupMemberReq{
+		//	GroupID: groupID,
+		//	UserID:  g.loginUserID,
+		//}, nil)
+		_, err = util.ProtoApiPost[groupv1.CancelMuteGroupMemberReq, empty.Empty](
+			ctx,
+			constant.CancelMuteGroupRouter,
+			&groupv1.CancelMuteGroupMemberReq{
+				GroupID: groupID,
+				UserID:  g.loginUserID,
+			},
+		)
 	}
 	if err != nil {
 		return err
@@ -123,20 +161,39 @@ func (g *Group) ChangeGroupMute(ctx context.Context, groupID string, isMute bool
 // ChangeGroupMemberMute 成员禁言
 func (g *Group) ChangeGroupMemberMute(ctx context.Context, groupID, userID string, mutedSeconds int) (err error) {
 	if mutedSeconds == 0 {
-		err = util.ApiPost(ctx, constant.CancelMuteGroupMemberRouter, &groupv1.CancelMuteGroupMemberReq{
-			GroupID: groupID,
-			UserID:  userID,
-			PUserID: g.loginUserID,
-		}, nil)
+		//err = util.ApiPost(ctx, constant.CancelMuteGroupMemberRouter, &groupv1.CancelMuteGroupMemberReq{
+		//	GroupID: groupID,
+		//	UserID:  userID,
+		//	PUserID: g.loginUserID,
+		//}, nil)
+		_, err = util.ProtoApiPost[groupv1.CancelMuteGroupMemberReq, empty.Empty](
+			ctx,
+			constant.CancelMuteGroupMemberRouter,
+			&groupv1.CancelMuteGroupMemberReq{
+				GroupID: groupID,
+				UserID:  userID,
+				PUserID: g.loginUserID,
+			},
+		)
 	} else {
-		err = util.ApiPost(ctx, constant.MuteGroupMemberRouter, &groupv1.MuteGroupMemberReq{
-			GroupID:      groupID,
-			UserID:       userID,
-			MutedSeconds: int64(mutedSeconds),
-			PUserID:      g.loginUserID,
-		},
-			//&group.MuteGroupMemberReq{GroupID: groupID, UserID: userID, MutedSeconds: uint32(mutedSeconds)},
-			nil)
+		//err = util.ApiPost(ctx, constant.MuteGroupMemberRouter, &groupv1.MuteGroupMemberReq{
+		//	GroupID:      groupID,
+		//	UserID:       userID,
+		//	MutedSeconds: int64(mutedSeconds),
+		//	PUserID:      g.loginUserID,
+		//},
+		//	//&group.MuteGroupMemberReq{GroupID: groupID, UserID: userID, MutedSeconds: uint32(mutedSeconds)},
+		//	nil)
+		_, err = util.ProtoApiPost[groupv1.MuteGroupMemberReq, empty.Empty](
+			ctx,
+			constant.MuteGroupMemberRouter,
+			&groupv1.MuteGroupMemberReq{
+				GroupID:      groupID,
+				UserID:       userID,
+				MutedSeconds: int64(mutedSeconds),
+				PUserID:      g.loginUserID,
+			},
+		)
 	}
 	if err != nil {
 		return err
@@ -186,7 +243,14 @@ func (g *Group) SetBackgroundUrl(ctx context.Context, groupID, backgroundUrl str
 // SetGroupMemberInfo 设置群信息
 func (g *Group) SetGroupMemberInfo(ctx context.Context, groupMemberInfo *groupv1.SetGroupMemberInfoReq) error {
 	groupMemberInfo.PUserID = g.loginUserID
-	if err := util.ApiPost(ctx, constant.SetGroupMemberInfoRouter, &groupMemberInfo, nil); err != nil {
+	//if err := util.ApiPost(ctx, constant.SetGroupMemberInfoRouter, &groupMemberInfo, nil); err != nil {
+	//	return err
+	//}
+	if _, err := util.ProtoApiPost[groupv1.SetGroupMemberInfoReq, empty.Empty](
+		ctx,
+		constant.SetGroupMemberInfoRouter,
+		groupMemberInfo,
+	); err != nil {
 		return err
 	}
 	return g.syncGroupMembers(ctx, groupMemberInfo.GroupID, groupMemberInfo.PUserID)
@@ -211,17 +275,30 @@ func (g *Group) GetSpecifiedGroupsInfo(ctx context.Context, groupIDs []string) (
 	//获取所有群数据（普通群和超级群）
 	groups := append(groupList, superGroupList...)
 	res := make([]*model_struct.LocalGroup, 0, len(groupIDs))
+	isNotCompleteGroupId := []string{}
+	syncCompleteData := make([]*model_struct.LocalGroup, 0)
 	for i, v := range groups {
 		if _, ok := groupIDMap[v.GroupID]; ok {
 			delete(groupIDMap, v.GroupID)
 			res = append(res, groups[i])
+			if v.IsComplete == IsNotComplete { //未同步完成的单独同步所有字段
+				isNotCompleteGroupId = append(isNotCompleteGroupId, v.GroupID)
+				syncCompleteData = append(syncCompleteData, v)
+			}
 		}
 	}
 	if len(groupIDMap) > 0 {
-		groups, err := util.CallApi[groupv1.GetGroupInfoResponse](
+		//groups, err := util.CallApi[groupv1.GetGroupInfoResponse](
+		//	ctx,
+		//	constant.GetGroupsInfoRouter,
+		//	&groupv1.GetGroupInfoReq{GroupID: utils.Keys(groupIDMap)})
+		groups := &groupv1.GetGroupInfoResponse{}
+		err := util.CallPostApi[*groupv1.GetGroupInfoReq, *groupv1.GetGroupInfoResponse](
 			ctx,
 			constant.GetGroupsInfoRouter,
-			&groupv1.GetGroupInfoReq{GroupID: utils.Keys(groupIDMap)})
+			&groupv1.GetGroupInfoReq{GroupID: utils.Keys(groupIDMap)},
+			groups,
+		)
 		if err != nil {
 			log.ZError(ctx, "Call GetGroupsInfoRouter", err)
 		}
@@ -233,6 +310,25 @@ func (g *Group) GetSpecifiedGroupsInfo(ctx context.Context, groupIDs []string) (
 			res = append(res, util.Batch(ServerGroupToLocalGroup, groups.Data)...)
 		}
 	}
+
+	go func(params []string) {
+		if len(params) > 0 {
+			groups := &groupv1.GetGroupInfoResponse{}
+			err := util.CallPostApi[*groupv1.GetGroupInfoReq, *groupv1.GetGroupInfoResponse](
+				ctx,
+				constant.GetGroupsInfoRouter,
+				&groupv1.GetGroupInfoReq{GroupID: params},
+				groups,
+			)
+			if err != nil {
+				return
+			}
+			if err := g.groupSyncer.Sync(ctx, util.Batch(ServerGroupToLocalGroup, groups.Data), syncCompleteData, nil); err != nil {
+				return
+			}
+
+		}
+	}(isNotCompleteGroupId)
 	return res, nil
 }
 
@@ -281,7 +377,14 @@ func (g *Group) SetGroupApplyMemberFriend(ctx context.Context, groupID string, r
 // SetGroupInfo 更新群信息
 func (g *Group) SetGroupInfo(ctx context.Context, groupInfo *groupv1.EditGroupProfileRequest) error {
 	groupInfo.UserID = g.loginUserID
-	if err := util.ApiPost(ctx, constant.SetGroupInfoRouter, &groupInfo, nil); err != nil {
+	//if err := util.ApiPost(ctx, constant.SetGroupInfoRouter, &groupInfo, nil); err != nil {
+	//	return err
+	//}
+	if _, err := util.ProtoApiPost[groupv1.EditGroupProfileRequest, empty.Empty](
+		ctx,
+		constant.SetGroupInfoRouter,
+		groupInfo,
+	); err != nil {
 		return err
 	}
 	return g.SyncGroups(ctx, groupInfo.GroupID)
@@ -363,13 +466,25 @@ func (g *Group) GetSpecifiedGroupMembersInfo(ctx context.Context, groupID string
 }
 
 func (g *Group) KickGroupMember(ctx context.Context, groupID string, reason string, userIDList []string) error {
-	if err := util.ApiPost(ctx, constant.KickGroupMemberRouter, &groupv1.KickGroupMemberReq{
-		GroupID:          groupID,
-		KickedUserIdList: userIDList,
-		UserID:           g.loginUserID,
-		HandledMsg:       reason,
-	},
-		nil); err != nil {
+	//if err := util.ApiPost(ctx, constant.KickGroupMemberRouter, &groupv1.KickGroupMemberReq{
+	//	GroupID:          groupID,
+	//	KickedUserIdList: userIDList,
+	//	UserID:           g.loginUserID,
+	//	HandledMsg:       reason,
+	//},
+	//	nil); err != nil {
+	//	return err
+	//}
+	if _, err := util.ProtoApiPost[groupv1.KickGroupMemberReq, empty.Empty](
+		ctx,
+		constant.KickGroupMemberRouter,
+		&groupv1.KickGroupMemberReq{
+			GroupID:          groupID,
+			KickedUserIdList: userIDList,
+			UserID:           g.loginUserID,
+			HandledMsg:       reason,
+		},
+	); err != nil {
 		return err
 	}
 	return g.deleteGroupMembers(ctx, groupID, userIDList...)
@@ -377,12 +492,24 @@ func (g *Group) KickGroupMember(ctx context.Context, groupID string, reason stri
 
 // TransferGroupOwner 转让群主
 func (g *Group) TransferGroupOwner(ctx context.Context, groupID, newOwnerUserID string) error {
-	if err := util.ApiPost(ctx, constant.TransferGroupRouter, &groupv1.TransferGroupReq{
-		GroupID:        groupID,
-		NewOwnerUserID: newOwnerUserID,
-		UserID:         g.loginUserID,
-	},
-		nil); err != nil {
+	//if err := util.ApiPost(ctx, constant.TransferGroupRouter, &groupv1.TransferGroupReq{
+	//	GroupID:        groupID,
+	//	NewOwnerUserID: newOwnerUserID,
+	//	UserID:         g.loginUserID,
+	//},
+	//	nil); err != nil {
+	//	return err
+	//}
+
+	if _, err := util.ProtoApiPost[groupv1.TransferGroupReq, empty.Empty](
+		ctx,
+		constant.TransferGroupRouter,
+		&groupv1.TransferGroupReq{
+			GroupID:        groupID,
+			NewOwnerUserID: newOwnerUserID,
+			UserID:         g.loginUserID,
+		},
+	); err != nil {
 		return err
 	}
 	if err := g.syncGroupMembers(ctx, groupID, newOwnerUserID, g.loginUserID); err != nil {
@@ -393,13 +520,25 @@ func (g *Group) TransferGroupOwner(ctx context.Context, groupID, newOwnerUserID 
 
 // InviteUserToGroup 邀请用户进群
 func (g *Group) InviteUserToGroup(ctx context.Context, groupID, reason string, userIDList []string) error {
-	if err := util.ApiPost(ctx, constant.InviteUserToGroupRouter, &groupv1.InviteUserToGroupReq{
-		GroupID:           groupID,
-		InvitedUserIdList: userIDList,
-		Reason:            reason,
-		UserID:            g.loginUserID,
-	},
-		nil); err != nil {
+	//if err := util.ApiPost(ctx, constant.InviteUserToGroupRouter, &groupv1.InviteUserToGroupReq{
+	//	GroupID:           groupID,
+	//	InvitedUserIdList: userIDList,
+	//	Reason:            reason,
+	//	UserID:            g.loginUserID,
+	//},
+	//	nil); err != nil {
+	//	return nil
+	//}
+	if _, err := util.ProtoApiPost[groupv1.InviteUserToGroupReq, empty.Empty](
+		ctx,
+		constant.InviteUserToGroupRouter,
+		&groupv1.InviteUserToGroupReq{
+			GroupID:           groupID,
+			InvitedUserIdList: userIDList,
+			Reason:            reason,
+			UserID:            g.loginUserID,
+		},
+	); err != nil {
 		return nil
 	}
 	if err := g.SyncGroups(ctx, groupID); err != nil {
@@ -456,7 +595,15 @@ func (g *Group) RefuseGroupApplication(ctx context.Context, groupID, fromUserID,
 }
 
 func (g *Group) HandlerGroupApplication(ctx context.Context, req *groupv1.ApplicationResponseReq) error {
-	if err := util.ApiPost(ctx, constant.AcceptGroupApplicationRouter, req, nil); err != nil {
+	//if err := util.ApiPost(ctx, constant.AcceptGroupApplicationRouter, req, nil); err != nil {
+	//	return err
+	//}
+
+	if _, err := util.ProtoApiPost[groupv1.ApplicationResponseReq, empty.Empty](
+		ctx,
+		constant.AcceptGroupApplicationRouter,
+		req,
+	); err != nil {
 		return err
 	}
 	//申请状态同步
@@ -556,15 +703,26 @@ func (g *Group) GetNotInGroupFriendInfoList(ctx context.Context, searchParam *sd
 }
 
 func (g *Group) GetUserOwnerJoinRequestNum(ctx context.Context) (groupv1.GetOwnerJoinRequestNumReps, error) {
-	resp := groupv1.GetOwnerJoinRequestNumReps{}
-	if err := util.ApiPost(ctx, constant.GetUserOwnerJoinRequestNumRouter,
+	//resp := groupv1.GetOwnerJoinRequestNumReps{}
+	//if err := util.ApiPost(ctx, constant.GetUserOwnerJoinRequestNumRouter,
+	//	&groupv1.GetOwnerJoinRequestNumReq{
+	//		UserID: g.loginUserID,
+	//	},
+	//	&resp); err != nil {
+	//	return resp, err
+	//}
+
+	resp, err := util.ProtoApiPost[groupv1.GetOwnerJoinRequestNumReq, groupv1.GetOwnerJoinRequestNumReps](
+		ctx,
+		constant.GetUserOwnerJoinRequestNumRouter,
 		&groupv1.GetOwnerJoinRequestNumReq{
 			UserID: g.loginUserID,
 		},
-		&resp); err != nil {
-		return resp, err
+	)
+	if err != nil {
+		return groupv1.GetOwnerJoinRequestNumReps{}, err
 	}
-	return resp, nil
+	return *resp, nil
 }
 
 func (g *Group) GetAppointGroupRequestInfo(ctx context.Context, groupID string, offset, count int) ([]model_struct.LocalGroupRequest, error) {
@@ -594,16 +752,25 @@ func (g *Group) syncDelGroup(ctx context.Context, groupID string) error {
 
 // SearchGroupInfo 搜索群
 func (g *Group) SearchGroupInfo(ctx context.Context, keyWord string, pageSize, pageNum int64) (groupv1.SearchGroupInfoResp, error) {
-	resp := groupv1.SearchGroupInfoResp{}
-	err := util.ApiPost(ctx, constant.SearchGroupInfoRouter, &groupv1.SearchGroupInfoReq{
-		KeyWord:  keyWord,
-		PageSize: pageSize,
-		PageNum:  pageNum,
-	}, &resp)
+	//resp := groupv1.SearchGroupInfoResp{}
+	//err := util.ApiPost(ctx, constant.SearchGroupInfoRouter, &groupv1.SearchGroupInfoReq{
+	//	KeyWord:  keyWord,
+	//	PageSize: pageSize,
+	//	PageNum:  pageNum,
+	//}, &resp)
+	resp, err := util.ProtoApiPost[groupv1.SearchGroupInfoReq, groupv1.SearchGroupInfoResp](
+		ctx,
+		constant.SearchGroupInfoRouter,
+		&groupv1.SearchGroupInfoReq{
+			KeyWord:  keyWord,
+			PageSize: pageSize,
+			PageNum:  pageNum,
+		},
+	)
 	if err != nil {
-		return resp, err
+		return groupv1.SearchGroupInfoResp{}, err
 	}
-	return resp, nil
+	return *resp, nil
 }
 
 // DelGroupConversation 删除群会话

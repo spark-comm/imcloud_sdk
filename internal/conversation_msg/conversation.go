@@ -17,6 +17,7 @@ package conversation_msg
 import (
 	"context"
 	"errors"
+	"github.com/golang/protobuf/ptypes/empty"
 	_ "open_im_sdk/internal/common"
 	"open_im_sdk/internal/util"
 	"open_im_sdk/pkg/common"
@@ -47,14 +48,28 @@ func (c *Conversation) setConversation(ctx context.Context, apiReq *pbConversati
 	apiReq.Conversation.UserID = localConversation.UserID
 	apiReq.Conversation.GroupID = localConversation.GroupID
 	apiReq.UserIDs = []string{c.loginUserID}
-	if err := util.ApiPost(ctx, constant.SetConversationsRouter, apiReq, nil); err != nil {
+
+	_, err := util.ProtoApiPost[pbConversation.SetConversationsReq, empty.Empty](ctx, constant.SetConversationsRouter, apiReq)
+	if err != nil {
 		return err
 	}
+	//if err := util.ApiPost(ctx, constant.SetConversationsRouter, apiReq, nil); err != nil {
+	//	return err
+	//}
 	return nil
 }
 
 func (c *Conversation) getServerConversationList(ctx context.Context) ([]*model_struct.LocalConversation, error) {
-	resp, err := util.CallApi[pbConversation.GetAllConversationsResp](ctx, constant.GetAllConversationsRouter, pbConversation.GetAllConversationsReq{OwnerUserID: c.loginUserID})
+	//resp, err := util.CallApi[pbConversation.GetAllConversationsResp](ctx,
+	//	constant.GetAllConversationsRouter,
+	//	pbConversation.GetAllConversationsReq{OwnerUserID: c.loginUserID})
+	resp := &pbConversation.GetAllConversationsResp{}
+	err := util.CallPostApi[*pbConversation.GetAllConversationsReq, *pbConversation.GetAllConversationsResp](
+		ctx,
+		constant.GetAllConversationsRouter,
+		&pbConversation.GetAllConversationsReq{OwnerUserID: c.loginUserID},
+		resp,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -62,10 +77,18 @@ func (c *Conversation) getServerConversationList(ctx context.Context) ([]*model_
 }
 
 func (c *Conversation) getServerHasReadAndMaxSeqs(ctx context.Context) (map[string]*msg.Seqs, error) {
-	resp := &msg.GetConversationsHasReadAndMaxSeqResp{}
-	err := util.ApiPost(ctx, constant.GetConversationsHasReadAndMaxSeqRouter, msg.GetConversationsHasReadAndMaxSeqReq{UserID: c.loginUserID}, resp)
+	//resp := &msg.GetConversationsHasReadAndMaxSeqResp{}
+	//err := util.ApiPost(ctx, constant.GetConversationsHasReadAndMaxSeqRouter, msg.GetConversationsHasReadAndMaxSeqReq{UserID: c.loginUserID}, resp)
+	//if err != nil {
+	//	log.ZError(ctx, "getServerHasReadAndMaxSeqs err", err)
+	//	return nil, err
+	//}
+	resp, err := util.ProtoApiPost[msg.GetConversationsHasReadAndMaxSeqReq, msg.GetConversationsHasReadAndMaxSeqResp](
+		ctx,
+		constant.GetConversationsHasReadAndMaxSeqRouter,
+		&msg.GetConversationsHasReadAndMaxSeqReq{UserID: c.loginUserID},
+	)
 	if err != nil {
-		log.ZError(ctx, "getServerHasReadAndMaxSeqs err", err)
 		return nil, err
 	}
 	return resp.Seqs, nil

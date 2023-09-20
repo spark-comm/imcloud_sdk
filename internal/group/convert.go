@@ -21,6 +21,10 @@ import (
 	groupv1 "github.com/imCloud/api/group/v1"
 )
 
+const (
+	IsNotComplete = 2
+)
+
 func ServerGroupToLocalGroup(info *groupv1.GroupInfo) *model_struct.LocalGroup {
 	return &model_struct.LocalGroup{
 		GroupID:                info.GroupID,
@@ -47,6 +51,7 @@ func ServerGroupToLocalGroup(info *groupv1.GroupInfo) *model_struct.LocalGroup {
 		IsReal:                 info.IsReal,
 		IsOpen:                 uint(info.IsOpen),
 		AllowPrivateChat:       uint(info.AllowPrivateChat),
+		IsComplete:             info.IsComplete,
 	}
 }
 

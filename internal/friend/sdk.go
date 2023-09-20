@@ -16,6 +16,7 @@ package friend
 
 import (
 	"context"
+	"github.com/golang/protobuf/ptypes/empty"
 	"open_im_sdk/internal/util"
 	"open_im_sdk/pkg/common"
 	"open_im_sdk/pkg/constant"
@@ -26,7 +27,9 @@ import (
 	"open_im_sdk/pkg/server_api_params"
 	"sort"
 	"strings"
+	"time"
 
+	commonPb "github.com/imCloud/api/common"
 	friendPb "github.com/imCloud/api/friend/v1"
 	"github.com/imCloud/im/pkg/common/log"
 	"github.com/imCloud/im/pkg/proto/friend"
@@ -48,13 +51,46 @@ func (f *Friend) GetSpecifiedFriendsInfo(ctx context.Context, friendUserIDList [
 		m[black.BlackUserID] = blackList[i]
 	}
 	res := make([]*server_api_params.FullUserInfo, 0, len(localFriendList))
+	var notCompleteList = make([]string, 0)
+	var notCompleteData = make([]*model_struct.LocalFriend, 0)
 	for _, localFriend := range localFriendList {
+		if localFriend.IsComplete == IsNotComplete {
+			notCompleteList = append(notCompleteList, localFriend.FriendUserID)
+			notCompleteData = append(notCompleteData, localFriend)
+			continue
+		}
 		res = append(res, &server_api_params.FullUserInfo{
 			PublicInfo: nil,
 			FriendInfo: localFriend,
 			BlackInfo:  m[localFriend.FriendUserID],
 		})
 	}
+	//获取远程未完全同步的数据
+	req := &friendPb.GetPaginationFriendsInfo{UserID: f.loginUserID, Pagination: &commonPb.RequestPagination{}}
+	fn := func(resp *friendPb.ListFriendReply) []*friendPb.FriendInfo {
+		return resp.List
+	}
+	resp := &friendPb.ListFriendReply{}
+	respList, err := util.GetPageAll(ctx, constant.GetFriendListRouter, req, resp, fn)
+	if err != nil {
+		return nil, err
+	}
+	friends := util.Batch(ServerFriendToLocalFriend, respList)
+	for _, localFriend := range friends {
+		res = append(res, &server_api_params.FullUserInfo{
+			PublicInfo: nil,
+			FriendInfo: localFriend,
+			BlackInfo:  m[localFriend.FriendUserID],
+		})
+	}
+	//异步同步这些数据
+	go func(a, b []*model_struct.LocalFriend) {
+		if err = f.friendSyncer.Sync(ctx, a, b, nil); err != nil {
+			log.ZDebug(ctx, "sync first page friend error", err)
+		}
+		//加入延迟队列做同步
+		f.syncFriendQueue.Push(1, time.Second*20)
+	}(friends, notCompleteData)
 	return res, nil
 }
 
@@ -63,7 +99,14 @@ func (f *Friend) AddFriend(ctx context.Context, addRequest *friendPb.AddFriendRe
 	if addRequest.FromUserID == "" {
 		addRequest.FromUserID = f.loginUserID
 	}
-	if err := util.ApiPost(ctx, constant.AddFriendRouter, addRequest, nil); err != nil {
+	//if err := util.ApiPost(ctx, constant.AddFriendRouter, addRequest, nil); err != nil {
+	//	return err
+	//}
+	if _, err := util.ProtoApiPost[friendPb.AddFriendRequest, empty.Empty](
+		ctx,
+		constant.AddFriendRouter,
+		addRequest,
+	); err != nil {
 		return err
 	}
 	return f.SyncFriendApplication(ctx)
@@ -101,7 +144,18 @@ func (f *Friend) RespondFriendApply(ctx context.Context, req *friend.RespondFrie
 	if req.ToUserID == "" {
 		req.ToUserID = f.loginUserID
 	}
-	if err := util.ApiPost(ctx, constant.AddFriendResponse, req, nil); err != nil {
+	//if err := util.ApiPost(ctx, constant.AddFriendResponse, req, nil); err != nil {
+	//	return err
+	//}
+	if _, err := util.ProtoApiPost[friendPb.AddFriendResponseRequest, empty.Empty](
+		ctx,
+		constant.AddFriendResponse,
+		&friendPb.AddFriendResponseRequest{
+			FromUserID: req.FromUserID,
+			ToUserID:   req.ToUserID,
+			Flag:       int64(req.HandleResult),
+			HandleMsg:  req.HandleMsg,
+		}); err != nil {
 		return err
 	}
 	if req.HandleResult == constant.FriendResponseAgree {
@@ -150,7 +204,14 @@ func (f *Friend) CheckFriend(ctx context.Context, friendUserIDList []string) ([]
 }
 
 func (f *Friend) DeleteFriend(ctx context.Context, friendUserID string) error {
-	if err := util.ApiPost(ctx, constant.DeleteFriendRouter, &friend.DeleteFriendReq{OwnerUserID: f.loginUserID, FriendUserID: friendUserID}, nil); err != nil {
+	//if err := util.ApiPost(ctx, constant.DeleteFriendRouter, &friend.DeleteFriendReq{OwnerUserID: f.loginUserID, FriendUserID: friendUserID}, nil); err != nil {
+	//	return err
+	//}
+	if _, err := util.ProtoApiPost[friendPb.DeleteFriendRequest, empty.Empty](
+		ctx,
+		constant.DeleteFriendRouter,
+		&friendPb.DeleteFriendRequest{FromUserID: f.loginUserID, ToUserID: friendUserID},
+	); err != nil {
 		return err
 	}
 	//获取会话id
@@ -233,20 +294,47 @@ func (f *Friend) SetBackgroundUrl(ctx context.Context, friendId, backgroundUrl s
 
 // SetFriendInfo 设置好友信息
 func (f *Friend) SetFriendInfo(ctx context.Context, userIDRemark *sdk.SetFriendRemarkParams) error {
-	if err := util.ApiPost(ctx, constant.SetFriendInfoRouter, &friendPb.SetFriendInfoRequest{FromUserID: f.loginUserID, ToUserID: userIDRemark.ToUserID, Remark: userIDRemark.Remark, BackgroundUrl: userIDRemark.BackgroundUrl}, nil); err != nil {
+	//if err := util.ApiPost(ctx, constant.SetFriendInfoRouter, &friendPb.SetFriendInfoRequest{FromUserID: f.loginUserID, ToUserID: userIDRemark.ToUserID, Remark: userIDRemark.Remark, BackgroundUrl: userIDRemark.BackgroundUrl}, nil); err != nil {
+	//	return err
+	//}
+	if _, err := util.ProtoApiPost[friendPb.SetFriendInfoRequest, empty.Empty](
+		ctx,
+		constant.SetFriendInfoRouter,
+		&friendPb.SetFriendInfoRequest{
+			FromUserID:    f.loginUserID,
+			ToUserID:      userIDRemark.ToUserID,
+			Remark:        userIDRemark.Remark,
+			BackgroundUrl: userIDRemark.BackgroundUrl},
+	); err != nil {
 		return err
 	}
 	return f.syncFriendById(ctx, f.loginUserID, userIDRemark.ToUserID)
 }
 func (f *Friend) AddBlack(ctx context.Context, blackUserID string) error {
-	if err := util.ApiPost(ctx, constant.AddBlackRouter, &friend.AddBlackReq{OwnerUserID: f.loginUserID, BlackUserID: blackUserID}, nil); err != nil {
+	//if err := util.ApiPost(ctx, constant.AddBlackRouter, &friend.AddBlackReq{OwnerUserID: f.loginUserID, BlackUserID: blackUserID}, nil); err != nil {
+	//	return err
+	//}
+	if _, err := util.ProtoApiPost[friend.AddBlackReq, empty.Empty](
+		ctx,
+		constant.AddBlackRouter,
+		&friend.AddBlackReq{
+			OwnerUserID: f.loginUserID,
+			BlackUserID: blackUserID}); err != nil {
 		return err
 	}
 	return f.SyncBlackList(ctx)
 }
 
 func (f *Friend) RemoveBlack(ctx context.Context, blackUserID string) error {
-	if err := util.ApiPost(ctx, constant.RemoveBlackRouter, &friend.RemoveBlackReq{OwnerUserID: f.loginUserID, BlackUserID: blackUserID}, nil); err != nil {
+	//if err := util.ApiPost(ctx, constant.RemoveBlackRouter, &friend.RemoveBlackReq{OwnerUserID: f.loginUserID, BlackUserID: blackUserID}, nil); err != nil {
+	//	return err
+	//}
+	if _, err := util.ProtoApiPost[friendPb.RemoveBlackListRequest, empty.Empty](
+		ctx,
+		constant.RemoveBlackRouter,
+		&friendPb.RemoveBlackListRequest{
+			FromUserID: f.loginUserID,
+			ToUserID:   blackUserID}); err != nil {
 		return err
 	}
 	return f.SyncBlackList(ctx)

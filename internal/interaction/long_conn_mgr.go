@@ -523,7 +523,7 @@ func (c *LongConnMgr) reConn(ctx context.Context, num *int) error {
 			default:
 				c.listener.OnConnectFailed(int32(apiResp.ErrCode), apiResp.ErrMsg)
 			}
-			log.ZWarn(ctx, "long conn establish failed", sdkerrs.New(apiResp.ErrCode, apiResp.ErrMsg, apiResp.ErrDlt))
+			log.ZWarn(ctx, "long conn establish failed", sdkerrs.New(apiResp.ErrCode, apiResp.ErrMsg, apiResp.ErrDlt, ""))
 			return errs.NewCodeError(apiResp.ErrCode, apiResp.ErrMsg).WithDetail(apiResp.ErrDlt).Wrap()
 		}
 		c.listener.OnConnectFailed(sdkerrs.NetworkError, err.Error())

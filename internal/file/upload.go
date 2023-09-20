@@ -214,15 +214,40 @@ func (f *File) cleanPartLimit() {
 }
 
 func (f *File) initiateMultipartUploadResp(ctx context.Context, req *third.InitiateMultipartUploadReq) (*third.InitiateMultipartUploadResp, error) {
-	return util.CallApi[third.InitiateMultipartUploadResp](ctx, constant.ObjectInitiateMultipartUpload, req)
+	//return util.CallApi[third.InitiateMultipartUploadResp](ctx, constant.ObjectInitiateMultipartUpload, req)
+	resp := &third.InitiateMultipartUploadResp{}
+	err := util.CallPostApi[*third.InitiateMultipartUploadReq, *third.InitiateMultipartUploadResp](
+		ctx,
+		constant.ObjectInitiateMultipartUpload,
+		req,
+		resp,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return resp, nil
 }
 
 func (f *File) authSign(ctx context.Context, req *third.AuthSignReq) (*third.AuthSignResp, error) {
-	return util.CallApi[third.AuthSignResp](ctx, constant.ObjectAuthSign, req)
+	//return util.CallApi[third.AuthSignResp](ctx, constant.ObjectAuthSign, req)
+	resp := &third.AuthSignResp{}
+	err := util.CallPostApi[*third.AuthSignReq, *third.AuthSignResp](ctx, constant.ObjectAuthSign, req, resp)
+	if err != nil {
+		return nil, err
+	}
+	return resp, nil
 }
 
 func (f *File) completeMultipartUpload(ctx context.Context, req *third.CompleteMultipartUploadReq) (*third.CompleteMultipartUploadResp, error) {
-	return util.CallApi[third.CompleteMultipartUploadResp](ctx, constant.ObjectCompleteMultipartUpload, req)
+	//return util.CallApi[third.CompleteMultipartUploadResp](ctx, constant.ObjectCompleteMultipartUpload, req)
+	resp := &third.CompleteMultipartUploadResp{}
+	err := util.CallPostApi[*third.CompleteMultipartUploadReq, *third.CompleteMultipartUploadResp](
+		ctx, constant.ObjectCompleteMultipartUpload, req, resp,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return resp, nil
 }
 
 func (f *File) getPartNum(fileSize int64, partSize int64) int {
@@ -237,10 +262,13 @@ func (f *File) partSize(ctx context.Context, size int64) (int64, error) {
 	f.lock.Lock()
 	defer f.lock.Unlock()
 	if f.partLimit == nil {
-		resp, err := util.CallApi[third.PartLimitResp](ctx, constant.ObjectPartLimit, &third.PartLimitReq{})
+		//resp, err := util.CallApi[third.PartLimitResp](ctx, constant.ObjectPartLimit, &third.PartLimitReq{})
+		resp := &third.PartLimitResp{}
+		err := util.CallPostApi[*third.PartLimitReq, *third.PartLimitResp](ctx, constant.ObjectPartLimit, &third.PartLimitReq{}, resp)
 		if err != nil {
 			return 0, err
 		}
+
 		f.partLimit = resp
 	}
 	if size <= 0 {
@@ -260,7 +288,15 @@ func (f *File) partSize(ctx context.Context, size int64) (int64, error) {
 }
 
 func (f *File) accessURL(ctx context.Context, req *third.AccessURLReq) (*third.AccessURLResp, error) {
-	return util.CallApi[third.AccessURLResp](ctx, constant.ObjectAccessURL, req)
+	//return util.CallApi[third.AccessURLResp](ctx, constant.ObjectAccessURL, req)
+	resp := &third.AccessURLResp{}
+	err := util.CallPostApi[*third.AccessURLReq, *third.AccessURLResp](
+		ctx, constant.ObjectAccessURL, req, resp,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return resp, nil
 }
 
 func (f *File) doHttpReq(req *http.Request) ([]byte, *http.Response, error) {

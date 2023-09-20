@@ -17,10 +17,9 @@ package friend
 import (
 	"context"
 	"errors"
+	commonPb "github.com/imCloud/api/common"
 	friendPb "github.com/imCloud/api/friend/v1"
 	"github.com/imCloud/im/pkg/common/log"
-	"github.com/imCloud/im/pkg/proto/friend"
-	"github.com/imCloud/im/pkg/proto/sdkws"
 	"gorm.io/gorm"
 	"open_im_sdk/internal/util"
 	"open_im_sdk/pkg/constant"
@@ -30,11 +29,12 @@ import (
 
 // SyncSelfFriendApplication 自己发送的好友请求
 func (f *Friend) SyncSelfFriendApplication(ctx context.Context) error {
-	req := &friend.GetPaginationFriendsApplyToReq{UserID: f.loginUserID, Pagination: &sdkws.RequestPagination{}}
+	req := &friendPb.GetPaginationFriendsInfo{UserID: f.loginUserID, Pagination: &commonPb.RequestPagination{}}
 	fn := func(resp *friendPb.GetPaginationFriendsApplyFromResp) []*friendPb.FriendRequests {
 		return resp.FriendRequests
 	}
-	requests, err := util.GetPageAll(ctx, constant.GetSelfFriendApplicationListRouter, req, fn)
+	resp := &friendPb.GetPaginationFriendsApplyFromResp{}
+	requests, err := util.GetPageAll(ctx, constant.GetSelfFriendApplicationListRouter, req, resp, fn)
 	if err != nil {
 		return err
 	}
@@ -47,11 +47,12 @@ func (f *Friend) SyncSelfFriendApplication(ctx context.Context) error {
 
 // SyncFriendApplication 同步自己收到的好友请求
 func (f *Friend) SyncFriendApplication(ctx context.Context) error {
-	req := &friend.GetPaginationFriendsApplyToReq{UserID: f.loginUserID, Pagination: &sdkws.RequestPagination{}}
+	req := &friendPb.GetPaginationFriendsInfo{UserID: f.loginUserID, Pagination: &commonPb.RequestPagination{}}
 	fn := func(resp *friendPb.GetPaginationFriendsApplyReceiveResp) []*friendPb.FriendRequests {
 		return resp.FriendRequests
 	}
-	requests, err := util.GetPageAll(ctx, constant.GetSelfFriendReceiveApplicationListRouter, req, fn)
+	resp := &friendPb.GetPaginationFriendsApplyReceiveResp{}
+	requests, err := util.GetPageAll(ctx, constant.GetSelfFriendReceiveApplicationListRouter, req, resp, fn)
 	if err != nil {
 		return err
 	}
@@ -64,11 +65,12 @@ func (f *Friend) SyncFriendApplication(ctx context.Context) error {
 
 // SyncUntreatedFriendReceiveFriendApplication 同步未处理的好友请求
 func (f *Friend) SyncUntreatedFriendReceiveFriendApplication(ctx context.Context) error {
-	req := &friend.GetPaginationFriendsApplyToReq{UserID: f.loginUserID, Pagination: &sdkws.RequestPagination{}}
+	req := &friendPb.GetPaginationFriendsInfo{UserID: f.loginUserID, Pagination: &commonPb.RequestPagination{}}
 	fn := func(resp *friendPb.GetUntreatedFriendsApplyReceiveReply) []*friendPb.FriendRequests {
 		return resp.FriendRequests
 	}
-	requests, err := util.GetPageAll(ctx, constant.GetUntreatedFriendsApplyReceive, req, fn)
+	resp := &friendPb.GetUntreatedFriendsApplyReceiveReply{}
+	requests, err := util.GetPageAll(ctx, constant.GetUntreatedFriendsApplyReceive, req, resp, fn)
 	if err != nil {
 		return err
 	}
@@ -81,11 +83,12 @@ func (f *Friend) SyncUntreatedFriendReceiveFriendApplication(ctx context.Context
 
 // SyncFriendList 同步好友列表
 func (f *Friend) SyncFriendList(ctx context.Context) error {
-	req := &friend.GetPaginationFriendsReq{UserID: f.loginUserID, Pagination: &sdkws.RequestPagination{}}
+	req := &friendPb.GetPaginationFriendsInfo{UserID: f.loginUserID, Pagination: &commonPb.RequestPagination{}}
 	fn := func(resp *friendPb.ListFriendReply) []*friendPb.FriendInfo {
 		return resp.List
 	}
-	friends, err := util.GetPageAll(ctx, constant.GetFriendListRouter, req, fn)
+	resp := &friendPb.ListFriendReply{}
+	friends, err := util.GetPageAll(ctx, constant.GetFriendListRouter, req, resp, fn)
 	if err != nil {
 		return err
 	}
@@ -99,13 +102,14 @@ func (f *Friend) SyncFriendList(ctx context.Context) error {
 
 // SyncFirstFriendList 同步第一页好友列表
 func (f *Friend) SyncFirstFriendList(ctx context.Context) error {
-	req := &friend.GetPaginationFriendsReq{UserID: f.loginUserID, Pagination: &sdkws.RequestPagination{
+	req := &friendPb.GetPaginationFriendsInfo{UserID: f.loginUserID, Pagination: &commonPb.RequestPagination{
 		ShowNumber: 10,
 	}}
 	fn := func(resp *friendPb.ListFriendReply) []*friendPb.FriendInfo {
 		return resp.List
 	}
-	friends, err := util.GetFirstPage(ctx, constant.GetFriendListRouter, req, fn)
+	resp := &friendPb.ListFriendReply{}
+	friends, err := util.GetFirstPage(ctx, constant.GetFriendListRouter, req, resp, fn)
 	if err != nil {
 		return err
 	}
@@ -124,9 +128,10 @@ func (f *Friend) SyncFirstFriendList(ctx context.Context) error {
 
 // SyncBlackList 同步黑名单信息
 func (f *Friend) SyncBlackList(ctx context.Context) error {
-	req := &friend.GetPaginationBlacksReq{UserID: f.loginUserID, Pagination: &sdkws.RequestPagination{}}
+	req := &friendPb.GetPaginationFriendsInfo{UserID: f.loginUserID, Pagination: &commonPb.RequestPagination{}}
 	fn := func(resp *friendPb.BlackListResponse) []*friendPb.BlackList { return resp.Data }
-	serverData, err := util.GetPageAll(ctx, constant.GetBlackListRouter, req, fn)
+	resp := &friendPb.BlackListResponse{}
+	serverData, err := util.GetPageAll(ctx, constant.GetBlackListRouter, req, resp, fn)
 	if err != nil {
 		return err
 	}
@@ -141,8 +146,17 @@ func (f *Friend) SyncBlackList(ctx context.Context) error {
 
 // syncFriendApplicationById 根据id同步好友请求
 func (f *Friend) syncFriendApplicationById(ctx context.Context, fromUserID, toUserID string) error {
-	req := &friendPb.GetFriendRequestByApplicantReq{FromUserID: fromUserID, ToUserID: toUserID}
-	res, err := util.CallApi[friendPb.GetFriendRequestByApplicantReps](ctx, constant.GetFriendRequestByApplicantRouter, req)
+	//req := &friendPb.GetFriendRequestByApplicantReq{FromUserID: fromUserID, ToUserID: toUserID}
+	//res, err := util.CallApi[friendPb.GetFriendRequestByApplicantReps](ctx, constant.GetFriendRequestByApplicantRouter, req)
+	res := &friendPb.GetFriendRequestByApplicantReps{}
+	err := util.CallPostApi[*friendPb.GetFriendRequestByApplicantReq, *friendPb.GetFriendRequestByApplicantReps](
+		ctx, constant.GetFriendRequestByApplicantRouter,
+		&friendPb.GetFriendRequestByApplicantReq{FromUserID: fromUserID, ToUserID: toUserID},
+		res,
+	)
+	if err != nil {
+		return err
+	}
 	if err != nil {
 		return err
 	}
@@ -162,8 +176,14 @@ func (f *Friend) syncFriendApplicationById(ctx context.Context, fromUserID, toUs
 
 // syncFriendById 根据id同步好友
 func (f *Friend) syncFriendById(ctx context.Context, fromUserID, friendId string) error {
-	req := &friendPb.ListFriendByIdsReq{UserID: fromUserID, FriendIds: []string{friendId}}
-	res, err := util.CallApi[friendPb.ListFriendByIdsReply](ctx, constant.GetFriendByAppIdsRouter, req)
+	//req := &friendPb.ListFriendByIdsReq{UserID: fromUserID, FriendIds: []string{friendId}}
+	//res, err := util.CallApi[friendPb.ListFriendByIdsReply](ctx, constant.GetFriendByAppIdsRouter, req)
+	res := &friendPb.ListFriendByIdsReply{}
+	err := util.CallPostApi[*friendPb.ListFriendByIdsReq, *friendPb.ListFriendByIdsReply](
+		ctx, constant.GetFriendByAppIdsRouter,
+		&friendPb.ListFriendByIdsReq{UserID: fromUserID, FriendIds: []string{friendId}},
+		res,
+	)
 	if err != nil {
 		return err
 	}
@@ -189,4 +209,41 @@ func (f *Friend) syncDelFriend(ctx context.Context, friendId string) error {
 	}
 	log.ZDebug(ctx, "sync friend", "data from local", localData)
 	return f.friendSyncer.Delete(ctx, localData, nil)
+}
+
+// SyncQuantityFriendList 全量同步好友，部分字段
+func (f *Friend) SyncQuantityFriendList(ctx context.Context) error {
+	//获取远端数据
+	req := &friendPb.GetPaginationFriendsInfo{UserID: f.loginUserID, Pagination: &commonPb.RequestPagination{}}
+	fn := func(resp *friendPb.GetSyncFriendResp) []*friendPb.SyncFriendInfo {
+		return resp.List
+	}
+	resp := &friendPb.GetSyncFriendResp{}
+	respList, err := util.GetPageAll(ctx, constant.GetFriendListRouter, req, resp, fn)
+	if err != nil {
+		return err
+	}
+	localData, err := f.db.GetAllFriendList(ctx)
+	if err != nil {
+		return err
+	}
+	friends := make([]*friendPb.FriendInfo, 0)
+	for _, info := range respList {
+		friends = append(friends, &friendPb.FriendInfo{
+			OwnerUserID:  f.loginUserID,
+			FriendUserID: info.FriendID,
+			Nickname:     info.NickName,
+			FaceURL:      info.FaceURL,
+			Remark:       info.Remark,
+			IsComplete:   IsNotComplete, //未同步完成标记
+		})
+	}
+	//同步本地没有的数据
+	log.ZDebug(ctx, "sync friend", "data from server", friends, "data from local", localData)
+	if err = f.friendSyncer.Sync(ctx, util.Batch(ServerFriendToLocalFriend, friends), localData, nil); err != nil {
+		log.ZDebug(ctx, "sync first page friend error", err)
+	}
+	//加入延迟队列做同步
+	f.syncFriendQueue.Push(1, time.Second*20)
+	return err
 }

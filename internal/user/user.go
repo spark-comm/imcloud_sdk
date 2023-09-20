@@ -18,11 +18,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/golang/protobuf/ptypes/empty"
 	"open_im_sdk/internal/util"
 	"open_im_sdk/pkg/db/db_interface"
 	"open_im_sdk/pkg/db/model_struct"
 	"open_im_sdk/pkg/sdkerrs"
-	"open_im_sdk/pkg/server_api_params"
 	"open_im_sdk/pkg/syncer"
 
 	"open_im_sdk/open_im_sdk_callback"
@@ -141,7 +141,14 @@ func (u *User) userInfoUpdatedNotification(ctx context.Context, msg *sdkws.MsgDa
 
 // GetUsersInfoFromSvr retrieves user information from the server.
 func (u *User) GetUsersInfoFromSvr(ctx context.Context, userIDs []string) ([]*model_struct.LocalUser, error) {
-	resp, err := util.CallApi[imUserPb.FindProfileByUserReply](ctx, constant.GetUsersInfoRouter, imUserPb.FindProfileByUserReq{UserIds: userIDs})
+	//resp, err := util.CallApi[imUserPb.FindProfileByUserReply](ctx, constant.GetUsersInfoRouter,
+	//	imUserPb.FindProfileByUserReq{UserIds: userIDs})
+	resp := &imUserPb.FindProfileByUserReply{}
+	err := util.CallPostApi[*imUserPb.FindProfileByUserReq, *imUserPb.FindProfileByUserReply](
+		ctx, constant.GetUsersInfoRouter,
+		&imUserPb.FindProfileByUserReq{UserIds: userIDs},
+		resp,
+	)
 	if err != nil {
 		return nil, sdkerrs.Warp(err, "GetUsersInfoFromSvr failed")
 	}
@@ -189,7 +196,14 @@ func (u *User) getSelfUserInfo(ctx context.Context) (*model_struct.LocalUser, er
 
 // searchUser search user info.
 func (u *User) searchUser(ctx context.Context, searchValue string, searchType int) (*model_struct.LocalUser, error) {
-	res, err := util.CallApi[imUserPb.SearchProfileReply](ctx, constant.SearchUserInfoRouter, &imUserPb.SearchProfileReq{SearchValue: searchValue, Type: int32(searchType)})
+	//res, err := util.CallApi[imUserPb.SearchProfileReply](ctx, constant.SearchUserInfoRouter,
+	//	&imUserPb.SearchProfileReq{SearchValue: searchValue, Type: int32(searchType)})
+	res := &imUserPb.SearchProfileReply{}
+	err := util.CallPostApi[*imUserPb.SearchProfileReq, *imUserPb.SearchProfileReply](
+		ctx, constant.SearchUserInfoRouter,
+		&imUserPb.SearchProfileReq{SearchValue: searchValue, Type: int32(searchType)},
+		res,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -202,13 +216,26 @@ func (u *User) searchUser(ctx context.Context, searchValue string, searchType in
 
 // ParseTokenFromSvr parses a token from the server.
 func (u *User) ParseTokenFromSvr(ctx context.Context) (int64, error) {
-	resp, err := util.CallApi[authPb.ParseTokenResp](ctx, constant.ParseTokenRouter, authPb.ParseTokenReq{})
+	//resp, err := util.CallApi[authPb.ParseTokenResp](ctx, constant.ParseTokenRouter, authPb.ParseTokenReq{})
+	resp := &authPb.ParseTokenResp{}
+	err := util.CallPostApi[*authPb.ParseTokenReq, *authPb.ParseTokenResp](
+		ctx, constant.ParseTokenRouter,
+		&authPb.ParseTokenReq{},
+		resp,
+	)
 	return resp.ExpireTimeSeconds, err
 }
 
 // GetServerUserInfo retrieves user information from the server.
 func (u *User) GetServerUserInfo(ctx context.Context, userIDs []string) ([]*imUserPb.ProfileReply, error) {
-	resp, err := util.CallApi[imUserPb.FindProfileByUserReply](ctx, constant.GetUsersInfoRouter, &userPb.GetDesignateUsersReq{UserIDs: userIDs})
+	//resp, err := util.CallApi[imUserPb.FindProfileByUserReply](ctx, constant.GetUsersInfoRouter,
+	//	&userPb.GetDesignateUsersReq{UserIDs: userIDs})
+	resp := &imUserPb.FindProfileByUserReply{}
+	err := util.CallPostApi[*userPb.GetDesignateUsersReq, *imUserPb.FindProfileByUserReply](
+		ctx, constant.GetUsersInfoRouter,
+		&userPb.GetDesignateUsersReq{UserIDs: userIDs},
+		resp,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -218,7 +245,14 @@ func (u *User) GetServerUserInfo(ctx context.Context, userIDs []string) ([]*imUs
 // updateSelfUserInfo updates the user's information.
 func (u *User) updateSelfUserInfo(ctx context.Context, userInfo *imUserPb.UpdateProfileReq) error {
 	userInfo.UserId = u.loginUserID
-	if err := util.ApiPost(ctx, constant.UpdateSelfUserInfoRouter, userInfo, nil); err != nil {
+	//if err := util.ApiPost(ctx, constant.UpdateSelfUserInfoRouter, userInfo, nil); err != nil {
+	//	return err
+	//}
+	if _, err := util.ProtoApiPost[imUserPb.UpdateProfileReq, empty.Empty](
+		ctx,
+		constant.UpdateSelfUserInfoRouter,
+		userInfo,
+	); err != nil {
 		return err
 	}
 	_ = u.SyncLoginUserInfo(ctx)
@@ -226,22 +260,39 @@ func (u *User) updateSelfUserInfo(ctx context.Context, userInfo *imUserPb.Update
 }
 
 func (u *User) getUserLoginStatus(ctx context.Context, userIDs string) (*imUserPb.GetUserLoginStatusReps, error) {
-	resp := &imUserPb.GetUserLoginStatusReps{}
-	err := util.ApiPost(ctx, constant.GetUserLoginStatusRouter, &imUserPb.GetUserLoginStatusReq{
-		UserID: userIDs,
-	}, resp)
+	//resp := &imUserPb.GetUserLoginStatusReps{}
+	//err := util.ApiPost(ctx, constant.GetUserLoginStatusRouter, &imUserPb.GetUserLoginStatusReq{
+	//	UserID: userIDs,
+	//}, resp)
+	resp, err := util.ProtoApiPost[imUserPb.GetUserLoginStatusReq, imUserPb.GetUserLoginStatusReps](
+		ctx,
+		constant.GetUserLoginStatusRouter,
+		&imUserPb.GetUserLoginStatusReq{
+			UserID: userIDs,
+		},
+	)
 	if err != nil {
-		return resp, err
+		return nil, err
 	}
 	return resp, nil
 }
 
 func (u *User) setUsersOption(ctx context.Context, option string, value int32) error {
-	err := util.ApiPost(ctx, constant.SetUsersOption, &server_api_params.SetOptionReqReq{
-		UserID: u.loginUserID,
-		Option: option,
-		Value:  value,
-	}, nil)
+	//err := util.ApiPost(ctx, constant.SetUsersOption, &server_api_params.SetOptionReqReq{
+	//	UserID: u.loginUserID,
+	//	Option: option,
+	//	Value:  value,
+	//}, nil)
+	//
+	_, err := util.ProtoApiPost[imUserPb.SetOptionReqReq, empty.Empty](
+		ctx,
+		constant.SetUsersOption,
+		&imUserPb.SetOptionReqReq{
+			UserID: u.loginUserID,
+			Option: option,
+			Value:  value,
+		},
+	)
 	if err != nil {
 		return err
 	}
@@ -255,12 +306,21 @@ const (
 
 func (u *User) syncUserOperation(ctx context.Context) error {
 	//获取远程operation数据
-	resp := imUserPb.GetOperationResp{}
-	err := util.ApiPost(ctx, constant.GetUserOperation, &imUserPb.GetOperationReq{
-		OperationKeyWord: []string{
-			WalletOperation, //只获取钱包数据
+	//resp := imUserPb.GetOperationResp{}
+	//err := util.ApiPost(ctx, constant.GetUserOperation, &imUserPb.GetOperationReq{
+	//	OperationKeyWord: []string{
+	//		WalletOperation, //只获取钱包数据
+	//	},
+	//}, &resp)
+	resp, err := util.ProtoApiPost[imUserPb.GetOperationReq, imUserPb.GetOperationResp](
+		ctx,
+		constant.GetUserOperation,
+		&imUserPb.GetOperationReq{
+			OperationKeyWord: []string{
+				WalletOperation, //只获取钱包数据
+			},
 		},
-	}, &resp)
+	)
 	if err != nil {
 		return err
 	}

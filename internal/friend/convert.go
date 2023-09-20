@@ -33,6 +33,11 @@ func ServerFriendRequestToLocalFriendRequest(info *friendPb.FriendRequests) *mod
 		SortFlag:      getSortFlag(info.ToNickname, info.ToNickname),
 	}
 }
+
+const (
+	IsNotComplete = 2
+)
+
 func ServerFriendToLocalFriend(info *friendPb.FriendInfo) *model_struct.LocalFriend {
 	return &model_struct.LocalFriend{
 		OwnerUserID:    info.OwnerUserID,
@@ -53,6 +58,7 @@ func ServerFriendToLocalFriend(info *friendPb.FriendInfo) *model_struct.LocalFri
 		SortFlag:       getSortFlag(info.Remark, info.Nickname),
 		NotPeersFriend: info.NotPeersFriend,
 		BackgroundURL:  info.BackgroundUrl,
+		IsComplete:     info.IsComplete,
 	}
 }
 

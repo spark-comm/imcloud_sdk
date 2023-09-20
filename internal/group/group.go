@@ -262,7 +262,11 @@ func (g *Group) GetGroupInfoFromLocal2Svr(ctx context.Context, groupID string) (
 
 // getGroupsInfoFromSvr 从服务端获取群数据
 func (g *Group) getGroupsInfoFromSvr(ctx context.Context, groupIDs []string) ([]*groupv1.GroupInfo, error) {
-	resp, err := util.CallApi[groupv1.GetGroupInfoResponse](ctx, constant.GetGroupsInfoRouter, &groupv1.GetGroupInfoReq{GroupID: groupIDs})
+	//resp, err := util.CallApi[groupv1.GetGroupInfoResponse](ctx, constant.GetGroupsInfoRouter, &groupv1.GetGroupInfoReq{GroupID: groupIDs})
+	resp := &groupv1.GetGroupInfoResponse{}
+	err := util.CallPostApi[*groupv1.GetGroupInfoReq, *groupv1.GetGroupInfoResponse](
+		ctx, constant.GetGroupsInfoRouter, &groupv1.GetGroupInfoReq{GroupID: groupIDs}, resp,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -270,7 +274,18 @@ func (g *Group) getGroupsInfoFromSvr(ctx context.Context, groupIDs []string) ([]
 }
 
 func (g *Group) getGroupAbstractInfoFromSvr(ctx context.Context, groupIDs []string) (*group.GetGroupAbstractInfoResp, error) {
-	return util.CallApi[group.GetGroupAbstractInfoResp](ctx, constant.GetGroupAbstractInfoRouter, &group.GetGroupAbstractInfoReq{GroupIDs: groupIDs})
+	//return util.CallApi[group.GetGroupAbstractInfoResp](ctx, constant.GetGroupAbstractInfoRouter,
+	//	&group.GetGroupAbstractInfoReq{GroupIDs: groupIDs})
+	resp := &group.GetGroupAbstractInfoResp{}
+	err := util.CallPostApi[*group.GetGroupAbstractInfoReq, *group.GetGroupAbstractInfoResp](
+		ctx, constant.GetGroupAbstractInfoRouter,
+		&group.GetGroupAbstractInfoReq{GroupIDs: groupIDs},
+		resp,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return resp, nil
 }
 
 func (g *Group) GetJoinedDiffusionGroupIDListFromSvr(ctx context.Context) ([]string, error) {

@@ -16,6 +16,7 @@ package conversation_msg
 
 import (
 	"context"
+	"github.com/golang/protobuf/ptypes/empty"
 	"open_im_sdk/internal/util"
 	"open_im_sdk/pkg/common"
 	"open_im_sdk/pkg/constant"
@@ -29,18 +30,55 @@ import (
 )
 
 func (c *Conversation) markMsgAsRead2Svr(ctx context.Context, conversationID string, seqs []int64) error {
-	req := &pbMsg.MarkMsgsAsReadReq{UserID: c.loginUserID, ConversationID: conversationID, Seqs: seqs}
-	return util.ApiPost(ctx, constant.MarkMsgsAsReadRouter, req, nil)
+	//req := &pbMsg.MarkMsgsAsReadReq{UserID: c.loginUserID, ConversationID: conversationID, Seqs: seqs}
+	_, err := util.ProtoApiPost[pbMsg.MarkMsgsAsReadReq, empty.Empty](
+		ctx,
+		constant.MarkMsgsAsReadRouter,
+		&pbMsg.MarkMsgsAsReadReq{
+			UserID:         c.loginUserID,
+			ConversationID: conversationID,
+			Seqs:           seqs},
+	)
+	if err != nil {
+		return err
+	}
+	return nil
+	//return util.ApiPost(ctx, constant.MarkMsgsAsReadRouter, req, nil)
 }
 
 func (c *Conversation) markConversationAsReadSvr(ctx context.Context, conversationID string, hasReadSeq int64, seqs []int64) error {
-	req := &pbMsg.MarkConversationAsReadReq{UserID: c.loginUserID, ConversationID: conversationID, HasReadSeq: hasReadSeq, Seqs: seqs}
-	return util.ApiPost(ctx, constant.MarkConversationAsRead, req, nil)
+	//req := &pbMsg.MarkConversationAsReadReq{UserID: c.loginUserID, ConversationID: conversationID, HasReadSeq: hasReadSeq, Seqs: seqs}
+	//return util.ApiPost(ctx, constant.MarkConversationAsRead, req, nil)
+	_, err := util.ProtoApiPost[pbMsg.MarkConversationAsReadReq, empty.Empty](
+		ctx,
+		constant.MarkConversationAsRead,
+		&pbMsg.MarkConversationAsReadReq{
+			UserID:         c.loginUserID,
+			ConversationID: conversationID,
+			HasReadSeq:     hasReadSeq,
+			Seqs:           seqs},
+	)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (c *Conversation) setConversationHasReadSeq(ctx context.Context, conversationID string, hasReadSeq int64) error {
-	req := &pbMsg.SetConversationHasReadSeqReq{UserID: c.loginUserID, ConversationID: conversationID, HasReadSeq: hasReadSeq}
-	return util.ApiPost(ctx, constant.SetConversationHasReadSeq, req, nil)
+	//req := &pbMsg.SetConversationHasReadSeqReq{UserID: c.loginUserID, ConversationID: conversationID, HasReadSeq: hasReadSeq}
+	//return util.ApiPost(ctx, constant.SetConversationHasReadSeq, req, nil)
+	_, err := util.ProtoApiPost[pbMsg.SetConversationHasReadSeqReq, empty.Empty](
+		ctx,
+		constant.MarkConversationAsRead,
+		&pbMsg.SetConversationHasReadSeqReq{
+			UserID:         c.loginUserID,
+			ConversationID: conversationID,
+			HasReadSeq:     hasReadSeq},
+	)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (c *Conversation) getConversationMaxSeqAndSetHasRead(ctx context.Context, conversationID string) error {

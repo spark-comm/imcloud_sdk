@@ -18,6 +18,8 @@
 package event_listener
 
 import (
+	"open_im_sdk/internal/file"
+	"open_im_sdk/open_im_sdk_callback"
 	"open_im_sdk/pkg/utils"
 	"open_im_sdk/sdk_struct"
 	"syscall/js"
@@ -71,9 +73,7 @@ func (c ConversationCallback) OnSyncServerStart() {
 func (c ConversationCallback) OnSyncServerFinish() {
 	c.CallbackWriter.SetEvent(utils.GetSelfFuncName()).SendMessage()
 }
-func (c *conversationCallBack) OnDeleteConversation(str string) {
-	c.CallbackWriter.SetEvent(utils.GetSelfFuncName()).SetData(str).SendMessage()
-}
+
 func (c ConversationCallback) OnSyncServerFailed() {
 	c.CallbackWriter.SetEvent(utils.GetSelfFuncName()).SendMessage()
 
@@ -191,6 +191,94 @@ func (s *SendMessageCallback) OnProgress(progress int) {
 	s.globalEvent.SetEvent(utils.GetSelfFuncName()).SetData(utils.StructToJsonString(mReply)).SendMessage()
 }
 
+type UploadInterface interface {
+	open_im_sdk_callback.Base
+	open_im_sdk_callback.UploadFileCallback
+}
+
+var _ UploadInterface = (*UploadFileCallback)(nil)
+
+type UploadFileCallback struct {
+	BaseCallback
+	globalEvent CallbackWriter
+	Uuid        string
+}
+
+func NewUploadFileCallback(funcName string, callback *js.Value) *UploadFileCallback {
+	return &UploadFileCallback{BaseCallback: BaseCallback{CallbackWriter: NewPromiseHandler().SetEvent(funcName)}, globalEvent: NewEventData(callback).SetEvent(funcName)}
+}
+func (u *UploadFileCallback) SetUuid(args *[]js.Value) *UploadFileCallback {
+	f := file.UploadFileReq{}
+	utils.JsonStringToStruct((*args)[1].String(), &f)
+	u.Uuid = f.Uuid
+	return u
+}
+func (u *UploadFileCallback) Open(size int64) {
+	mReply := make(map[string]interface{})
+	mReply["size"] = size
+	mReply["uuid"] = u.Uuid
+	u.globalEvent.SetEvent(utils.GetSelfFuncName()).SetData(utils.StructToJsonString(mReply)).SendMessage()
+}
+
+func (u *UploadFileCallback) PartSize(partSize int64, num int) {
+	mReply := make(map[string]interface{})
+	mReply["partSize"] = partSize
+	mReply["num"] = num
+	mReply["uuid"] = u.Uuid
+	u.globalEvent.SetEvent(utils.GetSelfFuncName()).SetData(utils.StructToJsonString(mReply)).SendMessage()
+}
+
+func (u *UploadFileCallback) HashPartProgress(index int, size int64, partHash string) {
+	mReply := make(map[string]interface{})
+	mReply["index"] = index
+	mReply["size"] = size
+	mReply["partHash"] = partHash
+	mReply["uuid"] = u.Uuid
+	u.globalEvent.SetEvent(utils.GetSelfFuncName()).SetData(utils.StructToJsonString(mReply)).SendMessage()
+}
+
+func (u *UploadFileCallback) HashPartComplete(partsHash string, fileHash string) {
+	mReply := make(map[string]interface{})
+	mReply["partsHash"] = partsHash
+	mReply["fileHash"] = fileHash
+	mReply["uuid"] = u.Uuid
+	u.globalEvent.SetEvent(utils.GetSelfFuncName()).SetData(utils.StructToJsonString(mReply)).SendMessage()
+}
+
+func (u *UploadFileCallback) UploadID(uploadID string) {
+	mReply := make(map[string]interface{})
+	mReply["uploadID"] = uploadID
+	mReply["uuid"] = u.Uuid
+	u.globalEvent.SetEvent(utils.GetSelfFuncName()).SetData(utils.StructToJsonString(mReply)).SendMessage()
+}
+
+func (u *UploadFileCallback) UploadPartComplete(index int, partSize int64, partHash string) {
+	mReply := make(map[string]interface{})
+	mReply["index"] = index
+	mReply["partSize"] = partSize
+	mReply["partHash"] = partHash
+	mReply["uuid"] = u.Uuid
+	u.globalEvent.SetEvent(utils.GetSelfFuncName()).SetData(utils.StructToJsonString(mReply)).SendMessage()
+}
+
+func (u *UploadFileCallback) UploadComplete(fileSize int64, streamSize int64, storageSize int64) {
+	mReply := make(map[string]interface{})
+	mReply["fileSize"] = fileSize
+	mReply["streamSize"] = streamSize
+	mReply["storageSize"] = storageSize
+	mReply["uuid"] = u.Uuid
+	u.globalEvent.SetEvent(utils.GetSelfFuncName()).SetData(utils.StructToJsonString(mReply)).SendMessage()
+}
+
+func (u *UploadFileCallback) Complete(size int64, url string, typ int) {
+	mReply := make(map[string]interface{})
+	mReply["size"] = size
+	mReply["url"] = url
+	mReply["typ"] = typ
+	mReply["uuid"] = u.Uuid
+	u.globalEvent.SetEvent(utils.GetSelfFuncName()).SetData(utils.StructToJsonString(mReply)).SendMessage()
+}
+
 type BatchMessageCallback struct {
 	CallbackWriter
 }
@@ -294,11 +382,28 @@ type UserCallback struct {
 	CallbackWriter
 }
 
+func (u UserCallback) OnUserStatusChanged(statusMap string) {
+	u.CallbackWriter.SetEvent(utils.GetSelfFuncName()).SetData(statusMap).SendMessage()
+}
+
 func NewUserCallback(callback *js.Value) *UserCallback {
 	return &UserCallback{CallbackWriter: NewEventData(callback)}
 }
 func (u UserCallback) OnSelfInfoUpdated(userInfo string) {
 	u.CallbackWriter.SetEvent(utils.GetSelfFuncName()).SetData(userInfo).SendMessage()
+}
+
+type CustomBusinessCallback struct {
+	CallbackWriter
+}
+
+func NewCustomBusinessCallback(callback *js.Value) *CustomBusinessCallback {
+	return &CustomBusinessCallback{CallbackWriter: NewEventData(callback)}
+}
+
+func (c CustomBusinessCallback) OnRecvCustomBusinessMessage(businessMessage string) {
+	c.CallbackWriter.SetEvent(utils.GetSelfFuncName()).SetData(businessMessage).SendMessage()
+
 }
 
 type SignalingCallback struct {

@@ -42,6 +42,7 @@ type IndexDB struct {
 	LocalGroupMember
 	LocalGroupRequest
 	LocalCacheMessage
+	LocalStrangers
 	*FriendRequest
 	*Black
 	*Friend
@@ -96,4 +97,20 @@ func (i IndexDB) SetChatLogFailedStatus(ctx context.Context) {
 	//	}
 	//
 	//}
+}
+
+func (d *IndexDB) DeleteExpireUpload(ctx context.Context) error {
+	//d.mRWMutex.Lock()
+	//defer d.mRWMutex.Unlock()
+	//var uploads []*model_struct.LocalUpload
+	//err := d.conn.WithContext(ctx).Where("expire_time <= ?", time.Now().UnixMilli()).Find(&uploads).Error
+	//if err != nil {
+	//	return Wrap(err)
+	//}
+	//for _, upload := range uploads {
+	//	if err := d.deleteUpload(ctx, upload.PartHash); err != nil {
+	//		return err
+	//	}
+	//}
+	return nil
 }

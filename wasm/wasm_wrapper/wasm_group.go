@@ -172,13 +172,3 @@ func (w *WrapperGroup) GetSpecifiedGroupsInfo(_ js.Value, args []js.Value) inter
 	callback := event_listener.NewBaseCallback(utils.FirstLower(utils.GetSelfFuncName()), w.commonFunc)
 	return event_listener.NewCaller(open_im_sdk.GetSpecifiedGroupsInfo, callback, &args).AsyncCallWithCallback()
 }
-
-func (w *WrapperGroup) GetKickGroupMemberList(_ js.Value, args []js.Value) interface{} {
-	callback := event_listener.NewBaseCallback(utils.FirstLower(utils.GetSelfFuncName()), w.commonFunc)
-	return event_listener.NewCaller(open_im_sdk.GetKickGroupMemberList, callback, &args).AsyncCallWithCallback()
-}
-
-func (w *WrapperGroup) SearchNotInGroupFriendList(_ js.Value, args []js.Value) interface{} {
-	callback := event_listener.NewBaseCallback(utils.FirstLower(utils.GetSelfFuncName()), w.commonFunc)
-	return event_listener.NewCaller(open_im_sdk.SearchNotInGroupFriendList, callback, &args).AsyncCallWithCallback()
-}

@@ -51,7 +51,7 @@ func (i *Friend) UpdateFriend(ctx context.Context, friend *model_struct.LocalFri
 		OwnerUserID:    friend.OwnerUserID,
 		FriendUserID:   friend.FriendUserID,
 		Remark:         friend.Remark,
-		CreateTime:     friend.CreateTime,
+		CreateTime:     friend.CreateAt,
 		AddSource:      friend.AddSource,
 		OperatorUserID: friend.OperatorUserID,
 		Nickname:       friend.Nickname,

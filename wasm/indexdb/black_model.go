@@ -127,13 +127,13 @@ func (i Black) UpdateBlack(ctx context.Context, black *model_struct.LocalBlack) 
 	tempLocalBlack := temp_struct.LocalBlack{
 		Nickname:       black.Nickname,
 		FaceURL:        black.FaceURL,
-		CreateTime:     black.CreateTime,
+		CreateTime:     black.CreateAt,
 		AddSource:      black.AddSource,
 		OperatorUserID: black.OperatorUserID,
 		Ex:             black.Ex,
 		AttachedInfo:   black.AttachedInfo,
 	}
-	_, err := exec.Exec(black.OwnerUserID, black.BlockUserID, utils.StructToJsonString(tempLocalBlack))
+	_, err := exec.Exec(black.OwnerUserID, black.BlackUserID, utils.StructToJsonString(tempLocalBlack))
 	return err
 }
 

@@ -16,11 +16,16 @@ package log
 
 import (
 	"bufio"
+	"context"
+	"errors"
 	"fmt"
 	nested "github.com/antonfisher/nested-logrus-formatter"
 	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
 	"github.com/rifflock/lfshook"
 	"github.com/sirupsen/logrus"
+	"gorm.io/gorm"
+	gormLogger "gorm.io/gorm/logger"
+	gormUtils "gorm.io/gorm/utils"
 	"os"
 	"time"
 )
@@ -106,7 +111,7 @@ func initRotateLogs(rotationTime time.Duration, maxRemainNum uint, level string,
 	}
 }
 
-//internal method
+// internal method
 func argsHandle(OperationID string, fields logrus.Fields, args []interface{}) {
 	for i := 0; i < len(args); i += 2 {
 		if i+1 < len(args) {
@@ -169,4 +174,67 @@ func Warn(OperationID string, args ...interface{}) {
 		"OperationID": OperationID,
 		"PID":         logger.Pid,
 	}).Warnln(args)
+}
+
+type SqlLogger struct {
+	LogLevel                  gormLogger.LogLevel
+	IgnoreRecordNotFoundError bool
+	SlowThreshold             time.Duration
+}
+
+func NewSqlLogger(logLevel gormLogger.LogLevel, ignoreRecordNotFoundError bool, slowThreshold time.Duration) *SqlLogger {
+	return &SqlLogger{
+		LogLevel:                  logLevel,
+		IgnoreRecordNotFoundError: ignoreRecordNotFoundError,
+		SlowThreshold:             slowThreshold,
+	}
+}
+
+func (l *SqlLogger) LogMode(logLevel gormLogger.LogLevel) gormLogger.Interface {
+	newLogger := *l
+	newLogger.LogLevel = logLevel
+	return &newLogger
+}
+
+func (SqlLogger) Info(ctx context.Context, msg string, args ...interface{}) {
+	logrus.Info(ctx, msg, args)
+}
+
+func (SqlLogger) Warn(ctx context.Context, msg string, args ...interface{}) {
+	logrus.Warn(ctx, msg, nil, args)
+}
+
+func (SqlLogger) Error(ctx context.Context, msg string, args ...interface{}) {
+	logrus.Error(ctx, msg, nil, args)
+}
+
+func (l *SqlLogger) Trace(ctx context.Context, begin time.Time, fc func() (sql string, rowsAffected int64), err error) {
+	if l.LogLevel <= gormLogger.Silent {
+		return
+	}
+	elapsed := time.Since(begin)
+	switch {
+	case err != nil && l.LogLevel >= gormLogger.Error && (!errors.Is(err, gorm.ErrRecordNotFound) || !l.IgnoreRecordNotFoundError):
+		sql, rows := fc()
+		if rows == -1 {
+			logrus.Error(ctx, "sql exec detail", err, "gorm", gormUtils.FileWithLineNum(), "elapsed time", fmt.Sprintf("%f(ms)", float64(elapsed.Nanoseconds())/1e6), "sql", sql)
+		} else {
+			logrus.Error(ctx, "sql exec detail", err, "gorm", gormUtils.FileWithLineNum(), "elapsed time", fmt.Sprintf("%f(ms)", float64(elapsed.Nanoseconds())/1e6), "rows", rows, "sql", sql)
+		}
+	case elapsed > l.SlowThreshold && l.SlowThreshold != 0 && l.LogLevel >= gormLogger.Warn:
+		sql, rows := fc()
+		slowLog := fmt.Sprintf("SLOW SQL >= %v", l.SlowThreshold)
+		if rows == -1 {
+			logrus.Warn(ctx, "sql exec detail", nil, "gorm", gormUtils.FileWithLineNum(), "slow sql", slowLog, "elapsed time", fmt.Sprintf("%f(ms)", float64(elapsed.Nanoseconds())/1e6), "sql", sql)
+		} else {
+			logrus.Warn(ctx, "sql exec detail", nil, "gorm", gormUtils.FileWithLineNum(), "slow sql", slowLog, "elapsed time", fmt.Sprintf("%f(ms)", float64(elapsed.Nanoseconds())/1e6), "rows", rows, "sql", sql)
+		}
+	case l.LogLevel == gormLogger.Info:
+		sql, rows := fc()
+		if rows == -1 {
+			logrus.Debug(ctx, "sql exec detail", "gorm", gormUtils.FileWithLineNum(), "elapsed time", fmt.Sprintf("%f(ms)", float64(elapsed.Nanoseconds())/1e6), "sql", sql)
+		} else {
+			logrus.Debug(ctx, "sql exec detail", "gorm", gormUtils.FileWithLineNum(), "elapsed time", fmt.Sprintf("%f(ms)", float64(elapsed.Nanoseconds())/1e6), "rows", rows, "sql", sql)
+		}
+	}
 }

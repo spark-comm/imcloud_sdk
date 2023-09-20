@@ -259,18 +259,23 @@ type LocalGroupRequest struct {
 // int32 AppMangerLevel = 10;
 // open_im_sdk.User == imdb.User
 type LocalUser struct {
-	UserID    string `json:"userID" gorm:"column:user_id;primary_key;type:varchar(64)"`
-	FaceURL   string `json:"faceURL" gorm:"column:face_url;size:255;comment:头像文件名"`
-	Nickname  string `json:"nickname" gorm:"column:nickname;size:50;comment:用户昵称"`
-	Message   string `json:"message" gorm:"column:message;size:50;comment:个性签名"`
-	Code      string `json:"code" gorm:"column:code;size:6;uniqueIndex;comment:用户ID"`
-	Phone     string `json:"phone" gorm:"column:phone;size:16;uniqueIndex;comment:手机号码"`
-	Email     string `json:"email" gorm:"column:email;size:36;comment:邮箱"`
-	Birth     int64  `json:"birth" gorm:"column:birth;comment:生日"`
-	Gender    int32  `gorm:"column:gender;comment:性别" json:"gender"`
-	ShareCode string `json:"shareCode" gorm:"column:share_code;size:20;not null;default:'';comment:分享码"`
-	LastLogin int64  `json:"lastLogin" gorm:"column:last_login;default:0;comment:上次登陆时间"`
-	Options   string `json:"options" gorm:"column:optionst;default:'';size:3000;comment:用户配置项"`
+	UserID           string `json:"userID" gorm:"column:user_id;primary_key;type:varchar(64)"`
+	FaceURL          string `json:"faceURL" gorm:"column:face_url;size:255;comment:头像文件名"`
+	Nickname         string `json:"nickname" gorm:"column:nickname;size:50;comment:用户昵称"`
+	Message          string `json:"message" gorm:"column:message;size:50;comment:个性签名"`
+	Code             string `json:"code" gorm:"column:code;size:6;uniqueIndex;comment:用户ID"`
+	Phone            string `json:"phone" gorm:"column:phone;size:16;uniqueIndex;comment:手机号码"`
+	Email            string `json:"email" gorm:"column:email;size:36;comment:邮箱"`
+	Birth            int64  `json:"birth" gorm:"column:birth;comment:生日"`
+	Gender           int32  `gorm:"column:gender;comment:性别" json:"gender"`
+	CreateTime       int64  `gorm:"column:create_time" json:"createTime"`
+	ShareCode        string `json:"shareCode" gorm:"column:share_code;size:20;not null;default:'';comment:分享码"`
+	LastLogin        int64  `json:"lastLogin" gorm:"column:last_login;default:0;comment:上次登陆时间"`
+	Options          string `json:"options" gorm:"column:optionst;default:'';size:3000;comment:用户配置项"`
+	AppMangerLevel   int32  `gorm:"column:app_manger_level" json:"-"`
+	Ex               string `gorm:"column:ex;type:varchar(1024)" json:"ex"`
+	AttachedInfo     string `gorm:"column:attached_info;type:varchar(1024)" json:"attachedInfo"`
+	GlobalRecvMsgOpt int32  `gorm:"column:global_recv_msg_opt" json:"globalRecvMsgOpt"`
 }
 
 // message BlackInfo{
@@ -531,4 +536,19 @@ type LocalUpload struct {
 
 func (LocalUpload) TableName() string {
 	return "local_uploads"
+}
+
+type LocalStranger struct {
+	UserID           string `gorm:"column:user_id;primary_key;type:varchar(64)" json:"userID"`
+	Nickname         string `gorm:"column:name;type:varchar(255)" json:"nickname"`
+	FaceURL          string `gorm:"column:face_url;type:varchar(255)" json:"faceURL"`
+	CreateTime       int64  `gorm:"column:create_time" json:"createTime"`
+	AppMangerLevel   int32  `gorm:"column:app_manger_level" json:"-"`
+	Ex               string `gorm:"column:ex;type:varchar(1024)" json:"ex"`
+	AttachedInfo     string `gorm:"column:attached_info;type:varchar(1024)" json:"attachedInfo"`
+	GlobalRecvMsgOpt int32  `gorm:"column:global_recv_msg_opt" json:"globalRecvMsgOpt"`
+}
+
+func (LocalStranger) TableName() string {
+	return "local_stranger"
 }

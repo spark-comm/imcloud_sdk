@@ -33,6 +33,7 @@ type CallbackData struct {
 }
 
 const TIMEOUT = 5
+const JSNOTFOUND = 10002
 
 var ErrType = errors.New("from javascript data type err")
 var PrimaryKeyNull = errors.New("primary key is null err")
@@ -73,7 +74,7 @@ func Exec(args ...interface{}) (output interface{}, err error) {
 				}
 			}
 		}()
-		log.Debug("js then funcation", "=> (main go context) "+funcName+" with respone ", args[0].String())
+		log.Debug("js then function", "=> (main go context) "+funcName+" with response ", args[0].String())
 		thenChannel <- args
 		return nil
 	})
@@ -91,7 +92,7 @@ func Exec(args ...interface{}) (output interface{}, err error) {
 				}
 			}
 		}()
-		log.Debug("js catch funcation", "=> (main go context) "+funcName+" with respone ", args[0].String())
+		log.Debug("js catch function", "=> (main go context) "+funcName+" with respone ", args[0].String())
 		catchChannel <- args
 		return nil
 	})
@@ -110,7 +111,7 @@ func Exec(args ...interface{}) (output interface{}, err error) {
 				return result[0], nil
 
 			default:
-				err = errors.New("unkown return type from javascript")
+				err = errors.New("unknown return type from javascript")
 			}
 
 		} else {
@@ -127,6 +128,9 @@ func Exec(args ...interface{}) (output interface{}, err error) {
 		panic(ErrTimoutFromJavaScript)
 	}
 	if data.ErrCode != 0 {
+		if data.ErrCode == JSNOTFOUND {
+			return nil, errors.New("ErrRecordNotFound")
+		}
 		return "", errors.New(data.ErrMsg)
 	}
 	return data.Data, err

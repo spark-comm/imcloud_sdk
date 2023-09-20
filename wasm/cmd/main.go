@@ -39,10 +39,10 @@ func main() {
 }
 
 func registerFunc() {
-	//register global listener funcation
+	//register global listener function
 	globalFuc := wasm_wrapper.NewWrapperCommon()
 	js.Global().Set(wasm_wrapper.COMMONEVENTFUNC, js.FuncOf(globalFuc.CommonEventFunc))
-	//register init login funcation
+	//register init login function
 	wrapperInitLogin := wasm_wrapper.NewWrapperInitLogin(globalFuc)
 	js.Global().Set("initSDK", js.FuncOf(wrapperInitLogin.InitSDK))
 	js.Global().Set("login", js.FuncOf(wrapperInitLogin.Login))
@@ -50,7 +50,7 @@ func registerFunc() {
 	js.Global().Set("getLoginStatus", js.FuncOf(wrapperInitLogin.GetLoginStatus))
 	js.Global().Set("setAppBackgroundStatus", js.FuncOf(wrapperInitLogin.SetAppBackgroundStatus))
 	js.Global().Set("networkStatusChanged", js.FuncOf(wrapperInitLogin.NetworkStatusChanged))
-	//register conversation and message funcation
+	//register conversation and message function
 	wrapperConMsg := wasm_wrapper.NewWrapperConMsg(globalFuc)
 	js.Global().Set("createTextMessage", js.FuncOf(wrapperConMsg.CreateTextMessage))
 	js.Global().Set("createImageMessage", js.FuncOf(wrapperConMsg.CreateImageMessage))
@@ -157,6 +157,11 @@ func registerFunc() {
 	js.Global().Set("getSelfUserInfo", js.FuncOf(wrapperUser.GetSelfUserInfo))
 	js.Global().Set("setSelfInfo", js.FuncOf(wrapperUser.SetSelfInfo))
 	js.Global().Set("getUsersInfo", js.FuncOf(wrapperUser.GetUsersInfo))
+	js.Global().Set("getUsersInfoWithCache", js.FuncOf(wrapperUser.GetUsersInfoWithCache))
+	js.Global().Set("subscribeUsersStatus", js.FuncOf(wrapperUser.SubscribeUsersStatus))
+	js.Global().Set("unsubscribeUsersStatus", js.FuncOf(wrapperUser.UnsubscribeUsersStatus))
+	js.Global().Set("getSubscribeUsersStatus", js.FuncOf(wrapperUser.GetSubscribeUsersStatus))
+	js.Global().Set("getUserStatus", js.FuncOf(wrapperUser.GetUserStatus))
 
 	wrapperFriend := wasm_wrapper.NewWrapperFriend(globalFuc)
 	js.Global().Set("getSpecifiedFriendsInfo", js.FuncOf(wrapperFriend.GetSpecifiedFriendsInfo))
@@ -184,4 +189,6 @@ func registerFunc() {
 
 	wrapperThird := wasm_wrapper.NewWrapperThird(globalFuc)
 	js.Global().Set("updateFcmToken", js.FuncOf(wrapperThird.UpdateFcmToken))
+	js.Global().Set("uploadFile", js.FuncOf(wrapperThird.UploadFile))
+
 }

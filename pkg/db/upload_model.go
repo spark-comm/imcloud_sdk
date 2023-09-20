@@ -12,12 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//go:build !js
+// +build !js
+
 package db
 
 import (
 	"context"
-	"github.com/imCloud/im/pkg/errs"
+	"github.com/pkg/errors"
 	"open_im_sdk/pkg/db/model_struct"
+	"strings"
 	"time"
 )
 
@@ -27,7 +31,7 @@ func (d *DataBase) GetUpload(ctx context.Context, partHash string) (*model_struc
 	var upload model_struct.LocalUpload
 	err := d.conn.WithContext(ctx).Where("part_hash = ?", partHash).Take(&upload).Error
 	if err != nil {
-		return nil, errs.Wrap(err)
+		return nil, Wrap(err)
 	}
 	return &upload, nil
 }
@@ -35,17 +39,17 @@ func (d *DataBase) GetUpload(ctx context.Context, partHash string) (*model_struc
 func (d *DataBase) InsertUpload(ctx context.Context, upload *model_struct.LocalUpload) error {
 	d.mRWMutex.Lock()
 	defer d.mRWMutex.Unlock()
-	return errs.Wrap(d.conn.WithContext(ctx).Create(upload).Error)
+	return Wrap(d.conn.WithContext(ctx).Create(upload).Error)
 }
 
 func (d *DataBase) deleteUpload(ctx context.Context, partHash string) error {
-	return errs.Wrap(d.conn.WithContext(ctx).Where("part_hash = ?", partHash).Delete(&model_struct.LocalUpload{}).Error)
+	return Wrap(d.conn.WithContext(ctx).Where("part_hash = ?", partHash).Delete(&model_struct.LocalUpload{}).Error)
 }
 
 func (d *DataBase) UpdateUpload(ctx context.Context, upload *model_struct.LocalUpload) error {
 	d.groupMtx.Lock()
 	defer d.groupMtx.Unlock()
-	return errs.Wrap(d.conn.WithContext(ctx).Updates(upload).Error)
+	return Wrap(d.conn.WithContext(ctx).Updates(upload).Error)
 }
 
 func (d *DataBase) DeleteUpload(ctx context.Context, partHash string) error {
@@ -60,7 +64,7 @@ func (d *DataBase) DeleteExpireUpload(ctx context.Context) error {
 	var uploads []*model_struct.LocalUpload
 	err := d.conn.WithContext(ctx).Where("expire_time <= ?", time.Now().UnixMilli()).Find(&uploads).Error
 	if err != nil {
-		return errs.Wrap(err)
+		return Wrap(err)
 	}
 	for _, upload := range uploads {
 		if err := d.deleteUpload(ctx, upload.PartHash); err != nil {
@@ -68,4 +72,13 @@ func (d *DataBase) DeleteExpireUpload(ctx context.Context) error {
 		}
 	}
 	return nil
+}
+func Wrap(err error, msg ...string) error {
+	if err == nil {
+		return nil
+	}
+	if len(msg) == 0 {
+		return errors.WithStack(err)
+	}
+	return errors.Wrap(err, strings.Join(msg, ", "))
 }

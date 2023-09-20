@@ -42,6 +42,7 @@ type UploadFileReq struct {
 	Name        string `json:"name"`
 	ContentType string `json:"contentType"`
 	Cause       string `json:"cause"`
+	Uuid        string `json:"uuid"`
 }
 
 type UploadFileResp struct {
@@ -105,7 +106,7 @@ func (f *File) UploadFile(ctx context.Context, req *UploadFileReq, cb UploadFile
 	if prefix := f.loginUserID + "/"; !strings.HasPrefix(req.Name, prefix) {
 		req.Name = prefix + req.Name
 	}
-	file, err := Open(req.Filepath)
+	file, err := Open(req)
 	if err != nil {
 		return nil, err
 	}

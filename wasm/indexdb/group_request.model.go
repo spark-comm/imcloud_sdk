@@ -19,6 +19,7 @@ package indexdb
 
 import (
 	"context"
+	"open_im_sdk/pkg/db/pg"
 	"open_im_sdk/wasm/exec"
 )
 
@@ -94,4 +95,11 @@ func (i *LocalGroupRequest) GetAdminGroupApplication(ctx context.Context) ([]*mo
 	} else {
 		return nil, exec.ErrType
 	}
+}
+func (i *LocalGroupRequest) GetPageGroupApplicationListAsRecipient(ctx context.Context, groupId string, page *pg.Page) ([]*model_struct.LocalAdminGroupRequest, error) {
+	// todo
+	return nil, nil
+}
+func (i *LocalGroupRequest) GetUnprocessedNum(ctx context.Context) (int64, error) {
+	return 0, nil
 }

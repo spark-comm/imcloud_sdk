@@ -92,6 +92,9 @@ func (c ConversationCallback) OnConversationChanged(conversationList string) {
 func (c ConversationCallback) OnTotalUnreadMessageCountChanged(totalUnreadCount int32) {
 	c.CallbackWriter.SetEvent(utils.GetSelfFuncName()).SetData(totalUnreadCount).SendMessage()
 }
+func (c ConversationCallback) OnDeleteConversation(conversationList string) {
+	c.CallbackWriter.SetEvent(utils.GetSelfFuncName()).SetData(conversationList).SendMessage()
+}
 
 type AdvancedMsgCallback struct {
 	CallbackWriter

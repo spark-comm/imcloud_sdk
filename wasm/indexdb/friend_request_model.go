@@ -20,6 +20,7 @@ package indexdb
 import (
 	"context"
 	"open_im_sdk/pkg/db/model_struct"
+	"open_im_sdk/pkg/db/pg"
 	"open_im_sdk/pkg/utils"
 	"open_im_sdk/wasm/exec"
 	"open_im_sdk/wasm/indexdb/temp_struct"
@@ -146,4 +147,14 @@ func (i FriendRequest) GetBothFriendReq(ctx context.Context, fromUserID, toUserI
 			return nil, exec.ErrType
 		}
 	}
+}
+
+// GetRecvFriendApplicationList 分页获取我收到的好友请求
+func (i FriendRequest) GetRecvFriendApplicationList(ctx context.Context, page *pg.Page) ([]*model_struct.LocalFriendRequest, error) {
+	return nil, nil
+}
+
+// GetSendFriendApplicationList 分页获取我发送的好友请求
+func (i FriendRequest) GetSendFriendApplicationList(ctx context.Context, page *pg.Page) ([]*model_struct.LocalFriendRequest, error) {
+	return nil, nil
 }

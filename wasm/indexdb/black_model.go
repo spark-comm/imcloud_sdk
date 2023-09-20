@@ -20,6 +20,7 @@ package indexdb
 import (
 	"context"
 	"open_im_sdk/pkg/db/model_struct"
+	"open_im_sdk/pkg/db/pg"
 	"open_im_sdk/pkg/utils"
 	"open_im_sdk/wasm/exec"
 	"open_im_sdk/wasm/indexdb/temp_struct"
@@ -141,4 +142,7 @@ func (i Black) UpdateBlack(ctx context.Context, black *model_struct.LocalBlack) 
 func (i Black) DeleteBlack(ctx context.Context, blockUserID string) error {
 	_, err := exec.Exec(blockUserID, i.loginUserID)
 	return err
+}
+func (i Black) GetBlackList(ctx context.Context, page *pg.Page) ([]*model_struct.LocalBlack, error) {
+	return nil, nil
 }

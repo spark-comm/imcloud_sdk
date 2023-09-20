@@ -63,6 +63,5 @@ func (i *LocalUpload) UpdateUpload(ctx context.Context, upload *model_struct.Loc
 }
 
 func (i *LocalUpload) DeleteExpireUpload(ctx context.Context) error {
-	//TODO implement me
-	panic("implement me")
+	return nil
 }

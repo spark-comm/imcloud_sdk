@@ -155,3 +155,6 @@ func (i *LocalGroups) GetGroupMemberAllGroupIDs(ctx context.Context) (result []s
 		}
 	}
 }
+func (i *LocalGroups) GetGroupInfoByGroupIDs(ctx context.Context, groupID ...string) ([]*model_struct.LocalGroup, error) {
+	return nil, nil
+}

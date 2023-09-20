@@ -19,6 +19,8 @@ package indexdb
 
 import (
 	"context"
+	"open_im_sdk/pkg/db/pg"
+	"open_im_sdk/pkg/sdk_params_callback"
 	"open_im_sdk/wasm/exec"
 )
 
@@ -161,4 +163,15 @@ func (i *Friend) GetPageFriendList(ctx context.Context, offset, count int) (resu
 			return nil, exec.ErrType
 		}
 	}
+}
+func (i *Friend) GetFriendInfoNotPeersList(ctx context.Context, friendUserIDList []string) ([]*model_struct.LocalFriend, error) {
+	return nil, nil
+}
+
+// 获取不在列表的好友数据
+func (i *Friend) GetNotInListFriendInfo(ctx context.Context, cond, user string, userIDs []string, pageSize, pageNum int) ([]sdk_params_callback.SearchNotInGroupUserResp, int64, error) {
+	return nil, 0, nil
+}
+func (i *Friend) GetFriendList(ctx context.Context, page *pg.Page) ([]*model_struct.LocalFriend, error) {
+	return nil, nil
 }

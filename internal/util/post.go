@@ -127,9 +127,6 @@ func ProtoApiPost[T any, R any](ctx context.Context, url string, data *T) (*R, e
 	if err != nil {
 		return nil, sdkerrs.ErrSdkInternal.Wrap("json.Marshal(req) failed " + err.Error())
 	}
-	if reflect.TypeOf(resp).Elem().Name() == "Empty" {
-		return resp, nil
-	}
 	var result v2.Result
 	err = proto.Unmarshal(content, &result)
 	if err != nil {
@@ -142,8 +139,11 @@ func ProtoApiPost[T any, R any](ctx context.Context, url string, data *T) (*R, e
 			result.ErrMsg,
 			result.Reason)
 	}
+	if reflect.TypeOf(resp).Elem().Name() == "Empty" {
+		return resp, nil
+	}
 	if len(result.Data) == 0 || string(result.Data) == "null" {
-		return nil, nil
+		return resp, nil
 	}
 	if err := proto.Unmarshal(result.Data, res); err != nil {
 		return nil, sdkerrs.ErrSdkInternal.Wrap(fmt.Sprintf("proto.Unmarshal(%q, %T) failed %s", string(result.Data), resp, err.Error()))

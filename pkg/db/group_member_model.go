@@ -376,3 +376,12 @@ func (d *DataBase) GetOwnerOrAdminGroupReqInfo(ctx context.Context, groupID stri
 		Limit(count).Find(&result).Error
 	return result, err
 }
+
+func (d *DataBase) GetOwnerGroupMemberInfo(ctx context.Context, userID string) ([]*model_struct.LocalGroupMember, error) {
+	d.groupMtx.Lock()
+	defer d.groupMtx.Unlock()
+	var result = make([]*model_struct.LocalGroupMember, 0)
+	err := d.conn.WithContext(ctx).
+		Where("user_id = ?", userID).Find(&result).Error
+	return result, err
+}

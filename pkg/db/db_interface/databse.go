@@ -80,6 +80,8 @@ type GroupDatabase interface {
 	SearchKickMemberList(ctx context.Context, params sdk_params_callback.GetKickGroupListReq) ([]*sdk_params_callback.KickGroupList, int64, error)
 	//获取指定群群id的加群申请
 	GetOwnerOrAdminGroupReqInfo(ctx context.Context, groupID string, offset, count int) ([]model_struct.LocalGroupRequest, error)
+	//获取自己在的群中自己的信息
+	GetOwnerGroupMemberInfo(ctx context.Context, userID string) ([]*model_struct.LocalGroupMember, error)
 }
 
 type MessageDatabase interface {

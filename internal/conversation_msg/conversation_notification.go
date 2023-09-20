@@ -483,7 +483,8 @@ func (c *Conversation) syncOtherInformation(ctx context.Context) {
 		//c.friend.SyncFirstFriendList,    //先同步首页数据
 		c.friend.SyncQuantityFriendList, //全量同步简单字段数据
 		//c.group.InitSyncData,
-		c.group.InitSyncGroupData,                            //全量同步群组简单字段
+		c.group.InitSyncGroupData, //全量同步群组简单字段
+		c.group.GetUserMemberInfoInGroup,
 		c.friend.SyncUntreatedFriendReceiveFriendApplication, //同步未处理的好友请求
 		//c.friend.SyncSelfFriendApplication, //自己发出的好友请求，暂时业务上没有需要
 		c.group.SyncAdminGroupUntreatedApplication, //获取未处理的加群请求

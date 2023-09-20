@@ -532,3 +532,29 @@ func (g *Group) InitSyncGroupData(ctx context.Context) error {
 	common.TriggerCmdJoinGroup(ctx, g.groupCh)
 	return nil
 }
+
+func (g *Group) GetUserMemberInfoInGroup(ctx context.Context) error {
+	//初始化同步用户的所有群中成员信息
+	info, _ := g.db.GetOwnerGroupMemberInfo(ctx, g.loginUserID)
+	resp := &groupv1.GetUserInGroupMemberResp{}
+	//获取远端数据
+	err := util.CallPostApi[*groupv1.GetUserInGroupMemberReq, *groupv1.GetUserInGroupMemberResp](
+		ctx,
+		constant.GetUserMemberInfoInGroup,
+		&groupv1.GetUserInGroupMemberReq{
+			UserID: g.loginUserID,
+		},
+		resp,
+	)
+	if err != nil {
+		return err
+	}
+	if len(resp.List) == 0 {
+		return nil
+	}
+	//同步数据
+	if err := g.groupMemberSyncer.Sync(ctx, util.Batch(ServerGroupMemberToLocalGroupMember, resp.List), info, nil); err != nil {
+		return err
+	}
+	return nil
+}

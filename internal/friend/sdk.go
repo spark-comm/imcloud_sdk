@@ -354,6 +354,24 @@ func (f *Friend) GetUnprocessedNum(ctx context.Context) (int64, error) {
 	return f.db.GetUnprocessedNum(ctx)
 }
 
+// SetFriendDestroyMsgStatus 设置好友阅后即焚
+// friendID   string 好友状态
+// status     int  状态1:开启,0:关闭
+func (f *Friend) SetFriendDestroyMsgStatus(ctx context.Context, friendID string, status int) error {
+	if _, err := util.ProtoApiPost[friendPb.SetDestroyMsgStatusReq, empty.Empty](
+		ctx,
+		constant.SetDestroyMsgStatus,
+		&friendPb.SetDestroyMsgStatusReq{
+			OwnerUserId:  f.loginUserID,
+			FriendUserId: friendID,
+			Status:       uint32(status),
+		},
+	); err != nil {
+		return err
+	}
+	return f.syncFriendById(ctx, f.loginUserID, friendID)
+}
+
 // getConversationIDBySessionType 获取会话类型
 func (f *Friend) getConversationIDBySessionType(sourceID string, sessionType int) string {
 	switch sessionType {

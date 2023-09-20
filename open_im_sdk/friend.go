@@ -154,3 +154,10 @@ func RemoveBlack(callback open_im_sdk_callback.Base, operationID string, removeU
 func GetUnprocessedNum(callback open_im_sdk_callback.Base, operationID string) {
 	call(callback, operationID, UserForSDK.Friend().GetUnprocessedNum)
 }
+
+// SetFriendDestroyMsgStatus 设置好友阅后即焚
+// friendID   string 好友状态
+// status     int  状态1:开启,0:关闭
+func SetFriendDestroyMsgStatus(callback open_im_sdk_callback.Base, operationID, friendID string, status int) {
+	call(callback, operationID, UserForSDK.Friend().SetFriendDestroyMsgStatus, friendID, status)
+}

@@ -59,6 +59,7 @@ func ServerFriendToLocalFriend(info *friendPb.FriendInfo) *model_struct.LocalFri
 		NotPeersFriend: info.NotPeersFriend,
 		BackgroundURL:  info.BackgroundUrl,
 		IsComplete:     info.IsComplete,
+		IsDestroyMsg:   info.IsDestroyMsg,
 	}
 }
 

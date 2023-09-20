@@ -24,7 +24,7 @@ import (
 )
 
 func Test_GetSpecifiedFriendsInfo(t *testing.T) {
-	info, err := open_im_sdk.UserForSDK.Friend().GetSpecifiedFriendsInfo(ctx, []string{"55122326609465344"})
+	info, err := open_im_sdk.UserForSDK.Friend().GetSpecifiedFriendsInfo(ctx, []string{"55122326508802048"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -235,4 +235,13 @@ func Test_SetFriendChatBackground(t *testing.T) {
 	}
 	time.Sleep(time.Second * 10)
 	t.Log("SetFriendChatBackground success")
+}
+
+func Test_SetFriendDestroyMsgStatus(t *testing.T) {
+	err := open_im_sdk.UserForSDK.Friend().SetFriendDestroyMsgStatus(ctx, "55122326508802048", 1)
+	if err != nil {
+		t.Fatal(err)
+	}
+	time.Sleep(time.Second * 10)
+	t.Log("SetFriendDestroyMsgStatus success")
 }

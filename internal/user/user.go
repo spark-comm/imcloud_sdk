@@ -16,6 +16,7 @@ package user
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"github.com/golang/protobuf/ptypes/empty"
 	"open_im_sdk/internal/util"

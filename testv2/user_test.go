@@ -17,6 +17,7 @@ package testv2
 import (
 	"fmt"
 	"open_im_sdk/open_im_sdk"
+	"open_im_sdk/pkg/utils"
 	"testing"
 	"time"
 
@@ -133,4 +134,12 @@ func Test_SyncUserOperation(t *testing.T) {
 		t.Error(err)
 	}
 	t.Log(lu)
+}
+
+func Test_GetServerUserInfo(t *testing.T) {
+	userInfo, err := open_im_sdk.UserForSDK.User().GetServerUserInfo(ctx, []string{"55122331994951680"})
+	if err != nil {
+		t.Error(err)
+	}
+	t.Log(utils.StructToJsonString(userInfo))
 }

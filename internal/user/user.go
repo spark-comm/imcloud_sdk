@@ -34,7 +34,6 @@ import (
 	"github.com/imCloud/im/pkg/common/log"
 	authPb "github.com/imCloud/im/pkg/proto/auth"
 	"github.com/imCloud/im/pkg/proto/sdkws"
-	userPb "github.com/imCloud/im/pkg/proto/user"
 )
 
 // User is a struct that represents a user in the system.
@@ -176,10 +175,12 @@ func (u *User) GetSingleUserFromSvr(ctx context.Context, userID string) (*model_
 func (u *User) getSelfUserInfo(ctx context.Context) (*model_struct.LocalUser, error) {
 	userInfo, errLocal := u.GetLoginUser(ctx, u.loginUserID)
 	if errLocal != nil {
+		log.ZError(ctx, fmt.Sprintf("登录的用户id:%s", u.loginUserID), nil)
 		srvUserInfo, errServer := u.GetServerUserInfo(ctx, []string{u.loginUserID})
 		if errServer != nil {
 			return nil, errServer
 		}
+		log.ZError(ctx, fmt.Sprintf("服务端返回的数据:%s", utils.StructToJsonString(srvUserInfo)), nil)
 		if len(srvUserInfo) == 0 {
 			return nil, sdkerrs.ErrUserIDNotFound
 		}
@@ -231,9 +232,9 @@ func (u *User) GetServerUserInfo(ctx context.Context, userIDs []string) ([]*imUs
 	//resp, err := util.CallApi[imUserPb.FindProfileByUserReply](ctx, constant.GetUsersInfoRouter,
 	//	&userPb.GetDesignateUsersReq{UserIDs: userIDs})
 	resp := &imUserPb.FindProfileByUserReply{}
-	err := util.CallPostApi[*userPb.GetDesignateUsersReq, *imUserPb.FindProfileByUserReply](
+	err := util.CallPostApi[*imUserPb.FindProfileByUserReq, *imUserPb.FindProfileByUserReply](
 		ctx, constant.GetUsersInfoRouter,
-		&userPb.GetDesignateUsersReq{UserIDs: userIDs},
+		&imUserPb.FindProfileByUserReq{UserIds: userIDs},
 		resp,
 	)
 	if err != nil {

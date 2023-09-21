@@ -27,20 +27,11 @@ import (
 	"open_im_sdk/pkg/db/model_struct"
 	"open_im_sdk/pkg/delayqueue"
 	"open_im_sdk/pkg/syncer"
-	"time"
 )
 
 func NewFriend(ctx context.Context, loginUserID string, db db_interface.DataBase, user *user.User, conversationCh, groupCh chan common.Cmd2Value) *Friend {
 	f := &Friend{loginUserID: loginUserID, db: db, user: user, conversationCh: conversationCh, groupCh: groupCh, syncFriendQueue: delayqueue.New[int]()}
 	f.initSyncer()
-	go func() {
-		ctx1, cl := context.WithTimeout(ctx, time.Minute*5)
-		defer cl()
-		for emtry := range f.syncFriendQueue.Channel(ctx, 1) {
-			log.ZDebug(ctx1, "delay sync join group", emtry)
-			f.SyncFriendList(ctx1)
-		}
-	}()
 	return f
 }
 

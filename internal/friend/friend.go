@@ -230,10 +230,10 @@ func (f *Friend) syncApplicationByNotification(ctx context.Context, from *sdkws.
 }
 
 // syncFriendByNotification
-func (f *Friend) syncFriendByNotification(ctx context.Context, fromUserID, friendId string) error {
-	err := f.syncFriendById(ctx, fromUserID, friendId)
+func (f *Friend) syncFriendByNotification(ctx context.Context, friendId string) error {
+	err := f.syncFriendById(ctx, friendId)
 	if err != nil {
-		return fmt.Errorf("friend  notification error, fromUserID: %s, toUserID: %s", fromUserID, friendId)
+		return fmt.Errorf("friend  notification error, fromUserID: %s, toUserID: %s", f.loginUserID, friendId)
 	}
 	//生成对应的会话
 	//_ = common.TriggerCmdAddFriendGenerateSession(ctx, common.SourceIDAndSessionType{SourceID: friendId, SessionType: constant.SingleChatType}, f.conversationCh)

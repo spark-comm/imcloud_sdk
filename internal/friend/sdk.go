@@ -293,7 +293,7 @@ func (f *Friend) SetFriendInfo(ctx context.Context, userIDRemark *sdk.SetFriendR
 	); err != nil {
 		return err
 	}
-	return f.syncFriendById(ctx, f.loginUserID, userIDRemark.ToUserID)
+	return f.syncFriendById(ctx, userIDRemark.ToUserID)
 }
 func (f *Friend) AddBlack(ctx context.Context, blackUserID string) error {
 	//if err := util.ApiPost(ctx, constant.AddBlackRouter, &friend.AddBlackReq{OwnerUserID: f.loginUserID, BlackUserID: blackUserID}, nil); err != nil {
@@ -354,7 +354,7 @@ func (f *Friend) SetFriendDestroyMsgStatus(ctx context.Context, friendID string,
 	); err != nil {
 		return err
 	}
-	return f.syncFriendById(ctx, f.loginUserID, friendID)
+	return f.syncFriendById(ctx, friendID)
 }
 
 // getConversationIDBySessionType 获取会话类型

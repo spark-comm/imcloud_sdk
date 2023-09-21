@@ -224,12 +224,7 @@ func (f *Friend) syncDelFriend(ctx context.Context, friendId string) error {
 // SyncQuantityFriendList 全量同步好友，部分字段
 func (f *Friend) SyncQuantityFriendList(ctx context.Context) error {
 	//获取远端数据
-	req := &friendPb.GetPaginationFriendsInfo{UserID: f.loginUserID, Pagination: &commonPb.RequestPagination{}}
-	fn := func(resp *friendPb.GetSyncFriendResp) []*friendPb.SyncFriendInfo {
-		return resp.List
-	}
-	resp := &friendPb.GetSyncFriendResp{}
-	respList, err := util.GetPageAll(ctx, constant.GetSyncFriendList, req, resp, fn)
+	respList, err := f.GetFriendBaseInfoSvr(ctx)
 	if err != nil {
 		return err
 	}
@@ -255,6 +250,6 @@ func (f *Friend) SyncQuantityFriendList(ctx context.Context) error {
 		log.ZDebug(ctx, "sync first page friend error", err)
 	}
 	//加入延迟队列做同步
-	f.syncFriendQueue.Push(1, time.Second*20)
+	//f.syncFriendQueue.Push(1, time.Second*20)
 	return err
 }

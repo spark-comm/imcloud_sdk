@@ -2,6 +2,7 @@ package friend
 
 import (
 	"context"
+	commonPb "github.com/imCloud/api/common"
 	friendPb "github.com/imCloud/api/friend/v1"
 	"github.com/imCloud/im/pkg/common/log"
 	"open_im_sdk/internal/util"
@@ -24,4 +25,17 @@ func (f *Friend) GetFriendByIdsSvr(ctx context.Context, friendUserIDList []strin
 		return friends, nil
 	}
 	return res.FriendsInfo, nil
+}
+
+func (f *Friend) GetFriendBaseInfoSvr(ctx context.Context) ([]*friendPb.SyncFriendInfo, error) {
+	req := &friendPb.GetPaginationFriendsInfo{UserID: f.loginUserID, Pagination: &commonPb.RequestPagination{}}
+	fn := func(resp *friendPb.GetSyncFriendResp) []*friendPb.SyncFriendInfo {
+		return resp.List
+	}
+	resp := &friendPb.GetSyncFriendResp{}
+	respList, err := util.GetPageAll(ctx, constant.GetSyncFriendList, req, resp, fn)
+	if err != nil {
+		return respList, err
+	}
+	return resp.List, nil
 }

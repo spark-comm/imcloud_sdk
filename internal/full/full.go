@@ -55,17 +55,33 @@ func (u *Full) GetGroupInfoFromLocal2Svr(ctx context.Context, groupID string, se
 	}
 }
 func (u *Full) GetGroupInfoAndSelfGroupMemberInfoFromLocal2Svr(ctx context.Context, groupID string, sessionType int32) (*model_struct.LocalGroup, *model_struct.LocalGroupMember, error) {
+	var notIntGroup bool
 	switch sessionType {
 	case constant.GroupChatType:
-		return u.group.GetGroupInfoAndSelfGroupMemberInfoFromLocal2Svr(ctx, groupID)
+		svr, member, err := u.group.GetGroupInfoAndSelfGroupMemberInfoFromLocal2Svr(ctx, groupID)
+		if err == nil && svr != nil && member != nil {
+			return svr, member, nil
+		} else {
+			notIntGroup = true
+		}
 	case constant.SuperGroupChatType:
 		//g, err := u.GetGroupInfoByGroupID(ctx, groupID)
 		//return g, nil, err
 		// todo 暂时统一处理
-		return u.group.GetGroupInfoAndSelfGroupMemberInfoFromLocal2Svr(ctx, groupID)
+		svr, member, err := u.group.GetGroupInfoAndSelfGroupMemberInfoFromLocal2Svr(ctx, groupID)
+		if err == nil && svr != nil && member != nil {
+			return svr, member, nil
+		} else {
+			notIntGroup = true
+		}
 	default:
 		return nil, nil, fmt.Errorf("sessionType is not support %d", sessionType)
 	}
+	if notIntGroup {
+		//conversationID := utils2.GetConversationIDBySessionType(int(sessionType), groupID)
+		//common.TriggerCmdDeleteConversationAndMessage(ctx, groupID, conversationID, int(sessionType), u.ch)
+	}
+	return nil, nil, fmt.Errorf("user not in group %s", groupID)
 }
 func (u *Full) GetReadDiffusionGroupIDList(ctx context.Context) ([]string, error) {
 	g, err := u.group.GetJoinedDiffusionGroupIDListFromSvr(ctx)

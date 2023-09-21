@@ -297,6 +297,23 @@ func (g *Group) GetGroupInfoAndSelfGroupMemberInfoFromLocal2Svr(ctx context.Cont
 	//return ServerGroupToLocalGroup(svrGroup[0]), localSelfGroupMember, nil
 }
 
+// GetGroupInfoAndSelfGroupMemberInfoFromLocal 从本地获取群信息和当前用户在群中的信息
+func (g *Group) GetGroupInfoAndSelfGroupMemberInfoFromLocal(ctx context.Context, groupID string) (*model_struct.LocalGroup, *model_struct.LocalGroupMember, error) {
+	localGroup, err := g.db.GetGroupInfoByGroupID(ctx, groupID)
+	var localHaveGroup bool
+	if err == nil && localGroup.GroupID != "" {
+		localHaveGroup = true
+	}
+	localSelfGroupMember, err := g.db.GetGroupMemberInfoByGroupIDUserID(ctx, groupID, g.loginUserID)
+	if err != nil {
+		log.ZError(ctx, "GetGroupInfoAndSelfGroupMemberInfoFromLocal2Svr->GetGroupMemberInfoByGroupIDUserID failed", err)
+	}
+	if localHaveGroup {
+		return localGroup, localSelfGroupMember, nil
+	}
+	return localGroup, localSelfGroupMember, nil
+}
+
 // getGroupsInfoFromSvr 从服务端获取群数据
 func (g *Group) getGroupsInfoFromSvr(ctx context.Context, groupIDs []string) ([]*groupv1.GroupInfo, error) {
 	//resp, err := util.CallApi[groupv1.GetGroupInfoResponse](ctx, constant.GetGroupsInfoRouter, &groupv1.GetGroupInfoReq{GroupID: groupIDs})

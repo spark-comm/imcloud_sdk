@@ -18,6 +18,7 @@ import (
 	"context"
 	"open_im_sdk/internal/friend"
 	"open_im_sdk/internal/user"
+	"open_im_sdk/pkg/common"
 	"open_im_sdk/pkg/db/model_struct"
 	"open_im_sdk/pkg/sdkerrs"
 	"sync"
@@ -33,10 +34,12 @@ type Cache struct {
 	friend          *friend.Friend
 	userMap         sync.Map
 	conversationMap sync.Map
+	loginUserID     string
+	ch              chan common.Cmd2Value
 }
 
-func NewCache(user *user.User, friend *friend.Friend) *Cache {
-	return &Cache{user: user, friend: friend}
+func NewCache(user *user.User, friend *friend.Friend, loginUserID string, ch chan common.Cmd2Value) *Cache {
+	return &Cache{user: user, friend: friend, loginUserID: loginUserID, ch: ch}
 }
 
 func (c *Cache) Update(userID, faceURL, nickname string) {
@@ -96,6 +99,10 @@ func (c *Cache) GetUserNameFaceURLAndBackgroundUrl(ctx context.Context, userID s
 		backgroundURL = friendInfo.BackgroundURL
 		return faceURL, name, backgroundURL, nil
 	}
+
+	//conversationID := utils2.GetConversationIDBySessionType(constant.SingleChatType, c.loginUserID, userID)
+	//common.TriggerCmdDeleteConversationAndMessage(ctx, userID, conversationID, constant.SingleChatType, c.ch)
+	//return "", "", "", errors.New(fmt.Sprintf("user %s is not in friend list", userID))
 	//get from server db
 	users, err := c.user.GetServerUserInfo(ctx, []string{userID})
 	if err != nil {

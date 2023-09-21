@@ -284,7 +284,7 @@ func (u *LoginMgr) login(ctx context.Context, userID, token string) error {
 	//群
 	u.group = group.NewGroup(u.loginUserID, u.db, u.conversationCh, u.groupCh)
 	u.group.SetGroupListener(u.groupListener)
-	u.cache = cache.NewCache(u.user, u.friend)
+	u.cache = cache.NewCache(u.user, u.friend, u.loginUserID, u.conversationCh)
 	u.full = full.NewFull(u.user, u.friend, u.group, u.conversationCh, u.cache, u.db)
 	// 业务信息
 	u.business = business.NewBusiness(u.db)

@@ -398,20 +398,38 @@ func (g *Group) GetGroupMemberList(ctx context.Context, groupID string, filter, 
 	if count == 0 {
 		count = 20
 	}
-	split, err := g.db.GetGroupMemberListSplit(ctx, groupID, filter, int((offset-1)*count), int(count))
+	//查看群数据是否同步完成
+	localGroup, err := g.db.GetGroupInfoByGroupID(ctx, groupID)
 	if err != nil {
-		return nil, err
+		return []*model_struct.LocalGroupMember{}, err
 	}
-	if len(split) == int(count) {
+	if localGroup.MemberIsComplete == model_struct.FinishMemberSync { //数据已同步完成
+		split, err := g.db.GetGroupMemberListSplit(ctx, groupID, filter, int((offset-1)*count), int(count))
+		if err != nil {
+			return []*model_struct.LocalGroupMember{}, err
+		}
 		return split, nil
 	}
+	//未完成
 	serverMemberInfo, err := g.GetServerPageGroupMembersInfo(ctx, groupID, filter, offset, count)
-	if err != nil {
-		return nil, err
-	}
-	//异步同步
+	//if err != nil {
+	//	return []*model_struct.LocalGroupMember{}, err
+	//}
 	go func() {
-		g.groupMemberSyncer.Sync(ctx, util.Batch(ServerGroupMemberToLocalGroupMember, serverMemberInfo), split, nil)
+		/*
+			异步同步所有群成员(每次拉1000条)
+		*/
+		localGroupMembers, err := g.db.GetGroupMemberListByGroupID(ctx, groupID)
+		if err != nil {
+			return
+		}
+		info, err := g.GetServerAllGroupMembersInfo(ctx, groupID, 1000)
+		if err != nil {
+			return
+		}
+		localGroup.MemberIsComplete = model_struct.FinishMemberSync
+		g.db.UpdateGroup(ctx, localGroup)
+		g.groupMemberSyncer.Sync(ctx, util.Batch(ServerGroupMemberToLocalGroupMember, info), localGroupMembers, nil)
 	}()
 	return util.Batch(ServerGroupMemberToLocalGroupMember, serverMemberInfo), nil
 	// 检查是否同步过

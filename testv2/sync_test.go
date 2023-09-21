@@ -87,3 +87,10 @@ func Test_SyncConversation(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+func Test_SyncQuantityFriendList(t *testing.T) {
+	err := open_im_sdk.UserForSDK.Friend().SyncQuantityFriendList(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+}

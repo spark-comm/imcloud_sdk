@@ -570,3 +570,13 @@ func (g *Group) GetServerPageGroupMembersInfo(ctx context.Context, groupID strin
 			ShowNumber: count,
 		}}, resp, fn)
 }
+
+func (g *Group) GetServerAllGroupMembersInfo(ctx context.Context, groupID string, count int32) ([]*groupv1.MembersInfo, error) {
+	fn := func(resp *groupv1.MemberListForSDKReps) []*groupv1.MembersInfo { return resp.Members }
+	resp := &groupv1.MemberListForSDKReps{}
+	return util.GetPageAll(ctx, constant.GetGroupMemberListRouter, &groupv1.GroupMemberListReq{
+		GroupID: groupID,
+		Pagination: &commonPb.RequestPagination{
+			ShowNumber: count,
+		}}, resp, fn)
+}

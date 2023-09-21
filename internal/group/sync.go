@@ -558,3 +558,15 @@ func (g *Group) GetUserMemberInfoInGroup(ctx context.Context) error {
 	}
 	return nil
 }
+
+func (g *Group) GetServerPageGroupMembersInfo(ctx context.Context, groupID string, filter, offset, count int32) ([]*groupv1.MembersInfo, error) {
+	fn := func(resp *groupv1.MemberListForSDKReps) []*groupv1.MembersInfo { return resp.Members }
+	resp := &groupv1.MemberListForSDKReps{}
+	return util.GetFirstPage(ctx, constant.GetGroupMemberListRouter, &groupv1.GroupMemberListReq{
+		GroupID: groupID,
+		Filter:  filter,
+		Pagination: &commonPb.RequestPagination{
+			PageNumber: offset,
+			ShowNumber: count,
+		}}, resp, fn)
+}

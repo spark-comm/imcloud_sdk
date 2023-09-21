@@ -139,6 +139,7 @@ func (f *Friend) RespondFriendApply(ctx context.Context, req *friend.RespondFrie
 			ToUserID:   req.ToUserID,
 			Flag:       int64(req.HandleResult),
 			HandleMsg:  req.HandleMsg,
+			UserID:     f.loginUserID,
 		}); err != nil {
 		return err
 	}

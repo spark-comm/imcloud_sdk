@@ -398,12 +398,22 @@ func (g *Group) GetGroupMemberList(ctx context.Context, groupID string, filter, 
 	if count == 0 {
 		count = 20
 	}
-	return g.db.GetGroupMemberListSplit(
-		ctx,
-		groupID,
-		filter,
-		int((offset-1)*count),
-		int(count))
+	split, err := g.db.GetGroupMemberListSplit(ctx, groupID, filter, int((offset-1)*count), int(count))
+	if err != nil {
+		return nil, err
+	}
+	if len(split) == int(count) {
+		return split, nil
+	}
+	serverMemberInfo, err := g.GetServerPageGroupMembersInfo(ctx, groupID, filter, offset, count)
+	if err != nil {
+		return nil, err
+	}
+	//异步同步
+	go func() {
+		g.groupMemberSyncer.Sync(ctx, util.Batch(ServerGroupMemberToLocalGroupMember, serverMemberInfo), split, nil)
+	}()
+	return util.Batch(ServerGroupMemberToLocalGroupMember, serverMemberInfo), nil
 	// 检查是否同步过
 	// i, err := g.db.GetGroupMemberCount(ctx, groupID)
 	// if i == 0 || err != nil {

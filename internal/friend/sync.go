@@ -240,12 +240,13 @@ func (f *Friend) SyncQuantityFriendList(ctx context.Context) error {
 	friends := make([]*friendPb.FriendInfo, 0)
 	for _, info := range respList {
 		friends = append(friends, &friendPb.FriendInfo{
-			OwnerUserID:  f.loginUserID,
-			FriendUserID: info.FriendID,
-			Nickname:     info.NickName,
-			FaceURL:      info.FaceURL,
-			Remark:       info.Remark,
-			IsComplete:   IsNotComplete, //未同步完成标记
+			OwnerUserID:   f.loginUserID,
+			FriendUserID:  info.FriendID,
+			Nickname:      info.NickName,
+			FaceURL:       info.FaceURL,
+			Remark:        info.Remark,
+			BackgroundUrl: info.BackgroundURL,
+			IsComplete:    IsNotComplete, //未同步完成标记
 		})
 	}
 	//同步本地没有的数据

@@ -110,6 +110,7 @@ func (c *Conversation) GetOneConversation(ctx context.Context, sessionType int32
 	conversationID := c.getConversationIDBySessionType(sourceID, int(sessionType))
 	lc, err := c.db.GetConversation(ctx, conversationID)
 	if err == nil {
+		c.addFaceURLAndNameBackgroundURL(ctx, lc)
 		return lc, nil
 	} else {
 		var newConversation model_struct.LocalConversation
@@ -146,6 +147,7 @@ func (c *Conversation) GetOneConversation(ctx context.Context, sessionType int32
 		if err != nil {
 			return nil, err
 		}
+		c.addFaceURLAndNameBackgroundURL(ctx, lc)
 		return &newConversation, nil
 	}
 }

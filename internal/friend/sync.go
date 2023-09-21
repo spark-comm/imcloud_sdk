@@ -178,7 +178,7 @@ func (f *Friend) syncFriendApplicationById(ctx context.Context, fromUserID, toUs
 func (f *Friend) syncFriendById(ctx context.Context, fromUserID, friendId string) error {
 	//req := &friendPb.ListFriendByIdsReq{UserID: fromUserID, FriendIds: []string{friendId}}
 	//res, err := util.CallApi[friendPb.ListFriendByIdsReply](ctx, constant.GetFriendByAppIdsRouter, req)
-	svr, err1 := f.GetFriendByIdsSvr(ctx, []string{fromUserID})
+	svr, err1 := f.GetFriendByIdsSvr(ctx, []string{friendId})
 	if err1 != nil {
 		return err1
 	}

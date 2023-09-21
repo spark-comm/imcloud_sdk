@@ -280,17 +280,21 @@ func (g *Group) GetGroupInfoAndSelfGroupMemberInfoFromLocal2Svr(ctx context.Cont
 	if localHaveGroup {
 		return localGroup, localSelfGroupMember, nil
 	}
-	svrGroup, err := g.getGroupsInfoFromSvr(ctx, []string{groupID})
-	if err != nil {
-		return nil, localSelfGroupMember, err
-	}
-	if len(svrGroup) == 0 {
-		return nil, localSelfGroupMember, sdkerrs.ErrGroupIDNotFound.Wrap("server not this group")
-	}
-	if err := g.groupSyncer.Sync(ctx, util.Batch(ServerGroupToLocalGroup, svrGroup), []*model_struct.LocalGroup{localGroup}, nil); err != nil {
-		log.ZDebug(ctx, "sync group info err:%v", err)
-	}
-	return ServerGroupToLocalGroup(svrGroup[0]), localSelfGroupMember, nil
+	return localGroup, localSelfGroupMember, nil
+	//if localHaveGroup {
+	//	return localGroup, localSelfGroupMember, nil
+	//}
+	//svrGroup, err := g.getGroupsInfoFromSvr(ctx, []string{groupID})
+	//if err != nil {
+	//	return nil, localSelfGroupMember, err
+	//}
+	//if len(svrGroup) == 0 {
+	//	return nil, localSelfGroupMember, sdkerrs.ErrGroupIDNotFound.Wrap("server not this group")
+	//}
+	//if err := g.groupSyncer.Sync(ctx, util.Batch(ServerGroupToLocalGroup, svrGroup), []*model_struct.LocalGroup{localGroup}, nil); err != nil {
+	//	log.ZDebug(ctx, "sync group info err:%v", err)
+	//}
+	//return ServerGroupToLocalGroup(svrGroup[0]), localSelfGroupMember, nil
 }
 
 // getGroupsInfoFromSvr 从服务端获取群数据

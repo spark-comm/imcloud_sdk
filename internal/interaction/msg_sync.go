@@ -17,6 +17,9 @@ package interaction
 import (
 	"context"
 	"math"
+	"open_im_sdk/internal/friend"
+	"open_im_sdk/internal/group"
+	"open_im_sdk/internal/user"
 	"open_im_sdk/pkg/ccontext"
 	"open_im_sdk/pkg/common"
 	"open_im_sdk/pkg/constant"
@@ -24,6 +27,8 @@ import (
 	"open_im_sdk/pkg/utils"
 	"open_im_sdk/sdk_struct"
 	"strings"
+	"sync"
+	"time"
 
 	"github.com/imCloud/im/pkg/common/log"
 	"github.com/imCloud/im/pkg/proto/sdkws"
@@ -48,11 +53,14 @@ type MsgSyncer struct {
 	db                     db_interface.DataBase // data store
 	syncTimes              int                   // times of sync
 	ctx                    context.Context       // context
+	friend                 *friend.Friend
+	group                  *group.Group
+	user                   *user.User
 }
 
 // NewMsgSyncer creates a new instance of the message synchronizer.
 func NewMsgSyncer(ctx context.Context, conversationCh, PushSeqCh chan common.Cmd2Value,
-	loginUserID string, longConnMgr *LongConnMgr, db db_interface.DataBase, syncTimes int) (*MsgSyncer, error) {
+	loginUserID string, longConnMgr *LongConnMgr, db db_interface.DataBase, syncTimes int, friend *friend.Friend, group *group.Group, user *user.User) (*MsgSyncer, error) {
 	m := &MsgSyncer{
 		loginUserID:            loginUserID,
 		longConnMgr:            longConnMgr,
@@ -65,6 +73,9 @@ func NewMsgSyncer(ctx context.Context, conversationCh, PushSeqCh chan common.Cmd
 		msgSync:                make(chan *sdkws.SeqRange, 1000),
 		db:                     db,
 		syncTimes:              syncTimes,
+		friend:                 friend,
+		group:                  group,
+		user:                   user,
 	}
 	if err := m.loadSeq(ctx); err != nil {
 		log.ZError(ctx, "loadSeq err", err)
@@ -130,6 +141,7 @@ func (m *MsgSyncer) getSeqsNeedSync(syncedMaxSeq, maxSeq int64) []int64 {
 func (m *MsgSyncer) handlePushMsgAndEvent(cmd common.Cmd2Value) {
 	switch cmd.Cmd {
 	case constant.CmdConnSuccesss:
+		//链接成功处理
 		log.ZDebug(cmd.Ctx, "recv long conn mgr connected", "cmd", cmd.Cmd, "value", cmd.Value)
 		m.doConnected(cmd.Ctx)
 	case constant.CmdPushSeq:
@@ -224,8 +236,11 @@ func (m *MsgSyncer) doConnected(ctx context.Context) {
 	} else {
 		log.ZDebug(m.ctx, "get max seq success", "resp", resp)
 	}
+	wctx, cancelFunc := context.WithTimeout(ctx, time.Second*60*5)
+	defer cancelFunc()
+	m.syncBaseInformation(wctx)
 	//根据seq同步消息
-	m.compareSeqsAndBatchSync(ctx, resp.MaxSeqs, resp.MinSeqs, connectPullNums)
+	m.compareSeqsAndBatchSync(wctx, resp.MaxSeqs, resp.MinSeqs, connectPullNums)
 	common.TriggerCmdNotification(m.ctx, sdk_struct.CmdNewMsgComeToConversation{SyncFlag: constant.MsgSyncEnd}, m.conversationCh)
 }
 
@@ -467,4 +482,23 @@ func (m *MsgSyncer) SpiltList(min, max, size int64) [][]int64 {
 		spiltList = append(spiltList, tmpList)
 	}
 	return spiltList
+}
+
+// syncBaseInformation 同步基本信息
+func (m *MsgSyncer) syncBaseInformation(ctx context.Context) {
+	// 同步数据
+	var wg sync.WaitGroup
+	for _, syncFunc := range []func(c context.Context) error{
+		m.user.SyncLoginUserInfo,
+		m.friend.SyncQuantityFriendList, //全量同步简单字段数据
+		m.group.InitSyncGroupData,       //全量同步群组简单字段
+		m.group.GetUserMemberInfoInGroup} {
+		wg.Add(1)
+		go func(syncFunc func(c context.Context) error) {
+			defer wg.Done()
+			_ = syncFunc(ctx)
+		}(syncFunc)
+	}
+	wg.Wait()
+	log.ZError(ctx, "base info sync success", nil)
 }

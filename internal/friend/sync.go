@@ -184,8 +184,8 @@ func (f *Friend) syncFriendById(ctx context.Context, friendId string) error {
 	}
 	localData, err := f.db.GetFriendInfoList(ctx, []string{friendId})
 	localList := make([]*model_struct.LocalFriend, 0)
-	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		return err
+	if err != nil {
+		log.ZError(ctx, "syncFriendById->GetFriendInfoList", err)
 	} else {
 		localList = append(localList, localData...)
 	}

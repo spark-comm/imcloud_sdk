@@ -20,6 +20,7 @@ import (
 	"open_im_sdk/internal/util"
 	"open_im_sdk/pkg/common"
 	"open_im_sdk/pkg/constant"
+	"open_im_sdk/pkg/db/model_struct"
 	"open_im_sdk/pkg/utils"
 	"sync"
 	"time"
@@ -233,7 +234,9 @@ func (g *Group) SyncGroups(ctx context.Context, id ...string) error {
 	//根据id获取本地群数据
 	localData, err := g.db.GetGroupInfoByGroupIDs(ctx, id...)
 	if err != nil {
-		return err
+		log.ZError(ctx, "SyncGroups->GetGroupInfoByGroupIDs", err)
+	} else {
+		localData = make([]*model_struct.LocalGroup, 0)
 	}
 	if err := g.groupSyncer.Sync(ctx, util.Batch(ServerGroupToLocalGroup, groups), localData, nil); err != nil {
 		return err

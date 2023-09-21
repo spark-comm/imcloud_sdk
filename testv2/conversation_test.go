@@ -60,7 +60,7 @@ func Test_GetConversationListSplit(t *testing.T) {
 		t.Fatal(err)
 	}
 	for _, conversation := range conversations {
-		t.Log(conversation)
+		t.Log(fmt.Sprintf("%s", utils.StructToJsonString(conversation)))
 	}
 }
 

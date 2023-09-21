@@ -45,8 +45,8 @@ const (
 	WSADDR  = "ws://8.137.13.1:10001"
 	//APIADDR = "http://0.0.0.0:9099"
 	//WSADDR  = "ws://0.0.0.0:10001"
-	UserID = "55223677259616256"
-	token  = "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJpbUNsb3VkIiwic3ViIjoie1widXNlcklkXCI6XCI0OTM4MzY3NTU5NDI4MDk2MFwiLFwicGxhdGZvcm1cIjpcIldpbmRvd3NcIixcInJvbGVcIjpcIlwifSIsImV4cCI6MTY5MTc1MjYzNiwibmJmIjoxNjkxMzkyNjM2LCJpYXQiOjE2OTEzOTI2MzZ9.FyBCcmzThoD9RFZCu9fwr_W8pvQ5VhMa-lisKOo5fv_gNqhGAFtpK_DnmOBgWC47JVIRvu2d6mksytGS-LykFw"
+	UserID = "55122331994951680"
+	token  = "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJpbUNsb3VkIiwic3ViIjoie1widXNlcklkXCI6XCI1NTEyMjMzMTk5NDk1MTY4MFwiLFwicGxhdGZvcm1cIjpcIkFuZHJvaWRcIixcInJvbGVcIjpcIlVTRVJcIn0iLCJleHAiOjE2OTU2MjIyMDAsIm5iZiI6MTY5NTI2MjIwMCwiaWF0IjoxNjk1MjYyMjAwfQ.ApVlqbAIfluIXtmNv8V6AtfF9eYWEEqP_4AxB3PmFJpFmRZ2f0tBr8xmk1N7fXVFY5JfHI7sDCxl4mAJZbGImg"
 )
 
 func getConf(APIADDR, WSADDR string) sdk_struct.IMConfig {

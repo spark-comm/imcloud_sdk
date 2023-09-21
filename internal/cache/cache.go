@@ -24,8 +24,9 @@ import (
 )
 
 type UserInfo struct {
-	Nickname string
-	FaceURL  string
+	Nickname      string
+	FaceURL       string
+	BackgroundURL string
 }
 type Cache struct {
 	user            *user.User
@@ -77,11 +78,11 @@ func (c *Cache) GetConversation(conversationID string) model_struct.LocalConvers
 	return result
 }
 
-func (c *Cache) GetUserNameAndFaceURL(ctx context.Context, userID string) (faceURL, name string, err error) {
+func (c *Cache) GetUserNameFaceURLAndBackgroundUrl(ctx context.Context, userID string) (faceURL, name, backgroundURL string, err error) {
 	//find in cache
 	if value, ok := c.userMap.Load(userID); ok {
 		info := value.(UserInfo)
-		return info.FaceURL, info.Nickname, nil
+		return info.FaceURL, info.Nickname, info.BackgroundURL, nil
 	}
 	//get from local db
 	friendInfo, err := c.friend.Db().GetFriendInfoByFriendUserID(ctx, userID)
@@ -92,16 +93,17 @@ func (c *Cache) GetUserNameAndFaceURL(ctx context.Context, userID string) (faceU
 		} else {
 			name = friendInfo.Nickname
 		}
-		return faceURL, name, nil
+		backgroundURL = friendInfo.BackgroundURL
+		return faceURL, name, backgroundURL, nil
 	}
 	//get from server db
 	users, err := c.user.GetServerUserInfo(ctx, []string{userID})
 	if err != nil {
-		return "", "", err
+		return "", "", "", err
 	}
 	if len(users) == 0 {
-		return "", "", sdkerrs.ErrUserIDNotFound.Wrap(userID)
+		return "", "", "", sdkerrs.ErrUserIDNotFound.Wrap(userID)
 	}
-	c.userMap.Store(userID, UserInfo{FaceURL: users[0].UserId, Nickname: users[0].Nickname})
-	return users[0].FaceURL, users[0].Nickname, nil
+	c.userMap.Store(userID, UserInfo{FaceURL: users[0].UserId, Nickname: users[0].Nickname, BackgroundURL: ""})
+	return users[0].FaceURL, users[0].Nickname, "", nil
 }

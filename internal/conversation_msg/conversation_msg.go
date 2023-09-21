@@ -75,6 +75,7 @@ type Conversation struct {
 	markAsReadLock       sync.Mutex
 	loginTime            int64
 	ctxInfo              ccontext.ContextInfo
+	baseInfoSync         chan struct{}
 }
 
 func (c *Conversation) SetListenerForService(listener open_im_sdk_callback.OnListenerForService) {
@@ -127,6 +128,7 @@ func NewConversation(ctx context.Context, longConnMgr *interaction.LongConnMgr, 
 		IsExternalExtensions: info.IsExternalExtensions(),
 		maxSeqRecorder:       NewMaxSeqRecorder(),
 		ctxInfo:              info,
+		baseInfoSync:         make(chan struct{}),
 	}
 	n.SetMsgListener(msgListener)
 	n.SetConversationListener(conversationListener)
@@ -151,7 +153,7 @@ func (c *Conversation) initSyncer() {
 					"update_unread_count_time": serverConversation.UpdateUnreadCountTime,
 					"attached_info":            serverConversation.AttachedInfo, "ex": serverConversation.Ex, "msg_destruct_time": serverConversation.MsgDestructTime,
 					"is_msg_destruct": serverConversation.IsMsgDestruct,
-					"max_seq":         serverConversation.MaxSeq, "min_seq": serverConversation.MinSeq, "has_read_seq": serverConversation.HasReadSeq})
+					"max_seq":         serverConversation.MaxSeq, "min_seq": serverConversation.MinSeq, "has_read_seq": serverConversation.HasReadSeq, "background_url": serverConversation.BackgroundURL})
 		},
 		func(value *model_struct.LocalConversation) string {
 			return value.ConversationID
@@ -465,7 +467,7 @@ func (c *Conversation) diff(ctx context.Context, local, generated, cc, nc map[st
 			}
 
 		} else {
-			c.addFaceURLAndName(ctx, v)
+			c.addFaceURLAndNameBackgroundURL(ctx, v)
 			nc[v.ConversationID] = v
 		}
 	}
@@ -890,47 +892,6 @@ func (c *Conversation) updateConversation(lc *model_struct.LocalConversation, cs
 			cs[lc.ConversationID] = oldC
 		}
 	}
-	//if oldC, ok := cc[lc.ConversationID]; !ok {
-	//	oc, err := c.db.GetConversation(lc.ConversationID)
-	//	if err == nil && oc.ConversationID != "" {//如果会话已经存在
-	//		if lc.LatestMsgSendTime > oc.LatestMsgSendTime {
-	//			oc.UnreadCount = oc.UnreadCount + lc.UnreadCount
-	//			oc.LatestMsg = lc.LatestMsg
-	//			oc.LatestMsgSendTime = lc.LatestMsgSendTime
-	//			cc[lc.ConversationID] = *oc
-	//		} else {
-	//			oc.UnreadCount = oc.UnreadCount + lc.UnreadCount
-	//			cc[lc.ConversationID] = *oc
-	//		}
-	//	} else {
-	//		if oldC, ok := nc[lc.ConversationID]; !ok {
-	//			c.addFaceURLAndName(lc)
-	//			nc[lc.ConversationID] = *lc
-	//		} else {
-	//			if lc.LatestMsgSendTime > oldC.LatestMsgSendTime {
-	//				oldC.UnreadCount = oldC.UnreadCount + lc.UnreadCount
-	//				oldC.LatestMsg = lc.LatestMsg
-	//				oldC.LatestMsgSendTime = lc.LatestMsgSendTime
-	//				nc[lc.ConversationID] = oldC
-	//			} else {
-	//				oldC.UnreadCount = oldC.UnreadCount + lc.UnreadCount
-	//				nc[lc.ConversationID] = oldC
-	//			}
-	//		}
-	//	}
-	//} else {
-	//	if lc.LatestMsgSendTime > oldC.LatestMsgSendTime {
-	//		oldC.UnreadCount = oldC.UnreadCount + lc.UnreadCount
-	//		oldC.LatestMsg = lc.LatestMsg
-	//		oldC.LatestMsgSendTime = lc.LatestMsgSendTime
-	//		cc[lc.ConversationID] = oldC
-	//	} else {
-	//		oldC.UnreadCount = oldC.UnreadCount + lc.UnreadCount
-	//		cc[lc.ConversationID] = oldC
-	//	}
-	//
-	//}
-
 }
 func mapConversationToList(m map[string]*model_struct.LocalConversation) (cs []*model_struct.LocalConversation) {
 	for _, v := range m {
@@ -938,23 +899,26 @@ func mapConversationToList(m map[string]*model_struct.LocalConversation) (cs []*
 	}
 	return cs
 }
-func (c *Conversation) addFaceURLAndName(ctx context.Context, lc *model_struct.LocalConversation) error {
+func (c *Conversation) addFaceURLAndNameBackgroundURL(ctx context.Context, lc *model_struct.LocalConversation) error {
 	switch lc.ConversationType {
 	case constant.SingleChatType, constant.NotificationChatType:
-		faceUrl, name, err := c.cache.GetUserNameAndFaceURL(ctx, lc.UserID)
+		faceUrl, name, backgroundURL, err := c.cache.GetUserNameFaceURLAndBackgroundUrl(ctx, lc.UserID)
 		if err != nil {
 			return err
 		}
 		lc.FaceURL = faceUrl
 		lc.ShowName = name
-
+		lc.BackgroundURL = backgroundURL
 	case constant.GroupChatType, constant.SuperGroupChatType:
-		g, err := c.full.GetGroupInfoFromLocal2Svr(ctx, lc.GroupID, lc.ConversationType)
+		g, gm, err := c.full.GetGroupInfoAndSelfGroupMemberInfoFromLocal2Svr(ctx, lc.GroupID, lc.ConversationType)
 		if err != nil {
 			return err
 		}
 		lc.ShowName = g.GroupName
 		lc.FaceURL = g.FaceURL
+		if gm != nil {
+			lc.BackgroundURL = gm.BackgroundURL
+		}
 	}
 	return nil
 }

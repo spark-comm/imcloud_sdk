@@ -15,8 +15,10 @@
 package testv2
 
 import (
+	"fmt"
 	"open_im_sdk/open_im_sdk"
 	"open_im_sdk/pkg/sdk_params_callback"
+	"open_im_sdk/pkg/utils"
 	"testing"
 	"time"
 
@@ -244,4 +246,14 @@ func Test_SetFriendDestroyMsgStatus(t *testing.T) {
 	}
 	time.Sleep(time.Second * 10)
 	t.Log("SetFriendDestroyMsgStatus success")
+}
+func Test_GetFriendBaseInfoSvr(t *testing.T) {
+	friends, err := open_im_sdk.UserForSDK.Friend().GetFriendBaseInfoSvr(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, v := range friends {
+		t.Log("sync data", fmt.Sprintf("%s", utils.StructToJsonString(v)))
+	}
+	t.Log("GetFriendBaseInfoSvr success")
 }

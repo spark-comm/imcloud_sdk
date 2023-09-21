@@ -17,17 +17,15 @@ package conversation_msg
 import (
 	"context"
 	"encoding/json"
+	"github.com/imCloud/im/pkg/common/log"
+	"github.com/imCloud/im/pkg/common/mcontext"
+	"github.com/imCloud/im/pkg/proto/sdkws"
+	utils2 "github.com/imCloud/im/pkg/utils"
 	"open_im_sdk/pkg/common"
 	"open_im_sdk/pkg/constant"
 	"open_im_sdk/pkg/db/model_struct"
 	"open_im_sdk/pkg/utils"
 	"open_im_sdk/sdk_struct"
-
-	"github.com/imCloud/im/pkg/common/mcontext"
-
-	"github.com/imCloud/im/pkg/common/log"
-	"github.com/imCloud/im/pkg/proto/sdkws"
-	utils2 "github.com/imCloud/im/pkg/utils"
 )
 
 // Work 会话工作
@@ -315,7 +313,7 @@ func (c *Conversation) doUpdateConversation(c2v common.Cmd2Value) {
 				c.ConversationListener.OnConversationChanged(utils.StructToJsonString([]*model_struct.LocalConversation{oc}))
 			}
 		}
-		c.SetBackgroundURL(c2v.Ctx, node.ConID, backgroundURL)
+		//c.SetBackgroundURL(c2v.Ctx, node.ConID, backgroundURL)
 	}
 }
 
@@ -394,20 +392,18 @@ func (c *Conversation) doNotificationNew(c2v common.Cmd2Value) {
 		if err := c.SyncConversationHashReadSeqs(ctx); err != nil {
 			log.ZError(ctx, "SyncConversationHashReadSeqs err", err)
 		}
-		// 同步数据
-		for _, syncFunc := range []func(c context.Context) error{c.user.SyncLoginUserInfo, c.SyncConversations} {
-			go func(syncFunc func(c context.Context) error) {
-				_ = syncFunc(ctx)
-			}(syncFunc)
-		}
+		go c.syncOtherInformation(ctx)
+		//for _, syncFunc := range []func(c context.Context) error{c.user.SyncLoginUserInfo, c.SyncConversations} {
+		//	go func(syncFunc func(c context.Context) error) {
+		//		_ = syncFunc(ctx)
+		//	}(syncFunc)
+		//}
 	case constant.MsgSyncFailed:
 		// 同步数据错误
 		c.ConversationListener.OnSyncServerFailed()
 	case constant.MsgSyncEnd:
 		// 同步数据结束
-		defer c.ConversationListener.OnSyncServerFinish()
-		//同步其他数据
-		c.syncOtherInformation(ctx)
+		c.ConversationListener.OnSyncServerFinish()
 	}
 
 	for conversationID, msgs := range allMsg {
@@ -455,6 +451,10 @@ func (c *Conversation) doNotificationNew(c2v common.Cmd2Value) {
 				//单聊
 				if v.ContentType > constant.FriendNotificationBegin && v.ContentType < constant.FriendNotificationEnd {
 					c.friend.DoNotification(ctx, v)
+					if v.ContentType == constant.FriendInfoUpdatedNotification {
+						//跳过好友信息变更通知更新会话
+						continue
+					}
 				} else if v.ContentType > constant.UserNotificationBegin && v.ContentType < constant.UserNotificationEnd {
 					c.user.DoNotification(ctx, v)
 				} else if utils2.Contain(v.ContentType, constant.GroupApplicationRejectedNotification, constant.GroupApplicationAcceptedNotification, constant.JoinGroupApplicationNotification) {
@@ -480,11 +480,7 @@ func (c *Conversation) doNotificationNew(c2v common.Cmd2Value) {
 func (c *Conversation) syncOtherInformation(ctx context.Context) {
 	// 同步数据
 	for _, syncFunc := range []func(c context.Context) error{
-		//c.friend.SyncFirstFriendList,    //先同步首页数据
-		c.friend.SyncQuantityFriendList, //全量同步简单字段数据
-		//c.group.InitSyncData,
-		c.group.InitSyncGroupData, //全量同步群组简单字段
-		c.group.GetUserMemberInfoInGroup,
+		c.SyncConversations, //同步会话信息
 		c.friend.SyncUntreatedFriendReceiveFriendApplication, //同步未处理的好友请求
 		//c.friend.SyncSelfFriendApplication, //自己发出的好友请求，暂时业务上没有需要
 		c.group.SyncAdminGroupUntreatedApplication, //获取未处理的加群请求

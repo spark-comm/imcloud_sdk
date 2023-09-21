@@ -73,7 +73,7 @@ func (c *Conversation) SetGlobalRecvMessageOpt(ctx context.Context, opt int) err
 		ctx,
 		constant.SetGlobalRecvMessageOptRouter,
 		&pbUser.SetGlobalRecvMessageOptReq{
-			UserID: c.loginUserID,
+			UserID:           c.loginUserID,
 			GlobalRecvMsgOpt: int32(opt)},
 	); err != nil {
 		return err
@@ -118,20 +118,24 @@ func (c *Conversation) GetOneConversation(ctx context.Context, sessionType int32
 		switch sessionType {
 		case constant.SingleChatType:
 			newConversation.UserID = sourceID
-			faceUrl, name, err := c.cache.GetUserNameAndFaceURL(ctx, sourceID)
+			faceUrl, name, backgroundURL, err := c.cache.GetUserNameFaceURLAndBackgroundUrl(ctx, sourceID)
 			if err != nil {
 				return nil, err
 			}
 			newConversation.ShowName = name
 			newConversation.FaceURL = faceUrl
+			newConversation.BackgroundURL = backgroundURL
 		case constant.GroupChatType, constant.SuperGroupChatType:
 			newConversation.GroupID = sourceID
-			g, err := c.full.GetGroupInfoFromLocal2Svr(ctx, sourceID, sessionType)
+			g, gm, err := c.full.GetGroupInfoAndSelfGroupMemberInfoFromLocal2Svr(ctx, sourceID, sessionType)
 			if err != nil {
 				return nil, err
 			}
 			newConversation.ShowName = g.GroupName
 			newConversation.FaceURL = g.FaceURL
+			if gm != nil {
+				newConversation.BackgroundURL = gm.BackgroundURL
+			}
 		}
 		time.Sleep(time.Millisecond * 500)
 		lc, errTemp := c.db.GetConversation(ctx, conversationID)
@@ -383,13 +387,14 @@ func (c *Conversation) checkID(ctx context.Context, s *sdk_struct.MsgStruct,
 		}
 		if err != nil {
 			t := time.Now()
-			faceUrl, name, err := c.cache.GetUserNameAndFaceURL(ctx, recvID)
+			faceUrl, name, backgroundURL, err := c.cache.GetUserNameFaceURLAndBackgroundUrl(ctx, recvID)
 			log.ZDebug(ctx, "GetUserNameAndFaceURL", "cost time", time.Since(t))
 			if err != nil {
 				return nil, err
 			}
 			lc.FaceURL = faceUrl
 			lc.ShowName = name
+			lc.BackgroundURL = backgroundURL
 		}
 
 	}
@@ -976,7 +981,7 @@ func (c *Conversation) InsertSingleMessageToLocalStorage(ctx context.Context, s 
 	}
 	var conversation model_struct.LocalConversation
 	if sendID != c.loginUserID {
-		faceUrl, name, err := c.cache.GetUserNameAndFaceURL(ctx, sendID)
+		faceUrl, name, backgroundURL, err := c.cache.GetUserNameFaceURLAndBackgroundUrl(ctx, sendID)
 		if err != nil {
 			//log.Error(operationID, "GetUserNameAndFaceURL err", err.Error(), sendID)
 		}
@@ -985,6 +990,7 @@ func (c *Conversation) InsertSingleMessageToLocalStorage(ctx context.Context, s 
 		conversation.FaceURL = faceUrl
 		conversation.ShowName = name
 		conversation.UserID = sendID
+		conversation.BackgroundURL = backgroundURL
 		conversation.ConversationID = c.getConversationIDBySessionType(sendID, constant.SingleChatType)
 
 	} else {
@@ -992,12 +998,13 @@ func (c *Conversation) InsertSingleMessageToLocalStorage(ctx context.Context, s 
 		conversation.ConversationID = c.getConversationIDBySessionType(recvID, constant.SingleChatType)
 		_, err := c.db.GetConversation(ctx, conversation.ConversationID)
 		if err != nil {
-			faceUrl, name, err := c.cache.GetUserNameAndFaceURL(ctx, recvID)
+			faceUrl, name, backgroundURL, err := c.cache.GetUserNameFaceURLAndBackgroundUrl(ctx, sendID)
 			if err != nil {
 				return nil, err
 			}
 			conversation.FaceURL = faceUrl
 			conversation.ShowName = name
+			conversation.BackgroundURL = backgroundURL
 		}
 	}
 
@@ -1033,12 +1040,13 @@ func (c *Conversation) InsertGroupMessageToLocalStorage(ctx context.Context, s *
 
 	conversation.ConversationID = c.getConversationIDBySessionType(groupID, int(conversation.ConversationType))
 	if sendID != c.loginUserID {
-		faceUrl, name, err := c.cache.GetUserNameAndFaceURL(ctx, sendID)
+		faceUrl, name, backgroundURL, err := c.cache.GetUserNameFaceURLAndBackgroundUrl(ctx, sendID)
 		if err != nil {
 			// log.Error("", "getUserNameAndFaceUrlByUid err", err.Error(), sendID)
 		}
 		s.SenderFaceURL = faceUrl
 		s.SenderNickname = name
+		conversation.BackgroundURL = backgroundURL
 	}
 	s.SendID = sendID
 	s.RecvID = groupID

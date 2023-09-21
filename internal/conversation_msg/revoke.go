@@ -64,7 +64,7 @@ func (c *Conversation) revokeMessage(ctx context.Context, tips *sdkws.RevokeMsgT
 		revokerRole = groupMember.RoleLevel
 		revokerNickname = groupMember.Nickname
 	} else {
-		_, userName, err := c.cache.GetUserNameAndFaceURL(ctx, tips.RevokerUserID)
+		_, userName, _, err := c.cache.GetUserNameFaceURLAndBackgroundUrl(ctx, tips.RevokerUserID)
 		if err != nil {
 			log.ZError(ctx, "GetUserNameAndFaceURL failed", err, "tips", &tips)
 		} else {

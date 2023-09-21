@@ -140,6 +140,12 @@ func (g *Group) initSyncer() {
 		}
 		switch state {
 		case syncer.Insert:
+			//log.ZError(ctx, fmt.Sprintf("触发自己信息同步%s", utils.StructToJsonString(server)), nil)
+			//if server.UserID == g.loginUserID {
+			//	//如果是自己则更新会话的背景
+			//	sessionType := g.getConversationIDBySessionType(server.GroupID, constant.WorkingGroup)
+			//	_ = common.TriggerCmdUpdateConversationBackgroundURL(ctx, sessionType, server.BackgroundURL, g.conversationCh)
+			//}
 			g.listener.OnGroupMemberAdded(utils.StructToJsonString(server))
 		case syncer.Delete:
 			g.listener.OnGroupMemberDeleted(utils.StructToJsonString(local))
@@ -258,6 +264,33 @@ func (g *Group) GetGroupInfoFromLocal2Svr(ctx context.Context, groupID string) (
 		log.ZDebug(ctx, "sync group info err:%v", err)
 	}
 	return ServerGroupToLocalGroup(svrGroup[0]), nil
+}
+
+// GetGroupInfoAndSelfGroupMemberInfoFromLocal2Svr 从本地和服务端获取群信息和当前用户在群中的信息
+func (g *Group) GetGroupInfoAndSelfGroupMemberInfoFromLocal2Svr(ctx context.Context, groupID string) (*model_struct.LocalGroup, *model_struct.LocalGroupMember, error) {
+	localGroup, err := g.db.GetGroupInfoByGroupID(ctx, groupID)
+	var localHaveGroup bool
+	if err == nil && localGroup.GroupID != "" {
+		localHaveGroup = true
+	}
+	localSelfGroupMember, err := g.db.GetGroupMemberInfoByGroupIDUserID(ctx, groupID, g.loginUserID)
+	if err != nil {
+		log.ZError(ctx, "GetGroupInfoAndSelfGroupMemberInfoFromLocal2Svr->GetGroupMemberInfoByGroupIDUserID failed", err)
+	}
+	if localHaveGroup {
+		return localGroup, localSelfGroupMember, nil
+	}
+	svrGroup, err := g.getGroupsInfoFromSvr(ctx, []string{groupID})
+	if err != nil {
+		return nil, localSelfGroupMember, err
+	}
+	if len(svrGroup) == 0 {
+		return nil, localSelfGroupMember, sdkerrs.ErrGroupIDNotFound.Wrap("server not this group")
+	}
+	if err := g.groupSyncer.Sync(ctx, util.Batch(ServerGroupToLocalGroup, svrGroup), []*model_struct.LocalGroup{localGroup}, nil); err != nil {
+		log.ZDebug(ctx, "sync group info err:%v", err)
+	}
+	return ServerGroupToLocalGroup(svrGroup[0]), localSelfGroupMember, nil
 }
 
 // getGroupsInfoFromSvr 从服务端获取群数据

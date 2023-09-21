@@ -52,8 +52,8 @@ type LocalFriend struct {
 	FaceURL        string `json:"faceURL" gorm:"column:face_url;size:44;comment:头像"`
 	Nickname       string `json:"nickname" gorm:"column:nickname;size:50;comment:用户昵称"`
 	Message        string `json:"message" gorm:"column:message;size:50;comment:个性签名"`
-	Code           string `json:"code" gorm:"column:code;size:6;uniqueIndex;comment:用户ID"`
-	Phone          string `json:"phone" gorm:"column:phone;size:16;uniqueIndex;comment:手机号码"`
+	Code           string `json:"code" gorm:"column:code;size:6;comment:用户ID"`
+	Phone          string `json:"phone" gorm:"column:phone;size:16;comment:手机号码"`
 	Email          string `json:"email" gorm:"column:email;size:36;comment:邮箱"`
 	Birth          int64  `json:"birth" gorm:"column:birth;comment:生日"`
 	Gender         int32  `json:"gender" gorm:"column:gender;default:0;comment:性别，默认女"`

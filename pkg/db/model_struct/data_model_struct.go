@@ -132,6 +132,10 @@ type LocalFriendRequest struct {
 //    	PRIMARY KEY (group_id)
 //	)`
 
+const (
+	FinishMemberSync = 2
+)
+
 type LocalGroup struct {
 	GroupID                string `json:"groupID" gorm:"column:group_id;primary_key;type:varchar(64)"`
 	CreateTime             int64  `json:"createTime" gorm:"column:create_time"`
@@ -158,6 +162,7 @@ type LocalGroup struct {
 	IsOpen                 uint   `json:"isOpen" gorm:"column:is_open;default:1;comment:是否公开群组,1:开启;2:关闭"`
 	AllowPrivateChat       uint   `json:"allowPrivateChat" gorm:"column:allow_private_chat;default:2;comment:允许成员私聊,1:开启;2:关闭"`
 	IsComplete             int32  `gorm:"column:is_complete;default:1;comment:同步完成" json:"isComplete"`
+	MemberIsComplete       int32  `gorm:"column:member_is_complete;default:0;comment:成员同步完成" json:"member_is_complete"`
 }
 
 //message GroupMemberFullInfo {

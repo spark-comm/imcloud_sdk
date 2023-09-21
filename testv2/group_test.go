@@ -492,3 +492,11 @@ func Test_SetGroupChatBackground(t *testing.T) {
 	time.Sleep(time.Second * 10)
 	t.Log("SetFriendChatBackground success")
 }
+
+func Test_GetUserMemberInfoInGroup(t *testing.T) {
+	err := open_im_sdk.UserForSDK.Group().SetGroupChatBackground(ctx)
+	if err != nil {
+		return
+	}
+	return
+}

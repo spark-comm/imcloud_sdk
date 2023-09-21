@@ -229,7 +229,7 @@ func (f *Friend) SyncQuantityFriendList(ctx context.Context) error {
 		return resp.List
 	}
 	resp := &friendPb.GetSyncFriendResp{}
-	respList, err := util.GetPageAll(ctx, constant.GetFriendListRouter, req, resp, fn)
+	respList, err := util.GetPageAll(ctx, constant.GetSyncFriendList, req, resp, fn)
 	if err != nil {
 		return err
 	}

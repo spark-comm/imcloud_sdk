@@ -804,3 +804,7 @@ func (g *Group) getConversationIDBySessionType(sourceID string, sessionType int)
 	}
 	return ""
 }
+
+func (g *Group) SetGroupChatBackground(ctx context.Context) error {
+	return g.GetUserMemberInfoInGroup(ctx)
+}

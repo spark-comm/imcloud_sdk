@@ -89,7 +89,7 @@ func Test_RefuseFriendApplication(t *testing.T) {
 }
 
 func Test_CheckFriend(t *testing.T) {
-	res, err := open_im_sdk.UserForSDK.Friend().CheckFriend(ctx, []string{"50122897452175360"})
+	res, err := open_im_sdk.UserForSDK.Friend().CheckFriend(ctx, []string{"55122341708959744"})
 	if err != nil {
 		t.Fatal(err)
 	}

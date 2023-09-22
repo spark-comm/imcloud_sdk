@@ -153,8 +153,12 @@ func (f *Friend) RespondFriendApply(ctx context.Context, req *friend.RespondFrie
 
 func (f *Friend) CheckFriend(ctx context.Context, friendUserIDList []string) ([]*server_api_params.UserIDResult, error) {
 	friendList, err := f.db.GetFriendInfoList(ctx, friendUserIDList)
-	if err != nil {
-		return nil, err
+	if err != nil || len(friendList) != len(friendUserIDList) {
+		svr, err := f.GetFriendByIdsSvr(ctx, friendUserIDList)
+		if err != nil {
+			return nil, err
+		}
+		friendList = util.Batch(ServerFriendToLocalFriend, svr)
 	}
 	blackList, err := f.db.GetBlackInfoList(ctx, friendUserIDList)
 	if err != nil {

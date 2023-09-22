@@ -17,6 +17,7 @@ package group
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"open_im_sdk/internal/util"
 	"open_im_sdk/pkg/common"
 	"open_im_sdk/pkg/constant"
@@ -231,12 +232,13 @@ func (g *Group) SyncGroups(ctx context.Context, id ...string) error {
 	if err != nil {
 		return err
 	}
+	log.ZError(ctx, fmt.Sprintf("get local group data %s", utils.StructToJsonString(groups)), err)
 	//根据id获取本地群数据
 	localData, err := g.db.GetGroupInfoByGroupIDs(ctx, id...)
+	log.ZError(ctx, fmt.Sprintf("get local group data %s", utils.StructToJsonString(localData)), err)
 	if err != nil {
-		log.ZError(ctx, "SyncGroups->GetGroupInfoByGroupIDs", err)
-	} else {
 		localData = make([]*model_struct.LocalGroup, 0)
+		log.ZError(ctx, "SyncGroups->GetGroupInfoByGroupIDs", err)
 	}
 	if err := g.groupSyncer.Sync(ctx, util.Batch(ServerGroupToLocalGroup, groups), localData, nil); err != nil {
 		return err

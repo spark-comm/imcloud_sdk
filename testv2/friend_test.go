@@ -38,7 +38,7 @@ func Test_GetSpecifiedFriendsInfo(t *testing.T) {
 
 func Test_AddFriend(t *testing.T) {
 	err := open_im_sdk.UserForSDK.Friend().AddFriend(ctx, &friend.AddFriendRequest{
-		ToUserID:  "49389272901357568",
+		ToUserID:  "55122365234810880",
 		ReqMsg:    "test add",
 		RemarkMsg: "天加",
 	})

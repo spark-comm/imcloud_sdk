@@ -104,7 +104,8 @@ type Message struct {
 func NewLongConnMgr(ctx context.Context, listener open_im_sdk_callback.OnConnListener, heartbeatCmdCh, pushSeqCh, loginMgrCh chan common.Cmd2Value) *LongConnMgr {
 	l := &LongConnMgr{listener: listener, pushSeqCh: pushSeqCh,
 		loginMgrCh: loginMgrCh, IsCompression: true,
-		Syncer: NewWsRespAsyn(), encoder: NewGobEncoder(), compressor: NewGzipCompressor()}
+		Syncer: NewWsRespAsyn(), encoder: NewGobEncoder(), compressor: NewGzipCompressor(),
+	}
 	l.send = make(chan Message, 10)
 	l.conn = NewWebSocket(WebSocket)
 	l.connWrite = new(sync.Mutex)
@@ -438,10 +439,10 @@ func (c *LongConnMgr) handleMessage(message []byte) error {
 		}
 		return sdkerrs.ErrLoginOut
 	case constant.KickOnlineMsg:
-		// 被踢下线
 		log.ZDebug(ctx, "client kicked offline")
 		c.listener.OnKickedOffline()
 		_ = common.TriggerCmdLogOut(ctx, c.loginMgrCh)
+		return errors.New("client kicked offline")
 	case constant.GetNewestSeq:
 		fallthrough
 	case constant.PullMsgBySeqList:

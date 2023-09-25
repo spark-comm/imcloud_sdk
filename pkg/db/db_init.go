@@ -107,6 +107,11 @@ func NewDataBase(ctx context.Context, loginUserID string, dbDir string) (*DataBa
 			return dataBase, utils.Wrap(err, "initDB failed "+dbDir)
 		}
 		UserDBMap[loginUserID] = dataBase
+	} else {
+		err := dataBase.open(ctx)
+		if err != nil {
+			return dataBase, utils.Wrap(err, "open db failed "+dbDir)
+		}
 	}
 	dataBase.setChatLogFailedStatus(ctx)
 	return dataBase, nil
@@ -239,5 +244,35 @@ func (d *DataBase) initDB(ctx context.Context) error {
 	if err := d.InitWorkMomentsNotificationUnreadCount(ctx); err != nil {
 		log.ZError(ctx, "init InitWorkMomentsNotificationUnreadCount failed", err)
 	}
+	return nil
+}
+
+func (d *DataBase) open(ctx context.Context) error {
+	if d.loginUserID == "" {
+		return errors.New("no uid")
+	}
+	d.mRWMutex.Lock()
+	defer d.mRWMutex.Unlock()
+
+	path := d.dbDir + "/OpenIM_" + constant.BigVersion + "_" + d.loginUserID + ".db"
+	dbFileName, err := filepath.Abs(path)
+	if err != nil {
+		return err
+	}
+	log.ZInfo(ctx, "sqlite", "path", dbFileName)
+	db, err := gorm.Open(sqlite.Open(dbFileName), &gorm.Config{Logger: log.NewSqlLogger(logger.LogLevel(logger.Silent), false, time.Millisecond*200)})
+	if err != nil {
+		return utils.Wrap(err, "open db failed "+dbFileName)
+	}
+	log.ZDebug(ctx, "open db success", "db", db, "dbFileName", dbFileName)
+	sqlDB, err := db.DB()
+	if err != nil {
+		return utils.Wrap(err, "get sql db failed")
+	}
+	sqlDB.SetConnMaxLifetime(time.Hour * 1)
+	sqlDB.SetMaxOpenConns(3)
+	sqlDB.SetMaxIdleConns(2)
+	sqlDB.SetConnMaxIdleTime(time.Minute * 10)
+	d.conn = db
 	return nil
 }

@@ -33,7 +33,7 @@ import (
 )
 
 func (f *Friend) GetSpecifiedFriendsInfo(ctx context.Context, friendUserIDList []string) ([]*server_api_params.FullUserInfo, error) {
-	localFriendList, err := f.db.GetFriendInfoList(ctx, friendUserIDList)
+	localFriendList, err := f.db.GetFriendInfoList(ctx, friendUserIDList, true)
 	if err != nil {
 		return nil, err
 	}
@@ -152,7 +152,7 @@ func (f *Friend) RespondFriendApply(ctx context.Context, req *friend.RespondFrie
 }
 
 func (f *Friend) CheckFriend(ctx context.Context, friendUserIDList []string) ([]*server_api_params.UserIDResult, error) {
-	friendList, err := f.db.GetFriendInfoList(ctx, friendUserIDList)
+	friendList, err := f.db.GetFriendInfoList(ctx, friendUserIDList, true)
 	if err != nil || len(friendList) != len(friendUserIDList) {
 		svr, err := f.GetFriendByIdsSvr(ctx, friendUserIDList)
 		if err != nil {

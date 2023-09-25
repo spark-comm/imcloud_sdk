@@ -21,7 +21,7 @@ import (
 )
 
 func (u *Full) GetUsersInfo(ctx context.Context, userIDs []string) ([]*api.FullUserInfo, error) {
-	friendList, err := u.db.GetFriendInfoList(ctx, userIDs)
+	friendList, err := u.db.GetFriendInfoList(ctx, userIDs, true)
 	if err != nil {
 		return nil, err
 	}

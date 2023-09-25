@@ -240,7 +240,7 @@ func Test_SetFriendChatBackground(t *testing.T) {
 }
 
 func Test_SetFriendDestroyMsgStatus(t *testing.T) {
-	err := open_im_sdk.UserForSDK.Friend().SetFriendDestroyMsgStatus(ctx, "55122326508802048", 0)
+	err := open_im_sdk.UserForSDK.Friend().SetFriendDestroyMsgStatus(ctx, "55122367646535680", 0)
 	if err != nil {
 		t.Fatal(err)
 	}

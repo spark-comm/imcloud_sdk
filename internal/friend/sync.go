@@ -182,12 +182,11 @@ func (f *Friend) syncFriendById(ctx context.Context, friendId string) error {
 	if err1 != nil {
 		return err1
 	}
-	localData, err := f.db.GetFriendInfoList(ctx, []string{friendId})
-	localList := make([]*model_struct.LocalFriend, 0)
+	localData, err := f.db.GetFriendInfoList(ctx, []string{friendId}, false)
+	//localList := make([]*model_struct.LocalFriend, 0)
 	if err != nil {
 		log.ZError(ctx, "syncFriendById->GetFriendInfoList", err)
-	} else {
-		localList = append(localList, localData...)
+		return err
 	}
 	return f.friendSyncer.Sync(ctx, util.Batch(ServerFriendToLocalFriend, svr), localData, nil, true)
 }
@@ -201,7 +200,7 @@ func (f *Friend) syncFriendByInfo(ctx context.Context, data []*model_struct.Loca
 	for i, v := range data {
 		friendIds[i] = v.FriendUserID
 	}
-	localData, err := f.db.GetFriendInfoList(ctx, friendIds)
+	localData, err := f.db.GetFriendInfoList(ctx, friendIds, false)
 	localList := make([]*model_struct.LocalFriend, 0)
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return err

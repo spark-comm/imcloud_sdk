@@ -240,7 +240,7 @@ type FriendDatabase interface {
 	GetFriendList(ctx context.Context, page *pg.Page) ([]*model_struct.LocalFriend, error)
 	SearchFriendList(ctx context.Context, keyword string, isSearchUserID, isSearchNickname, isSearchRemark bool) ([]*model_struct.LocalFriend, error)
 	GetFriendInfoByFriendUserID(ctx context.Context, FriendUserID string) (*model_struct.LocalFriend, error)
-	GetFriendInfoList(ctx context.Context, friendUserIDList []string) ([]*model_struct.LocalFriend, error)
+	GetFriendInfoList(ctx context.Context, friendUserIDList []string, filterNotPeersFriend bool) ([]*model_struct.LocalFriend, error)
 	// GetFriendInfoNotPeersList 不包含关系连条件的好友列表
 	GetFriendInfoNotPeersList(ctx context.Context, friendUserIDList []string) ([]*model_struct.LocalFriend, error)
 	InsertFriendRequest(ctx context.Context, friendRequest *model_struct.LocalFriendRequest) error

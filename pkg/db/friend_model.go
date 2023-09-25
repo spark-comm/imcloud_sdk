@@ -21,6 +21,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"gorm.io/gorm"
 	"open_im_sdk/pkg/db/model_struct"
 	"open_im_sdk/pkg/db/pg"
 	"open_im_sdk/pkg/utils"
@@ -29,7 +30,16 @@ import (
 func (d *DataBase) InsertFriend(ctx context.Context, friend *model_struct.LocalFriend) error {
 	d.friendMtx.Lock()
 	defer d.friendMtx.Unlock()
-	return utils.Wrap(d.conn.WithContext(ctx).Create(friend).Error, "InsertFriend failed")
+	var res model_struct.LocalFriend
+	results := d.conn.WithContext(ctx).Where("owner_user_id = ? and friend_user_id = ?", friend.OwnerUserID, friend.FriendUserID).First(&res)
+	if results.Error != nil {
+		if results.Error == gorm.ErrRecordNotFound {
+			return utils.Wrap(d.conn.WithContext(ctx).Create(friend).Error, "InsertFriend failed")
+		}
+	} else {
+		return utils.Wrap(d.conn.WithContext(ctx).Model(friend).Select("*").Updates(*friend).Error, "InsertFriend failed")
+	}
+	return nil
 }
 
 func (d *DataBase) DeleteFriendDB(ctx context.Context, friendUserID string) error {

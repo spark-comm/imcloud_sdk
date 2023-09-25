@@ -524,6 +524,7 @@ func (g *Group) InitSyncGroupData(ctx context.Context) error {
 			GroupID:     list.GroupID,
 			GroupName:   list.NickName,
 			FaceURL:     list.FaceURL,
+			GroupType:   int32(list.GroupType),
 			MemberCount: list.GroupNumber,
 			IsComplete:  IsNotComplete,
 		})

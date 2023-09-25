@@ -68,6 +68,6 @@ func (u *User) SetUsersOption(ctx context.Context, option string, value int32) e
 	return u.setUsersOption(ctx, option, value)
 }
 
-func (u *User) SyncUserOperation(ctx context.Context, userID string) error {
+func (u *User) SyncUserOperation(ctx context.Context) error {
 	return u.syncUserOperation(ctx)
 }

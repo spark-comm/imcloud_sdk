@@ -16,7 +16,6 @@ package user
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"github.com/golang/protobuf/ptypes/empty"
 	"open_im_sdk/internal/util"
@@ -313,52 +312,52 @@ func (u *User) syncUserOperation(ctx context.Context) error {
 	//		WalletOperation, //只获取钱包数据
 	//	},
 	//}, &resp)
-	resp, err := util.ProtoApiPost[imUserPb.GetOperationReq, imUserPb.GetOperationResp](
-		ctx,
-		constant.GetUserOperation,
-		&imUserPb.GetOperationReq{
-			OperationKeyWord: []string{
-				WalletOperation, //只获取钱包数据
-			},
-		},
-	)
-	if err != nil {
-		return err
-	}
-	respMap := resp.UserOperationMap
-	if _, ok := respMap[WalletOperation]; !ok {
-		return nil
-	}
-	//获取本地数据比对
-	localUser, err := u.GetLoginUser(ctx, u.loginUserID)
-	if err != nil {
-		return err
-	}
-	userOperation := make(map[string]int32)
-	err = json.Unmarshal([]byte(localUser.Options), &userOperation)
-	if err != nil {
-		userOperation[WalletOperation] = respMap[WalletOperation]
-		marshal, err := json.Marshal(userOperation)
-		if err != nil {
-			return err
-		}
-		return u.DataBase.UpdateLoginUserByMap(ctx, localUser, map[string]interface{}{
-			"optionst": string(marshal),
-		})
-	}
-	if val, ok := userOperation[WalletOperation]; ok {
-		if val == respMap[WalletOperation] {
-			return nil
-		}
-	}
-	userOperation[WalletOperation] = respMap[WalletOperation]
-	marshal, err := json.Marshal(userOperation)
-	if err != nil {
-		return err
-	}
-	return u.DataBase.UpdateLoginUserByMap(ctx, localUser, map[string]interface{}{
-		"optionst": string(marshal),
-	})
+	//resp, err := util.ProtoApiPost[imUserPb.GetOperationReq, imUserPb.GetOperationResp](
+	//	ctx,
+	//	constant.GetUserOperation,
+	//	&imUserPb.GetOperationReq{
+	//		OperationKeyWord: []string{
+	//			WalletOperation, //只获取钱包数据
+	//		},
+	//	},
+	//)
+	//if err != nil {
+	//	return err
+	//}
+	//respMap := resp.UserOperationMap
+	//if _, ok := respMap[WalletOperation]; !ok {
+	//	return nil
+	//}
+	////获取本地数据比对
+	//localUser, err := u.GetLoginUser(ctx, u.loginUserID)
+	//if err != nil {
+	//	return err
+	//}
+	//userOperation := make(map[string]int32)
+	//err = json.Unmarshal([]byte(localUser.Options), &userOperation)
+	//if err != nil {
+	//	userOperation[WalletOperation] = respMap[WalletOperation]
+	//	marshal, err := json.Marshal(userOperation)
+	//	if err != nil {
+	//		return err
+	//	}
+	//	return u.DataBase.UpdateLoginUserByMap(ctx, localUser, map[string]interface{}{
+	//		"optionst": string(marshal),
+	//	})
+	//}
+	//if val, ok := userOperation[WalletOperation]; ok {
+	//	if val == respMap[WalletOperation] {
+	//		return nil
+	//	}
+	//}
+	//userOperation[WalletOperation] = respMap[WalletOperation]
+	//marshal, err := json.Marshal(userOperation)
+	//if err != nil {
+	//	return err
+	//}
+	//return u.DataBase.UpdateLoginUserByMap(ctx, localUser, map[string]interface{}{
+	//	"optionst": string(marshal),
+	//})
 	return u.SyncLoginUserInfo(ctx)
 	////获取远程operation数据
 	//resp := imUserPb.GetOperationResp{}

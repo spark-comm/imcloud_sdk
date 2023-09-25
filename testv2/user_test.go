@@ -125,7 +125,7 @@ func Test_SetUsersOption(t *testing.T) {
 }
 
 func Test_SyncUserOperation(t *testing.T) {
-	err := open_im_sdk.UserForSDK.User().SyncUserOperation(ctx, "qRCodeAdd")
+	err := open_im_sdk.UserForSDK.User().SyncUserOperation(ctx)
 	if err != nil {
 		t.Error(err)
 	}

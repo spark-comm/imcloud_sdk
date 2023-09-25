@@ -105,8 +105,19 @@ func (c *Conversation) GetConversationRecvMessageOpt(ctx context.Context, conver
 	return resp, nil
 }
 
+// GetOnePrivateConversation 获取私聊会话
+func (c *Conversation) GetOnePrivateConversation(ctx context.Context, sourceID string) (*model_struct.LocalConversation, error) {
+	return c.GetOneConversation(ctx, constant.SingleChatType, sourceID, true)
+}
+
 // Method to set global message receiving options
-func (c *Conversation) GetOneConversation(ctx context.Context, sessionType int32, sourceID string) (*model_struct.LocalConversation, error) {
+func (c *Conversation) GetOneNormalConversation(ctx context.Context, sessionType int32, sourceID string) (*model_struct.LocalConversation, error) {
+	return c.GetOneConversation(ctx, sessionType, sourceID, false)
+}
+
+// GetOneConversation  获取会话
+// isPrivateChat bool 是否私聊会话
+func (c *Conversation) GetOneConversation(ctx context.Context, sessionType int32, sourceID string, isPrivateChat bool) (*model_struct.LocalConversation, error) {
 	conversationID := c.getConversationIDBySessionType(sourceID, int(sessionType))
 	lc, err := c.db.GetConversation(ctx, conversationID)
 	if err == nil {
@@ -148,10 +159,11 @@ func (c *Conversation) GetOneConversation(ctx context.Context, sessionType int32
 			return nil, err
 		}
 		c.addFaceURLAndNameBackgroundURL(ctx, lc)
+		//是否私聊
+		newConversation.IsPrivateChat = isPrivateChat
 		return &newConversation, nil
 	}
 }
-
 func (c *Conversation) GetMultipleConversation(ctx context.Context, conversationIDList []string) ([]*model_struct.LocalConversation, error) {
 	conversations, err := c.db.GetMultipleConversationDB(ctx, conversationIDList)
 	if err != nil {

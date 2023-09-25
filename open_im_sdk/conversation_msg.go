@@ -29,9 +29,14 @@ func GetConversationListSplit(callback open_im_sdk_callback.Base, operationID st
 }
 
 func GetOneConversation(callback open_im_sdk_callback.Base, operationID string, sessionType int32, sourceID string) {
-	call(callback, operationID, UserForSDK.Conversation().GetOneConversation, sessionType, sourceID)
+	call(callback, operationID, UserForSDK.Conversation().GetOneNormalConversation, sessionType, sourceID)
 }
 
+// GetOnePrivateConversation 获取私聊会话
+// sourceID  string 用户id
+func GetOnePrivateConversation(callback open_im_sdk_callback.Base, operationID string, sourceID string) {
+	call(callback, operationID, UserForSDK.Conversation().GetOnePrivateConversation, sourceID)
+}
 func GetMultipleConversation(callback open_im_sdk_callback.Base, operationID string, conversationIDList string) {
 	call(callback, operationID, UserForSDK.Conversation().GetMultipleConversation, conversationIDList)
 }

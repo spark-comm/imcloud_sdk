@@ -315,11 +315,7 @@ func (u *User) syncUserOperation(ctx context.Context) error {
 	//resp, err := util.ProtoApiPost[imUserPb.GetOperationReq, imUserPb.GetOperationResp](
 	//	ctx,
 	//	constant.GetUserOperation,
-	//	&imUserPb.GetOperationReq{
-	//		OperationKeyWord: []string{
-	//			WalletOperation, //只获取钱包数据
-	//		},
-	//	},
+	//	&imUserPb.GetOperationReq{},
 	//)
 	//if err != nil {
 	//	return err
@@ -333,25 +329,7 @@ func (u *User) syncUserOperation(ctx context.Context) error {
 	//if err != nil {
 	//	return err
 	//}
-	//userOperation := make(map[string]int32)
-	//err = json.Unmarshal([]byte(localUser.Options), &userOperation)
-	//if err != nil {
-	//	userOperation[WalletOperation] = respMap[WalletOperation]
-	//	marshal, err := json.Marshal(userOperation)
-	//	if err != nil {
-	//		return err
-	//	}
-	//	return u.DataBase.UpdateLoginUserByMap(ctx, localUser, map[string]interface{}{
-	//		"optionst": string(marshal),
-	//	})
-	//}
-	//if val, ok := userOperation[WalletOperation]; ok {
-	//	if val == respMap[WalletOperation] {
-	//		return nil
-	//	}
-	//}
-	//userOperation[WalletOperation] = respMap[WalletOperation]
-	//marshal, err := json.Marshal(userOperation)
+	//marshal, err := json.Marshal(respMap)
 	//if err != nil {
 	//	return err
 	//}

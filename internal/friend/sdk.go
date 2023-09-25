@@ -47,10 +47,10 @@ func (f *Friend) GetSpecifiedFriendsInfo(ctx context.Context, friendUserIDList [
 	for i, black := range blackList {
 		m[black.BlackUserID] = blackList[i]
 	}
-	res := make([]*server_api_params.FullUserInfo, 0, len(localFriendList))
+	res := make([]*server_api_params.FullUserInfo, 0)
 	//判断是否有信息未同步的好友
 	completed, notCompleteIds := f.CheckCompleted(localFriendList)
-	localFriends := make([]*model_struct.LocalFriend, len(friendUserIDList))
+	localFriends := make([]*model_struct.LocalFriend, 0)
 	if len(notCompleteIds) > 0 || len(localFriendList) == 0 {
 		friendInfos, err := f.GetFriendByIdsSvr(ctx, friendUserIDList)
 		if err != nil {

@@ -26,7 +26,7 @@ import (
 )
 
 func Test_GetSpecifiedFriendsInfo(t *testing.T) {
-	info, err := open_im_sdk.UserForSDK.Friend().GetSpecifiedFriendsInfo(ctx, []string{"55122326508802048"})
+	info, err := open_im_sdk.UserForSDK.Friend().GetSpecifiedFriendsInfo(ctx, []string{"69763666668425216"})
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -350,9 +350,10 @@ func (g *Group) SearchGroups(ctx context.Context, param sdk_params_callback.Sear
 
 // SetGroupVerification 获取群是否需要验证
 func (g *Group) SetGroupVerification(ctx context.Context, groupID string, verification int32) error {
+	needVerification := int64(verification)
 	return g.SetGroupInfo(ctx, &groupv1.EditGroupProfileRequest{
 		GroupID:          groupID,
-		NeedVerification: int64(verification),
+		NeedVerification: &needVerification,
 	})
 }
 
@@ -360,7 +361,7 @@ func (g *Group) SetGroupLookMemberInfo(ctx context.Context, groupID string, rule
 	return g.SetGroupInfo(ctx,
 		&groupv1.EditGroupProfileRequest{
 			GroupID:        groupID,
-			LookMemberInfo: rule,
+			LookMemberInfo: &rule,
 			//&sdkws.GroupInfoForSet{GroupID: groupID, LookMemberInfo: wrapperspb.Int32(rule)
 		})
 }
@@ -369,7 +370,7 @@ func (g *Group) SetGroupApplyMemberFriend(ctx context.Context, groupID string, r
 	return g.SetGroupInfo(ctx,
 		&groupv1.EditGroupProfileRequest{
 			GroupID:           groupID,
-			ApplyMemberFriend: rule,
+			ApplyMemberFriend: &rule,
 			//&sdkws.GroupInfoForSet{GroupID: groupID, ApplyMemberFriend: wrapperspb.Int32(rule)
 		})
 }

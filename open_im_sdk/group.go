@@ -71,7 +71,7 @@ func SetGroupInfo(callback open_im_sdk_callback.Base, operationID string, groupI
 	call(callback, operationID, UserForSDK.Group().SetGroupInfo, groupInfo)
 }
 
-func SetGroupSwitchInfo(callback open_im_sdk_callback.Base, operationID string, groupID string, field groupv1.GroupSwitchOption, ups bool) {
+func SetGroupSwitchInfo(callback open_im_sdk_callback.Base, operationID string, groupID string, field groupv1.GroupSwitchOption, ups uint8) {
 	call(callback, operationID, UserForSDK.Group().SetGroupSwitchInfo, groupID, field, ups)
 }
 

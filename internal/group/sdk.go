@@ -391,7 +391,7 @@ func (g *Group) SetGroupInfo(ctx context.Context, groupInfo *groupv1.EditGroupPr
 	return g.SyncGroups(ctx, groupInfo.GroupID)
 }
 
-func (g *Group) SetGroupSwitchInfo(ctx context.Context, groupID string, field groupv1.GroupSwitchOption, ups bool) error {
+func (g *Group) SetGroupSwitchInfo(ctx context.Context, groupID string, field groupv1.GroupSwitchOption, ups uint8) error {
 	if _, err := util.ProtoApiPost[groupv1.UpdateGroupSwitchReq, empty.Empty](
 		ctx,
 		constant.UpdateGroupSwitch,
@@ -399,7 +399,7 @@ func (g *Group) SetGroupSwitchInfo(ctx context.Context, groupID string, field gr
 			UserID:  g.loginUserID,
 			GroupID: groupID,
 			Field:   field,
-			Updates: ups,
+			Updates: int32(ups),
 		},
 	); err != nil {
 		return err

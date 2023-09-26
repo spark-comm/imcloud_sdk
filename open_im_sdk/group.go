@@ -14,7 +14,10 @@
 
 package open_im_sdk
 
-import "open_im_sdk/open_im_sdk_callback"
+import (
+	groupv1 "github.com/imCloud/api/group/v1"
+	"open_im_sdk/open_im_sdk_callback"
+)
 
 //funcation CreateGroup(callback open_im_sdk_callback.Base, operationID string, groupBaseInfo string, memberList string) {
 //	call(callback, operationID, UserForSDK.Group().CreateGroup, groupBaseInfo, memberList)
@@ -68,17 +71,21 @@ func SetGroupInfo(callback open_im_sdk_callback.Base, operationID string, groupI
 	call(callback, operationID, UserForSDK.Group().SetGroupInfo, groupInfo)
 }
 
-func SetGroupVerification(callback open_im_sdk_callback.Base, operationID string, groupID string, verification int32) {
-	call(callback, operationID, UserForSDK.Group().SetGroupVerification, groupID, verification)
+func SetGroupSwitchInfo(callback open_im_sdk_callback.Base, operationID string, groupID string, field groupv1.GroupSwitchOption, ups bool) {
+	call(callback, operationID, UserForSDK.Group().SetGroupSwitchInfo, groupID, field, ups)
 }
 
-func SetGroupLookMemberInfo(callback open_im_sdk_callback.Base, operationID string, groupID string, rule int32) {
-	call(callback, operationID, UserForSDK.Group().SetGroupLookMemberInfo, groupID, rule)
-}
-
-func SetGroupApplyMemberFriend(callback open_im_sdk_callback.Base, operationID string, groupID string, rule int32) {
-	call(callback, operationID, UserForSDK.Group().SetGroupApplyMemberFriend, groupID, rule)
-}
+//func SetGroupVerification(callback open_im_sdk_callback.Base, operationID string, groupID string, verification int32) {
+//	call(callback, operationID, UserForSDK.Group().SetGroupVerification, groupID, verification)
+//}
+//
+//func SetGroupLookMemberInfo(callback open_im_sdk_callback.Base, operationID string, groupID string, rule int32) {
+//	call(callback, operationID, UserForSDK.Group().SetGroupLookMemberInfo, groupID, rule)
+//}
+//
+//func SetGroupApplyMemberFriend(callback open_im_sdk_callback.Base, operationID string, groupID string, rule int32) {
+//	call(callback, operationID, UserForSDK.Group().SetGroupApplyMemberFriend, groupID, rule)
+//}
 
 func GetGroupMemberList(callback open_im_sdk_callback.Base, operationID string, groupID string, filter int32, offset int32, count int32) {
 	call(callback, operationID, UserForSDK.Group().GetGroupMemberList, groupID, filter, offset, count)

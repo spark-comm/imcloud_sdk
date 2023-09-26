@@ -349,31 +349,31 @@ func (g *Group) SearchGroups(ctx context.Context, param sdk_params_callback.Sear
 }
 
 // SetGroupVerification 获取群是否需要验证
-func (g *Group) SetGroupVerification(ctx context.Context, groupID string, verification int32) error {
-	needVerification := int64(verification)
-	return g.SetGroupInfo(ctx, &groupv1.EditGroupProfileRequest{
-		GroupID:          groupID,
-		NeedVerification: &needVerification,
-	})
-}
-
-func (g *Group) SetGroupLookMemberInfo(ctx context.Context, groupID string, rule int32) error {
-	return g.SetGroupInfo(ctx,
-		&groupv1.EditGroupProfileRequest{
-			GroupID:        groupID,
-			LookMemberInfo: &rule,
-			//&sdkws.GroupInfoForSet{GroupID: groupID, LookMemberInfo: wrapperspb.Int32(rule)
-		})
-}
-
-func (g *Group) SetGroupApplyMemberFriend(ctx context.Context, groupID string, rule int32) error {
-	return g.SetGroupInfo(ctx,
-		&groupv1.EditGroupProfileRequest{
-			GroupID:           groupID,
-			ApplyMemberFriend: &rule,
-			//&sdkws.GroupInfoForSet{GroupID: groupID, ApplyMemberFriend: wrapperspb.Int32(rule)
-		})
-}
+//func (g *Group) SetGroupVerification(ctx context.Context, groupID string, verification int32) error {
+//	needVerification := int64(verification)
+//	return g.SetGroupInfo(ctx, &groupv1.EditGroupProfileRequest{
+//		GroupID:          groupID,
+//		NeedVerification: &needVerification,
+//	})
+//}
+//
+//func (g *Group) SetGroupLookMemberInfo(ctx context.Context, groupID string, rule int32) error {
+//	return g.SetGroupInfo(ctx,
+//		&groupv1.EditGroupProfileRequest{
+//			GroupID:        groupID,
+//			LookMemberInfo: &rule,
+//			//&sdkws.GroupInfoForSet{GroupID: groupID, LookMemberInfo: wrapperspb.Int32(rule)
+//		})
+//}
+//
+//func (g *Group) SetGroupApplyMemberFriend(ctx context.Context, groupID string, rule int32) error {
+//	return g.SetGroupInfo(ctx,
+//		&groupv1.EditGroupProfileRequest{
+//			GroupID:           groupID,
+//			ApplyMemberFriend: &rule,
+//			//&sdkws.GroupInfoForSet{GroupID: groupID, ApplyMemberFriend: wrapperspb.Int32(rule)
+//		})
+//}
 
 // SetGroupInfo 更新群信息
 func (g *Group) SetGroupInfo(ctx context.Context, groupInfo *groupv1.EditGroupProfileRequest) error {
@@ -389,6 +389,22 @@ func (g *Group) SetGroupInfo(ctx context.Context, groupInfo *groupv1.EditGroupPr
 		return err
 	}
 	return g.SyncGroups(ctx, groupInfo.GroupID)
+}
+
+func (g *Group) SetGroupSwitchInfo(ctx context.Context, groupID string, field groupv1.GroupSwitchOption, ups bool) error {
+	if _, err := util.ProtoApiPost[groupv1.UpdateGroupSwitchReq, empty.Empty](
+		ctx,
+		constant.UpdateGroupSwitch,
+		&groupv1.UpdateGroupSwitchReq{
+			UserID:  g.loginUserID,
+			GroupID: groupID,
+			Field:   field,
+			Updates: ups,
+		},
+	); err != nil {
+		return err
+	}
+	return g.SyncGroups(ctx, groupID)
 }
 
 // GetGroupMemberList 获取群成员列表

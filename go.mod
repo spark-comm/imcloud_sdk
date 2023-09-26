@@ -28,7 +28,7 @@ require (
 	gorm.io/driver/sqlite v1.5.2
 )
 
-replace github.com/imCloud => ../../imcloud
+replace github.com/imCloud => ../imcloud
 
 require (
 	cloud.google.com/go/compute v1.21.0 // indirect

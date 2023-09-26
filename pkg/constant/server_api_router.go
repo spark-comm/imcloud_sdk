@@ -110,6 +110,8 @@ const (
 
 	GetSyncGroupInfoList = BaseRouter + RouterGroup + "/get_sync_group_list"
 
+	UpdateGroupSwitch = BaseRouter + RouterGroup + "/set_group_switch_info"
+
 	GetUserMemberInfoInGroup = BaseRouter + RouterGroup + "/get_member_in_group"
 	group
 	SetReceiveMessageOptRouter         = BaseRouter + "/conversation/set_receive_message_opt"

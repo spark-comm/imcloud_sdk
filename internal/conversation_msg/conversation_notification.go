@@ -91,6 +91,7 @@ func (c *Conversation) doAddFriend(c2v common.Cmd2Value) {
 		log.ZDebug(ctx, "do add friend error", err)
 		return
 	}
+	c.addFaceURLAndNameBackgroundURL(ctx, cl)
 	c.ConversationListener.OnNewConversation(utils.StructToJsonString([]*model_struct.LocalConversation{cl}))
 }
 
@@ -171,7 +172,7 @@ func (c *Conversation) doUpdateConversation(c2v common.Cmd2Value) {
 	case constant.UpdateConFaceUrlAndNickName:
 		var lc model_struct.LocalConversation
 		st := node.Args.(common.SourceIDAndSessionType)
-		log.ZInfo(ctx, "UpdateConFaceUrlAndNickName", "st", st)
+		//log.ZError(ctx, fmt.Sprintf("UpdateConFaceUrlAndNickName:%s", utils.StructToJsonString(st)), nil)
 		switch st.SessionType {
 		case constant.SingleChatType:
 			lc.UserID = st.SourceID

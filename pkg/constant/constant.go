@@ -209,6 +209,8 @@ const (
 	BlackRelationship = 0
 	//FriendRelationship 好友关系
 	FriendRelationship = 1
+	BlockedByPeer      = 1302 //被对方拉黑
+	NotPeersFriend     = 1303 //不是对方的好友
 )
 
 // const (

@@ -210,8 +210,8 @@ func (f *Friend) syncFriendByInfo(ctx context.Context, data []*model_struct.Loca
 	return f.friendSyncer.Sync(ctx, data, localData, nil, true)
 }
 
-// syncDelFriend 同步删除好友列表
-func (f *Friend) syncDelFriend(ctx context.Context, friendId string) error {
+// SyncDelFriend 同步删除好友列表
+func (f *Friend) SyncDelFriend(ctx context.Context, friendId string) error {
 	localData, err := f.db.GetFriendInfoNotPeersList(ctx, []string{friendId})
 	if err != nil {
 		return err

@@ -85,7 +85,7 @@ func (f *Friend) initSyncer() {
 				_ = common.TriggerCmdUpdateMessage(ctx, common.UpdateMessageNode{Action: constant.UpdateMsgFaceUrlAndNickName,
 					Args: common.UpdateMessageInfo{UserID: server.FriendUserID, FaceURL: server.FaceURL, Nickname: server.Nickname}}, f.conversationCh)
 				//更新所在群的信息
-				_ = common.TriggerCmdGroupMemberChange(ctx, common.UpdateGroupMemberInfo{UserId: server.FriendUserID, Nickname: server.Nickname, FaceUrl: server.Nickname}, f.groupCh)
+				_ = common.TriggerCmdGroupMemberChange(ctx, common.UpdateGroupMemberInfo{UserId: server.FriendUserID, Nickname: server.Nickname, FaceUrl: server.FaceURL}, f.groupCh)
 			}
 
 		}
@@ -238,4 +238,9 @@ func (f *Friend) syncFriendByNotification(ctx context.Context, friendId string) 
 	//生成对应的会话
 	//_ = common.TriggerCmdAddFriendGenerateSession(ctx, common.SourceIDAndSessionType{SourceID: friendId, SessionType: constant.SingleChatType}, f.conversationCh)
 	return nil
+}
+
+// DelLocalFriend 删除本地好友
+func (f *Friend) DelLocalFriend(ctx context.Context, friendId string) error {
+	return f.db.DeleteFriendDB(ctx, friendId)
 }

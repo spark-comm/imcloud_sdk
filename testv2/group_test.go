@@ -58,6 +58,7 @@ func Test_CreateGroupV2(t *testing.T) {
 		ctx,
 		sessionType,
 		"118482918182912",
+		false,
 	)
 	if err != nil {
 		t.Fatal(err)

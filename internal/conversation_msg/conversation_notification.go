@@ -86,7 +86,7 @@ func (c *Conversation) doDeleteConversation(c2v common.Cmd2Value) {
 func (c *Conversation) doAddFriend(c2v common.Cmd2Value) {
 	ctx := c2v.Ctx
 	node := c2v.Value.(common.SourceIDAndSessionType)
-	cl, err := c.GetOneConversation(ctx, int32(node.SessionType), node.SourceID)
+	cl, err := c.GetOneConversation(ctx, int32(node.SessionType), node.SourceID, false)
 	if err != nil {
 		log.ZDebug(ctx, "do add friend error", err)
 		return

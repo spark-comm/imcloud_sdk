@@ -176,7 +176,7 @@ func (f *Friend) CheckFriend(ctx context.Context, friendUserIDList []string) ([]
 			}
 		}
 		for _, f := range friendList {
-			if v == f.FriendUserID {
+			if f.NotPeersFriend != constant.NotPeersFriend && v == f.FriendUserID {
 				isFriend = true
 				break
 			}
@@ -210,7 +210,7 @@ func (f *Friend) DeleteFriend(ctx context.Context, friendUserID string) error {
 	if err != nil {
 		log.ZDebug(ctx, "delete friend after delete conversation and message")
 	}
-	return f.syncDelFriend(ctx, friendUserID)
+	return f.SyncDelFriend(ctx, friendUserID)
 }
 
 func (f *Friend) GetFriendList(ctx context.Context) ([]*model_struct.LocalFriend, error) {

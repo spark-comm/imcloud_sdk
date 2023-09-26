@@ -99,7 +99,20 @@ func (c *Cache) GetUserNameFaceURLAndBackgroundUrl(ctx context.Context, userID s
 		backgroundURL = friendInfo.BackgroundURL
 		return faceURL, name, backgroundURL, nil
 	}
-
+	//从服务端获取好友信息
+	svrData, err := c.friend.GetFriendByIdsSvr(ctx, []string{userID})
+	if err == nil && len(svrData) > 0 {
+		svrFriend := svrData[0]
+		faceURL = svrFriend.FaceURL
+		if svrFriend.Remark != "" {
+			name = svrFriend.Remark
+		} else {
+			name = svrFriend.Nickname
+		}
+		backgroundURL = svrFriend.BackgroundUrl
+		c.userMap.Store(userID, UserInfo{FaceURL: faceURL, Nickname: name, BackgroundURL: backgroundURL})
+		return faceURL, name, backgroundURL, nil
+	}
 	//conversationID := utils2.GetConversationIDBySessionType(constant.SingleChatType, c.loginUserID, userID)
 	//common.TriggerCmdDeleteConversationAndMessage(ctx, userID, conversationID, constant.SingleChatType, c.ch)
 	//return "", "", "", errors.New(fmt.Sprintf("user %s is not in friend list", userID))
@@ -111,6 +124,6 @@ func (c *Cache) GetUserNameFaceURLAndBackgroundUrl(ctx context.Context, userID s
 	if len(users) == 0 {
 		return "", "", "", sdkerrs.ErrUserIDNotFound.Wrap(userID)
 	}
-	c.userMap.Store(userID, UserInfo{FaceURL: users[0].UserId, Nickname: users[0].Nickname, BackgroundURL: ""})
+	c.userMap.Store(userID, UserInfo{FaceURL: users[0].FaceURL, Nickname: users[0].Nickname, BackgroundURL: ""})
 	return users[0].FaceURL, users[0].Nickname, "", nil
 }

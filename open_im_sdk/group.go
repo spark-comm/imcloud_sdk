@@ -15,7 +15,6 @@
 package open_im_sdk
 
 import (
-	groupv1 "github.com/imCloud/api/group/v1"
 	"open_im_sdk/open_im_sdk_callback"
 )
 
@@ -71,7 +70,7 @@ func SetGroupInfo(callback open_im_sdk_callback.Base, operationID string, groupI
 	call(callback, operationID, UserForSDK.Group().SetGroupInfo, groupInfo)
 }
 
-func SetGroupSwitchInfo(callback open_im_sdk_callback.Base, operationID string, groupID string, field groupv1.GroupSwitchOption, ups uint8) {
+func SetGroupSwitchInfo(callback open_im_sdk_callback.Base, operationID string, groupID string, field string, ups int32) {
 	call(callback, operationID, UserForSDK.Group().SetGroupSwitchInfo, groupID, field, ups)
 }
 

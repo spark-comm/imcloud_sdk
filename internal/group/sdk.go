@@ -81,10 +81,10 @@ func (g *Group) QuitGroup(ctx context.Context, groupID string) error {
 	//	return err
 	//}
 
-	if _, err := util.ProtoApiPost[groupv1.QuitAllGroupsReq, empty.Empty](
+	if _, err := util.ProtoApiPost[groupv1.QuitGroupReq, empty.Empty](
 		ctx,
 		constant.QuitGroupRouter,
-		&groupv1.QuitAllGroupsReq{UserID: g.loginUserID},
+		&groupv1.QuitGroupReq{UserID: g.loginUserID, GroupID: groupID},
 	); err != nil {
 		return err
 	}
@@ -139,10 +139,10 @@ func (g *Group) ChangeGroupMute(ctx context.Context, groupID string, isMute bool
 		//	GroupID: groupID,
 		//	UserID:  g.loginUserID,
 		//}, nil)
-		_, err = util.ProtoApiPost[groupv1.CancelMuteGroupMemberReq, empty.Empty](
+		_, err = util.ProtoApiPost[groupv1.CancelMuteGroupReq, empty.Empty](
 			ctx,
 			constant.CancelMuteGroupRouter,
-			&groupv1.CancelMuteGroupMemberReq{
+			&groupv1.CancelMuteGroupReq{
 				GroupID: groupID,
 				UserID:  g.loginUserID,
 			},

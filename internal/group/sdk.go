@@ -226,22 +226,18 @@ func (g *Group) SetGroupMemberNickname(ctx context.Context, groupID, userID stri
 
 // SetBackgroundUrl 设置聊天背景图片
 func (g *Group) SetBackgroundUrl(ctx context.Context, groupID, backgroundUrl string) error {
-	var bc *string
-	if backgroundUrl != "" {
-		bc = &backgroundUrl
-	}
 	err := g.SetGroupMemberInfo(ctx, &groupv1.SetGroupMemberInfoReq{
 		GroupID:       groupID,
 		UserID:        g.loginUserID,
-		BackgroundUrl: bc,
+		BackgroundUrl: &backgroundUrl,
 		PUserID:       g.loginUserID,
 	})
 	if err != nil {
 		return err
 	}
 	//设置会话的聊天背景
-	common.TriggerCmdUpdateConversationBackgroundURL(ctx, g.getConversationIDBySessionType(groupID, constant.SuperGroup), backgroundUrl, g.conversationCh)
-	return nil
+	//common.TriggerCmdUpdateConversationBackgroundURL(ctx, g.getConversationIDBySessionType(groupID, constant.SuperGroup), backgroundUrl, g.conversationCh)
+	return g.syncGroupMembers(ctx, groupID, g.loginUserID)
 }
 
 // SetGroupMemberInfo 设置群信息

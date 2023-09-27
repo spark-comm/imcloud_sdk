@@ -404,8 +404,8 @@ func Test_CreateGroup(t *testing.T) {
 
 func Test_SetGroupInfo(t *testing.T) {
 	s := groupv1.EditGroupProfileRequest{
-		GroupID: "128959635263488",
-		FaceURL: "-dsfddfsghtrryrufsgd94",
+		GroupID:      "145196112",
+		Notification: "-48559",
 	}
 	bytes, _ := json.Marshal(&s)
 	open_im_sdk.SetGroupInfo(&GroupCallback{}, utils.OperationIDGenerator(), string(bytes))

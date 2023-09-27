@@ -226,10 +226,14 @@ func (g *Group) SetGroupMemberNickname(ctx context.Context, groupID, userID stri
 
 // SetBackgroundUrl 设置聊天背景图片
 func (g *Group) SetBackgroundUrl(ctx context.Context, groupID, backgroundUrl string) error {
+	var bc *string
+	if backgroundUrl != "" {
+		bc = &backgroundUrl
+	}
 	err := g.SetGroupMemberInfo(ctx, &groupv1.SetGroupMemberInfoReq{
 		GroupID:       groupID,
 		UserID:        g.loginUserID,
-		BackgroundUrl: backgroundUrl,
+		BackgroundUrl: bc,
 		PUserID:       g.loginUserID,
 	})
 	if err != nil {
@@ -807,9 +811,8 @@ func (g *Group) SearchGroupInfo(ctx context.Context, keyWord string, pageSize, p
 		ctx,
 		constant.SearchGroupInfoRouter,
 		&groupv1.SearchGroupInfoReq{
-			KeyWord:  keyWord,
-			PageSize: pageSize,
-			PageNum:  pageNum,
+			UserID:  g.loginUserID,
+			KeyWord: keyWord,
 		},
 	)
 	if err != nil {

@@ -527,6 +527,7 @@ func (g *Group) InitSyncGroupData(ctx context.Context) error {
 			GroupType:   int32(list.GroupType),
 			MemberCount: list.GroupNumber,
 			IsComplete:  IsNotComplete,
+			Status:      list.Status,
 		})
 	}
 	if err := g.groupSyncer.Sync(ctx, util.Batch(ServerGroupToLocalGroup, groupLists), groups, nil); err != nil {

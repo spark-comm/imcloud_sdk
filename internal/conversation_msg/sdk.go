@@ -1142,6 +1142,17 @@ func (c *Conversation) initBasicInfo(ctx context.Context, message *sdk_struct.Ms
 	message.ContentType = contentType
 	message.SenderPlatformID = c.platformID
 	message.IsExternalExtensions = c.IsExternalExtensions
+	message.AttachedInfoElem = &sdk_struct.AttachedInfoElem{
+		GroupHasReadInfo:          sdk_struct.GroupHasReadInfo{},
+		IsPrivateChat:             false,
+		BurnDuration:              0,
+		HasReadTime:               0,
+		NotSenderNotificationPush: false,
+		MessageEntityList:         make([]*sdk_struct.MessageEntity, 0),
+		IsEncryption:              false,
+		InEncryptStatus:           false,
+		Progress:                  &sdk_struct.UploadProgress{},
+	}
 	return nil
 }
 

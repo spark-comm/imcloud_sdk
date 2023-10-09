@@ -300,6 +300,20 @@ func (u *User) setUsersOption(ctx context.Context, option string, value int32) e
 	return nil
 }
 
+func (u *User) screenUserProfile(ctx context.Context, keyWord string) ([]*imUserPb.ScreenUserInfo, error) {
+	resp, err := util.ProtoApiPost[imUserPb.ScreenUserInfoReq, imUserPb.ScreenUserInfoResp](
+		ctx,
+		constant.ScreenUserProfile,
+		&imUserPb.ScreenUserInfoReq{
+			KeyWord: keyWord,
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+	return resp.List, nil
+}
+
 const (
 	WalletOperation = "is_open_wallet"
 )

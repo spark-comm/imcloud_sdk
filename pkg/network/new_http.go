@@ -43,7 +43,10 @@ func PostWithTimeOut(url string, data interface{}, token string, timeout time.Du
 }
 
 func PostWithTimeOutByte(url string, data []byte, token string, timeout time.Duration) (content []byte, err error) {
-	return Post(url).BodyWithBytes(data).SetTimeOut(timeout).SetHeader("Authorization", fmt.Sprintf("Bearer %s", token)).ToBytes()
+	setTimeOut := Post(url).BodyWithBytes(data).SetTimeOut(timeout)
+	header := setTimeOut.SetHeader("Authorization", fmt.Sprintf("Bearer %s", token))
+	toBytes, err := header.ToBytes()
+	return toBytes, err
 }
 
 func Get(url string) *HttpCli {

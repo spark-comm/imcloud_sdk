@@ -127,8 +127,8 @@ func (i *Friend) GetFriendInfoByFriendUserID(ctx context.Context, FriendUserID s
 	}
 }
 
-func (i *Friend) GetFriendInfoList(ctx context.Context, friendUserIDList []string) (result []*model_struct.LocalFriend, err error) {
-	gList, err := exec.Exec(utils.StructToJsonString(friendUserIDList))
+func (i *Friend) GetFriendInfoList(ctx context.Context, friendUserIDList []string, filterNotPeersFriend bool) (result []*model_struct.LocalFriend, err error) {
+	gList, err := exec.Exec(utils.StructToJsonString(friendUserIDList), filterNotPeersFriend)
 	if err != nil {
 		return nil, err
 	} else {

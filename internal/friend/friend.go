@@ -114,7 +114,12 @@ func (f *Friend) initSyncer() {
 	})
 	// 收到的申请同步
 	f.requestRecvSyncer = syncer.New(func(ctx context.Context, value *model_struct.LocalFriendRequest) error {
-		return f.db.InsertFriendRequest(ctx, value)
+		err := f.db.InsertFriendRequest(ctx, value)
+		if err != nil {
+			log.ZInfo(ctx, fmt.Sprintf("收到的申请同步InsertFriendRequest失败：%+v,insert数据：%+v", err, value))
+			return err
+		}
+		return nil
 	}, func(ctx context.Context, value *model_struct.LocalFriendRequest) error {
 		return f.db.DeleteFriendRequestBothUserID(ctx, value.FromUserID, value.ToUserID)
 	}, func(ctx context.Context, server *model_struct.LocalFriendRequest, local *model_struct.LocalFriendRequest) error {
@@ -144,7 +149,12 @@ func (f *Friend) initSyncer() {
 	})
 	//发起的申请同步
 	f.requestSendSyncer = syncer.New(func(ctx context.Context, value *model_struct.LocalFriendRequest) error {
-		return f.db.InsertFriendRequest(ctx, value)
+		err := f.db.InsertFriendRequest(ctx, value)
+		if err != nil {
+			log.ZInfo(ctx, fmt.Sprintf("发起的申请同步InsertFriendRequest失败：%+v,insert数据：%+v", err, value))
+			return err
+		}
+		return nil
 	}, func(ctx context.Context, value *model_struct.LocalFriendRequest) error {
 		return f.db.DeleteFriendRequestBothUserID(ctx, value.FromUserID, value.ToUserID)
 	}, func(ctx context.Context, server *model_struct.LocalFriendRequest, local *model_struct.LocalFriendRequest) error {

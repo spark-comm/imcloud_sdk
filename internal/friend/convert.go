@@ -22,7 +22,7 @@ func ServerFriendRequestToLocalFriendRequest(info *friendPb.FriendRequests) *mod
 		ToGender:      info.ToGender,
 		ToMessage:     info.ToMessage,
 		ToCode:        info.ToCode,
-		TomPhone:      info.ToPhone,
+		ToPhone:       info.ToPhone,
 		HandleResult:  info.HandleResult,
 		ReqMsg:        info.ReqMsg,
 		CreateAt:      info.CreateTime,

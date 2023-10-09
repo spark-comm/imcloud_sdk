@@ -92,7 +92,7 @@ type LocalFriendRequest struct {
 	ToGender      int32  `gorm:"column:to_gender;comment:接收方性别" json:"toGender"`
 	ToCode        string `json:"toCode" gorm:"column:to_code;size:6;comment:接收方的code"`
 	ToMessage     string `json:"toMessage" gorm:"column:to_message;size:6;comment:接收方个性签名"`
-	TomPhone      string `json:"toPhone" gorm:"column:tom_phone;size:6;comment:接收方手机号"`
+	ToPhone       string `json:"toPhone" gorm:"column:to_phone;size:6;comment:接收方手机号"`
 	HandleResult  int32  `gorm:"column:handle_result;comment:处理0:待处理;1:同意;2:拒绝" json:"handleResult"`
 	ReqMsg        string `gorm:"column:req_msg;type:varchar(255);comment:请求消息" json:"reqMsg"`
 	CreateAt      int64  `gorm:"column:create_at;comment:创建时间" json:"createAt"`

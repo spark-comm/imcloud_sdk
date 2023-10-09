@@ -16,6 +16,7 @@ package friend
 
 import (
 	"context"
+	"fmt"
 	"github.com/golang/protobuf/ptypes/empty"
 	friendPb "github.com/imCloud/api/friend/v1"
 	"github.com/imCloud/im/pkg/common/log"
@@ -91,9 +92,16 @@ func (f *Friend) AddFriend(ctx context.Context, addRequest *friendPb.AddFriendRe
 		constant.AddFriendRouter,
 		addRequest,
 	); err != nil {
+		log.ZInfo(ctx, fmt.Sprintf("添加好友失败：%+v", err))
 		return err
 	}
-	return f.SyncFriendApplication(ctx)
+	log.ZInfo(ctx, fmt.Sprintf("添加好友成功！开始同步请求数据"))
+	if err := f.SyncFriendApplication(ctx); err != nil {
+		log.ZInfo(ctx, fmt.Sprintf("同步请求数据失败：%+v", err))
+		return err
+	}
+	log.ZInfo(ctx, fmt.Sprintf("success!"))
+	return nil
 }
 
 func (f *Friend) GetFriendApplicationListAsRecipient(ctx context.Context) ([]*model_struct.LocalFriendRequest, error) {
@@ -153,17 +161,21 @@ func (f *Friend) RespondFriendApply(ctx context.Context, req *friend.RespondFrie
 
 func (f *Friend) CheckFriend(ctx context.Context, friendUserIDList []string) ([]*server_api_params.UserIDResult, error) {
 	friendList, err := f.db.GetFriendInfoList(ctx, friendUserIDList, true)
+	log.ZInfo(ctx, fmt.Sprintf("获取本地数据的好友列表数据：%+v", friendList))
 	if err != nil || len(friendList) != len(friendUserIDList) {
 		svr, err := f.GetFriendByIdsSvr(ctx, friendUserIDList)
+		log.ZInfo(ctx, fmt.Sprintf("获取远程数据的好友列表数据：%+v", svr))
 		if err != nil {
 			return nil, err
 		}
 		friendList = util.Batch(ServerFriendToLocalFriend, svr)
+		log.ZInfo(ctx, fmt.Sprintf("本地和远程数据对比处理后的好友列表数据：%+v", friendList))
 	}
 	blackList, err := f.db.GetBlackInfoList(ctx, friendUserIDList)
 	if err != nil {
 		return nil, err
 	}
+	log.ZInfo(ctx, fmt.Sprintf("获取本地的黑名单数据信息为：%+v", blackList))
 	res := make([]*server_api_params.UserIDResult, 0, len(friendUserIDList))
 	for _, v := range friendUserIDList {
 		var r server_api_params.UserIDResult

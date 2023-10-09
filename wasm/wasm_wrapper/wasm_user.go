@@ -48,6 +48,11 @@ func (w *WrapperUser) GetUsersInfo(_ js.Value, args []js.Value) interface{} {
 	return event_listener.NewCaller(open_im_sdk.GetUsersInfo, callback, &args).AsyncCallWithCallback()
 }
 
+func (w *WrapperUser) SearchProfile(_ js.Value, args []js.Value) interface{} {
+	callback := event_listener.NewBaseCallback(utils.FirstLower(utils.GetSelfFuncName()), w.commonFunc)
+	return event_listener.NewCaller(open_im_sdk.SearchProfile, callback, &args).AsyncCallWithCallback()
+}
+
 func (w *WrapperUser) GetUsersInfoWithCache(_ js.Value, args []js.Value) interface{} {
 	callback := event_listener.NewBaseCallback(utils.FirstLower(utils.GetSelfFuncName()), w.commonFunc)
 	return event_listener.NewCaller(open_im_sdk.GetSpecifiedFriendsInfo, callback, &args).AsyncCallWithCallback()

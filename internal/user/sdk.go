@@ -71,3 +71,7 @@ func (u *User) SetUsersOption(ctx context.Context, option string, value int32) e
 func (u *User) SyncUserOperation(ctx context.Context) error {
 	return u.syncUserOperation(ctx)
 }
+
+func (u *User) ScreenUserProfile(ctx context.Context, keyWord string) ([]*imUserPb.ScreenUserInfo, error) {
+	return u.screenUserProfile(ctx, keyWord)
+}

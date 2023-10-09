@@ -68,3 +68,7 @@ func SetUsersOption(callback open_im_sdk_callback.Base, operationID, option stri
 func SyncUsersOption(callback open_im_sdk_callback.Base, operationID string) {
 	call(callback, operationID, UserForSDK.User().SyncUserOperation)
 }
+
+func SearchProfile(callback open_im_sdk_callback.Base, operationID string, keyWord string) {
+	call(callback, operationID, UserForSDK.User().ScreenUserProfile, keyWord)
+}

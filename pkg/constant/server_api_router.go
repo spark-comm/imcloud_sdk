@@ -28,6 +28,8 @@ const (
 	GetUserLoginStatusRouter      = BaseRouter + "/user/get_login_status"
 	GetUserOperation              = BaseRouter + "/user/get_user_operation"
 
+	ScreenUserProfile = BaseRouter + "/user/screen_profile"
+
 	AddFriendRouter                           = BaseRouter + "/friend/add_friend"
 	DeleteFriendRouter                        = BaseRouter + "/friend/delete_friend"
 	GetSelfFriendReceiveApplicationListRouter = BaseRouter + "/friend/get_self_receive_friend_apply_list" //recv

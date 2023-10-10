@@ -236,6 +236,7 @@ func (f *Friend) syncApplicationByNotification(ctx context.Context, from *sdkws.
 	if err != nil {
 		return fmt.Errorf("friend application notification error, fromUserID: %s, toUserID: %s", from.FromUserID, from.ToUserID)
 	}
+	log.ZInfo(ctx, "根据通知同步好友请求成功！")
 	return nil
 }
 

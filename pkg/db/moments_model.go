@@ -1,3 +1,20 @@
+// Copyright © 2023 OpenIM SDK. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+//go:build !js
+// +build !js
+
 package db
 
 import (
@@ -9,10 +26,13 @@ import (
 
 // InsertMomentsComments ， 插入朋友圈评论
 // 参数：
-//      ctx ： desc
-//      moments ： desc
+//
+//	ctx ： desc
+//	moments ： desc
+//
 // 返回值：
-//      error ：desc
+//
+//	error ：desc
 func (d *DataBase) InsertMomentsComments(ctx context.Context, moments *model_struct.LocalMomentsComments) error {
 	//TODO implement me
 	d.momentsCommentsMtx.Lock()
@@ -23,10 +43,13 @@ func (d *DataBase) InsertMomentsComments(ctx context.Context, moments *model_str
 
 // DeleteMomentsComments ， 删除朋友圈评论
 // 参数：
-//      ctx ： desc
-//      commentId ： desc
+//
+//	ctx ： desc
+//	commentId ： desc
+//
 // 返回值：
-//      error ：desc
+//
+//	error ：desc
 func (d *DataBase) DeleteMomentsComments(ctx context.Context, commentId string) error {
 	//TODO implement me
 	d.momentsCommentsMtx.Lock()
@@ -38,10 +61,13 @@ func (d *DataBase) DeleteMomentsComments(ctx context.Context, commentId string) 
 
 // UpdateMomentsComments ， 更新朋友圈评论
 // 参数：
-//      ctx ： desc
-//      moments ： desc
+//
+//	ctx ： desc
+//	moments ： desc
+//
 // 返回值：
-//      error ：desc
+//
+//	error ：desc
 func (d *DataBase) UpdateMomentsComments(ctx context.Context, moments *model_struct.LocalMomentsComments) error {
 	//TODO implement me
 	d.momentsCommentsMtx.Lock()
@@ -56,10 +82,13 @@ func (d *DataBase) UpdateMomentsComments(ctx context.Context, moments *model_str
 
 // GetMomentsComments ， 获取某个朋友圈所有的评论
 // 参数：
-//      ctx ： desc
-//      momentId ： desc
+//
+//	ctx ： desc
+//	momentId ： desc
+//
 // 返回值：
-//      error ：desc
+//
+//	error ：desc
 func (d *DataBase) GetMomentsComments(ctx context.Context, momentId string) ([]*model_struct.LocalMomentsComments, error) {
 	//TODO implement me
 	d.momentsCommentsMtx.Lock()
@@ -80,10 +109,13 @@ func (d *DataBase) GetMomentsComments(ctx context.Context, momentId string) ([]*
 
 // InsertMoments ， 插入朋友圈
 // 参数：
-//      ctx ： desc
-//      moments ： desc
+//
+//	ctx ： desc
+//	moments ： desc
+//
 // 返回值：
-//      error ：desc
+//
+//	error ：desc
 func (d *DataBase) InsertMoments(ctx context.Context, moments *model_struct.LocalMoments) error {
 	//TODO implement me
 	d.momentsMtx.Lock()
@@ -94,10 +126,13 @@ func (d *DataBase) InsertMoments(ctx context.Context, moments *model_struct.Loca
 
 // DeleteMoments ， 删除朋友圈
 // 参数：
-//      ctx ： desc
-//      momentId ： desc
+//
+//	ctx ： desc
+//	momentId ： desc
+//
 // 返回值：
-//      error ：desc
+//
+//	error ：desc
 func (d *DataBase) DeleteMoments(ctx context.Context, momentId string) error {
 	//TODO implement me
 	d.momentsCommentsMtx.Lock()
@@ -109,10 +144,13 @@ func (d *DataBase) DeleteMoments(ctx context.Context, momentId string) error {
 
 // UpdateMoments ， 更新朋友圈
 // 参数：
-//      ctx ： desc
-//      moments ： desc
+//
+//	ctx ： desc
+//	moments ： desc
+//
 // 返回值：
-//      error ：desc
+//
+//	error ：desc
 func (d *DataBase) UpdateMoments(ctx context.Context, moments *model_struct.LocalMoments) error {
 	//TODO implement me
 	d.momentsCommentsMtx.Lock()
@@ -127,10 +165,13 @@ func (d *DataBase) UpdateMoments(ctx context.Context, moments *model_struct.Loca
 
 // GetMoments ， 获取朋友圈
 // 参数：
-//      ctx ： desc
-//      momentId ： desc
+//
+//	ctx ： desc
+//	momentId ： desc
+//
 // 返回值：
-//      error ：desc
+//
+//	error ：desc
 func (d *DataBase) GetMoments(ctx context.Context, momentId string) (*model_struct.LocalMoments, error) {
 	//TODO implement me
 	d.momentsCommentsMtx.Lock()

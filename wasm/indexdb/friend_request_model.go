@@ -115,12 +115,15 @@ func (i FriendRequest) GetFriendApplicationByBothID(ctx context.Context, fromUse
 		return nil, err
 	} else {
 		if v, ok := c.(string); ok {
-			result := model_struct.LocalFriendRequest{}
+			result := []model_struct.LocalFriendRequest{}
 			err := utils.JsonStringToStruct(v, &result)
 			if err != nil {
 				return nil, err
 			}
-			return &result, err
+			if len(result) > 0 {
+				return &result[0], err
+			}
+			return &model_struct.LocalFriendRequest{}, err
 		} else {
 			return nil, exec.ErrType
 		}

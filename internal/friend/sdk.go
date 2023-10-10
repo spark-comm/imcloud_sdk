@@ -92,15 +92,11 @@ func (f *Friend) AddFriend(ctx context.Context, addRequest *friendPb.AddFriendRe
 		constant.AddFriendRouter,
 		addRequest,
 	); err != nil {
-		log.ZInfo(ctx, fmt.Sprintf("添加好友失败：%+v", err))
 		return err
 	}
-	log.ZInfo(ctx, fmt.Sprintf("添加好友成功！开始同步请求数据"))
 	if err := f.SyncFriendApplication(ctx); err != nil {
-		log.ZInfo(ctx, fmt.Sprintf("同步请求数据失败：%+v", err))
 		return err
 	}
-	log.ZInfo(ctx, fmt.Sprintf("success!"))
 	return nil
 }
 

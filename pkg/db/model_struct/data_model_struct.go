@@ -558,3 +558,47 @@ type LocalStranger struct {
 func (LocalStranger) TableName() string {
 	return "local_stranger"
 }
+
+// LocalMoments ， 朋友圈表
+type LocalMoments struct {
+	CreatedAt int64   `json:"createdAt" gorm:"column:created_at;not null;default:0;comment:创建时间"` // autoCreateTime;
+	UpdatedAt int64   `json:"updatedAt" gorm:"column:updated_at;not null;default:0;comment:更新时间"` // autoUpdateTime;
+	DeletedAt int64   `json:"deletedAt" gorm:"column:deleted_at;not null;default:0;comment:删除时间"`
+	MomentId  string  `json:"momentId" gorm:"primaryKey;column:moment_id;size:19;not null;default:'';comment:朋友圈id"`
+	UserId    string  `json:"userId" gorm:"column:user_id;index;size:19;not null;default:'';comment:用户ID"`
+	UserName  string  `json:"userName" gorm:"column:user_name;size:100;not null;default:'';comment:'用户名称'"`
+	Avatar    string  `json:"avatar" gorm:"column:avatar;size:100;not null;default:'';comment:用户头像文件"`
+	Content   string  `json:"content" gorm:"column:content;size:500;not null;default:'';comment:朋友圈内容"`
+	Images    string  `json:"images" gorm:"column:images;size:2000;not null;default:'';comment:图片"`
+	VideoUrl  string  `json:"videoUrl" gorm:"column:video_url;size:300;not null;default:'';size:300;comment:视频链接"`
+	VideoImg  string  `json:"videoImg" gorm:"column:video_img;size:300;not null;default:'';comment:图片链接"`
+	Location  string  `json:"location" gorm:"column:location;size:200;not null;default:'';comment:定位信息"`
+	Longitude float64 `json:"longitude" gorm:"column:longitude;not null;default:0;comment:位置经度"`
+	Latitude  float64 `json:"latitude" gorm:"column:latitude;not null;default:0;comment:位置纬度"`
+	Likes     int64   `json:"likes" gorm:"column:likes;not null;default:0;comment:点赞数量"`
+}
+
+func (LocalMoments) TableName() string {
+	return "local_moments"
+}
+
+// LocalMomentsComments ， 圈子评论
+type LocalMomentsComments struct {
+	CreatedAt      int64  `json:"createdAt" gorm:"column:created_at;not null;default:0;comment:创建时间"` // autoCreateTime;
+	UpdatedAt      int64  `json:"updatedAt" gorm:"column:updated_at;not null;default:0;comment:更新时间"` // autoUpdateTime;
+	DeletedAt      int64  `json:"deletedAt" gorm:"column:deleted_at;not null;default:0;comment:删除时间"`
+	CommentId      string `json:"commentId" gorm:"primaryKey;column:comment_id;size:19;not null;default:'';comment:评论id"`
+	MomentId       string `json:"momentId" gorm:"column:moment_id;index;size:19;not null;default:'';comment:圈子id"`
+	UserId         string `json:"userId" gorm:"column:user_id;index;size:19;not null;default:'';comment:评论者id"`
+	Type           int    `json:"type" gorm:"column:type; default:1;comment:评论的 1:评论；2回复"`
+	Avatar         string `json:"avatar" gorm:"column:avatar;size:225;comment:评论用户头像"`
+	NickName       string `json:"nickname" gorm:"column:nickname;size:100;comment:评论者的昵称"`
+	SourceUserId   string `json:"sourceUserId" gorm:"column:source_user_id;size:225;comment:来源评论用户id"`
+	SourceAvatar   string `json:"sourceAvatar" gorm:"column:source_avatar;size:225;comment:来源评论用户头像"`
+	SourceNickName string `json:"sourceNickName" gorm:"column:source_nickname;size:100;comment:来源评论者的昵称"`
+	Content        string `json:"content" gorm:"column:content;size:300;charset:utf8mb4;comment:评论内容"`
+}
+
+func (LocalMomentsComments) TableName() string {
+	return "local_moments_comments"
+}

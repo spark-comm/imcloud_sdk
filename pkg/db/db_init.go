@@ -45,14 +45,16 @@ func init() {
 }
 
 type DataBase struct {
-	loginUserID   string
-	dbDir         string
-	conn          *gorm.DB
-	mRWMutex      sync.RWMutex
-	groupMtx      sync.RWMutex
-	friendMtx     sync.RWMutex
-	userMtx       sync.RWMutex
-	superGroupMtx sync.RWMutex
+	loginUserID        string
+	dbDir              string
+	conn               *gorm.DB
+	mRWMutex           sync.RWMutex
+	groupMtx           sync.RWMutex
+	friendMtx          sync.RWMutex
+	userMtx            sync.RWMutex
+	superGroupMtx      sync.RWMutex
+	momentsMtx         sync.RWMutex
+	momentsCommentsMtx sync.RWMutex
 }
 
 func (d *DataBase) GetMultipleMessageReactionExtension(ctx context.Context, msgIDList []string) (result []*model_struct.LocalChatLogReactionExtensions, err error) {
@@ -208,6 +210,8 @@ func (d *DataBase) initDB(ctx context.Context) error {
 		&model_struct.TempCacheLocalChatLog{},
 		&model_struct.LocalChatLogReactionExtensions{},
 		&model_struct.LocalUpload{},
+		&model_struct.LocalMoments{},
+		&model_struct.LocalMomentsComments{},
 	)
 	if err != nil {
 		return err

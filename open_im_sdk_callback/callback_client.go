@@ -139,3 +139,10 @@ type UploadFileCallback interface {
 	UploadComplete(fileSize int64, streamSize int64, storageSize int64) // 整体进度
 	Complete(size int64, url string, typ int)                           // 上传完成
 }
+
+// OnMomentsListener ， 暂未实现
+type OnMomentsListener interface {
+	// TODO: 可能需要处理的事件 1. 点赞、取消点赞 2. 公开、是否公开 3. 评论、删除评论 4. 新增、删除朋友圈
+	//Liked(id string)
+	//UnLiked(id string)
+}

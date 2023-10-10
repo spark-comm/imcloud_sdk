@@ -289,6 +289,7 @@ type S3Database interface {
 // MomentsDatabase ， 朋友圈
 type MomentsDatabase interface {
 	InsertMoments(ctx context.Context, moments *model_struct.LocalMoments) error
+	InsertBatchMoments(ctx context.Context, moments []*model_struct.LocalMoments) error
 	DeleteMoments(ctx context.Context, momentId string) error
 	UpdateMoments(ctx context.Context, moments *model_struct.LocalMoments) error
 	GetMoments(ctx context.Context, momentId string) (*model_struct.LocalMoments, error)

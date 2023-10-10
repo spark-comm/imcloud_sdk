@@ -3,6 +3,7 @@ package db
 import (
 	"context"
 	"errors"
+	"gorm.io/gorm"
 	"open_im_sdk/pkg/db/model_struct"
 	"open_im_sdk/pkg/utils"
 )
@@ -92,6 +93,20 @@ func (d *DataBase) InsertMoments(ctx context.Context, moments *model_struct.Loca
 	return utils.Wrap(d.conn.WithContext(ctx).Create(moments).Error, "Insert LocalMoments failed")
 }
 
+// InsertBatchMoments ， 批量插入朋友圈
+// 参数：
+//      ctx ： desc
+//      moments ： desc
+// 返回值：
+//      error ：desc
+func (d *DataBase) InsertBatchMoments(ctx context.Context, moments []*model_struct.LocalMoments) error {
+	//TODO implement me
+	d.momentsMtx.Lock()
+	defer d.momentsMtx.Unlock()
+
+	return utils.Wrap(d.conn.WithContext(ctx).Create(moments).Error, "Insert LocalMoments failed")
+}
+
 // DeleteMoments ， 删除朋友圈
 // 参数：
 //      ctx ： desc
@@ -149,6 +164,26 @@ func (d *DataBase) GetMoments(ctx context.Context, momentId string) (*model_stru
 	return res, nil
 }
 
+func (d *DataBase) GetMomentsList(ctx context.Context, page, size int, isSelf bool) ([]*model_struct.LocalMoments, error) {
+	d.momentsCommentsMtx.Lock()
+	defer d.momentsCommentsMtx.Unlock()
+
+	var res []*model_struct.LocalMoments
+	t := d.conn.WithContext(ctx).
+		Model(&model_struct.LocalMoments{}).
+		Where("deleted_at = 0").
+		Order("created_at desc") // 按时间顺序排列
+
+	if page != 0 && size != 0 {
+		t.Limit(size).Offset((page - 1) * size)
+	}
+
+	if err := t.Find(&res).Error; err != nil {
+		return nil, utils.Wrap(t.Error, "")
+	}
+	return res, nil
+}
+
 const (
 	MOMENTS_FIND_TIMESTAMPS_TYPE_FIRST = 0
 	MOMENTS_FIND_TIMESTAMPS_TYPE_LAST  = 1
@@ -162,12 +197,17 @@ func (d *DataBase) GetMomentTimestamps(ctx context.Context, t int) (int64, error
 	tx := d.conn.WithContext(ctx).
 		Model(&model_struct.LocalMoments{}).
 		Where("deleted_at = 0").
-		Order("created_at asc") // 按时间顺序排列
+		Limit(1)
 
 	if t == MOMENTS_FIND_TIMESTAMPS_TYPE_FIRST {
-		tx.First(res)
+		tx.Order("created_at asc") // 按时间顺序排列
 	} else {
-		tx.Last(res)
+		tx.Order("created_at desc") // 按时间顺序排列
+	}
+	tx.First(&res)
+
+	if errors.Is(tx.Error, gorm.ErrRecordNotFound) {
+		return 0, nil
 	}
 
 	if tx.Error != nil {

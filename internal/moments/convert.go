@@ -28,6 +28,7 @@ func ServerMomentsToLocalMoments(list []*momentsv1.ListItem) []*model_struct.Loc
 			Longitude: v.Longitude,
 			Latitude:  v.Latitude,
 			Likes:     v.Likes,
+			IsLike:    v.IsLiked,
 		}
 
 		res = append(res, item)

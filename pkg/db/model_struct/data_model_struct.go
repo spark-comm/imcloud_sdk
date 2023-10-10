@@ -576,6 +576,7 @@ type LocalMoments struct {
 	Longitude float64 `json:"longitude" gorm:"column:longitude;not null;default:0;comment:位置经度"`
 	Latitude  float64 `json:"latitude" gorm:"column:latitude;not null;default:0;comment:位置纬度"`
 	Likes     int64   `json:"likes" gorm:"column:likes;not null;default:0;comment:点赞数量"`
+	IsLike    int32   `json:"int32" gorm:"column:is_like;not null;default:2;comment:是否点赞 1:是 2:否"` // 是否点赞 1:是 2:否
 }
 
 func (LocalMoments) TableName() string {

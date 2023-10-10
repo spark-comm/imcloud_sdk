@@ -20,9 +20,14 @@ import (
 	"open_im_sdk/internal/util"
 	"open_im_sdk/open_im_sdk_callback"
 	"open_im_sdk/pkg/constant"
+	"open_im_sdk/pkg/db"
 	"open_im_sdk/pkg/db/db_interface"
 	"open_im_sdk/pkg/db/model_struct"
 	"open_im_sdk/pkg/syncer"
+)
+
+const (
+	MAX_SIZE = 50
 )
 
 type Moments struct {
@@ -49,22 +54,105 @@ func (m *Moments) initSyncer() {
 // 参数：
 //      ctx ： desc
 // 返回值：
-func (m *Moments) SyncNewMomentsFromSvr(ctx context.Context) {
+func (m *Moments) SyncNewMomentsFromSvr(ctx context.Context) error {
+	timestamps, err := m.db.GetMomentTimestamps(ctx, db.MOMENTS_FIND_TIMESTAMPS_TYPE_LAST)
+	if err != nil {
+		return err
+	}
+
 	// 获取本地最新时间戳
-	//timestamps, err := m.db.GetMomentTimestamps(ctx, db.MOMENTS_FIND_TIMESTAMPS_TYPE_FIRST)
-	//if err != nil {
-	//	return
-	//}
+	var currentTimestamps int64
+	var needSync []*model_struct.LocalMoments
+	// 获取本地最新时间戳
+
+out:
+	for {
+		svr, i, err := m.getMomentsFromSvr(ctx, currentTimestamps)
+		if err != nil {
+			return err
+		}
+
+		// 如若服务器没有数据，或者当前最新的和本地的相等，则无更新，直接退出
+		if len(svr) <= 0 || svr[0].CreatedAt <= timestamps {
+			break
+		}
+
+		// 循环判断 如果时间戳大于本地最大时间戳，则为新圈子 保存，等待插入
+		for _, v := range svr {
+			if v.CreatedAt > timestamps {
+				needSync = append(needSync, v)
+			} else {
+				// 如果同步完成则退出
+				break out
+			}
+		}
+
+		if len(svr) <= MAX_SIZE {
+			break
+		}
+
+		currentTimestamps = i
+	}
+
+	// 插入
+	if len(needSync) > 0 {
+		if err := m.db.InsertBatchMoments(ctx, needSync); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
-func (m *Moments) Sync() {
+// SyncHistoryMomentsFromSvr ， 从服务器同步历史朋友圈
+// 参数：
+//      ctx ： desc
+// 返回值：
+func (m *Moments) SyncHistoryMomentsFromSvr(ctx context.Context) error {
+	timestamps, err := m.db.GetMomentTimestamps(ctx, db.MOMENTS_FIND_TIMESTAMPS_TYPE_FIRST)
+	if err != nil {
+		return err
+	}
 
+	// 获取本地最新时间戳
+	var currentTimestamps = timestamps
+	for {
+		svr, i, err := m.getMomentsFromSvr(ctx, currentTimestamps)
+		if err != nil {
+			return err
+		}
+
+		// 如若服务器没有数据，或者当前最后一条的和本地的相等，则无更新，直接退出
+		if len(svr) <= 0 {
+			break
+		}
+
+		// 等待插入
+		if err := m.db.InsertBatchMoments(ctx, svr); err != nil {
+			return err
+		}
+
+		// 单次
+		if len(svr) <= MAX_SIZE {
+			break
+		}
+
+		currentTimestamps = i
+	}
+
+	return nil
 }
 
 func (m *Moments) getMomentsFromSvr(ctx context.Context, timestamps int64) ([]*model_struct.LocalMoments, int64, error) {
 	resp := &momentsv1.V2ListReply{}
 	err := util.CallPostApi[*momentsv1.V2ListRequest, *momentsv1.V2ListReply](
-		ctx, constant.GetGroupsInfoRouter, &momentsv1.V2ListRequest{}, resp,
+		ctx, constant.V2ListMomentsRouter, &momentsv1.V2ListRequest{
+			UserId:    m.loginUserID,
+			IsSelf:    true,
+			Page:      1,
+			Size:      MAX_SIZE,
+			Timestamp: timestamps,
+		}, resp,
 	)
 	if err != nil {
 		return nil, 0, err
@@ -72,16 +160,3 @@ func (m *Moments) getMomentsFromSvr(ctx context.Context, timestamps int64) ([]*m
 
 	return ServerMomentsToLocalMoments(resp.List), resp.Timestamp, nil
 }
-
-// getGroupsInfoFromSvr 从服务端获取群数据
-//func (g *Group) getGroupsInfoFromSvr(ctx context.Context, groupIDs []string) ([]*groupv1.GroupInfo, error) {
-//	//resp, err := util.CallApi[groupv1.GetGroupInfoResponse](ctx, constant.GetGroupsInfoRouter, &groupv1.GetGroupInfoReq{GroupID: groupIDs})
-//	resp := &groupv1.GetGroupInfoResponse{}
-//	err := util.CallPostApi[*groupv1.GetGroupInfoReq, *groupv1.GetGroupInfoResponse](
-//		ctx, constant.GetGroupsInfoRouter, &groupv1.GetGroupInfoReq{GroupID: groupIDs}, resp,
-//	)
-//	if err != nil {
-//		return nil, err
-//	}
-//	return resp.Data, nil
-//}

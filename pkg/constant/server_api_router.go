@@ -148,8 +148,8 @@ const (
 	RouterSuperGroup   = "/super_group"
 	RouterMsg          = "/msg"
 	RouterThird        = "/third"
+	Moments            = "/proto/moments"
 )
-
 const (
 	ObjectPartLimit               = BaseRouter + "/third/part_limit"
 	ObjectPartSize                = BaseRouter + "/third/part_size"
@@ -157,4 +157,8 @@ const (
 	ObjectAuthSign                = BaseRouter + "/third/auth_sign"
 	ObjectCompleteMultipartUpload = BaseRouter + "/third/complete_multi_upload"
 	ObjectAccessURL               = BaseRouter + "/third/access_url"
+)
+
+const (
+	V2ListMomentsRouter = BaseRouter + Moments + "/v2_list"
 )

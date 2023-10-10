@@ -124,6 +124,7 @@ func (u *LoginMgr) ImConfig() sdk_struct.IMConfig {
 		DataDir:              u.info.DataDir,
 		LogLevel:             u.info.LogLevel,
 		IsExternalExtensions: u.info.IsExternalExtensions,
+		Language:             u.info.Language,
 	}
 }
 
@@ -416,6 +417,14 @@ func (u *LoginMgr) GetAppBackgroundStatus() bool {
 
 func (u *LoginMgr) GetLoginUserID() string {
 	return u.loginUserID
+}
+
+// SetLanguage 设置sdk语言
+func (u *LoginMgr) SetLanguage(ctx context.Context, language string) error {
+	u.info.Language = language
+	ctx = ccontext.WithInfo(ctx, u.info)
+	u.ctx, u.cancel = context.WithCancel(ctx)
+	return nil
 }
 
 func CheckToken(userID, token string, operationID string) (int64, error) {

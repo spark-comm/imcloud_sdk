@@ -324,6 +324,7 @@ type IMConfig struct {
 	IsLogStandardOutput  bool   `json:"isLogStandardOutput"`
 	LogFilePath          string `json:"logFilePath"`
 	IsExternalExtensions bool   `json:"isExternalExtensions"`
+	Language             string `json:"language"`
 }
 
 type CmdNewMsgComeToConversation struct {

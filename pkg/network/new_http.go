@@ -42,9 +42,13 @@ func PostWithTimeOut(url string, data interface{}, token string, timeout time.Du
 	return Post(url).BodyWithJson(data).SetTimeOut(timeout).SetHeader("Authorization", token).ToBytes()
 }
 
-func PostWithTimeOutByte(url string, data []byte, token string, timeout time.Duration) (content []byte, err error) {
+func PostWithTimeOutByte(url string, data []byte, token, language string, timeout time.Duration) (content []byte, err error) {
 	setTimeOut := Post(url).BodyWithBytes(data).SetTimeOut(timeout)
 	header := setTimeOut.SetHeader("Authorization", fmt.Sprintf("Bearer %s", token))
+	if language == "" {
+		language = "zh"
+	}
+	header = header.SetHeader("lang", language)
 	toBytes, err := header.ToBytes()
 	return toBytes, err
 }

@@ -54,7 +54,7 @@ func (i FriendRequest) UpdateFriendRequest(ctx context.Context, friendRequest *m
 		ToFaceURL:     friendRequest.ToFaceURL,
 		HandleResult:  friendRequest.HandleResult,
 		ReqMsg:        friendRequest.ReqMsg,
-		CreateTime:    friendRequest.CreateAt,
+		CreateAt:      friendRequest.CreateAt,
 		HandlerUserID: friendRequest.HandlerUserID,
 		HandleMsg:     friendRequest.HandleMsg,
 		HandleTime:    friendRequest.HandleTime,

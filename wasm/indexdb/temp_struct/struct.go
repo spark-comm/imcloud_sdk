@@ -124,7 +124,7 @@ type LocalFriendRequest struct {
 	ToFaceURL     string `json:"toFaceURL,omitempty"`
 	HandleResult  int32  `json:"handleResult,omitempty"`
 	ReqMsg        string `json:"reqMsg,omitempty"`
-	CreateTime    int64  `json:"createTime,omitempty"`
+	CreateAt      int64  `json:"createAt,omitempty"`
 	HandlerUserID string `json:"handlerUserID,omitempty"`
 	HandleMsg     string `json:"handleMsg,omitempty"`
 	HandleTime    int64  `json:"handleTime,omitempty"`

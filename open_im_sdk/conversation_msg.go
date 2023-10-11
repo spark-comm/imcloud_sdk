@@ -181,14 +181,15 @@ func GetConversationIDBySessionType(operationID string, sourceID string, session
 }
 
 // SendMessage 发送消息
-func SendMessage(callback open_im_sdk_callback.SendMsgCallBack, operationID, message, recvID, groupID, offlinePushInfo string) {
+func SendMessage(callback open_im_sdk_callback.SendMsgCallBack, operationID, message, recvID, groupID, offlinePushInfo string, isCustomerService bool) {
 	messageCall(callback,
 		operationID,
 		UserForSDK.Conversation().SendMessage,
 		message,
 		recvID,
 		groupID,
-		offlinePushInfo)
+		offlinePushInfo,
+		isCustomerService)
 }
 
 // SendMessageNotOss 发送消息不走sdk

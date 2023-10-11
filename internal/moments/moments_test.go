@@ -148,9 +148,6 @@ func TestGetMomentsList(t *testing.T) {
 		Size:   20,
 	})
 	if err != nil {
-		return
-	}
-	if err != nil {
 		t.Fatal(err)
 	}
 

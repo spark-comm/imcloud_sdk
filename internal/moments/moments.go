@@ -27,7 +27,7 @@ import (
 )
 
 const (
-	MAX_SIZE = 50
+	MAX_SIZE = 100
 )
 
 type Moments struct {
@@ -36,6 +36,13 @@ type Moments struct {
 	db          db_interface.DataBase
 	//momentsSyncer         *syncer.Syncer[*model_struct.LocalMoments, string]
 	//momentsCommentsSyncer *syncer.Syncer[*model_struct.LocalMomentsComments, [2]string]
+}
+
+func NewMoments(loginUserID string, db db_interface.DataBase) *Moments {
+	return &Moments{
+		loginUserID: loginUserID,
+		db:          db,
+	}
 }
 
 //func (m *Moments) initSyncer() {
@@ -55,12 +62,12 @@ type Moments struct {
 //      ctx ： desc
 // 返回值：
 func (m *Moments) SyncNewMomentsFromSvr(ctx context.Context) error {
+	// 获取本地最新时间戳
 	timestamps, err := m.db.GetMomentTimestamps(ctx, db.MomentsFindTimestampsTypeLast)
 	if err != nil {
 		return err
 	}
 
-	// 获取本地最新时间戳
 	var currentTimestamps int64
 	var needSync []*model_struct.LocalMoments
 	// 获取本地最新时间戳

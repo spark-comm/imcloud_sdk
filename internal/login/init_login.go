@@ -25,6 +25,7 @@ import (
 	"open_im_sdk/internal/full"
 	"open_im_sdk/internal/group"
 	"open_im_sdk/internal/interaction"
+	"open_im_sdk/internal/moments"
 	"open_im_sdk/internal/third"
 	"open_im_sdk/internal/user"
 	"open_im_sdk/open_im_sdk_callback"
@@ -59,6 +60,7 @@ type LoginMgr struct {
 	user         *user.User
 	file         *file.File
 	business     *business.Business
+	moments      *moments.Moments
 
 	full         *full.Full
 	db           db_interface.DataBase
@@ -154,6 +156,10 @@ func (u *LoginMgr) Group() *group.Group {
 
 func (u *LoginMgr) Friend() *friend.Friend {
 	return u.friend
+}
+
+func (u *LoginMgr) Moments() *moments.Moments {
+	return u.moments
 }
 
 func (u *LoginMgr) SetConversationListener(conversationListener open_im_sdk_callback.OnConversationListener) {
@@ -296,8 +302,10 @@ func (u *LoginMgr) login(ctx context.Context, userID, token string) error {
 	if u.businessListener != nil {
 		u.business.SetListener(u.businessListener)
 	}
-	//上传
+	// 上传
 	u.push = third.NewPush(u.info.PlatformID, u.loginUserID)
+	// 朋友圈
+	u.moments = moments.NewMoments(u.loginUserID, u.db)
 	log.ZDebug(ctx, "forcedSynchronization success...", "login cost time: ", time.Since(t1))
 
 	u.longConnMgr.Run(ctx)
@@ -342,6 +350,15 @@ func (u *LoginMgr) login(ctx context.Context, userID, token string) error {
 
 	go u.logoutListener(ctx)
 	u.setLoginStatus(Logged)
+
+	// 考虑到单次同步有可能未完成，每次登录检测下是否还有历史消息，异步同步历史朋友圈
+	go func() {
+		err := u.moments.SyncHistoryMomentsFromSvr(ctx)
+		if err != nil {
+			log.ZInfo(ctx, "sync history moments error", err)
+		}
+	}()
+
 	log.ZInfo(ctx, "login success...", "login cost time: ", time.Since(t1))
 	//_ = common.TriggerCmdLogOut(ctx, u.loginMgrCh)
 	return nil

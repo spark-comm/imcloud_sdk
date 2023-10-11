@@ -163,6 +163,15 @@ func (m *Moments) UnLike(ctx context.Context, params *sdk_params_callback.Unlike
 // 返回值：
 func (m *Moments) GetMomentsList(ctx context.Context, params *sdk_params_callback.V2ListRequest) ([]*sdk_params_callback.V2ListReply, error) {
 
+	// 如果是第一页，先同步最新消息
+	if params.Page <= 1 {
+		err := m.SyncNewMomentsFromSvr(ctx)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	// 从数据库获取朋友圈
 	list, err := m.db.GetMomentsList(ctx, int(params.Page), int(params.Size), params.IsSelf, m.loginUserID)
 	if err != nil {
 		return nil, err

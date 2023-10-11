@@ -17,7 +17,6 @@ package friend
 import (
 	"context"
 	"errors"
-	"fmt"
 	commonPb "github.com/imCloud/api/common"
 	friendPb "github.com/imCloud/api/friend/v1"
 	"github.com/imCloud/im/pkg/common/log"
@@ -39,16 +38,12 @@ func (f *Friend) SyncSelfFriendApplication(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	log.ZInfo(ctx, "获取远程数据为1111：%+v", err)
 	localData, err := f.db.GetSendFriendApplication(ctx)
 	if err != nil {
-		log.ZInfo(ctx, "获取本地数据失败111111")
 		return err
 	}
-	log.ZInfo(ctx, "获取本地数据为111111：%+v", err)
 	err = f.requestSendSyncer.Sync(ctx, util.Batch(ServerFriendRequestToLocalFriendRequest, requests), localData, nil)
 	if err != nil {
-		log.ZInfo(ctx, "同步自己发送的好友请求数据失败11111：%+v", err)
 		return err
 	}
 	return nil
@@ -63,16 +58,12 @@ func (f *Friend) SyncFriendApplication(ctx context.Context) error {
 	resp := &friendPb.GetPaginationFriendsApplyReceiveResp{}
 	requests, err := util.GetPageAll(ctx, constant.GetSelfFriendReceiveApplicationListRouter, req, resp, fn)
 	if err != nil {
-		log.ZInfo(ctx, fmt.Sprintf("获取远程数据集失败：%+v", err))
 		return err
 	}
-	log.ZInfo(ctx, fmt.Sprintf("获取远程数据集为：%+v", requests))
 	localData, err := f.db.GetRecvFriendApplication(ctx)
 	if err != nil {
-		log.ZInfo(ctx, fmt.Sprintf("获取本地数据集失败：%+v", err))
 		return err
 	}
-	log.ZInfo(ctx, fmt.Sprintf("获取本地数据集为：%+v", localData))
 	return f.requestRecvSyncer.Sync(ctx, util.Batch(ServerFriendRequestToLocalFriendRequest, requests), localData, nil)
 }
 
@@ -170,11 +161,8 @@ func (f *Friend) syncFriendApplicationById(ctx context.Context, fromUserID, toUs
 	if err != nil {
 		return err
 	}
-	if err != nil {
-		return err
-	}
 	if res.FriendRequest == nil {
-		log.ZDebug(ctx, "SyncFriendApplicationById res friend request nill")
+		log.ZDebug(ctx, "SyncFriendApplicationById res friend request nil")
 		return nil
 	}
 	localData, err := f.db.GetFriendApplicationByBothID(ctx, fromUserID, toUserID)
@@ -184,7 +172,17 @@ func (f *Friend) syncFriendApplicationById(ctx context.Context, fromUserID, toUs
 	} else {
 		localList = append(localList, localData)
 	}
-	return f.requestSendSyncer.Sync(ctx, util.Batch(ServerFriendRequestToLocalFriendRequest, []*friendPb.FriendRequests{res.FriendRequest}), localList, nil)
+	if err = f.requestSendSyncer.Sync(ctx, util.Batch(ServerFriendRequestToLocalFriendRequest,
+		[]*friendPb.FriendRequests{res.FriendRequest}), localList, nil); err != nil {
+		return err
+	}
+	//log.ZInfo(ctx, "开始根据id同步好友请求")
+	//if err = f.requestRecvSyncer.Sync(ctx, util.Batch(ServerFriendRequestToLocalFriendRequest,
+	//	[]*friendPb.FriendRequests{res.FriendRequest}), localList, nil); err != nil {
+	//	log.ZInfo(ctx, fmt.Sprintf("开始根据id同步好友请求失败,err:%+v", err))
+	//	return err
+	//}
+	return nil
 }
 
 // syncFriendById 根据id同步好友

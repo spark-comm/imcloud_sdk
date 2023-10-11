@@ -23,7 +23,6 @@ import (
 	"github.com/imCloud/api/common"
 	"net/http"
 	"open_im_sdk/pkg/ccontext"
-	"open_im_sdk/pkg/log"
 	"open_im_sdk/pkg/network"
 	"open_im_sdk/pkg/sdkerrs"
 	"reflect"
@@ -122,8 +121,9 @@ func ProtoApiPost[T any, R any](ctx context.Context, url string, data *T) (*R, e
 	if err != nil {
 		return nil, sdkerrs.ErrArgs.Wrap("marshal args err")
 	}
-	reqUrl := ccontext.Info(ctx).ApiAddr() + url
-	content, err := network.PostWithTimeOutByte(reqUrl, marshal, ccontext.Info(ctx).Token(), time.Second*300)
+	contextInfo := ccontext.Info(ctx)
+	reqUrl := contextInfo.ApiAddr() + url
+	content, err := network.PostWithTimeOutByte(reqUrl, marshal, contextInfo.Token(), contextInfo.Language(), time.Second*300)
 	if err != nil {
 		return nil, sdkerrs.ErrSdkInternal.Wrap("json.Marshal(req) failed " + err.Error())
 	}
@@ -171,13 +171,14 @@ func CallPostApi[R, T proto.Message](ctx context.Context, api string, req R, res
 // CallPostProtoApi
 // 使用proto格式的数据传输
 func CallPostProtoApi[T proto.Message, R proto.Message](ctx context.Context, url string, req T, resp R) error {
-	log.Error("", fmt.Sprintf("请求接口地址:%s", url))
+	//log.Error("", fmt.Sprintf("请求接口地址:%s", url))
 	marshal, err := proto.Marshal(req)
 	if err != nil {
 		return sdkerrs.ErrArgs.Wrap("marshal args err")
 	}
-	reqUrl := ccontext.Info(ctx).ApiAddr() + url
-	content, err := network.PostWithTimeOutByte(reqUrl, marshal, ccontext.Info(ctx).Token(), time.Second*300)
+	contextInfo := ccontext.Info(ctx)
+	reqUrl := contextInfo.ApiAddr() + url
+	content, err := network.PostWithTimeOutByte(reqUrl, marshal, contextInfo.Token(), contextInfo.Language(), time.Second*300)
 	if err != nil {
 		return sdkerrs.ErrSdkInternal.Wrap("call api  failed " + err.Error())
 	}

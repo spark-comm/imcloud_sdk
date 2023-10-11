@@ -37,6 +37,9 @@ func SetHeartbeatInterval(heartbeatInterval int) {
 	constant.HeartbeatInterval = heartbeatInterval
 }
 
+// InitSDK 初始化sdk
+// config
+// language -》en:英文:zh:简体中文；zh-Hant:繁体中文
 func InitSDK(listener open_im_sdk_callback.OnConnListener, operationID string, config string) bool {
 	if UserForSDK != nil {
 		fmt.Println(operationID, "Initialize multiple times, use the existing ", UserForSDK, " Previous configuration ", UserForSDK.ImConfig(), " now configuration: ", config)
@@ -101,4 +104,11 @@ func GetLoginUserID() string {
 		return ""
 	}
 	return UserForSDK.GetLoginUserID()
+}
+
+// SetLanguage 设置语言
+// operationID string 操作id
+// language  string en:英文:zh:简体中文；zh-Hant:繁体中文
+func SetLanguage(callback open_im_sdk_callback.Base, operationID, language string) {
+	call(callback, operationID, UserForSDK.SetLanguage, language)
 }

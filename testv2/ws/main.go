@@ -46,7 +46,7 @@ const (
 	//APIADDR = "http://0.0.0.0:9099"
 	//WSADDR  = "ws://0.0.0.0:10001"
 	UserID = "55122331994951680"
-	token  = "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJpbUNsb3VkIiwic3ViIjoie1widXNlcklkXCI6XCI1NTEyMjMzMTk5NDk1MTY4MFwiLFwicGxhdGZvcm1cIjpcIklPU1wiLFwicm9sZVwiOlwiVVNFUlwifSIsImV4cCI6MTY5NjA3NDM0NSwibmJmIjoxNjk1NzE0MzQ1LCJpYXQiOjE2OTU3MTQzNDV9.4khO81UwFgN4rOX11N3Iy5mi7VT90hBFXW0f2CTqtJd-qjCrLnHtkTlzeTOQaoYUuWUL9BdcjcgQdcoJ2_Gnqg"
+	token  = "yJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJpbUNsb3VkIiwic3ViIjoie1widXNlcklkXCI6XCI1NTEyMjMzMTk5NDk1MTY4MFwiLFwicGxhdGZvcm1cIjpcIklPU1wiLFwicm9sZVwiOlwiVVNFUlwifSIsImV4cCI6MTY5NzI5MTk3NSwibmJmIjoxNjk2OTMxOTc1LCJpYXQiOjE2OTY5MzE5NzV9.hdfmg6nOvzh99uzxILsc7DsLK2NHAlktKzmV3_gHVgsuFrW0Mjuz7K_vv3rmHPmL9Fi-c5Sqp13ewyWtxQ5Btg"
 )
 
 func getConf(APIADDR, WSADDR string) sdk_struct.IMConfig {
@@ -59,5 +59,6 @@ func getConf(APIADDR, WSADDR string) sdk_struct.IMConfig {
 	cf.PlatformID = 1
 	cf.LogFilePath = ""
 	cf.IsLogStandardOutput = true
+	cf.Language = "en"
 	return cf
 }

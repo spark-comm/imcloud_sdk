@@ -42,6 +42,7 @@ type ContextInfo interface {
 	LogLevel() uint32
 	OperationID() string
 	IsExternalExtensions() bool
+	Language() string
 }
 
 func Info(ctx context.Context) ContextInfo {
@@ -104,4 +105,7 @@ func (i *info) OperationID() string {
 
 func (i *info) IsExternalExtensions() bool {
 	return i.conf.IsExternalExtensions
+}
+func (i *info) Language() string {
+	return i.conf.Language
 }

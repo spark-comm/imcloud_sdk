@@ -106,6 +106,7 @@ const (
 	SetGroupMemberInfoRouter          = BaseRouter + RouterGroup + "/set_group_member_info"
 	GetGroupAbstractInfoRouter        = BaseRouter + RouterGroup + "/get_group_abstract_info"
 	SearchGroupInfoRouter             = BaseRouter + RouterGroup + "/search_group_info"
+	SearchGroupByCodeRouter           = BaseRouter + RouterGroup + "/search_group_by_code"
 	GetJoinGroupRequestDetailRouter   = BaseRouter + RouterGroup + "/get_join_group_request_detail"
 	GetUserOwnerJoinRequestNumRouter  = BaseRouter + RouterGroup + "/get_user_owner_join_request_num"
 	// GetGroupMemberByIdsRouter 根据群成员id获取群信息

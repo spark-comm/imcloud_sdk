@@ -177,3 +177,10 @@ func GetAppointGroupRequestInfo(callback open_im_sdk_callback.Base, operationID,
 func SearchGroupInfo(callback open_im_sdk_callback.Base, operationID, keyWord string, pageSize, pageNum int64) {
 	call(callback, operationID, UserForSDK.Group().SearchGroupInfo, keyWord, pageSize, pageNum)
 }
+
+// SearchGroupByCode 根据code搜索群信息
+// operationID string  操作id
+// code        string  群code
+func SearchGroupByCode(callback open_im_sdk_callback.Base, operationID, code string) {
+	call(callback, operationID, UserForSDK.Group().SearchGroupByCode, code)
+}

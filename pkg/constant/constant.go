@@ -176,6 +176,7 @@ const (
 	IsOfflinePush              = "offlinePush"
 	IsSenderSync               = "senderSync"
 	IsNotPrivate               = "notPrivate"
+	IsCustomerService          = "CustomerService"
 	IsSenderConversationUpdate = "senderConversationUpdate"
 
 	//GroupStatus

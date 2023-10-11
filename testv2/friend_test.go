@@ -89,11 +89,11 @@ func Test_RefuseFriendApplication(t *testing.T) {
 }
 
 func Test_CheckFriend(t *testing.T) {
-	err2 := open_im_sdk.UserForSDK.Friend().DelLocalFriend(ctx, "55122332112392192")
-	if err2 != nil {
-		t.Fatal(err2)
-	}
-	res, err := open_im_sdk.UserForSDK.Friend().CheckFriend(ctx, []string{"55122332112392192"})
+	//err2 := open_im_sdk.UserForSDK.Friend().DelLocalFriend(ctx, "55122332112392192")
+	//if err2 != nil {
+	//	t.Fatal(err2)
+	//}
+	res, err := open_im_sdk.UserForSDK.Friend().CheckFriend(ctx, []string{"70162054769545216"})
 	if err != nil {
 		t.Fatal(err)
 	}

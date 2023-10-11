@@ -1,5 +1,7 @@
 package sdk_params_callback
 
+import "open_im_sdk/pkg/db/model_struct"
+
 // PublishRequest ， 发布朋友圈请求参数
 type PublishRequest struct {
 	UserName  string   `json:"userName,required"` // 用户名称
@@ -46,4 +48,11 @@ type V2ListRequest struct {
 	IsSelf bool  `json:"isSelf"`        // 是否为仅查询该用户自己发的
 	Page   int32 `json:"page,required"` // 页数
 	Size   int32 `json:"size,required"` // 每页大小
+}
+
+// V2ListReply ， 朋友圈列表返回参数
+type V2ListReply struct {
+	model_struct.LocalMoments
+	Images   []string                             `json:"images"`
+	Comments []*model_struct.LocalMomentsComments `json:"comments"`
 }

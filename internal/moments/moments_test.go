@@ -5,6 +5,7 @@ import (
 	"open_im_sdk/pkg/ccontext"
 	"open_im_sdk/pkg/db"
 	"open_im_sdk/pkg/db/db_interface"
+	"open_im_sdk/pkg/sdk_params_callback"
 	"testing"
 )
 
@@ -67,4 +68,91 @@ func TestSyncHistoryMomentsFromSvr(t *testing.T) {
 	}
 
 	t.Log("success")
+}
+
+func TestPublishMoments(t *testing.T) {
+	err := moments.Publish(getCtx(), &sdk_params_callback.PublishRequest{
+		UserName:  "asfasd",
+		Avatar:    "https://dasfa.com/a.png",
+		Content:   "测认识",
+		Images:    []string{"dafafa", "111"},
+		VideoUrl:  "https://v.png",
+		VideoImg:  "https://ii.png",
+		Location:  "afdsfas",
+		Longitude: 1.11,
+		Latitude:  2.22,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	t.Log("success")
+}
+
+func TestDeleteMoments(t *testing.T) {
+	err := moments.Delete(getCtx(), &sdk_params_callback.DeleteRequest{
+		MomentId: "29685941538816",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	t.Log("success")
+}
+
+func TestCommentMoments(t *testing.T) {
+	err := moments.Comment(getCtx(), &sdk_params_callback.CommentRequest{
+		MomentId:       "31723265986560",
+		Type:           1,
+		Avatar:         "dsafda",
+		Nickname:       "sdfadfa",
+		Content:        "afasdfas",
+		SourceUserId:   "11111",
+		SourceAvatar:   "1111",
+		SourceNickname: "11111",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	t.Log("success")
+}
+
+func TestLikeMoments(t *testing.T) {
+	err := moments.Like(getCtx(), &sdk_params_callback.LikeRequest{
+		MomentId:     "31723265986560",
+		UserNickname: "dasfads",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	t.Log("success")
+}
+
+func TestUnLikeMoments(t *testing.T) {
+	err := moments.UnLike(getCtx(), &sdk_params_callback.UnlikeRequest{
+		MomentId: "31723265986560",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	t.Log("success")
+}
+
+func TestGetMomentsList(t *testing.T) {
+	list, err := moments.GetMomentsList(getCtx(), &sdk_params_callback.V2ListRequest{
+		IsSelf: false,
+		Page:   1,
+		Size:   20,
+	})
+	if err != nil {
+		return
+	}
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	t.Log("success", list)
 }

@@ -291,14 +291,16 @@ type MomentsDatabase interface {
 	InsertMoments(ctx context.Context, moments *model_struct.LocalMoments) error
 	InsertBatchMoments(ctx context.Context, moments []*model_struct.LocalMoments) error
 	DeleteMoments(ctx context.Context, momentId string) error
-	UpdateMoments(ctx context.Context, moments *model_struct.LocalMoments) error
+	UpdateMoments(ctx context.Context, momentId string, moments interface{}) error
 	GetMoments(ctx context.Context, momentId string) (*model_struct.LocalMoments, error)
 	GetMomentTimestamps(ctx context.Context, t int) (int64, error) // 获取最后/最前同步同步时间戳（created_at） 0 最后 1 最前
+	GetMomentsList(ctx context.Context, page, size int, isSelf bool, userId string) ([]*model_struct.LocalMoments, error)
 }
 
 // MomentsCommentsDatabase ， 朋友圈评论
 type MomentsCommentsDatabase interface {
 	InsertMomentsComments(ctx context.Context, moments *model_struct.LocalMomentsComments) error
+	InsertBatchMomentsComments(ctx context.Context, comments []*model_struct.LocalMomentsComments) error
 	DeleteMomentsComments(ctx context.Context, commentId string) error
 	UpdateMomentsComments(ctx context.Context, moments *model_struct.LocalMomentsComments) error
 	GetMomentsComments(ctx context.Context, momentId string) ([]*model_struct.LocalMomentsComments, error)

@@ -15,7 +15,8 @@
 package constant
 
 const (
-	BaseRouter = "/api/app/v1"
+	BaseRouter   = "/api/app/v1"
+	BaseRouterV2 = "/api/app/v2"
 )
 const (
 	GetSelfUserInfoRouter         = BaseRouter + "/user/get_self_user_info"
@@ -148,7 +149,7 @@ const (
 	RouterSuperGroup   = "/super_group"
 	RouterMsg          = "/msg"
 	RouterThird        = "/third"
-	Moments            = "/proto/moments"
+	Moments            = "/moments"
 )
 const (
 	ObjectPartLimit               = BaseRouter + "/third/part_limit"
@@ -160,5 +161,10 @@ const (
 )
 
 const (
-	V2ListMomentsRouter = BaseRouter + Moments + "/v2_list"
+	V2ListMomentsRouter    = BaseRouterV2 + Moments + "/list"
+	V2PublishMomentsRouter = BaseRouterV2 + Moments + "/publish"
+	V2CommentMomentsRouter = BaseRouterV2 + Moments + "/comment"
+	V2DeleteMomentsRouter  = BaseRouterV2 + Moments + "/delete"
+	V2LikeMomentsRouter    = BaseRouterV2 + Moments + "/like"
+	V2UnlikeMomentsRouter  = BaseRouterV2 + Moments + "/unlike"
 )

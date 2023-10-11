@@ -22,6 +22,24 @@ func (d *DataBase) InsertMomentsComments(ctx context.Context, moments *model_str
 	return utils.Wrap(d.conn.WithContext(ctx).Create(moments).Error, "Insert LocalMomentsComments failed")
 }
 
+// InsertBatchMomentsComments ， 批量插入评论
+// 参数：
+//      ctx ： desc
+//      comments ： desc
+// 返回值：
+//      error ：desc
+func (d *DataBase) InsertBatchMomentsComments(ctx context.Context, comments []*model_struct.LocalMomentsComments) error {
+	//TODO implement me
+	d.momentsMtx.Lock()
+	defer d.momentsMtx.Unlock()
+
+	if len(comments) <= 0 {
+		return nil
+	}
+
+	return utils.Wrap(d.conn.WithContext(ctx).Create(comments).Error, "Insert BatchMomentsComments failed")
+}
+
 // DeleteMomentsComments ， 删除朋友圈评论
 // 参数：
 //      ctx ： desc
@@ -72,7 +90,7 @@ func (d *DataBase) GetMomentsComments(ctx context.Context, momentId string) ([]*
 		Where("moment_id = ?", momentId).
 		Where("deleted_at = 0").
 		Order("created_at asc"). // 按时间顺序排列
-		Find(res)
+		Find(&res)
 	if err := t.Error; err != nil {
 		return nil, utils.Wrap(t.Error, "")
 	}
@@ -104,6 +122,10 @@ func (d *DataBase) InsertBatchMoments(ctx context.Context, moments []*model_stru
 	d.momentsMtx.Lock()
 	defer d.momentsMtx.Unlock()
 
+	if len(moments) <= 0 {
+		return nil
+	}
+
 	return utils.Wrap(d.conn.WithContext(ctx).Create(moments).Error, "Insert LocalMoments failed")
 }
 
@@ -122,18 +144,23 @@ func (d *DataBase) DeleteMoments(ctx context.Context, momentId string) error {
 	return utils.Wrap(d.conn.WithContext(ctx).Delete(&local).Error, "Delete LocalMoments failed")
 }
 
+const (
+	MomentsIsLike = 1 // 已点赞
+	MomentsUnLike = 2 // 未点赞
+)
+
 // UpdateMoments ， 更新朋友圈
 // 参数：
 //      ctx ： desc
 //      moments ： desc
 // 返回值：
 //      error ：desc
-func (d *DataBase) UpdateMoments(ctx context.Context, moments *model_struct.LocalMoments) error {
+func (d *DataBase) UpdateMoments(ctx context.Context, momentId string, moments interface{}) error {
 	//TODO implement me
 	d.momentsCommentsMtx.Lock()
 	defer d.momentsCommentsMtx.Unlock()
 
-	t := d.conn.WithContext(ctx).Model(&model_struct.LocalMoments{}).Updates(moments)
+	t := d.conn.WithContext(ctx).Model(&model_struct.LocalMoments{}).Where("moment_id = ?", momentId).Updates(moments)
 	if t.RowsAffected == 0 {
 		return utils.Wrap(errors.New("RowsAffected == 0"), "no update")
 	}
@@ -164,7 +191,7 @@ func (d *DataBase) GetMoments(ctx context.Context, momentId string) (*model_stru
 	return res, nil
 }
 
-func (d *DataBase) GetMomentsList(ctx context.Context, page, size int, isSelf bool) ([]*model_struct.LocalMoments, error) {
+func (d *DataBase) GetMomentsList(ctx context.Context, page, size int, isSelf bool, userId string) ([]*model_struct.LocalMoments, error) {
 	d.momentsCommentsMtx.Lock()
 	defer d.momentsCommentsMtx.Unlock()
 
@@ -178,6 +205,10 @@ func (d *DataBase) GetMomentsList(ctx context.Context, page, size int, isSelf bo
 		t.Limit(size).Offset((page - 1) * size)
 	}
 
+	if isSelf {
+		t.Where("userId = ?", userId)
+	}
+
 	if err := t.Find(&res).Error; err != nil {
 		return nil, utils.Wrap(t.Error, "")
 	}
@@ -185,8 +216,8 @@ func (d *DataBase) GetMomentsList(ctx context.Context, page, size int, isSelf bo
 }
 
 const (
-	MOMENTS_FIND_TIMESTAMPS_TYPE_FIRST = 0
-	MOMENTS_FIND_TIMESTAMPS_TYPE_LAST  = 1
+	MomentsFindTimestampsTypeFirst = 0
+	MomentsFindTimestampsTypeLast  = 1
 )
 
 func (d *DataBase) GetMomentTimestamps(ctx context.Context, t int) (int64, error) { // 获取最后/最前同步同步时间戳（created_at） 0 最后 1 最前
@@ -199,7 +230,7 @@ func (d *DataBase) GetMomentTimestamps(ctx context.Context, t int) (int64, error
 		Where("deleted_at = 0").
 		Limit(1)
 
-	if t == MOMENTS_FIND_TIMESTAMPS_TYPE_FIRST {
+	if t == MomentsFindTimestampsTypeFirst {
 		tx.Order("created_at asc") // 按时间顺序排列
 	} else {
 		tx.Order("created_at desc") // 按时间顺序排列

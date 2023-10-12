@@ -17,6 +17,7 @@ package group
 import (
 	"context"
 	"github.com/golang/protobuf/ptypes/empty"
+	"github.com/imCloud/im/pkg/errs"
 	"open_im_sdk/internal/util"
 	"open_im_sdk/pkg/common"
 	"open_im_sdk/pkg/constant"
@@ -815,6 +816,25 @@ func (g *Group) SearchGroupInfo(ctx context.Context, keyWord string, pageSize, p
 		return groupv1.SearchGroupInfoResp{}, err
 	}
 	return *resp, nil
+}
+
+// SearchGroupByCode 根据code搜素群
+func (g *Group) SearchGroupByCode(ctx context.Context, code string) (*groupv1.GroupInfo, error) {
+	resp, err := util.ProtoApiPost[groupv1.GetGroupByCodeReq, groupv1.GetGroupByCodeReply](
+		ctx,
+		constant.SearchGroupByCodeRouter,
+		&groupv1.GetGroupByCodeReq{
+			UserID: g.loginUserID,
+			Code:   code,
+		},
+	)
+	if err != nil {
+		if code, ok := err.(errs.CodeError); ok {
+			return nil, sdkerrs.New(code.Code(), code.Reson(), code.Detail(), code.Reson())
+		}
+		return nil, err
+	}
+	return resp.Data, nil
 }
 
 // DelGroupConversation 删除群会话

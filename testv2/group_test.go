@@ -501,3 +501,11 @@ func Test_GetUserMemberInfoInGroup(t *testing.T) {
 	}
 	return
 }
+
+func Test_SearchGroupByCode(t *testing.T) {
+	groupInfo, err := open_im_sdk.UserForSDK.Group().SearchGroupByCode(ctx, "57p34d")
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log("SetFriendChatBackground success", groupInfo)
+}

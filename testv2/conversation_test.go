@@ -185,7 +185,7 @@ func Test_GetTotalUnreadMsgCount(t *testing.T) {
 func Test_SendMessage(t *testing.T) {
 	ctx = context.WithValue(ctx, "callback", TestSendMsg{})
 	msg, _ := open_im_sdk.UserForSDK.Conversation().CreateTextMessage(ctx, "textMsg")
-	_, err := open_im_sdk.UserForSDK.Conversation().SendMessage(ctx, msg, "", "463750003953664", nil)
+	_, err := open_im_sdk.UserForSDK.Conversation().SendMessage(ctx, msg, "", "463750003953664", nil, false)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -200,7 +200,7 @@ func Test_SendMessage1(t *testing.T) {
 			for i := 0; i < 2000; i++ {
 				ctx = context.WithValue(ctx, "callback", TestSendMsg{})
 				msg, _ := open_im_sdk.UserForSDK.Conversation().CreateTextMessage(ctx, fmt.Sprintf("textMsg_%d", i))
-				open_im_sdk.UserForSDK.Conversation().SendMessage(ctx, msg, userId, "", nil)
+				open_im_sdk.UserForSDK.Conversation().SendMessage(ctx, msg, userId, "", nil, false)
 				//if err != nil {
 				//	t.Fatal(err)
 				//}
@@ -382,7 +382,7 @@ func Test_SendImgMsg(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	res, err := open_im_sdk.UserForSDK.Conversation().SendMessage(ctx, msg, "49395156675203072", "", nil)
+	res, err := open_im_sdk.UserForSDK.Conversation().SendMessage(ctx, msg, "49395156675203072", "", nil, false)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -395,7 +395,7 @@ func Test_SendFileMsg(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	res, err := open_im_sdk.UserForSDK.Conversation().SendMessage(ctx, msg, "49395156675203072", "", nil)
+	res, err := open_im_sdk.UserForSDK.Conversation().SendMessage(ctx, msg, "49395156675203072", "", nil, false)
 	if err != nil {
 		t.Fatal(err)
 	}

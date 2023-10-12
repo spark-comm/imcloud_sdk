@@ -84,7 +84,7 @@ func (i *LocalSuperGroupChatLogs) SuperGroupUpdateMessage(ctx context.Context, c
 		Status:               c.Status,
 		Seq:                  c.Seq,
 		SendTime:             c.SendTime,
-		CreateTime:           c.CreateTime,
+		CreateAt:             c.CreateTime,
 		AttachedInfo:         c.AttachedInfo,
 		Ex:                   c.Ex,
 		IsReact:              c.IsReact,

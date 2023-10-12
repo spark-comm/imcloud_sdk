@@ -33,10 +33,13 @@ func NewLocalMoments() *LocalMoments {
 
 // InsertMomentsComments ， 插入朋友圈评论
 // 参数：
-//      ctx ： desc
-//      comment ： desc
+//
+//	ctx ： desc
+//	comment ： desc
+//
 // 返回值：
-//      error ：desc
+//
+//	error ：desc
 func (d *LocalMoments) InsertMomentsComments(ctx context.Context, comment *model_struct.LocalMomentsComments) error {
 	_, err := exec.Exec(utils.StructToJsonString(comment))
 	return err
@@ -44,10 +47,13 @@ func (d *LocalMoments) InsertMomentsComments(ctx context.Context, comment *model
 
 // InsertBatchMomentsComments ， 批量插入朋友圈评论
 // 参数：
-//      ctx ： desc
-//      comments ： desc
+//
+//	ctx ： desc
+//	comments ： desc
+//
 // 返回值：
-//      error ：desc
+//
+//	error ：desc
 func (d *LocalMoments) InsertBatchMomentsComments(ctx context.Context, comments []*model_struct.LocalMomentsComments) error {
 	_, err := exec.Exec(utils.StructToJsonString(comments))
 	return err
@@ -63,8 +69,9 @@ func (d *LocalMoments) InsertBatchMomentsComments(ctx context.Context, comments 
 //
 //	error ：desc
 func (d *LocalMoments) DeleteMomentsComments(ctx context.Context, commentId string) error {
-	_, err := exec.Exec(moments)
-	return err
+	//_, err := exec.Exec(moments)
+	//return err
+	return nil
 }
 
 // UpdateMomentsComments ， 更新朋友圈评论
@@ -91,7 +98,8 @@ func (d *LocalMoments) UpdateMomentsComments(ctx context.Context, moments *model
 //
 //	error ：desc
 func (d *LocalMoments) GetMomentsComments(ctx context.Context, momentId string) ([]*model_struct.LocalMomentsComments, error) {
-	return exec.Exec(momentId)
+	//return exec.Exec(momentId)
+	return []*model_struct.LocalMomentsComments{}, nil
 }
 
 // InsertMoments ， 插入朋友圈
@@ -110,10 +118,13 @@ func (d *LocalMoments) InsertMoments(ctx context.Context, moments *model_struct.
 
 // InsertBatchMoments ， 批量插入朋友圈
 // 参数：
-//      ctx ： desc
-//      moments ： desc
+//
+//	ctx ： desc
+//	moments ： desc
+//
 // 返回值：
-//      error ：desc
+//
+//	error ：desc
 func (d *LocalMoments) InsertBatchMoments(ctx context.Context, moments []*model_struct.LocalMoments) error {
 	_, err := exec.Exec(utils.StructToJsonString(moments))
 	return err
@@ -142,7 +153,7 @@ func (d *LocalMoments) DeleteMoments(ctx context.Context, momentId string) error
 // 返回值：
 //
 //	error ：desc
-func (d *LocalMoments) UpdateMoments(ctx context.Context, momentId string, moments *model_struct.LocalMoments) error {
+func (d *LocalMoments) UpdateMoments(ctx context.Context, momentId string, moments interface{}) error {
 	_, err := exec.Exec(momentId, utils.StructToJsonString(moments))
 	return err
 }
@@ -157,7 +168,8 @@ func (d *LocalMoments) UpdateMoments(ctx context.Context, momentId string, momen
 //
 //	error ：desc
 func (d *LocalMoments) GetMoments(ctx context.Context, momentId string) (*model_struct.LocalMoments, error) {
-	return exec.Exec(momentId)
+	//return exec.Exec(momentId)
+	return &model_struct.LocalMoments{}, nil
 }
 
 const (
@@ -167,26 +179,33 @@ const (
 
 // GetMomentTimestamps ， 获取时间戳
 // 参数：
-//      ctx ： desc
-//      t ： desc
+//
+//	ctx ： desc
+//	t ： desc
+//
 // 返回值：
-//      int64 ：desc
-//      error ：desc
+//
+//	int64 ：desc
+//	error ：desc
 func (d *LocalMoments) GetMomentTimestamps(ctx context.Context, t int) (int64, error) { // 获取最后/最前同步同步时间戳（created_at） 0 最后 1 最前
-	return exec.Exec(t)
+	//return exec.Exec(t)
+	return 0, nil
 }
 
 // GetMomentsList ， 获取朋友圈列表
 // 参数：
-//      ctx ： desc
-//      page ： desc
-//      size ： desc
-//      isSelf ： desc
-//      userId ： desc
+//
+//	ctx ： desc
+//	page ： desc
+//	size ： desc
+//	isSelf ： desc
+//	userId ： desc
+//
 // 返回值：
-//      []*model_struct.LocalMoments ：desc
-//      error ：desc
+//
+//	[]*model_struct.LocalMoments ：desc
+//	error ：desc
 func (d *LocalMoments) GetMomentsList(ctx context.Context, page, size int, isSelf bool, userId string) ([]*model_struct.LocalMoments, error) {
 	_, err := exec.Exec(page, size, isSelf, userId)
-	return err
+	return []*model_struct.LocalMoments{}, err
 }

@@ -412,6 +412,14 @@ func Test_SetGroupInfo(t *testing.T) {
 	time.Sleep(time.Second * 4)
 	t.Log("--------------------------")
 }
+
+func Test_SetGroupSwitchInfo(t *testing.T) {
+	open_im_sdk.SetGroupSwitchInfo(
+		&GroupCallback{},
+		utils.OperationIDGenerator(), "1189039579336704", "need_verification", 0)
+	time.Sleep(time.Second * 4)
+	t.Log("--------------------------")
+}
 func Test_KickGroupUserList(t *testing.T) {
 	info, err := open_im_sdk.UserForSDK.Group().KickGroupMemberList(
 		ctx, &sdk_params_callback.GetKickGroupListReq{

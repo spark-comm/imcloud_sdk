@@ -18,6 +18,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/imCloud/api/im/v1"
 	"github.com/imCloud/im/pkg/common/log"
 	"github.com/imCloud/im/pkg/proto/sdkws"
 	"open_im_sdk/pkg/constant"
@@ -51,7 +52,7 @@ func (g *Group) doNotification(ctx context.Context, msg *sdkws.MsgData) error {
 		return g.SyncAllGroupMember(ctx, detail.Group.GroupID)
 		//群信息变更通知
 	case constant.GroupInfoSetNotification: // 1502
-		var detail sdkws.GroupInfoSetTips
+		var detail v1.GroupInfoSetNotificationReq
 		if err := utils.UnmarshalNotificationElem(msg.Content, &detail); err != nil {
 			return err
 		}

@@ -3,7 +3,6 @@ package moments
 import (
 	"context"
 	"gorm.io/gorm"
-	"open_im_sdk/pkg/db"
 	"open_im_sdk/pkg/db/model_struct"
 	"open_im_sdk/pkg/sdk_params_callback"
 	"strings"
@@ -116,6 +115,11 @@ func (m *Moments) Comment(ctx context.Context, params *sdk_params_callback.Comme
 //      params ： desc
 // 返回值：
 //      error ：desc
+const (
+	MomentsIsLike = 1 // 已点赞
+	MomentsUnLike = 2 // 未点赞
+)
+
 func (m *Moments) Like(ctx context.Context, params *sdk_params_callback.LikeRequest) error {
 	// 点赞
 	if err := m.likeMoments2Svr(ctx, params); err != nil {
@@ -124,7 +128,7 @@ func (m *Moments) Like(ctx context.Context, params *sdk_params_callback.LikeRequ
 
 	// 同步本地
 	if err := m.db.UpdateMoments(ctx, params.MomentId, map[string]interface{}{
-		"is_like": db.MomentsIsLike,
+		"is_like": MomentsIsLike,
 		"likes":   gorm.Expr("likes + 1"),
 	}); err != nil {
 		return err
@@ -147,7 +151,7 @@ func (m *Moments) UnLike(ctx context.Context, params *sdk_params_callback.Unlike
 
 	// 同步本地
 	if err := m.db.UpdateMoments(ctx, params.MomentId, map[string]interface{}{
-		"is_like": db.MomentsUnLike,
+		"is_like": MomentsUnLike,
 		"likes":   gorm.Expr("likes - 1"),
 	}); err != nil {
 		return err

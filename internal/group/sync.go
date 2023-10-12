@@ -315,7 +315,12 @@ func (g *Group) GetDesignatedGroupMembers(ctx context.Context, groupID string, u
 
 // deleteGroupMembers 删除指定群成员
 func (g *Group) deleteGroupMembers(ctx context.Context, groupID string, memberId ...string) error {
-	if err := g.db.DeleteGroupMembers(ctx, groupID, memberId...); err != nil {
+	//if err := g.db.DeleteGroupMembers(ctx, groupID, memberId...); err != nil {
+	//	return err
+	//}
+	//同步群成员数据
+	if err := g.syncGroupMembers(ctx, groupID, memberId...); err != nil {
+		log.ZDebug(ctx, "syncGroupAndMembers->syncGroupMembers err", err)
 		return err
 	}
 	return nil

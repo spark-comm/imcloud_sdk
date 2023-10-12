@@ -51,7 +51,7 @@ func (l *LocalUsers) GetLoginUser(ctx context.Context, userID string) (*model_st
 			result.UserID = temp.UserID
 			result.Nickname = temp.Nickname
 			result.FaceURL = temp.FaceURL
-			result.CreateTime = temp.CreateTime
+			result.CreateTime = temp.CreateAt
 			result.AppMangerLevel = temp.AppMangerLevel
 			result.Ex = temp.Ex
 			result.AttachedInfo = temp.Ex
@@ -86,7 +86,7 @@ func (l *LocalUsers) InsertLoginUser(ctx context.Context, user *model_struct.Loc
 	temp.UserID = user.UserID
 	temp.Nickname = user.Nickname
 	temp.FaceURL = user.FaceURL
-	temp.CreateTime = user.CreateTime
+	temp.CreateAt = user.CreateTime
 	temp.AppMangerLevel = user.AppMangerLevel
 	temp.Ex = user.Ex
 	temp.AttachedInfo = user.Ex

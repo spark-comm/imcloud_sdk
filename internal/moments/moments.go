@@ -20,7 +20,6 @@ import (
 	"open_im_sdk/internal/util"
 	"open_im_sdk/open_im_sdk_callback"
 	"open_im_sdk/pkg/constant"
-	"open_im_sdk/pkg/db"
 	"open_im_sdk/pkg/db/db_interface"
 	"open_im_sdk/pkg/db/model_struct"
 	"open_im_sdk/pkg/sdk_params_callback"
@@ -59,11 +58,18 @@ func NewMoments(loginUserID string, db db_interface.DataBase) *Moments {
 
 // SyncNewMomentsFromSvr ， 从服务器同步新朋友圈
 // 参数：
-//      ctx ： desc
+//
+//	ctx ： desc
+//
 // 返回值：
+const (
+	MomentsFindTimestampsTypeFirst = 0
+	MomentsFindTimestampsTypeLast  = 1
+)
+
 func (m *Moments) SyncNewMomentsFromSvr(ctx context.Context) error {
 	// 获取本地最新时间戳
-	timestamps, err := m.db.GetMomentTimestamps(ctx, db.MomentsFindTimestampsTypeLast)
+	timestamps, err := m.db.GetMomentTimestamps(ctx, MomentsFindTimestampsTypeLast)
 	if err != nil {
 		return err
 	}
@@ -121,10 +127,12 @@ out:
 
 // SyncHistoryMomentsFromSvr ， 从服务器同步历史朋友圈
 // 参数：
-//      ctx ： desc
+//
+//	ctx ： desc
+//
 // 返回值：
 func (m *Moments) SyncHistoryMomentsFromSvr(ctx context.Context) error {
-	timestamps, err := m.db.GetMomentTimestamps(ctx, db.MomentsFindTimestampsTypeFirst)
+	timestamps, err := m.db.GetMomentTimestamps(ctx, MomentsFindTimestampsTypeFirst)
 	if err != nil {
 		return err
 	}
@@ -170,12 +178,15 @@ func (m *Moments) SyncHistoryMomentsFromSvr(ctx context.Context) error {
 
 // getMomentsFromSvr ， 从服务器获取朋友圈
 // 参数：
-//      ctx ： desc
-//      timestamps ： desc
+//
+//	ctx ： desc
+//	timestamps ： desc
+//
 // 返回值：
-//      []*momentsv1.ListItem ：desc
-//      int64 ：desc
-//      error ：desc
+//
+//	[]*momentsv1.ListItem ：desc
+//	int64 ：desc
+//	error ：desc
 func (m *Moments) getMomentsFromSvr(ctx context.Context, timestamps int64) ([]*momentsv1.ListItem, int64, error) {
 	resp := &momentsv1.V2ListReply{}
 	err := util.CallPostApi[*momentsv1.V2ListRequest, *momentsv1.V2ListReply](
@@ -196,11 +207,14 @@ func (m *Moments) getMomentsFromSvr(ctx context.Context, timestamps int64) ([]*m
 
 // publishMoments2Svr ， 发布朋友圈
 // 参数：
-//      ctx ： desc
-//      params ： desc
+//
+//	ctx ： desc
+//	params ： desc
+//
 // 返回值：
-//      *momentsv1.PublishReply ：desc
-//      error ：desc
+//
+//	*momentsv1.PublishReply ：desc
+//	error ：desc
 func (m *Moments) publishMoments2Svr(ctx context.Context, params *sdk_params_callback.PublishRequest) (*momentsv1.PublishReply, error) {
 	resp := &momentsv1.PublishReply{}
 	err := util.CallPostApi[*momentsv1.PublishRequest, *momentsv1.PublishReply](
@@ -226,11 +240,14 @@ func (m *Moments) publishMoments2Svr(ctx context.Context, params *sdk_params_cal
 
 // commentMoments2Svr ， 评论朋友圈
 // 参数：
-//      ctx ： desc
-//      params ： desc
+//
+//	ctx ： desc
+//	params ： desc
+//
 // 返回值：
-//      *momentsv1.CommentReply ：desc
-//      error ：desc
+//
+//	*momentsv1.CommentReply ：desc
+//	error ：desc
 func (m *Moments) commentMoments2Svr(ctx context.Context, params *sdk_params_callback.CommentRequest) (*momentsv1.CommentReply, error) {
 	resp := &momentsv1.CommentReply{}
 	err := util.CallPostApi[*momentsv1.CommentRequest, *momentsv1.CommentReply](
@@ -255,10 +272,13 @@ func (m *Moments) commentMoments2Svr(ctx context.Context, params *sdk_params_cal
 
 // deletedMoments2Svr ， 删除朋友圈
 // 参数：
-//      ctx ： desc
-//      params ： desc
+//
+//	ctx ： desc
+//	params ： desc
+//
 // 返回值：
-//      error ：desc
+//
+//	error ：desc
 func (m *Moments) deletedMoments2Svr(ctx context.Context, params *sdk_params_callback.DeleteRequest) error {
 	resp := &momentsv1.DeleteReply{}
 	err := util.CallPostApi[*momentsv1.DeleteRequest, *momentsv1.DeleteReply](
@@ -276,10 +296,13 @@ func (m *Moments) deletedMoments2Svr(ctx context.Context, params *sdk_params_cal
 
 // likeMoments2Svr ， 点赞朋友圈
 // 参数：
-//      ctx ： desc
-//      params ： desc
+//
+//	ctx ： desc
+//	params ： desc
+//
 // 返回值：
-//      error ：desc
+//
+//	error ：desc
 func (m *Moments) likeMoments2Svr(ctx context.Context, params *sdk_params_callback.LikeRequest) error {
 	resp := &momentsv1.LikeReply{}
 	err := util.CallPostApi[*momentsv1.LikeRequest, *momentsv1.LikeReply](
@@ -298,10 +321,13 @@ func (m *Moments) likeMoments2Svr(ctx context.Context, params *sdk_params_callba
 
 // unlikeMoments2Svr ， 取消点赞朋友圈
 // 参数：
-//      ctx ： desc
-//      params ： desc
+//
+//	ctx ： desc
+//	params ： desc
+//
 // 返回值：
-//      error ：desc
+//
+//	error ：desc
 func (m *Moments) unlikeMoments2Svr(ctx context.Context, params *sdk_params_callback.UnlikeRequest) error {
 	resp := &momentsv1.UnlikeReply{}
 	err := util.CallPostApi[*momentsv1.UnlikeRequest, *momentsv1.UnlikeReply](

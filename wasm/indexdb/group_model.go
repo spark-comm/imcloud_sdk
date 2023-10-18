@@ -156,7 +156,21 @@ func (i *LocalGroups) GetGroupMemberAllGroupIDs(ctx context.Context) (result []s
 	}
 }
 func (i *LocalGroups) GetGroupInfoByGroupIDs(ctx context.Context, groupID ...string) ([]*model_struct.LocalGroup, error) {
-	return nil, nil
+	c, err := exec.Exec(groupID)
+	if err != nil {
+		return nil, err
+	} else {
+		if v, ok := c.(string); ok {
+			result := make([]*model_struct.LocalGroup, 0)
+			err := utils.JsonStringToStruct(v, &result)
+			if err != nil {
+				return nil, err
+			}
+			return result, err
+		} else {
+			return nil, exec.ErrType
+		}
+	}
 }
 
 func (i *LocalGroups) GetOwnerGroupMemberInfo(ctx context.Context, userID string) ([]*model_struct.LocalGroupMember, error) {

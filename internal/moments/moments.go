@@ -16,11 +16,7 @@ package moments
 
 import (
 	"context"
-	"errors"
-	v1 "github.com/imCloud/api/im/v1"
 	momentsv1 "github.com/imCloud/api/moments/v1"
-	"github.com/imCloud/im/pkg/common/log"
-	"github.com/imCloud/im/pkg/proto/sdkws"
 	"open_im_sdk/internal/util"
 	"open_im_sdk/open_im_sdk_callback"
 	"open_im_sdk/pkg/common"
@@ -29,7 +25,6 @@ import (
 	"open_im_sdk/pkg/db/model_struct"
 	"open_im_sdk/pkg/sdk_params_callback"
 	"open_im_sdk/pkg/syncer"
-	"open_im_sdk/pkg/utils"
 )
 
 const (
@@ -380,31 +375,32 @@ func (m *Moments) unlikeMoments2Svr(ctx context.Context, params *sdk_params_call
 
 	return nil
 }
-func (m *Moments) DoNotification(ctx context.Context, msg *sdkws.MsgData) {
-	go func() {
-		if err := m.doNotification(ctx, msg); err != nil {
-			log.ZError(ctx, "DoGroupNotification failed", err)
-		}
-	}()
-}
 
-func (m *Moments) doNotification(ctx context.Context, msg *sdkws.MsgData) error {
-	if m.listener == nil {
-		return errors.New("listener is nil")
-	}
-	switch msg.ContentType {
-	case constant.MomentLikeChatNotification: // 1801 点赞
-		var detail v1.MomentsLikeNotificationReq
-		if err := utils.UnmarshalNotificationElem(msg.Content, &detail); err != nil {
-			return err
-		}
-		m.listener.OnMomentsLiked(utils.StructToJsonString(detail))
-	case constant.MomentCommentChatNotification: // 1802 评论
-		var detail v1.GroupInfoSetNotificationReq
-		if err := utils.UnmarshalNotificationElem(msg.Content, &detail); err != nil {
-			return err
-		}
-		m.listener.OnMomentsComment(utils.StructToJsonString(detail))
-	}
-	return nil
-}
+//func (m *Moments) DoNotification(ctx context.Context, msg *sdkws.MsgData) {
+//	go func() {
+//		if err := m.doNotification(ctx, msg); err != nil {
+//			log.ZError(ctx, "DoGroupNotification failed", err)
+//		}
+//	}()
+//}
+//
+//func (m *Moments) doNotification(ctx context.Context, msg *sdkws.MsgData) error {
+//	if m.listener == nil {
+//		return errors.New("listener is nil")
+//	}
+//	switch msg.ContentType {
+//	case constant.MomentLikeChatNotification: // 1801 点赞
+//		var detail v1.MomentsLikeNotificationReq
+//		if err := utils.UnmarshalNotificationElem(msg.Content, &detail); err != nil {
+//			return err
+//		}
+//		m.listener.OnMomentsLiked(utils.StructToJsonString(detail))
+//	case constant.MomentCommentChatNotification: // 1802 评论
+//		var detail v1.GroupInfoSetNotificationReq
+//		if err := utils.UnmarshalNotificationElem(msg.Content, &detail); err != nil {
+//			return err
+//		}
+//		m.listener.OnMomentsComment(utils.StructToJsonString(detail))
+//	}
+//	return nil
+//}

@@ -472,13 +472,13 @@ func (c *Conversation) doNotificationNew(c2v common.Cmd2Value) {
 				} else if v.ContentType > constant.SignalingNotificationBegin && v.ContentType < constant.SignalingNotificationEnd {
 					continue
 				}
-			case constant.NotificationChatType:
-				//圈子
-				if v.ContentType > constant.MomentStartNotification && v.ContentType < constant.MomentEndNotification {
-					c.moment.DoNotification(ctx, v)
-				} else {
-					continue
-				}
+				//case constant.NotificationChatType:
+				//	//圈子
+				//	if v.ContentType > constant.MomentStartNotification && v.ContentType < constant.MomentEndNotification {
+				//		c.moment.DoNotification(ctx, v)
+				//	} else {
+				//		continue
+				//	}
 			}
 		}
 	}

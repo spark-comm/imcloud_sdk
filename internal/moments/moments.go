@@ -16,13 +16,20 @@ package moments
 
 import (
 	"context"
+	"errors"
+	v1 "github.com/imCloud/api/im/v1"
 	momentsv1 "github.com/imCloud/api/moments/v1"
+	"github.com/imCloud/im/pkg/common/log"
+	"github.com/imCloud/im/pkg/proto/sdkws"
 	"open_im_sdk/internal/util"
 	"open_im_sdk/open_im_sdk_callback"
+	"open_im_sdk/pkg/common"
 	"open_im_sdk/pkg/constant"
 	"open_im_sdk/pkg/db/db_interface"
 	"open_im_sdk/pkg/db/model_struct"
 	"open_im_sdk/pkg/sdk_params_callback"
+	"open_im_sdk/pkg/syncer"
+	"open_im_sdk/pkg/utils"
 )
 
 const (
@@ -30,28 +37,59 @@ const (
 )
 
 type Moments struct {
-	listener    open_im_sdk_callback.OnMomentsListener // TODO: 待实现
-	loginUserID string
-	db          db_interface.DataBase
-	//momentsSyncer         *syncer.Syncer[*model_struct.LocalMoments, string]
-	//momentsCommentsSyncer *syncer.Syncer[*model_struct.LocalMomentsComments, [2]string]
+	listener              open_im_sdk_callback.OnMomentsListener // TODO: 待实现
+	loginUserID           string
+	db                    db_interface.DataBase
+	momentsSyncer         *syncer.Syncer[*model_struct.LocalMoments, string]
+	momentsCommentsSyncer *syncer.Syncer[*model_struct.LocalMomentsComments, [2]string]
+	conversationCh        chan common.Cmd2Value
 }
 
-func NewMoments(loginUserID string, db db_interface.DataBase) *Moments {
+func NewMoments(loginUserID string, db db_interface.DataBase, conversationCh chan common.Cmd2Value) *Moments {
 	return &Moments{
-		loginUserID: loginUserID,
-		db:          db,
+		loginUserID:    loginUserID,
+		db:             db,
+		conversationCh: conversationCh,
 	}
+}
+func (m *Moments) SetMomentListener(callback open_im_sdk_callback.OnMomentsListener) {
+	if callback == nil {
+		return
+	}
+	m.listener = callback
 }
 
 //func (m *Moments) initSyncer() {
-//	m.momentsSyncer = syncer.New(m.db.InsertMoments, func(ctx context.Context, value *model_struct.LocalMoments) error {
+//	m.momentsSyncer = syncer.New(func(ctx context.Context, value *model_struct.LocalMoments) error {
+//		return m.db.InsertMoments(ctx, value)
+//	}, func(ctx context.Context, value *model_struct.LocalMoments) error {
 //		return m.db.DeleteMoments(ctx, value.MomentId)
 //	}, func(ctx context.Context, server, local *model_struct.LocalMoments) error {
 //		return m.db.UpdateMoments(ctx, local.MomentId, server)
 //	}, func(value *model_struct.LocalMoments) string {
 //		return value.MomentId
 //	}, nil, func(ctx context.Context, state int, server, local *model_struct.LocalMoments) error {
+//		if m.listener == nil {
+//			return nil
+//		}
+//		switch state {
+//		case syncer.Insert:
+//			//m.listener.OnJoinedGroupAdded(utils.StructToJsonString(server))
+//			_ = common.TriggerCmdUpdateConversation(
+//				ctx,
+//				common.UpdateConNode{
+//					Action: constant.UpdateConFaceUrlAndNickName,
+//					Args: common.SourceIDAndSessionType{
+//						SourceID:    server.UserId,
+//						SessionType: constant.SuperGroupChatType,
+//						FaceURL:     server.Avatar,
+//						Nickname:    server.UserName}},
+//				m.conversationCh)
+//		case syncer.Delete:
+//			//m.listener.OnJoinedGroupDeleted(utils.StructToJsonString(local))
+//		case syncer.Update:
+//
+//		}
 //		return nil
 //	})
 //}
@@ -340,5 +378,33 @@ func (m *Moments) unlikeMoments2Svr(ctx context.Context, params *sdk_params_call
 		return err
 	}
 
+	return nil
+}
+func (m *Moments) DoNotification(ctx context.Context, msg *sdkws.MsgData) {
+	go func() {
+		if err := m.doNotification(ctx, msg); err != nil {
+			log.ZError(ctx, "DoGroupNotification failed", err)
+		}
+	}()
+}
+
+func (m *Moments) doNotification(ctx context.Context, msg *sdkws.MsgData) error {
+	if m.listener == nil {
+		return errors.New("listener is nil")
+	}
+	switch msg.ContentType {
+	case constant.MomentLikeChatNotification: // 1801 点赞
+		var detail v1.MomentsLikeNotificationReq
+		if err := utils.UnmarshalNotificationElem(msg.Content, &detail); err != nil {
+			return err
+		}
+		m.listener.OnMomentsLiked(utils.StructToJsonString(detail))
+	case constant.MomentCommentChatNotification: // 1802 评论
+		var detail v1.GroupInfoSetNotificationReq
+		if err := utils.UnmarshalNotificationElem(msg.Content, &detail); err != nil {
+			return err
+		}
+		m.listener.OnMomentsComment(utils.StructToJsonString(detail))
+	}
 	return nil
 }

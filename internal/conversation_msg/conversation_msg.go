@@ -26,6 +26,7 @@ import (
 	"open_im_sdk/internal/full"
 	"open_im_sdk/internal/group"
 	"open_im_sdk/internal/interaction"
+	"open_im_sdk/internal/moments"
 	"open_im_sdk/internal/user"
 	"open_im_sdk/open_im_sdk_callback"
 	"open_im_sdk/pkg/ccontext"
@@ -76,6 +77,7 @@ type Conversation struct {
 	loginTime            int64
 	ctxInfo              ccontext.ContextInfo
 	baseInfoSync         chan struct{}
+	moment               *moments.Moments
 }
 
 func (c *Conversation) SetListenerForService(listener open_im_sdk_callback.OnListenerForService) {

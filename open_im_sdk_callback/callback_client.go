@@ -142,7 +142,6 @@ type UploadFileCallback interface {
 
 // OnMomentsListener ， 暂未实现
 type OnMomentsListener interface {
-	// TODO: 可能需要处理的事件 1. 点赞、取消点赞 2. 公开、是否公开 3. 评论、删除评论 4. 新增、删除朋友圈
-	//Liked(id string)
-	//UnLiked(id string)
+	OnMomentsLiked(MomentsLikedCallback string)
+	OnMomentsComment(MomentCommentCallback string)
 }

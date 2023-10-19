@@ -128,6 +128,11 @@ const (
 	ConversationPrivateChatNotification = 1701
 	ConversationUnreadNotification      = 1702
 
+	MomentStartNotification       = 1800
+	MomentLikeChatNotification    = 1801
+	MomentCommentChatNotification = 1802
+	MomentEndNotification         = 1849
+
 	WorkMomentNotificationBegin = 1900
 	WorkMomentNotification      = 1901
 

@@ -27,6 +27,14 @@ func SetGroupListener(callback open_im_sdk_callback.OnGroupListener) {
 	UserForSDK.SetGroupListener(callback)
 }
 
+func SetMomentListener(callback open_im_sdk_callback.OnMomentsListener) {
+	if callback == nil || UserForSDK == nil {
+		log.Error("callback or UserForSDK is nil")
+		return
+	}
+	UserForSDK.SetMomentListener(callback)
+}
+
 func SetConversationListener(listener open_im_sdk_callback.OnConversationListener) {
 	if listener == nil || UserForSDK == nil {
 		log.Error("callback or UserForSDK is nil")

@@ -446,6 +446,7 @@ func (c *Conversation) doNotificationNew(c2v common.Cmd2Value) {
 			case v.ContentType == constant.HasReadReceipt:
 				//已读回执
 				c.doReadDrawing(ctx, v)
+
 			}
 			switch v.SessionType {
 			case constant.SingleChatType:
@@ -469,6 +470,13 @@ func (c *Conversation) doNotificationNew(c2v common.Cmd2Value) {
 				if v.ContentType > constant.GroupNotificationBegin && v.ContentType < constant.GroupNotificationEnd {
 					c.group.DoNotification(ctx, v)
 				} else if v.ContentType > constant.SignalingNotificationBegin && v.ContentType < constant.SignalingNotificationEnd {
+					continue
+				}
+			case constant.NotificationChatType:
+				//圈子
+				if v.ContentType > constant.MomentStartNotification && v.ContentType < constant.MomentEndNotification {
+					c.moment.DoNotification(ctx, v)
+				} else {
 					continue
 				}
 			}

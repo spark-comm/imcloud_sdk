@@ -88,6 +88,7 @@ type LoginMgr struct {
 	signalingListener           open_im_sdk_callback.OnSignalingListener
 	signalingListenerFroService open_im_sdk_callback.OnSignalingListener
 	businessListener            open_im_sdk_callback.OnCustomBusinessListener
+	momentListener              open_im_sdk_callback.OnMomentsListener
 
 	conversationCh chan common.Cmd2Value
 	cmdWsCh        chan common.Cmd2Value
@@ -208,6 +209,13 @@ func (u *LoginMgr) SetGroupListener(groupListener open_im_sdk_callback.OnGroupLi
 	}
 }
 
+func (u *LoginMgr) SetMomentListener(momentListener open_im_sdk_callback.OnMomentsListener) {
+	if u.moments != nil {
+		u.moments.SetMomentListener(momentListener)
+	} else {
+		u.momentListener = momentListener
+	}
+}
 func (u *LoginMgr) SetUserListener(userListener open_im_sdk_callback.OnUserListener) {
 	if u.user != nil {
 		u.user.SetListener(userListener)
@@ -305,7 +313,7 @@ func (u *LoginMgr) login(ctx context.Context, userID, token string) error {
 	// 上传
 	u.push = third.NewPush(u.info.PlatformID, u.loginUserID)
 	// 朋友圈
-	u.moments = moments.NewMoments(u.loginUserID, u.db)
+	u.moments = moments.NewMoments(u.loginUserID, u.db, u.conversationCh)
 	log.ZDebug(ctx, "forcedSynchronization success...", "login cost time: ", time.Since(t1))
 
 	u.longConnMgr.Run(ctx)

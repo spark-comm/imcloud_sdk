@@ -19,7 +19,9 @@ package indexdb
 
 import (
 	"context"
+	"fmt"
 	"open_im_sdk/pkg/db/model_struct"
+	"open_im_sdk/pkg/log"
 	"open_im_sdk/pkg/utils"
 	"open_im_sdk/wasm/exec"
 )
@@ -156,7 +158,9 @@ func (i *LocalGroups) GetGroupMemberAllGroupIDs(ctx context.Context) (result []s
 	}
 }
 func (i *LocalGroups) GetGroupInfoByGroupIDs(ctx context.Context, groupID ...string) ([]*model_struct.LocalGroup, error) {
+	log.Info("11111111111111", fmt.Sprintf("获取本地群信息调用接口GetGroupInfoByGroupIDs"))
 	c, err := exec.Exec(groupID)
+	log.Error("2222222222", fmt.Sprintf("获取接口GetGroupInfoByGroupIDs信息失败，err:%+v", err))
 	if err != nil {
 		return nil, err
 	} else {

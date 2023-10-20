@@ -19,8 +19,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/log"
-	"github.com/openimsdk/openim-sdk-core/v3/wasm/wasm_wrapper"
+	"open_im_sdk/pkg/log"
+	"open_im_sdk/wasm/wasm_wrapper"
 	"runtime"
 	"runtime/debug"
 
@@ -136,9 +136,9 @@ func registerFunc() {
 	js.Global().Set("getJoinedGroupList", js.FuncOf(wrapperGroup.GetJoinedGroupList))
 	js.Global().Set("searchGroups", js.FuncOf(wrapperGroup.SearchGroups))
 	js.Global().Set("setGroupInfo", js.FuncOf(wrapperGroup.SetGroupInfo))
-	js.Global().Set("setGroupVerification", js.FuncOf(wrapperGroup.SetGroupVerification))
-	js.Global().Set("setGroupLookMemberInfo", js.FuncOf(wrapperGroup.SetGroupLookMemberInfo))
-	js.Global().Set("setGroupApplyMemberFriend", js.FuncOf(wrapperGroup.SetGroupApplyMemberFriend))
+	//js.Global().Set("setGroupVerification", js.FuncOf(wrapperGroup.SetGroupVerification))
+	//js.Global().Set("setGroupLookMemberInfo", js.FuncOf(wrapperGroup.SetGroupLookMemberInfo))
+	//js.Global().Set("setGroupApplyMemberFriend", js.FuncOf(wrapperGroup.SetGroupApplyMemberFriend))
 	js.Global().Set("getGroupMemberList", js.FuncOf(wrapperGroup.GetGroupMemberList))
 	js.Global().Set("getGroupMemberOwnerAndAdmin", js.FuncOf(wrapperGroup.GetGroupMemberOwnerAndAdmin))
 	js.Global().Set("getGroupMemberListByJoinTimeFilter", js.FuncOf(wrapperGroup.GetGroupMemberListByJoinTimeFilter))
@@ -159,10 +159,10 @@ func registerFunc() {
 	js.Global().Set("setSelfInfo", js.FuncOf(wrapperUser.SetSelfInfo))
 	js.Global().Set("getUsersInfo", js.FuncOf(wrapperUser.GetUsersInfo))
 	js.Global().Set("getUsersInfoWithCache", js.FuncOf(wrapperUser.GetUsersInfoWithCache))
-	js.Global().Set("subscribeUsersStatus", js.FuncOf(wrapperUser.SubscribeUsersStatus))
-	js.Global().Set("unsubscribeUsersStatus", js.FuncOf(wrapperUser.UnsubscribeUsersStatus))
-	js.Global().Set("getSubscribeUsersStatus", js.FuncOf(wrapperUser.GetSubscribeUsersStatus))
-	js.Global().Set("getUserStatus", js.FuncOf(wrapperUser.GetUserStatus))
+	//js.Global().Set("subscribeUsersStatus", js.FuncOf(wrapperUser.SubscribeUsersStatus))
+	//js.Global().Set("unsubscribeUsersStatus", js.FuncOf(wrapperUser.UnsubscribeUsersStatus))
+	//js.Global().Set("getSubscribeUsersStatus", js.FuncOf(wrapperUser.GetSubscribeUsersStatus))
+	//js.Global().Set("getUserStatus", js.FuncOf(wrapperUser.GetUserStatus))
 
 	wrapperFriend := wasm_wrapper.NewWrapperFriend(globalFuc)
 	js.Global().Set("getSpecifiedFriendsInfo", js.FuncOf(wrapperFriend.GetSpecifiedFriendsInfo))

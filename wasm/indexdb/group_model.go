@@ -19,9 +19,7 @@ package indexdb
 
 import (
 	"context"
-	"fmt"
 	"open_im_sdk/pkg/db/model_struct"
-	"open_im_sdk/pkg/log"
 	"open_im_sdk/pkg/utils"
 	"open_im_sdk/wasm/exec"
 )
@@ -141,12 +139,14 @@ func (i *LocalGroups) SubtractMemberCount(ctx context.Context, groupID string) e
 	_, err := exec.Exec(groupID)
 	return err
 }
-func (i *LocalGroups) GetGroupMemberAllGroupIDs(ctx context.Context) (result []string, err error) {
-	groupIDList, err := exec.Exec()
+
+func (i *LocalGroups) GetGroupInfoByGroupIDs(ctx context.Context, groupID ...string) ([]*model_struct.LocalGroup, error) {
+	c, err := exec.Exec(utils.StructToJsonString(groupID))
 	if err != nil {
 		return nil, err
 	} else {
-		if v, ok := groupIDList.(string); ok {
+		if v, ok := c.(string); ok {
+			result := []*model_struct.LocalGroup{}
 			err := utils.JsonStringToStruct(v, &result)
 			if err != nil {
 				return nil, err
@@ -157,15 +157,12 @@ func (i *LocalGroups) GetGroupMemberAllGroupIDs(ctx context.Context) (result []s
 		}
 	}
 }
-func (i *LocalGroups) GetGroupInfoByGroupIDs(ctx context.Context, groupID ...string) ([]*model_struct.LocalGroup, error) {
-	log.Info("11111111111111", fmt.Sprintf("获取本地群信息调用接口GetGroupInfoByGroupIDs"))
-	c, err := exec.Exec(groupID)
-	log.Error("2222222222", fmt.Sprintf("获取接口GetGroupInfoByGroupIDs信息失败，err:%+v", err))
+func (i *LocalGroups) GetGroupMemberAllGroupIDs(ctx context.Context) (result []string, err error) {
+	groupIDList, err := exec.Exec()
 	if err != nil {
 		return nil, err
 	} else {
-		if v, ok := c.(string); ok {
-			result := make([]*model_struct.LocalGroup, 0)
+		if v, ok := groupIDList.(string); ok {
 			err := utils.JsonStringToStruct(v, &result)
 			if err != nil {
 				return nil, err

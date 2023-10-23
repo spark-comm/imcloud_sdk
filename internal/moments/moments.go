@@ -164,50 +164,50 @@ out:
 //	ctx ： desc
 //
 // 返回值：
-func (m *Moments) SyncHistoryMomentsFromSvr(ctx context.Context) error {
-	timestamps, err := m.db.GetMomentTimestamps(ctx, MomentsFindTimestampsTypeFirst)
-	if err != nil {
-		return err
-	}
-
-	// 获取本地最新时间戳
-	var currentTimestamps = timestamps
-	for {
-		svr, i, err := m.getMomentsFromSvr(ctx, currentTimestamps)
-		if err != nil {
-			return err
-		}
-
-		// 如若服务器没有数据，或者当前最后一条的和本地的相等，则无更新，直接退出
-		if len(svr) <= 0 {
-			break
-		}
-
-		// 插入
-		if err := m.db.InsertBatchMoments(ctx, ServerMomentsToLocalMoments(svr)); err != nil {
-			return err
-		}
-
-		// 插入评论
-		for _, val := range svr {
-			// 同步评论
-			s2localComment := ServerMomentsCommentsToLocalMomentsComments(val.Comments)
-			err := m.db.InsertBatchMomentsComments(ctx, s2localComment)
-			if err != nil {
-				return err
-			}
-		}
-
-		// 单次
-		if len(svr) <= MAX_SIZE {
-			break
-		}
-
-		currentTimestamps = i
-	}
-
-	return nil
-}
+//func (m *Moments) SyncHistoryMomentsFromSvr(ctx context.Context) error {
+//	timestamps, err := m.db.GetMomentTimestamps(ctx, MomentsFindTimestampsTypeFirst)
+//	if err != nil {
+//		return err
+//	}
+//
+//	// 获取本地最新时间戳
+//	var currentTimestamps = timestamps
+//	for {
+//		svr, i, err := m.getMomentsFromSvr(ctx, currentTimestamps)
+//		if err != nil {
+//			return err
+//		}
+//
+//		// 如若服务器没有数据，或者当前最后一条的和本地的相等，则无更新，直接退出
+//		if len(svr) <= 0 {
+//			break
+//		}
+//
+//		// 插入
+//		if err := m.db.InsertBatchMoments(ctx, ServerMomentsToLocalMoments(svr)); err != nil {
+//			return err
+//		}
+//
+//		// 插入评论
+//		for _, val := range svr {
+//			// 同步评论
+//			s2localComment := ServerMomentsCommentsToLocalMomentsComments(val.Comments)
+//			err := m.db.InsertBatchMomentsComments(ctx, s2localComment)
+//			if err != nil {
+//				return err
+//			}
+//		}
+//
+//		// 单次
+//		if len(svr) <= MAX_SIZE {
+//			break
+//		}
+//
+//		currentTimestamps = i
+//	}
+//
+//	return nil
+//}
 
 // getMomentsFromSvr ， 从服务器获取朋友圈
 // 参数：

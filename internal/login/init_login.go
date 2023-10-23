@@ -361,10 +361,10 @@ func (u *LoginMgr) login(ctx context.Context, userID, token string) error {
 
 	// 考虑到单次同步有可能未完成，每次登录检测下是否还有历史消息，异步同步历史朋友圈
 	go func() {
-		err := u.moments.SyncHistoryMomentsFromSvr(ctx)
-		if err != nil {
-			log.ZInfo(ctx, "sync history moments error", err)
-		}
+		//err := u.moments.SyncHistoryMomentsFromSvr(ctx)
+		//if err != nil {
+		//	log.ZInfo(ctx, "sync history moments error", err)
+		//}
 	}()
 
 	log.ZInfo(ctx, "login success...", "login cost time: ", time.Since(t1))

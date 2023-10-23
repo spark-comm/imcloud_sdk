@@ -24,6 +24,7 @@ import (
 	"net/http"
 	"net/url"
 	"open_im_sdk/pkg/utils"
+	"strings"
 	"time"
 	"unsafe"
 )
@@ -50,6 +51,9 @@ func PostWithTimeOutByte(url string, data []byte, token, language string, timeou
 	}
 	header = header.SetHeader("lang", language)
 	toBytes, err := header.ToBytes()
+	if err.Error() == http.ErrHandlerTimeout.Error() || strings.Contains(err.Error(), "network") {
+		return []byte{}, errors.New("网络错误！")
+	}
 	return toBytes, err
 }
 

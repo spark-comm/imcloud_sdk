@@ -318,6 +318,10 @@ func (g *Group) deleteGroupMembers(ctx context.Context, groupID string, memberId
 	//if err := g.db.DeleteGroupMembers(ctx, groupID, memberId...); err != nil {
 	//	return err
 	//}
+	//同步群数据
+	if err := g.SyncGroups(ctx, groupID); err != nil {
+		log.ZDebug(ctx, "syncGroupAndMembers->SyncGroups err", err)
+	}
 	//同步群成员数据
 	if err := g.syncGroupMembers(ctx, groupID, memberId...); err != nil {
 		log.ZDebug(ctx, "syncGroupAndMembers->syncGroupMembers err", err)

@@ -37,6 +37,10 @@ func (g *Group) doNotification(ctx context.Context, msg *sdkws.MsgData) error {
 	if g.listener == nil {
 		return errors.New("listener is nil")
 	}
+	//如果通知消息的时间小于登录时间则不进行通知
+	if msg.SendTime < g.loginTime {
+		return nil
+	}
 	switch msg.ContentType {
 	//创建群消息通知
 	case constant.GroupCreatedNotification: // 1501

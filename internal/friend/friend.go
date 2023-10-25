@@ -95,7 +95,7 @@ func (f *Friend) initSyncer() {
 	f.blockSyncer = syncer.New(func(ctx context.Context, value *model_struct.LocalBlack) error {
 		return f.db.InsertBlack(ctx, value)
 	}, func(ctx context.Context, value *model_struct.LocalBlack) error {
-		return f.db.DeleteBlack(ctx, value.BlackUserID)
+		return f.db.DeleteBlack(ctx, value.OwnerUserID, value.BlackUserID)
 	}, func(ctx context.Context, server *model_struct.LocalBlack, local *model_struct.LocalBlack) error {
 		return f.db.UpdateBlack(ctx, server)
 	}, func(value *model_struct.LocalBlack) [2]string {

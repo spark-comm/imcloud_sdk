@@ -93,7 +93,7 @@ func Test_CheckFriend(t *testing.T) {
 	//if err2 != nil {
 	//	t.Fatal(err2)
 	//}
-	res, err := open_im_sdk.UserForSDK.Friend().CheckFriend(ctx, []string{"70162054769545216"})
+	res, err := open_im_sdk.UserForSDK.Friend().CheckFriend(ctx, []string{"55122331994951680"})
 	if err != nil {
 		t.Fatal(err)
 	}

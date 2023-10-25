@@ -178,7 +178,7 @@ func (f *Friend) CheckFriend(ctx context.Context, friendUserIDList []string) ([]
 		isBlack := false
 		isFriend := false
 		for _, b := range blackList {
-			if v == b.BlackUserID {
+			if v == b.BlackUserID || v == b.OwnerUserID {
 				isBlack = true
 				break
 			}

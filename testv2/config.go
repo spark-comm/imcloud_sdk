@@ -39,8 +39,8 @@ const (
 	////WSADDR  = "ws://59.36.173.89:10001"
 	////UserID  = "kernaltestuid9"
 	//token  = "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJpbUNsb3VkIiwic3ViIjoie1widXNlcklkXCI6XCI1NTEyMjMzMTk5NDk1MTY4MFwiLFwicGxhdGZvcm1cIjpcIklPU1wiLFwicm9sZVwiOlwiVVNFUlwifSIsImV4cCI6MTY5NjA3NDM0NSwibmJmIjoxNjk1NzE0MzQ1LCJpYXQiOjE2OTU3MTQzNDV9.4khO81UwFgN4rOX11N3Iy5mi7VT90hBFXW0f2CTqtJd-qjCrLnHtkTlzeTOQaoYUuWUL9BdcjcgQdcoJ2_Gnqg"
-	UserID = "55122341708959744"
-	token  = "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJpbUNsb3VkIiwic3ViIjoie1widXNlcklkXCI6XCI1NTEyMjM0MTcwODk1OTc0NFwiLFwicGxhdGZvcm1cIjpcIldpbmRvd3NcIixcInJvbGVcIjpcIlVTRVJcIn0iLCJleHAiOjE2OTgwNDM3OTIsIm5iZiI6MTY5NzY4Mzc5MiwiaWF0IjoxNjk3NjgzNzkyfQ.NSQlze9dPUY3mXSxm48gvw4avGGSCmZwpuM5TpzikG9uJW2eLA79ataZl7CJi5-odaDXk00hn9xFDFjcB8FgiA"
+	UserID = "55122332229832704"
+	token  = "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJpbUNsb3VkIiwic3ViIjoie1widXNlcklkXCI6XCI1NTEyMjMzMjIyOTgzMjcwNFwiLFwicGxhdGZvcm1cIjpcIklPU1wiLFwicm9sZVwiOlwiVVNFUlwifSIsImV4cCI6MTY5ODU4MTg1OCwibmJmIjoxNjk4MjIxODU4LCJpYXQiOjE2OTgyMjE4NTh9._xoOaAaDrmwXYGwQBrKxHXu-bqdPoxh_Fk6EANcwHI-05Slwgm6E34zjAPl-LMV0UzNJ0A46K1ee-qGGL1F1Mw"
 )
 
 func getConf(APIADDR, WSADDR string) sdk_struct.IMConfig {
@@ -50,7 +50,7 @@ func getConf(APIADDR, WSADDR string) sdk_struct.IMConfig {
 	cf.DataDir = "../"
 	cf.LogLevel = 6
 	cf.IsExternalExtensions = true
-	cf.PlatformID = 2
+	cf.PlatformID = 1
 	cf.LogFilePath = ""
 	cf.IsLogStandardOutput = true
 	return cf

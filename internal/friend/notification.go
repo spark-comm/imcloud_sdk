@@ -83,8 +83,10 @@ func (f *Friend) doNotification(ctx context.Context, msg *sdkws.MsgData) error {
 		}
 		if tips.FromToUserID.FromUserID == f.loginUserID {
 			return f.SyncBlackList(ctx)
+		} else {
+			//被对方拉黑
+			return f.SyncBlackList(ctx)
 		}
-		return nil
 	case constant.BlackDeletedNotification:
 		//被好友移出黑名单
 		var tips sdkws.BlackDeletedTips
@@ -93,8 +95,10 @@ func (f *Friend) doNotification(ctx context.Context, msg *sdkws.MsgData) error {
 		}
 		if tips.FromToUserID.FromUserID == f.loginUserID {
 			return f.SyncBlackList(ctx)
+		} else {
+			//被对方拉黑
+			return f.SyncBlackList(ctx)
 		}
-		return nil
 	default:
 		return fmt.Errorf("type failed %d", msg.ContentType)
 	}

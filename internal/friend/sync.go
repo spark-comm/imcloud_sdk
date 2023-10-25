@@ -140,7 +140,7 @@ func (f *Friend) SyncBlackList(ctx context.Context) error {
 		return err
 	}
 	log.ZDebug(ctx, "black from server", "data", serverData)
-	localData, err := f.db.GetBlackListDB(ctx)
+	localData, err := f.db.GetBlackListAllDB(ctx)
 	if err != nil {
 		return err
 	}

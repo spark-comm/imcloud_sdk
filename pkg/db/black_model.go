@@ -33,13 +33,24 @@ func (d *DataBase) GetBlackListDB(ctx context.Context) ([]*model_struct.LocalBla
 	}
 	var blackList []model_struct.LocalBlack
 
-	err := d.conn.WithContext(ctx).Find(&blackList).Error
+	err := d.conn.WithContext(ctx).Where("owner_user_id = ? ", d.loginUserID).Find(&blackList).Error
 	var transfer []*model_struct.LocalBlack
 	for _, v := range blackList {
 		v1 := v
 		transfer = append(transfer, &v1)
 	}
 	return transfer, err
+}
+
+func (d *DataBase) GetBlackListAllDB(ctx context.Context) ([]*model_struct.LocalBlack, error) {
+	d.friendMtx.Lock()
+	defer d.friendMtx.Unlock()
+	if d == nil {
+		return nil, errors.New("database is not open")
+	}
+	var blackList []*model_struct.LocalBlack
+	err := d.conn.WithContext(ctx).Find(&blackList).Error
+	return blackList, err
 }
 
 // GetBlackList 分页获取黑明单数据
@@ -71,17 +82,11 @@ func (d *DataBase) GetBlackInfoByBlockUserID(ctx context.Context, blockUserID st
 func (d *DataBase) GetBlackInfoList(ctx context.Context, blockUserIDList []string) ([]*model_struct.LocalBlack, error) {
 	d.friendMtx.Lock()
 	defer d.friendMtx.Unlock()
-	var blackList []model_struct.LocalBlack
-	if t := d.conn.WithContext(ctx).Where("black_user_id IN ? ", blockUserIDList).Find(&blackList).Error; t != nil {
+	var blackList []*model_struct.LocalBlack
+	if t := d.conn.WithContext(ctx).Where("black_user_id IN ? or owner_user_id IN ?", blockUserIDList, blockUserIDList).Find(&blackList).Error; t != nil {
 		return nil, utils.Wrap(t, "GetBlackInfoList failed")
 	}
-
-	var transfer []*model_struct.LocalBlack
-	for _, v := range blackList {
-		v1 := v
-		transfer = append(transfer, &v1)
-	}
-	return transfer, nil
+	return blackList, nil
 }
 
 func (d *DataBase) InsertBlack(ctx context.Context, black *model_struct.LocalBlack) error {
@@ -100,8 +105,8 @@ func (d *DataBase) UpdateBlack(ctx context.Context, black *model_struct.LocalBla
 	return utils.Wrap(t.Error, "UpdateBlack failed")
 }
 
-func (d *DataBase) DeleteBlack(ctx context.Context, blockUserID string) error {
+func (d *DataBase) DeleteBlack(ctx context.Context, ownerUserID, blockUserID string) error {
 	d.friendMtx.Lock()
 	defer d.friendMtx.Unlock()
-	return utils.Wrap(d.conn.WithContext(ctx).Where("owner_user_id=? and black_user_id=?", d.loginUserID, blockUserID).Delete(&model_struct.LocalBlack{}).Error, "DeleteBlack failed")
+	return utils.Wrap(d.conn.WithContext(ctx).Where("owner_user_id=? and black_user_id=?", ownerUserID, blockUserID).Delete(&model_struct.LocalBlack{}).Error, "DeleteBlack failed")
 }

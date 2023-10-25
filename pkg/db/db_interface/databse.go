@@ -254,6 +254,7 @@ type FriendDatabase interface {
 	GetSendFriendApplicationList(ctx context.Context, page *pg.Page) ([]*model_struct.LocalFriendRequest, error)
 	GetFriendApplicationByBothID(ctx context.Context, fromUserID, toUserID string) (*model_struct.LocalFriendRequest, error)
 	GetBlackListDB(ctx context.Context) ([]*model_struct.LocalBlack, error)
+	GetBlackListAllDB(ctx context.Context) ([]*model_struct.LocalBlack, error)
 	//GetBlackList 分页获取黑明单数据
 	GetBlackList(ctx context.Context, page *pg.Page) ([]*model_struct.LocalBlack, error)
 	GetBlackListUserID(ctx context.Context) (blackListUid []string, err error)
@@ -261,7 +262,7 @@ type FriendDatabase interface {
 	GetBlackInfoList(ctx context.Context, blockUserIDList []string) ([]*model_struct.LocalBlack, error)
 	InsertBlack(ctx context.Context, black *model_struct.LocalBlack) error
 	UpdateBlack(ctx context.Context, black *model_struct.LocalBlack) error
-	DeleteBlack(ctx context.Context, blockUserID string) error
+	DeleteBlack(ctx context.Context, ownerUserID, blockUserID string) error
 	//GetUnprocessedNum 获取未处理的好友申请数
 	GetUnprocessedNum(ctx context.Context) (int64, error)
 	//获取不在列表的好友数据

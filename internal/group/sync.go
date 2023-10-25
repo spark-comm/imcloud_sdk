@@ -261,8 +261,8 @@ func (g *Group) deleteGroup(ctx context.Context, groupID string) error {
 	}
 	//删除会话
 	g.DelGroupConversation(ctx, groupInfo.GroupID)
-	// 触发群改变通知
-	g.listener.OnGroupInfoChanged(utils.StructToJsonString(groupInfo))
+	// 删除群通知
+	g.listener.OnJoinedGroupDeleted(utils.StructToJsonString(groupInfo))
 	return nil
 }
 

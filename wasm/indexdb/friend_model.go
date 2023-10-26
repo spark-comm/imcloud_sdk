@@ -165,6 +165,21 @@ func (i *Friend) GetPageFriendList(ctx context.Context, offset, count int) (resu
 	}
 }
 func (i *Friend) GetFriendInfoNotPeersList(ctx context.Context, friendUserIDList []string) ([]*model_struct.LocalFriend, error) {
+	gList, err := exec.Exec(utils.StructToJsonString(friendUserIDList))
+	if err != nil {
+		return nil, err
+	} else {
+		result := make([]*model_struct.LocalFriend, 0)
+		if v, ok := gList.(string); ok {
+			err := utils.JsonStringToStruct(v, &result)
+			if err != nil {
+				return nil, err
+			}
+			return result, err
+		} else {
+			return nil, exec.ErrType
+		}
+	}
 	return nil, nil
 }
 

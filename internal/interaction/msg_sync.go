@@ -492,7 +492,8 @@ func (m *MsgSyncer) syncBaseInformation(ctx context.Context) {
 		m.user.SyncLoginUserInfo,
 		m.friend.SyncQuantityFriendList, //全量同步简单字段数据
 		m.group.InitSyncGroupData,       //全量同步群组简单字段
-		m.group.GetUserMemberInfoInGroup} {
+		m.group.GetUserMemberInfoInGroup,
+	} {
 		wg.Add(1)
 		go func(syncFunc func(c context.Context) error) {
 			defer wg.Done()

@@ -56,8 +56,13 @@ func (d *DataBase) GetAdminGroupApplication(ctx context.Context) ([]*model_struc
 		return nil, utils.Wrap(err, "")
 	}
 	var transfer []*model_struct.LocalAdminGroupRequest
+	var groupMap = make(map[string]struct{})
 	for _, v := range groupRequestList {
 		v1 := v
+		if _, ok := groupMap[v.GroupID]; ok {
+			continue
+		}
+		groupMap[v.GroupID] = struct{}{}
 		transfer = append(transfer, &v1)
 	}
 	return transfer, nil

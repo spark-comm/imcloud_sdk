@@ -45,8 +45,8 @@ const (
 	WSADDR  = "ws://8.137.13.1:10001"
 	//APIADDR = "http://0.0.0.0:9099"
 	//WSADDR  = "ws://0.0.0.0:10001"
-	UserID = "55224026938740736"
-	token  = ""
+	UserID = "55227449025236992"
+	token  = "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJpbUNsb3VkIiwic3ViIjoie1widXNlcklkXCI6XCI1NTIyNzQ0OTAyNTIzNjk5MlwiLFwicGxhdGZvcm1cIjpcIklPU1wiLFwicm9sZVwiOlwiVVNFUlwifSIsImV4cCI6MTY5ODQwNjk1OCwibmJmIjoxNjk4MDQ2OTU4LCJpYXQiOjE2OTgwNDY5NTh9.iLKeWmEAx9eUde86hEKsaYoWBzw_1EciAGv6iTXcjts6AY__Xu9FM9bGwsWBapzl8-IuDER9kHEMJLJpeSBjeA"
 )
 
 func getConf(APIADDR, WSADDR string) sdk_struct.IMConfig {
@@ -56,7 +56,7 @@ func getConf(APIADDR, WSADDR string) sdk_struct.IMConfig {
 	cf.DataDir = "./"
 	cf.LogLevel = 4
 	cf.IsExternalExtensions = true
-	cf.PlatformID = 1
+	cf.PlatformID = 3
 	cf.LogFilePath = ""
 	cf.IsLogStandardOutput = true
 	cf.Language = "en"

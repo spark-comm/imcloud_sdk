@@ -25,10 +25,10 @@ import (
 )
 
 func TestName(t *testing.T) {
-	userID := `49389272901357568`
+	userID := `55227449025236992`
 	ctx := ccontext.WithInfo(context.Background(), &ccontext.GlobalConfig{
 		UserID: userID,
-		Token:  `eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJpbUNsb3VkIiwic3ViIjoie1widXNlcklkXCI6XCI0OTM4OTI3MjkwMTM1NzU2OFwiLFwicGxhdGZvcm1cIjpcIldpbmRvd3NcIixcInJvbGVcIjpcIlwifSIsImV4cCI6MTY5MTgyNzE0NCwibmJmIjoxNjkxNDY3MTQ0LCJpYXQiOjE2OTE0NjcxNDR9._EQqOgC0JblO-CE9oBETgE62SbEt55bQCx__bumoPAAV8U3iegTkaLziTD-czjHdGoraN5zujdVpxRkquDkqpA`,
+		Token:  `eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJpbUNsb3VkIiwic3ViIjoie1widXNlcklkXCI6XCI1NTIyNzQ0OTAyNTIzNjk5MlwiLFwicGxhdGZvcm1cIjpcIklPU1wiLFwicm9sZVwiOlwiVVNFUlwifSIsImV4cCI6MTY5ODQwNjk1OCwibmJmIjoxNjk4MDQ2OTU4LCJpYXQiOjE2OTgwNDY5NTh9.iLKeWmEAx9eUde86hEKsaYoWBzw_1EciAGv6iTXcjts6AY__Xu9FM9bGwsWBapzl8-IuDER9kHEMJLJpeSBjeA`,
 		IMConfig: sdk_struct.IMConfig{
 			ApiAddr: "http://8.137.13.1:9099",
 		},
@@ -43,17 +43,18 @@ func TestName(t *testing.T) {
 	//})
 	ctx = ccontext.WithOperationID(ctx, `test`)
 
-	database, err := db.NewDataBase(ctx, userID, `/Users/tang/workspace/go/openim/openim-sdk-core`)
+	database, err := db.NewDataBase(ctx, userID, `/Users/likun/golang_project/src/imCloud-sdk-core`)
 	if err != nil {
 		panic(err)
 	}
-	f := NewFile(database, userID)
+	f := NewFile(ctx, database, userID)
 
-	path := `/Users/tang/workspace`
-	path = filepath.Join(path, `icon.png`)
+	path := `/Users/likun/Pictures/my_photo`
+	path = filepath.Join(path, `Blue.jpeg`)
+	base := filepath.Base(path)
 	resp, err := f.UploadFile(ctx, &UploadFileReq{
 		Filepath: path,
-		Name:     filepath.Base(path),
+		Name:     base,
 		Cause:    "test",
 	}, nil)
 	if err != nil {

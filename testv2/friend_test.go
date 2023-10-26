@@ -104,7 +104,7 @@ func Test_CheckFriend(t *testing.T) {
 }
 
 func Test_DeleteFriend(t *testing.T) {
-	err := open_im_sdk.UserForSDK.Friend().DeleteFriend(ctx, "863454357")
+	err := open_im_sdk.UserForSDK.Friend().DeleteFriend(ctx, "55122365549383680")
 	if err != nil {
 		t.Fatal(err)
 	}

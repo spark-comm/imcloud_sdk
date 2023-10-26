@@ -211,8 +211,30 @@ func Test_SendMessage1(t *testing.T) {
 }
 func Test_SendMessageNotOss(t *testing.T) {
 	ctx = context.WithValue(ctx, "callback", TestSendMsg{})
-	msg, _ := open_im_sdk.UserForSDK.Conversation().CreateTextMessage(ctx, "textMsg")
-	_, err := open_im_sdk.UserForSDK.Conversation().SendMessageNotOss(ctx, msg, "1463426512456", "", nil)
+	//msg, _ := open_im_sdk.UserForSDK.Conversation().CreateForwardMessage(ctx)
+	msg := &sdk_struct.MsgStruct{
+		ClientMsgID:          "3e88c72d5f5206ec2c64254831a01d55",
+		ServerMsgID:          "03cc457cab9065f7fae990f67b536f64",
+		CreateTime:           time.Now().Unix(),
+		SendTime:             time.Now().Unix(),
+		SessionType:          3,
+		SendID:               "55122326701740032",
+		RecvID:               "55122326701740032",
+		MsgFrom:              100,
+		ContentType:          102,
+		SenderNickname:       "大大方方得到",
+		SenderFaceURL:        "http://8.137.13.1:9099/api/app/object/55122326701740032/mmexport1696601192508.jpg",
+		GroupID:              "182044004978688",
+		IsRead:               false,
+		Seq:                  0,
+		Status:               2,
+		IsReact:              false,
+		IsExternalExtensions: false,
+		AttachedInfo:         "null",
+		Ex:                   "{\"isDestroyMsg\":0}",
+	}
+	msg, _ = open_im_sdk.UserForSDK.Conversation().CreateTextMessage(ctx, "text")
+	_, err := open_im_sdk.UserForSDK.Conversation().SendMessageNotOss(ctx, msg, "70146959163265024", "", nil)
 	if err != nil {
 		t.Fatal(err)
 	}

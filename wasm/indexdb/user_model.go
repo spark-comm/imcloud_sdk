@@ -56,11 +56,19 @@ func (l *LocalUsers) GetLoginUser(ctx context.Context, userID string) (*model_st
 			result.Ex = temp.Ex
 			result.AttachedInfo = temp.Ex
 			result.GlobalRecvMsgOpt = temp.GlobalRecvMsgOpt
+			result.Message = temp.Message
+			result.Code = temp.Code
+			result.Phone = temp.Phone
+			result.Email = temp.Email
+			result.Birth = temp.Birth
+			result.Gender = temp.Gender
+			result.ShareCode = temp.ShareCode
+			result.LastLogin = temp.LastLogin
+			result.Options = temp.Options
 			return &result, err
 		} else {
 			return nil, exec.ErrType
 		}
-
 	}
 }
 

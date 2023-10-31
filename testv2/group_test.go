@@ -121,8 +121,8 @@ func Test_CancelMuteGroup(t *testing.T) {
 func Test_ChangeGroupMemberMute(t *testing.T) {
 	err := open_im_sdk.UserForSDK.Group().ChangeGroupMemberMute(
 		ctx,
-		"120143539605504",
-		"1463426512456",
+		"45978484740096",
+		"55122367646535680",
 		10000)
 	if err != nil {
 		t.Fatal(err)
@@ -132,8 +132,8 @@ func Test_ChangeGroupMemberMute(t *testing.T) {
 
 func Test_CancelChangeGroupMemberMute(t *testing.T) {
 	err := open_im_sdk.UserForSDK.Group().ChangeGroupMemberMute(ctx,
-		"120143539605504",
-		"1463426512456",
+		"45978484740096",
+		"55122367646535680",
 		0)
 	if err != nil {
 		t.Fatal(err)

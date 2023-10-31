@@ -139,10 +139,51 @@ func (i Black) UpdateBlack(ctx context.Context, black *model_struct.LocalBlack) 
 }
 
 // DeleteBlack removes a blocked user from the database
-func (i Black) DeleteBlack(ctx context.Context, blockUserID string) error {
-	_, err := exec.Exec(blockUserID, i.loginUserID)
+func (i Black) DeleteBlack(ctx context.Context, blockUserID string, string2 string) error {
+	_, err := exec.Exec(blockUserID, i.loginUserID, string2)
 	return err
 }
 func (i Black) GetBlackList(ctx context.Context, page *pg.Page) ([]*model_struct.LocalBlack, error) {
-	return nil, nil
+	result := make([]*model_struct.LocalBlack, 0)
+	gList, err := exec.Exec(page.Size, page.NO)
+	if err != nil {
+		return nil, err
+	} else {
+		if v, ok := gList.(string); ok {
+			var temp = []*model_struct.LocalBlack{}
+			err := utils.JsonStringToStruct(v, &temp)
+			if err != nil {
+				return nil, err
+			}
+			for _, v := range temp {
+				v1 := v
+				result = append(result, v1)
+			}
+			return result, err
+		} else {
+			return nil, exec.ErrType
+		}
+	}
+}
+func (i Black) GetBlackListAllDB(ctx context.Context) ([]*model_struct.LocalBlack, error) {
+	result := make([]*model_struct.LocalBlack, 0)
+	gList, err := exec.Exec()
+	if err != nil {
+		return nil, err
+	} else {
+		if v, ok := gList.(string); ok {
+			var temp = []*model_struct.LocalBlack{}
+			err := utils.JsonStringToStruct(v, &temp)
+			if err != nil {
+				return nil, err
+			}
+			for _, v := range temp {
+				v1 := v
+				result = append(result, v1)
+			}
+			return result, err
+		} else {
+			return nil, exec.ErrType
+		}
+	}
 }

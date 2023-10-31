@@ -16,6 +16,7 @@ package user
 
 import (
 	"context"
+	"fmt"
 	"github.com/imCloud/im/pkg/common/log"
 	"github.com/imCloud/im/pkg/errs"
 	"gorm.io/gorm"
@@ -28,8 +29,11 @@ func (u *User) SyncLoginUserInfo(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
+	log.ZInfo(ctx, fmt.Sprintf("获取远程用户信息成功，data:%+v", remoteUser))
 	localUser, err := u.GetLoginUser(ctx, u.loginUserID)
+	log.ZInfo(ctx, fmt.Sprintf("获取本地用户信息成功，data:%+v", localUser))
 	if err != nil && errs.Unwrap(err) != gorm.ErrRecordNotFound {
+		log.ZInfo(ctx, fmt.Sprintf("获取本地用户信息失败，err:%+v", err))
 		return err
 	}
 	var localUsers []*model_struct.LocalUser

@@ -134,7 +134,7 @@ type LocalFriendRequest struct {
 
 type LocalBlack struct {
 	OwnerUserID    string `json:"ownerUserID,omitempty"`
-	BlockUserID    string `json:"blockUserID,omitempty"`
+	BlackUserID    string `json:"blackUserID,omitempty"`
 	Nickname       string `json:"nickname,omitempty"`
 	FaceURL        string `json:"faceURL,omitempty"`
 	CreateAt       int64  `json:"createAt,omitempty"`
@@ -166,4 +166,13 @@ type LocalUser struct {
 	Ex               string `json:"ex,omitempty"`
 	AttachedInfo     string `json:"attachedInfo,omitempty"`
 	GlobalRecvMsgOpt int32  `json:"globalRecvMsgOpt,omitempty"`
+	Message          string `json:"message"`
+	Code             string `json:"code"`
+	Phone            string `json:"phone"`
+	Email            string `json:"email"`
+	Birth            int64  `json:"birth"`
+	Gender           int32  `json:"gender"`
+	ShareCode        string `json:"shareCode"`
+	LastLogin        int64  `json:"lastLogin"`
+	Options          string `json:"options"`
 }

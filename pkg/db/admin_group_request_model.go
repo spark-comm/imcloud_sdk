@@ -34,7 +34,7 @@ func (d *DataBase) InsertAdminGroupRequest(ctx context.Context, groupRequest *mo
 func (d *DataBase) DeleteAdminGroupRequest(ctx context.Context, groupID, userID string) error {
 	d.groupMtx.Lock()
 	defer d.groupMtx.Unlock()
-	return utils.Wrap(d.conn.WithContext(ctx).Where("group_id=? and user_id=?", groupID, userID).Delete(&model_struct.LocalAdminGroupRequest{}).Error, "DeleteAdminGroupRequest failed")
+	return utils.Wrap(d.conn.WithContext(ctx).Where("group_id=? and user_id=?", groupID, userID).Unscoped().Delete(&model_struct.LocalAdminGroupRequest{}).Error, "DeleteAdminGroupRequest failed")
 }
 
 func (d *DataBase) UpdateAdminGroupRequest(ctx context.Context, groupRequest *model_struct.LocalAdminGroupRequest) error {

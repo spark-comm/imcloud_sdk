@@ -154,6 +154,8 @@ func registerFunc() {
 	js.Global().Set("isJoinGroup", js.FuncOf(wrapperGroup.IsJoinGroup))
 	js.Global().Set("searchGroupInfo", js.FuncOf(wrapperGroup.SearchGroupInfo))
 	js.Global().Set("searchNotInGroupFriendList", js.FuncOf(wrapperGroup.SearchNotInGroupFriendList))
+	js.Global().Set("setGroupSwitchInfo", js.FuncOf(wrapperGroup.SetGroupSwitchInfo))
+
 	wrapperUser := wasm_wrapper.NewWrapperUser(globalFuc)
 	js.Global().Set("getSelfUserInfo", js.FuncOf(wrapperUser.GetSelfUserInfo))
 	js.Global().Set("setSelfInfo", js.FuncOf(wrapperUser.SetSelfInfo))

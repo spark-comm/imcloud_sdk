@@ -80,7 +80,7 @@ func (g *Group) doNotification(ctx context.Context, msg *sdkws.MsgData) error {
 		if err := utils.UnmarshalNotificationElem(msg.Content, &detail); err != nil {
 			return err
 		}
-		if detail.OpUser.UserID == g.loginUserID || detail.ReceiverAs == 1 {
+		if detail.OpUser.UserID == g.loginUserID {
 			return g.SyncAdminGroupApplications(ctx, detail.Group.GroupID)
 		} else if detail.ReceiverAs == 1 {
 			return g.SyncAdminGroupApplications(ctx, detail.Group.GroupID)
@@ -93,7 +93,7 @@ func (g *Group) doNotification(ctx context.Context, msg *sdkws.MsgData) error {
 		if err := utils.UnmarshalNotificationElem(msg.Content, &detail); err != nil {
 			return err
 		}
-		if detail.OpUser.UserID == g.loginUserID || detail.ReceiverAs == 1 {
+		if detail.OpUser.UserID == g.loginUserID {
 			return g.SyncAdminGroupApplication(ctx)
 		} else if detail.ReceiverAs == 1 {
 			return g.SyncAdminGroupApplications(ctx, detail.Group.GroupID)
@@ -160,15 +160,20 @@ func (g *Group) doNotification(ctx context.Context, msg *sdkws.MsgData) error {
 		for _, info := range detail.InvitedUserList {
 			userIDs = append(userIDs, info.UserID)
 		}
-		if utils.IsContain(g.loginUserID, userIDs) {
-			return g.SyncGroups(ctx, detail.Group.GroupID)
-		} else {
-			//登录用户不在列表中
-			if err := g.SyncGroups(ctx, detail.Group.GroupID); err != nil {
-				return err
-			}
-			return g.syncGroupMembers(ctx, detail.Group.GroupID, userIDs...)
+		if err := g.SyncGroups(ctx, detail.Group.GroupID); err != nil {
+			return err
 		}
+		g.SyncSelfGroupApplications(ctx, detail.Group.GroupID) //同步邀请需要申请的请求
+		return g.syncGroupMembers(ctx, detail.Group.GroupID, userIDs...)
+		//if utils.IsContain(g.loginUserID, userIDs) {
+		//	return g.SyncGroups(ctx, detail.Group.GroupID)
+		//} else {
+		//	//登录用户不在列表中
+		//	if err := g.SyncGroups(ctx, detail.Group.GroupID); err != nil {
+		//		return err
+		//	}
+		//	return g.syncGroupMembers(ctx, detail.Group.GroupID, userIDs...)
+		//}
 		//进群通知
 	case constant.MemberEnterNotification: // 1510
 		var detail sdkws.MemberEnterTips

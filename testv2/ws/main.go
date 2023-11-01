@@ -41,12 +41,13 @@ func main() {
 }
 
 const (
-	APIADDR = "http://8.137.13.1:9099"
-	WSADDR  = "ws://8.137.13.1:10001"
-	//APIADDR = "http://0.0.0.0:9099"
-	//WSADDR  = "ws://0.0.0.0:10001"
-	UserID = "55122365549383680+"
-	token  = "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJpbUNsb3VkIiwic3ViIjoie1widXNlcklkXCI6XCI1NTEyMjM2NTU0OTM4MzY4MFwiLFwicGxhdGZvcm1cIjpcIldpbmRvd3NcIixcInJvbGVcIjpcIlVTRVJcIn0iLCJleHAiOjE2OTg3NTA4NjcsIm5iZiI6MTY5ODM5MDg2NywiaWF0IjoxNjk4MzkwODY3fQ.zRm9YblPAzLZPU0gjNB03lXrdyZMT2JtqTk4DiR4xUfsSkQxW4J_99CHSwrygPyvtXkKMSIZRT37W0asQA5uwA"
+	//APIADDR = "http://8.137.13.1:9099"
+	//WSADDR  = "ws://8.137.13.1:10001"
+	APIADDR = "http://127.0.0.1:9099"
+	WSADDR  = "ws://127.0.0.1:10001"
+	UserID  = "55122365549383680"
+	//token  = "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJpbUNsb3VkIiwic3ViIjoie1widXNlcklkXCI6XCI1NTEyMjM2NTY2NjgyNDE5MlwiLFwicGxhdGZvcm1cIjpcIldpbmRvd3NcIixcInJvbGVcIjpcIlVTRVJcIn0iLCJleHAiOjE2OTk0NDI4MzksIm5iZiI6MTY5ODcyMjgzOSwiaWF0IjoxNjk4NzIyODM5fQ.iGmBGdYtMI1E4Tq6wKjZTczhVYqpxQOLaaVT2XbyEnUrs_6rRfan3lURXKaXBOkww4gE4Sk6QyFf19DEr99cTw"
+	token = "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJpbUNsb3VkIiwic3ViIjoie1widXNlcklkXCI6XCI1NTEyMjM2NTU0OTM4MzY4MFwiLFwicGxhdGZvcm1cIjpcIldpbmRvd3NcIixcInJvbGVcIjpcIlVTRVJcIn0iLCJleHAiOjE2OTkxNjQ4MjIsIm5iZiI6MTY5ODgwNDgyMiwiaWF0IjoxNjk4ODA0ODIyfQ.o46dTaGGurutExkXWwLN8ChfduXfNgCmZ77DGOGiLQHgQN3_TPylWh4IutVX2StTeI4NUmyDKh_qKhUtoNJdYg"
 )
 
 func getConf(APIADDR, WSADDR string) sdk_struct.IMConfig {

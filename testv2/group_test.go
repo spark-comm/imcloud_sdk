@@ -239,8 +239,8 @@ func Test_GetGroupApplicationListAsApplicant(t *testing.T) {
 
 func Test_AcceptGroupApplication(t *testing.T) {
 	err := open_im_sdk.UserForSDK.Group().AcceptGroupApplication(ctx,
-		"391667123228672",
-		"55122326609465344",
+		"395156234702848",
+		"55122366002368512",
 		"test accept")
 	if err != nil {
 		t.Fatal(err)
@@ -319,9 +319,9 @@ func Test_TransferGroupOwner(t *testing.T) {
 func Test_InviteUserToGroup(t *testing.T) {
 	err := open_im_sdk.UserForSDK.Group().InviteUserToGroup(
 		ctx,
-		"106234346737664",
+		"395156234702848",
 		"测试邀请人进群",
-		[]string{"55122324243877888", "55122324344541184", "55122324461981696", "55122324579422208"})
+		[]string{"55122366002368512"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -469,7 +469,7 @@ func Test_GetUserOwnerJoinRequestNum(t *testing.T) {
 func Test_SearchGroupInfo(t *testing.T) {
 	info, err := open_im_sdk.UserForSDK.Group().SearchGroupInfo(
 		ctx,
-		"月华",
+		"9527",
 		20,
 		1,
 	)

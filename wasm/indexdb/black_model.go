@@ -139,8 +139,8 @@ func (i Black) UpdateBlack(ctx context.Context, black *model_struct.LocalBlack) 
 }
 
 // DeleteBlack removes a blocked user from the database
-func (i Black) DeleteBlack(ctx context.Context, blockUserID string, string2 string) error {
-	_, err := exec.Exec(blockUserID, i.loginUserID, string2)
+func (i Black) DeleteBlack(ctx context.Context, ownerUserID, blockUserID string) error {
+	_, err := exec.Exec(ownerUserID, blockUserID)
 	return err
 }
 func (i Black) GetBlackList(ctx context.Context, page *pg.Page) ([]*model_struct.LocalBlack, error) {

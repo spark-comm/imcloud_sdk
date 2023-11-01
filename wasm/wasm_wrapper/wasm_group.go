@@ -182,3 +182,7 @@ func (w *WrapperGroup) SearchNotInGroupFriendList(_ js.Value, args []js.Value) i
 	callback := event_listener.NewBaseCallback(utils.FirstLower(utils.GetSelfFuncName()), w.commonFunc)
 	return event_listener.NewCaller(open_im_sdk.SearchNotInGroupFriendList, callback, &args).AsyncCallWithCallback()
 }
+func (w *WrapperGroup) SetGroupSwitchInfo(_ js.Value, args []js.Value) interface{} {
+	callback := event_listener.NewBaseCallback(utils.FirstLower(utils.GetSelfFuncName()), w.commonFunc)
+	return event_listener.NewCaller(open_im_sdk.SetGroupSwitchInfo, callback, &args).AsyncCallWithCallback()
+}

@@ -84,6 +84,7 @@ func (c *Conversation) clearConversationMsgFromSvr(ctx context.Context, conversa
 		&apiReq)
 	if err != nil {
 		return err
+
 	}
 	return nil
 	//return util.ApiPost(ctx, constant.ClearConversationMsgRouter, &apiReq, nil)

@@ -872,3 +872,7 @@ func (g *Group) getConversationIDBySessionType(sourceID string, sessionType int)
 func (g *Group) SetGroupChatBackground(ctx context.Context) error {
 	return g.GetUserMemberInfoInGroup(ctx)
 }
+
+func (g *Group) GetGroupAllMember(ctx context.Context, groupID string) ([]*model_struct.LocalGroupMember, error) {
+	return g.db.GetGroupMemberListByGroupID(ctx, groupID)
+}

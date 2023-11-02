@@ -220,6 +220,7 @@ func (f *Friend) DeleteFriend(ctx context.Context, friendUserID string) error {
 	if err != nil {
 		log.ZDebug(ctx, "delete friend after delete conversation and message")
 	}
+	f.RemoveBlack(ctx, friendUserID)
 	return f.SyncDelFriend(ctx, friendUserID)
 }
 

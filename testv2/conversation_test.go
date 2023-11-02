@@ -116,7 +116,7 @@ func Test_GetGetMultipleConversation(t *testing.T) {
 }
 
 func Test_DeleteConversation(t *testing.T) {
-	err := open_im_sdk.UserForSDK.Conversation().DeleteConversationAndDeleteAllMsg(ctx, "sg_486854059102208")
+	err := open_im_sdk.UserForSDK.Conversation().DeleteConversationAndDeleteAllMsg(ctx, "sg_113024237047808")
 	if err != nil {
 		if !strings.Contains(err.Error(), "no update") {
 			t.Fatal(err)

@@ -51,7 +51,9 @@ func (d *DataBase) GetAdminGroupApplication(ctx context.Context) ([]*model_struc
 	d.groupMtx.Lock()
 	defer d.groupMtx.Unlock()
 	var groupRequestList []model_struct.LocalAdminGroupRequest
-	err := utils.Wrap(d.conn.WithContext(ctx).Order("create_time DESC").Find(&groupRequestList).Error, "")
+	err := utils.Wrap(d.conn.WithContext(ctx).
+		Where("handle_result = 0"). //只获取待处理的群
+		Order("create_time DESC").Find(&groupRequestList).Error, "")
 	if err != nil {
 		return nil, utils.Wrap(err, "")
 	}
@@ -72,7 +74,9 @@ func (d *DataBase) GetPageGroupApplicationListAsRecipient(ctx context.Context, g
 	d.groupMtx.Lock()
 	defer d.groupMtx.Unlock()
 	var groupRequestList []model_struct.LocalAdminGroupRequest
-	err := utils.Wrap(d.conn.WithContext(ctx).Where("group_id = ?", groupId).Scopes(pg.Operation(page)).Order("handle_result asc,req_time DESC").Find(&groupRequestList).Error, "")
+	err := utils.Wrap(d.conn.WithContext(ctx).Where("group_id = ?", groupId).
+		Where("handle_result = 0"). //待处理
+		Scopes(pg.Operation(page)).Order("handle_result asc,req_time DESC").Find(&groupRequestList).Error, "")
 	if err != nil {
 		return nil, utils.Wrap(err, "")
 	}

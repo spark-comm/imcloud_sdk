@@ -21,11 +21,11 @@ const (
 	//WSADDR  = "ws://43.154.157.177:10001"
 	//UserID  = "kernaltestuid2"
 
-	APIADDR = "http://localhost:9099"
-	WSADDR  = "ws://localhost:10001"
+	//APIADDR = "http://localhost:9099"
+	//WSADDR  = "ws://localhost:10001"
 	//预生产
-	//APIADDR = "http://8.137.13.1:9099"
-	//WSADDR  = "ws://8.137.13.1:10001"
+	APIADDR = "http://8.137.13.1:9099"
+	WSADDR  = "ws://8.137.13.1:10001"
 	//UserID       = "2688118337"
 	//UserID       = "7204255074"
 	//UserID = "50122626445611008"
@@ -43,8 +43,8 @@ const (
 	//UserID = "55122365549383680"
 	//token  = "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJpbUNsb3VkIiwic3ViIjoie1widXNlcklkXCI6XCI1NTEyMjM2NTU0OTM4MzY4MFwiLFwicGxhdGZvcm1cIjpcIldpbmRvd3NcIixcInJvbGVcIjpcIlVTRVJcIn0iLCJleHAiOjE2OTkxNjQ4MjIsIm5iZiI6MTY5ODgwNDgyMiwiaWF0IjoxNjk4ODA0ODIyfQ.o46dTaGGurutExkXWwLN8ChfduXfNgCmZ77DGOGiLQHgQN3_TPylWh4IutVX2StTeI4NUmyDKh_qKhUtoNJdYg"
 	//token = "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJpbUNsb3VkIiwic3ViIjoie1widXNlcklkXCI6XCI1NTEyMjM2NTIzNDgxMDg4MFwiLFwicGxhdGZvcm1cIjpcIldpbmRvd3NcIixcInJvbGVcIjpcIlVTRVJcIn0iLCJleHAiOjE2OTkxNjM5NTYsIm5iZiI6MTY5ODgwMzk1NiwiaWF0IjoxNjk4ODAzOTU2fQ.1Nv9ph46oY8IIAa0GBjIKTe9QwmyDJXmyelbLp5Yq1YWWoxej5aRwmcE_S4kcka18e9qQz31eJdk7kGHgdzmzg"
-	UserID = "55227449025236992"
-	token  = "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJpbUNsb3VkIiwic3ViIjoie1widXNlcklkXCI6XCI1NTIyNzQ0OTAyNTIzNjk5MlwiLFwicGxhdGZvcm1cIjpcIklPU1wiLFwicm9sZVwiOlwiVVNFUlwifSIsImV4cCI6MTY5OTE5ODU4MiwibmJmIjoxNjk4ODM4NTgyLCJpYXQiOjE2OTg4Mzg1ODJ9._VrsLjAfa5fgnmlzRIvyPdAjemDhNJau8C5ozYiPd3XEFkyn_ywUzmngaisp6y4BHnseO6ZbjPjZWEKJuG8kCQ"
+	UserID = "55122365549383680"
+	token  = "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJpbUNsb3VkIiwic3ViIjoie1widXNlcklkXCI6XCI1NTEyMjM2NTU0OTM4MzY4MFwiLFwicGxhdGZvcm1cIjpcIldpbmRvd3NcIixcInJvbGVcIjpcIlVTRVJcIn0iLCJleHAiOjE2OTk1OTg1NzAsIm5iZiI6MTY5OTIzODU3MCwiaWF0IjoxNjk5MjM4NTcwfQ.nVJfjGnXfIhIR-I0lnhPXiyhELdaCjzXsXmF8MXPPQtO0v5raTTgHRvup1oSKEgMxkqBvn-PGRi4OJACDjMhUw"
 )
 
 func getConf(APIADDR, WSADDR string) sdk_struct.IMConfig {

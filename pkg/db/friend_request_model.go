@@ -53,7 +53,10 @@ func (d *DataBase) GetRecvFriendApplication(ctx context.Context) ([]*model_struc
 	d.friendMtx.Lock()
 	defer d.friendMtx.Unlock()
 	var friendRequestList []model_struct.LocalFriendRequest
-	err := utils.Wrap(d.conn.WithContext(ctx).Where("to_user_id = ?", d.loginUserID).Order("create_at DESC").Find(&friendRequestList).Error, "GetRecvFriendApplication failed")
+	err := utils.Wrap(d.conn.WithContext(ctx).
+		Where("to_user_id = ?", d.loginUserID).
+		Where("handle_result = 0").
+		Order("create_at DESC").Find(&friendRequestList).Error, "GetRecvFriendApplication failed")
 
 	var transfer []*model_struct.LocalFriendRequest
 	for _, v := range friendRequestList {
@@ -82,7 +85,12 @@ func (d *DataBase) GetRecvFriendApplicationList(ctx context.Context, page *pg.Pa
 	d.friendMtx.Lock()
 	defer d.friendMtx.Unlock()
 	transfer := make([]*model_struct.LocalFriendRequest, 0)
-	err := utils.Wrap(d.conn.WithContext(ctx).Where("to_user_id = ?", d.loginUserID).Scopes(pg.Operation(page)).Order("handle_result asc,create_at DESC").Find(&transfer).Error, "GetRecvFriendApplication failed")
+	err := utils.Wrap(d.conn.WithContext(ctx).
+		Where("to_user_id = ?", d.loginUserID).
+		Where("handle_result = 0").
+		Scopes(pg.Operation(page)).
+		Order("handle_result asc,create_at DESC").
+		Find(&transfer).Error, "GetRecvFriendApplication failed")
 	return transfer, utils.Wrap(err, "GetRecvFriendApplication failed")
 }
 

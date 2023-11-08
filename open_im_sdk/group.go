@@ -184,3 +184,7 @@ func SearchGroupInfo(callback open_im_sdk_callback.Base, operationID, keyWord st
 func SearchGroupByCode(callback open_im_sdk_callback.Base, operationID, code string) {
 	call(callback, operationID, UserForSDK.Group().SearchGroupByCode, code)
 }
+
+func GetGroupAllMember(callback open_im_sdk_callback.Base, operationID, group string) {
+	call(callback, operationID, UserForSDK.Group().GetGroupAllMember, group)
+}

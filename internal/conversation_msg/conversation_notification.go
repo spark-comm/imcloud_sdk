@@ -17,6 +17,7 @@ package conversation_msg
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"github.com/imCloud/im/pkg/common/log"
 	"github.com/imCloud/im/pkg/common/mcontext"
 	"github.com/imCloud/im/pkg/proto/sdkws"
@@ -383,6 +384,7 @@ func (c *Conversation) DoNotification(ctx context.Context, msg *sdkws.MsgData) {
 }
 
 func (c *Conversation) doNotificationNew(c2v common.Cmd2Value) {
+	log.ZInfo(context.Background(), fmt.Sprintf("开始同步消息888888"))
 	ctx := c2v.Ctx
 	allMsg := c2v.Value.(sdk_struct.CmdNewMsgComeToConversation).Msgs
 	syncFlag := c2v.Value.(sdk_struct.CmdNewMsgComeToConversation).SyncFlag

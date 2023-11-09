@@ -107,7 +107,10 @@ func (d *DataBase) GetFriendApplicationByBothID(ctx context.Context, fromUserID,
 	defer d.friendMtx.Unlock()
 
 	var friendRequest model_struct.LocalFriendRequest
-	err := utils.Wrap(d.conn.WithContext(ctx).Where("from_user_id = ? AND to_user_id = ?", fromUserID, toUserID).Take(&friendRequest).Error, "GetFriendApplicationByBothID failed")
+	err := utils.Wrap(d.conn.WithContext(ctx).
+		Where("handle_result = 0"). //只获取待处理的请求
+		Where("from_user_id = ? AND to_user_id = ?", fromUserID, toUserID).
+		Take(&friendRequest).Error, "GetFriendApplicationByBothID failed")
 
 	return &friendRequest, utils.Wrap(err, "GetFriendApplicationByBothID failed")
 }

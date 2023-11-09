@@ -378,7 +378,7 @@ func (g *Group) SyncAllSelfGroupApplication(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	localData, err := g.db.GetSendGroupApplication(ctx)
+	localData, err := g.db.GetSendGroupApplication(ctx) //待处理
 	if err != nil {
 		return err
 	}
@@ -392,6 +392,10 @@ func (g *Group) SyncAllSelfGroupApplication(ctx context.Context) error {
 // SyncSelfGroupApplications  同步自己某个群的加群申请
 func (g *Group) SyncSelfGroupApplications(ctx context.Context, groupIDs ...string) error {
 	return g.SyncAllSelfGroupApplication(ctx)
+}
+
+func (g *Group) SyncOneGroupApplications(ctx context.Context, groupID string) error {
+	return g.SyncOneGroupApplicationsFunc(ctx, groupID)
 }
 
 // SyncAllAdminGroupApplication 同步所有群的加群申请
@@ -595,4 +599,33 @@ func (g *Group) GetServerAllGroupMembersInfo(ctx context.Context, groupID string
 		Pagination: &commonPb.RequestPagination{
 			ShowNumber: count,
 		}}, resp, fn)
+}
+
+func (g *Group) SyncOneGroupApplicationsFunc(ctx context.Context, groupID string) error {
+	//远程单个群的申请
+	svrGroupReq, err := g.GetServerAdminOneGroupUntreatedApplicationList(ctx, groupID)
+	if err != nil {
+		return err
+	}
+	//本地数据
+	localData, err := g.db.GetOneSendGroupApplication(ctx, groupID)
+	if err != nil {
+		return err
+	}
+	if err := g.groupRequestSyncer.Sync(ctx, util.Batch(ServerGroupRequestToLocalGroupRequest, svrGroupReq), localData, nil); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (g *Group) GetServerAdminOneGroupUntreatedApplicationList(ctx context.Context, groupID string) ([]*groupv1.GroupRequestInfo, error) {
+	fn := func(resp *groupv1.GetUntreatedGroupApplicationListReply) []*groupv1.GroupRequestInfo {
+		return resp.GroupRequests
+	}
+	req := &groupv1.GetUntreatedRecvGroupApplicationList{
+		GroupID:    groupID,
+		FromUserID: g.loginUserID,
+		Pagination: &commonPb.RequestPagination{}}
+	resp := &groupv1.GetUntreatedGroupApplicationListReply{}
+	return util.GetPageAll(ctx, constant.GetUntreatedRecvGroupApplicationListRouter, req, resp, fn)
 }

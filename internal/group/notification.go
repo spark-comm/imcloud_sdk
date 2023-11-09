@@ -81,9 +81,13 @@ func (g *Group) doNotification(ctx context.Context, msg *sdkws.MsgData) error {
 			return err
 		}
 		if detail.OpUser.UserID == g.loginUserID {
-			return g.SyncAdminGroupApplications(ctx, detail.Group.GroupID)
+			//return g.SyncAdminGroupApplications(ctx, detail.Group.GroupID)
+			//只同步单个群的申请情况
+			return g.SyncOneGroupApplicationsFunc(ctx, detail.Group.GroupID)
 		} else if detail.ReceiverAs == 1 {
-			return g.SyncAdminGroupApplications(ctx, detail.Group.GroupID)
+			//只同步单个群的申请情况
+			return g.SyncOneGroupApplicationsFunc(ctx, detail.Group.GroupID)
+			//return g.SyncAdminGroupApplications(ctx, detail.Group.GroupID)
 		}
 		g.syncGroupMembers(ctx, detail.Group.GroupID, detail.OpUser.InviterUserID)
 		return g.SyncGroups(ctx, detail.Group.GroupID)
@@ -94,11 +98,14 @@ func (g *Group) doNotification(ctx context.Context, msg *sdkws.MsgData) error {
 			return err
 		}
 		if detail.OpUser.UserID == g.loginUserID {
-			return g.SyncAdminGroupApplication(ctx)
+			//return g.SyncAdminGroupApplication(ctx)
+			return g.SyncOneGroupApplicationsFunc(ctx, detail.Group.GroupID)
 		} else if detail.ReceiverAs == 1 {
-			return g.SyncAdminGroupApplications(ctx, detail.Group.GroupID)
+			//return g.SyncAdminGroupApplications(ctx, detail.Group.GroupID)
+			return g.SyncOneGroupApplicationsFunc(ctx, detail.Group.GroupID)
 		}
-		return g.SyncSelfGroupApplications(ctx, detail.Group.GroupID)
+		return nil
+		//return g.SyncSelfGroupApplications(ctx, detail.Group.GroupID)
 		//转让群主通知
 	case constant.GroupOwnerTransferredNotification: // 1507
 		var detail sdkws.GroupOwnerTransferredTips

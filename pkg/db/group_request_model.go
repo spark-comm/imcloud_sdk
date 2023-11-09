@@ -48,7 +48,27 @@ func (d *DataBase) GetSendGroupApplication(ctx context.Context) ([]*model_struct
 	d.groupMtx.Lock()
 	defer d.groupMtx.Unlock()
 	var groupRequestList []model_struct.LocalGroupRequest
-	err := utils.Wrap(d.conn.WithContext(ctx).Order("create_time DESC").Find(&groupRequestList).Error, "")
+	err := utils.Wrap(d.conn.WithContext(ctx).Where("handle_result = 0").
+		Order("create_time DESC").Find(&groupRequestList).Error, "")
+	if err != nil {
+		return nil, utils.Wrap(err, "")
+	}
+	var transfer []*model_struct.LocalGroupRequest
+	for _, v := range groupRequestList {
+		v1 := v
+		transfer = append(transfer, &v1)
+	}
+	return transfer, nil
+}
+
+func (d *DataBase) GetOneSendGroupApplication(ctx context.Context, groupID string) ([]*model_struct.LocalGroupRequest, error) {
+	d.groupMtx.Lock()
+	defer d.groupMtx.Unlock()
+	var groupRequestList []model_struct.LocalGroupRequest
+	err := utils.Wrap(d.conn.WithContext(ctx).
+		Where("group_id = ?", groupID).
+		Where("handle_result = 0").
+		Order("create_time DESC").Find(&groupRequestList).Error, "")
 	if err != nil {
 		return nil, utils.Wrap(err, "")
 	}

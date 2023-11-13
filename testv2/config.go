@@ -21,11 +21,11 @@ const (
 	//WSADDR  = "ws://43.154.157.177:10001"
 	//UserID  = "kernaltestuid2"
 
-	//APIADDR = "http://127.0.0.1:9099"
-	//WSADDR  = "ws://127.0.0.1:10001"
+	APIADDR = "http://127.0.0.1:9099"
+	WSADDR  = "ws://127.0.0.1:10001"
 	//预生产
-	APIADDR = "http://8.137.13.1:9099"
-	WSADDR  = "ws://8.137.13.1:10001"
+	//APIADDR = "http://8.137.13.1:9099"
+	//WSADDR  = "ws://8.137.13.1:10001"
 	//UserID       = "2688118337"
 	//UserID       = "7204255074"
 	//UserID = "50122626445611008"

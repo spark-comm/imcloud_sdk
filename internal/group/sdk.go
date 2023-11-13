@@ -874,5 +874,10 @@ func (g *Group) SetGroupChatBackground(ctx context.Context) error {
 }
 
 func (g *Group) GetGroupAllMember(ctx context.Context, groupID string) ([]*model_struct.LocalGroupMember, error) {
-	return g.db.GetGroupMemberListByGroupID(ctx, groupID)
+
+	info, err := g.GetServerAllGroupMembersInfo(ctx, groupID, 3000)
+	if err != nil {
+		return g.db.GetGroupMemberListByGroupID(ctx, groupID)
+	}
+	return util.Batch(ServerGroupMemberToLocalGroupMember, info), nil
 }

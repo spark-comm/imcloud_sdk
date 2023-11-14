@@ -16,6 +16,7 @@ package user
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"github.com/golang/protobuf/ptypes/empty"
 	"open_im_sdk/internal/util"
@@ -190,6 +191,14 @@ func (u *User) getSelfUserInfo(ctx context.Context) (*model_struct.LocalUser, er
 		}
 		userInfo = ui
 		_ = u.InsertLoginUser(ctx, userInfo)
+	}
+	//填充默认options
+	if userInfo.Options == "" {
+		option, err := u.getDefUserOption()
+		if err != nil {
+			return nil, err
+		}
+		userInfo.Options = option
 	}
 	return userInfo, nil
 }
@@ -391,4 +400,29 @@ func (u *User) syncUserOperation(ctx context.Context) error {
 	//return u.DataBase.UpdateLoginUserByMap(ctx, localUser, map[string]interface{}{
 	//	"optionst": string(marshal),
 	//})
+}
+
+// getDefUserOption 获取默认option
+func (u *User) getDefUserOption() (string, error) {
+	options := map[string]int32{
+		"is_real":               0,
+		"is_open_moments":       1,
+		"group_add":             1,
+		"qr_code_add":           1,
+		"card_add":              1,
+		"code_add":              1,
+		"phone_add":             1,
+		"show_last_login":       0,
+		"multiple_device_login": 0,
+		"global_recv_msg_opt":   0,
+		"app_manger_level":      0,
+		"is_open_wallet":        0,
+		"is_admin":              0,
+		"not_login_status":      0,
+		"is_customer_service":   0,
+		"is_tenant":             0,
+		"tenant_id":             0,
+	}
+	marshal, err := json.Marshal(options)
+	return string(marshal), err
 }

@@ -96,7 +96,7 @@ func (m *SearchCallback) OnSuccess(data string) {
 	fmt.Println("成功返回", data)
 }
 func Test_SearchUserInfo(t *testing.T) {
-	userInfo, err := open_im_sdk.UserForSDK.User().SearchUserInfo(ctx, "1000081", 1)
+	userInfo, err := open_im_sdk.UserForSDK.User().SearchUserInfo(ctx, "10000605", 1)
 	if err != nil {
 		t.Error(err)
 	}

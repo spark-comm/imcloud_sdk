@@ -21,11 +21,11 @@ const (
 	//WSADDR  = "ws://43.154.157.177:10001"
 	//UserID  = "kernaltestuid2"
 
-	APIADDR = "http://127.0.0.1:9099"
-	WSADDR  = "ws://127.0.0.1:10001"
+	//APIADDR = "http://127.0.0.1:9099"
+	//WSADDR  = "ws://127.0.0.1:10001"
 	//预生产
-	//APIADDR = "http://8.137.13.1:9099"
-	//WSADDR  = "ws://8.137.13.1:10001"
+	APIADDR = "http://8.137.13.1:9099"
+	WSADDR  = "ws://8.137.13.1:10001"
 	//UserID       = "2688118337"
 	//UserID       = "7204255074"
 	//UserID = "50122626445611008"
@@ -45,8 +45,8 @@ const (
 	//token = "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJpbUNsb3VkIiwic3ViIjoie1widXNlcklkXCI6XCI1NTEyMjM2NTIzNDgxMDg4MFwiLFwicGxhdGZvcm1cIjpcIldpbmRvd3NcIixcInJvbGVcIjpcIlVTRVJcIn0iLCJleHAiOjE2OTkxNjM5NTYsIm5iZiI6MTY5ODgwMzk1NiwiaWF0IjoxNjk4ODAzOTU2fQ.1Nv9ph46oY8IIAa0GBjIKTe9QwmyDJXmyelbLp5Yq1YWWoxej5aRwmcE_S4kcka18e9qQz31eJdk7kGHgdzmzg"
 	//UserID = "55122365549383680"
 	//token  = "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJpbUNsb3VkIiwic3ViIjoie1widXNlcklkXCI6XCI1NTEyMjM2NTU0OTM4MzY4MFwiLFwicGxhdGZvcm1cIjpcIldpbmRvd3NcIixcInJvbGVcIjpcIlVTRVJcIn0iLCJleHAiOjE2OTk1OTg1NzAsIm5iZiI6MTY5OTIzODU3MCwiaWF0IjoxNjk5MjM4NTcwfQ.nVJfjGnXfIhIR-I0lnhPXiyhELdaCjzXsXmF8MXPPQtO0v5raTTgHRvup1oSKEgMxkqBvn-PGRi4OJACDjMhUw"
-	UserID = "55122365549383680"
-	token  = "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJpbUNsb3VkIiwic3ViIjoie1widXNlcklkXCI6XCI1NTEyMjM2NTU0OTM4MzY4MFwiLFwicGxhdGZvcm1cIjpcIldpbmRvd3NcIixcInRva2VuXCI6XCJcIixcInRlbmFudElkXCI6XCJcIixcImV4cGlyZV90aW1lX3NlY29uZHNcIjowLFwicm9sZVwiOlwiVVNFUlwifSIsImV4cCI6MTY5OTg1NjIyMSwibmJmIjoxNjk5NDk2MjIxLCJpYXQiOjE2OTk0OTYyMjF9.kOJO3xcuhJzBVMaM3yF7Lp5P_XzDpLKWTVR-nLsNlj_N__QLfaho0Vr2ggzUpZhiF1cqR3Sn-e_mHOjlG7Yiug"
+	UserID = "55122368686723072"
+	token  = "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJpbUNsb3VkIiwic3ViIjoie1widXNlcklkXCI6XCI1NTEyMjM2ODY4NjcyMzA3MlwiLFwicGxhdGZvcm1cIjpcIldpbmRvd3NcIixcInRva2VuXCI6XCJcIixcInRlbmFudElkXCI6XCJcIixcImV4cGlyZV90aW1lX3NlY29uZHNcIjowLFwicm9sZVwiOlwiVVNFUlwifSIsImV4cCI6MTcwMDQ3NjUyMywibmJmIjoxNzAwMTE2NTIzLCJpYXQiOjE3MDAxMTY1MjN9.wJ5cXXfWQqhwFFitQ9WmnGFXvItgBh0G8nIkgdnqBsL7ml1V0e7g0M61mNtT89SnCdow2TKMWoOvfkLH7Rvksw"
 )
 
 func getConf(APIADDR, WSADDR string) sdk_struct.IMConfig {

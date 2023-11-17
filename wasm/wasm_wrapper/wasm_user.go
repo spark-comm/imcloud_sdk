@@ -77,3 +77,13 @@ func (w *WrapperUser) GetUserStatus(_ js.Value, args []js.Value) interface{} {
 	callback := event_listener.NewBaseCallback(utils.FirstLower(utils.GetSelfFuncName()), w.commonFunc)
 	return event_listener.NewCaller(open_im_sdk.GetLoginUserStatus, callback, &args).AsyncCallWithCallback()
 }
+
+func (w *WrapperUser) GetSearchUserInfo(_ js.Value, args []js.Value) interface{} {
+	callback := event_listener.NewBaseCallback(utils.FirstLower(utils.GetSelfFuncName()), w.commonFunc)
+	return event_listener.NewCaller(open_im_sdk.SearchUser, callback, &args).AsyncCallWithCallback()
+}
+
+func (w *WrapperUser) SetUsersOption(_ js.Value, args []js.Value) interface{} {
+	callback := event_listener.NewBaseCallback(utils.FirstLower(utils.GetSelfFuncName()), w.commonFunc)
+	return event_listener.NewCaller(open_im_sdk.SetUsersOption, callback, &args).AsyncCallWithCallback()
+}

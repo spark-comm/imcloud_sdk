@@ -69,10 +69,10 @@ func (g *Group) doNotification(ctx context.Context, msg *sdkws.MsgData) error {
 		}
 		if detail.Applicant.UserID == g.loginUserID {
 			//自己主动加群申请信息
-			return g.SyncSelfGroupApplications(ctx, detail.Group.GroupID)
+			return g.SyncOneGroupApplicationsFunc(ctx, detail.Group.GroupID)
 		} else {
 			//(以管理员或群主身份)获取群的加群申请
-			return g.SyncAdminGroupApplications(ctx, detail.Group.GroupID)
+			return g.SyncOneGroupApplicationsFunc(ctx, detail.Group.GroupID)
 		}
 		//接受群请求通知
 	case constant.GroupApplicationAcceptedNotification: // 1505
@@ -170,7 +170,7 @@ func (g *Group) doNotification(ctx context.Context, msg *sdkws.MsgData) error {
 		if err := g.SyncGroups(ctx, detail.Group.GroupID); err != nil {
 			return err
 		}
-		g.SyncSelfGroupApplications(ctx, detail.Group.GroupID) //同步邀请需要申请的请求
+		g.SyncOneGroupApplicationsFunc(ctx, detail.Group.GroupID) //同步邀请需要申请的请求
 		return g.syncGroupMembers(ctx, detail.Group.GroupID, userIDs...)
 		//if utils.IsContain(g.loginUserID, userIDs) {
 		//	return g.SyncGroups(ctx, detail.Group.GroupID)

@@ -163,10 +163,12 @@ func registerFunc() {
 	js.Global().Set("getUsersInfo", js.FuncOf(wrapperUser.GetUsersInfo))
 	js.Global().Set("getUsersInfoWithCache", js.FuncOf(wrapperUser.GetUsersInfoWithCache))
 	js.Global().Set("searchProfile", js.FuncOf(wrapperUser.SearchProfile))
+	js.Global().Set("getSearchUserInfo", js.FuncOf(wrapperUser.GetSearchUserInfo))
 	//js.Global().Set("subscribeUsersStatus", js.FuncOf(wrapperUser.SubscribeUsersStatus))
 	//js.Global().Set("unsubscribeUsersStatus", js.FuncOf(wrapperUser.UnsubscribeUsersStatus))
 	//js.Global().Set("getSubscribeUsersStatus", js.FuncOf(wrapperUser.GetSubscribeUsersStatus))
 	js.Global().Set("getUserStatus", js.FuncOf(wrapperUser.GetUserStatus))
+	js.Global().Set("setUsersOption", js.FuncOf(wrapperUser.SetUsersOption))
 
 	wrapperFriend := wasm_wrapper.NewWrapperFriend(globalFuc)
 	js.Global().Set("getSpecifiedFriendsInfo", js.FuncOf(wrapperFriend.GetSpecifiedFriendsInfo))

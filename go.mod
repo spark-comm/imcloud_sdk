@@ -22,22 +22,7 @@ require (
 )
 
 require (
-	github.com/brian-god/xy-apis v0.0.20
-	golang.org/x/net v0.15.0
-	golang.org/x/text v0.13.0
-	gorm.io/driver/sqlite v1.5.2
-)
 
-replace github.com/imCloud => ../imCloud
-
-require (
-	github.com/bwmarrin/snowflake v0.3.0 // indirect
-	github.com/envoyproxy/protoc-gen-validate v1.0.2 // indirect
-	github.com/go-kratos/kratos/v2 v2.7.1 // indirect
-	github.com/golang/snappy v0.0.4 // indirect
-	github.com/jinzhu/inflection v1.0.0 // indirect
-	github.com/jinzhu/now v1.1.5 // indirect
-	github.com/klauspost/compress v1.16.7 // indirect
 	github.com/lestrrat-go/strftime v1.0.6 // indirect
 	github.com/mattn/go-sqlite3 v1.14.17 // indirect
 	github.com/montanaflynn/stats v0.0.0-20171201202039-1bf9dbcd8cbe // indirect

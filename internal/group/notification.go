@@ -204,14 +204,14 @@ func (g *Group) doNotification(ctx context.Context, msg *sdkws.MsgData) error {
 		if err := utils.UnmarshalNotificationElem(msg.Content, &detail); err != nil {
 			return err
 		}
-		return g.syncGroupMembers(ctx, detail.Group.GroupID, detail.MutedUser.GroupID)
+		return g.syncGroupMembers(ctx, detail.Group.GroupID, detail.MutedUser.UserID)
 		//群成员禁言解除通知
 	case constant.GroupMemberCancelMutedNotification: // 1513
 		var detail sdkws.GroupMemberCancelMutedTips
 		if err := utils.UnmarshalNotificationElem(msg.Content, &detail); err != nil {
 			return err
 		}
-		return g.syncGroupMembers(ctx, detail.Group.GroupID, detail.MutedUser.GroupID)
+		return g.syncGroupMembers(ctx, detail.Group.GroupID, detail.MutedUser.UserID)
 		//群禁言通知
 	case constant.GroupMutedNotification: // 1514
 		var detail sdkws.GroupMutedTips

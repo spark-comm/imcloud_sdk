@@ -20,7 +20,7 @@ require (
 	gorm.io/gorm v1.25.2-0.20230530020048-26663ab9bf55
 	nhooyr.io/websocket v1.8.7
 )
-
+replace github.com/imCloud => ../imCloud
 require (
 
 	github.com/lestrrat-go/strftime v1.0.6 // indirect

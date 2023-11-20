@@ -7,6 +7,7 @@ require (
 	github.com/antonfisher/nested-logrus-formatter v1.3.1
 	github.com/golang/protobuf v1.5.3
 	github.com/gorilla/websocket v1.5.0
+	github.com/imCloud v0.0.0
 	github.com/jinzhu/copier v0.3.5
 	github.com/lestrrat-go/file-rotatelogs v2.4.0+incompatible
 	github.com/mitchellh/mapstructure v1.5.0
@@ -19,16 +20,15 @@ require (
 	nhooyr.io/websocket v1.8.7
 )
 
-replace github.com/imCloud => ../imCloud
-
 require (
 	github.com/brian-god/xy-apis v0.0.20
-	github.com/imCloud v0.0.0-00010101000000-000000000000
 	golang.org/x/net v0.18.0
 	golang.org/x/text v0.14.0
 	gorm.io/driver/sqlite v1.5.4
 	gorm.io/gorm v1.25.2-0.20230530020048-26663ab9bf55
 )
+
+replace github.com/imCloud => ../imCloud
 
 require (
 	github.com/bwmarrin/snowflake v0.3.0 // indirect

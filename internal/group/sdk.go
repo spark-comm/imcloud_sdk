@@ -25,8 +25,6 @@ import (
 	"open_im_sdk/pkg/db/pg"
 	"open_im_sdk/pkg/sdk_params_callback"
 	"open_im_sdk/pkg/sdkerrs"
-	"sort"
-	"strings"
 	"time"
 
 	"github.com/imCloud/im/pkg/common/log"
@@ -854,19 +852,7 @@ func (g *Group) DelGroupConversation(ctx context.Context, groupID string) {
 
 // getConversationIDBySessionType 获取会话类型
 func (g *Group) getConversationIDBySessionType(sourceID string, sessionType int) string {
-	switch sessionType {
-	case constant.SingleChatType:
-		l := []string{g.loginUserID, sourceID}
-		sort.Strings(l)
-		return "si_" + strings.Join(l, "_") // single chat
-	case constant.GroupChatType:
-		return "g_" + sourceID // group chat
-	case constant.SuperGroupChatType:
-		return "sg_" + sourceID // super group chat
-	case constant.NotificationChatType:
-		return "sn_" + sourceID // server notification chat
-	}
-	return ""
+	return utils.GetConversationIDBySessionType(sessionType, g.loginUserID, sourceID)
 }
 
 func (g *Group) SetGroupChatBackground(ctx context.Context) error {

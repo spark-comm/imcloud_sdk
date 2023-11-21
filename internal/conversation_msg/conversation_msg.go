@@ -274,6 +274,10 @@ func (c *Conversation) doMsgNew(c2v common.Cmd2Value) {
 					}
 					switch v.SessionType {
 					case constant.SingleChatType:
+						fallthrough
+					case constant.CustomerServiceChatType:
+						fallthrough
+					case constant.EncryptedChatType:
 						lc.UserID = v.RecvID
 					case constant.GroupChatType, constant.SuperGroupChatType:
 						lc.GroupID = v.GroupID
@@ -301,6 +305,10 @@ func (c *Conversation) doMsgNew(c2v common.Cmd2Value) {
 					}
 					switch v.SessionType {
 					case constant.SingleChatType:
+						fallthrough
+					case constant.CustomerServiceChatType:
+						fallthrough
+					case constant.EncryptedChatType:
 						lc.UserID = v.SendID
 						lc.ShowName = msg.SenderNickname
 						lc.FaceURL = msg.SenderFaceURL

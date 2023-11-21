@@ -181,25 +181,25 @@ func GetConversationIDBySessionType(operationID string, sourceID string, session
 }
 
 // SendMessage 发送消息
-func SendMessage(callback open_im_sdk_callback.SendMsgCallBack, operationID, message, recvID, groupID, offlinePushInfo string, isCustomerService bool) {
+func SendMessage(callback open_im_sdk_callback.SendMsgCallBack, operationID, message, recvID, groupID string, sessionType int32, offlinePushInfo string) {
 	messageCall(callback,
 		operationID,
 		UserForSDK.Conversation().SendMessage,
 		message,
 		recvID,
 		groupID,
-		offlinePushInfo,
-		isCustomerService)
+		sessionType,
+		offlinePushInfo)
 }
 
 // SendMessageNotOss 发送消息不走sdk
-func SendMessageNotOss(callback open_im_sdk_callback.SendMsgCallBack, operationID string, message, recvID, groupID string, offlinePushInfo string) {
-	messageCall(callback, operationID, UserForSDK.Conversation().SendMessageNotOss, message, recvID, groupID, offlinePushInfo)
+func SendMessageNotOss(callback open_im_sdk_callback.SendMsgCallBack, operationID string, message, recvID, groupID string, sessionType int32, offlinePushInfo string) {
+	messageCall(callback, operationID, UserForSDK.Conversation().SendMessageNotOss, message, recvID, groupID, sessionType, offlinePushInfo)
 }
 
 // SendMessageByBuffer 根据buffer发送消息
-func SendMessageByBuffer(callback open_im_sdk_callback.SendMsgCallBack, operationID string, message, recvID, groupID string, offlinePushInfo string, buffer1, buffer2 *bytes.Buffer) {
-	messageCall(callback, operationID, UserForSDK.Conversation().SendMessageByBuffer, message, recvID, groupID, offlinePushInfo, buffer1, buffer2)
+func SendMessageByBuffer(callback open_im_sdk_callback.SendMsgCallBack, operationID string, message, recvID, groupID string, sessionType int32, offlinePushInfo string, buffer1, buffer2 *bytes.Buffer) {
+	messageCall(callback, operationID, UserForSDK.Conversation().SendMessageByBuffer, message, recvID, groupID, sessionType, offlinePushInfo, buffer1, buffer2)
 }
 
 func FindMessageList(callback open_im_sdk_callback.Base, operationID string, findMessageOptions string) {

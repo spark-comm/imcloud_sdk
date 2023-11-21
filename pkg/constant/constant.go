@@ -159,11 +159,12 @@ const (
 
 	/////////////////////////////////////
 	//SessionType
-	SingleChatType       = 1
-	GroupChatType        = 2
-	SuperGroupChatType   = 3
-	NotificationChatType = 4
-
+	SingleChatType          = 1 //单聊
+	GroupChatType           = 2 //群聊
+	SuperGroupChatType      = 3 //超级群聊
+	NotificationChatType    = 4 // 通知消息
+	CustomerServiceChatType = 5 //客服会话
+	EncryptedChatType       = 6 //加密会话
 	//MsgStatus
 	MsgStatusDefault = 0
 

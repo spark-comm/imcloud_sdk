@@ -179,6 +179,14 @@ func (c *Conversation) doUpdateConversation(c2v common.Cmd2Value) {
 			lc.UserID = st.SourceID
 			lc.ConversationID = c.getConversationIDBySessionType(st.SourceID, constant.SingleChatType)
 			lc.ConversationType = constant.SingleChatType
+		case constant.CustomerServiceChatType:
+			lc.UserID = st.SourceID
+			lc.ConversationID = c.getConversationIDBySessionType(st.SourceID, constant.SingleChatType)
+			lc.ConversationType = constant.CustomerServiceChatType
+		case constant.EncryptedChatType:
+			lc.UserID = st.SourceID
+			lc.ConversationID = c.getConversationIDBySessionType(st.SourceID, constant.SingleChatType)
+			lc.ConversationType = constant.EncryptedChatType
 		case constant.SuperGroupChatType:
 			conversationID, conversationType, err := c.getConversationTypeByGroupID(ctx, st.SourceID)
 			if err != nil {
@@ -448,7 +456,6 @@ func (c *Conversation) doNotificationNew(c2v common.Cmd2Value) {
 			case v.ContentType == constant.HasReadReceipt:
 				//已读回执
 				c.doReadDrawing(ctx, v)
-
 			}
 			switch v.SessionType {
 			case constant.SingleChatType:

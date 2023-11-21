@@ -28,8 +28,6 @@ import (
 	"open_im_sdk/pkg/db/model_struct"
 	"open_im_sdk/pkg/sdkerrs"
 	"path/filepath"
-	"sort"
-	"strings"
 	"sync"
 
 	"open_im_sdk/pkg/sdk_params_callback"
@@ -129,6 +127,10 @@ func (c *Conversation) GetOneConversation(ctx context.Context, sessionType int32
 		newConversation.ConversationType = sessionType
 		switch sessionType {
 		case constant.SingleChatType:
+			fallthrough
+		case constant.CustomerServiceChatType:
+			fallthrough
+		case constant.EncryptedChatType:
 			newConversation.UserID = sourceID
 			faceUrl, name, backgroundURL, err := c.cache.GetUserNameFaceURLAndBackgroundUrl(ctx, sourceID)
 			if err != nil {
@@ -344,7 +346,7 @@ func (c *Conversation) fileName(ftype string, id string) string {
 	return fmt.Sprintf("%s_%s_%s", c.loginUserID, ftype, id)
 }
 func (c *Conversation) checkID(ctx context.Context, s *sdk_struct.MsgStruct,
-	recvID, groupID string, options map[string]bool) (*model_struct.LocalConversation, error) {
+	recvID, groupID string, sessionType int32, options map[string]bool) (*model_struct.LocalConversation, error) {
 	log.ZInfo(ctx, fmt.Sprintf("接收到的：group:%s,接收到的revid：%s", groupID, recvID))
 	if recvID == "" && groupID == "" {
 		return nil, sdkerrs.ErrArgs
@@ -386,7 +388,7 @@ func (c *Conversation) checkID(ctx context.Context, s *sdk_struct.MsgStruct,
 		attachedInfo.GroupHasReadInfo.GroupMemberCount = g.MemberCount
 		s.AttachedInfoElem = &attachedInfo
 	} else {
-		s.SessionType = constant.SingleChatType
+		s.SessionType = sessionType
 		s.RecvID = recvID
 		lc.ConversationID = utils.GetConversationIDByMsg(s)
 		lc.UserID = recvID
@@ -414,31 +416,23 @@ func (c *Conversation) checkID(ctx context.Context, s *sdk_struct.MsgStruct,
 	}
 	return lc, nil
 }
+
+// getConversationIDBySessionType 根据类型获取会话
 func (c *Conversation) getConversationIDBySessionType(sourceID string, sessionType int) string {
-	switch sessionType {
-	case constant.SingleChatType:
-		l := []string{c.loginUserID, sourceID}
-		sort.Strings(l)
-		return "si_" + strings.Join(l, "_") // single chat
-	case constant.GroupChatType:
-		return "g_" + sourceID // group chat
-	case constant.SuperGroupChatType:
-		return "sg_" + sourceID // super group chat
-	case constant.NotificationChatType:
-		return "sn_" + sourceID // server notification chat
-	}
-	return ""
+	return utils.GetConversationIDBySessionType(sessionType, c.loginUserID, sourceID)
 }
 func (c *Conversation) GetConversationIDBySessionType(_ context.Context, sourceID string, sessionType int) string {
 	return c.getConversationIDBySessionType(sourceID, sessionType)
 }
-func (c *Conversation) SendMessage(ctx context.Context, s *sdk_struct.MsgStruct, recvID, groupID string, p *sdkws.OfflinePushInfo, isCustomerService bool) (*sdk_struct.MsgStruct, error) {
+
+// SendMessage 发送消息
+func (c *Conversation) SendMessage(ctx context.Context, s *sdk_struct.MsgStruct, recvID, groupID string, sessionType int32, p *sdkws.OfflinePushInfo) (*sdk_struct.MsgStruct, error) {
 	options := make(map[string]bool, 2)
-	lc, err := c.checkID(ctx, s, recvID, groupID, options)
+	lc, err := c.checkID(ctx, s, recvID, groupID, sessionType, options)
 	if err != nil {
 		return nil, err
 	}
-	if isCustomerService {
+	if sessionType == constant.CustomerServiceChatType {
 		options[constant.IsCustomerService] = true
 	}
 	callback, _ := ctx.Value("callback").(open_im_sdk_callback.SendMsgCallBack)
@@ -638,11 +632,14 @@ func (c *Conversation) SendMessage(ctx context.Context, s *sdk_struct.MsgStruct,
 	return c.sendMessageToServer(ctx, s, lc, callback, delFile, p, options)
 
 }
-func (c *Conversation) SendMessageNotOss(ctx context.Context, s *sdk_struct.MsgStruct, recvID, groupID string, p *sdkws.OfflinePushInfo) (*sdk_struct.MsgStruct, error) {
+func (c *Conversation) SendMessageNotOss(ctx context.Context, s *sdk_struct.MsgStruct, recvID, groupID string, sessionType int32, p *sdkws.OfflinePushInfo) (*sdk_struct.MsgStruct, error) {
 	options := make(map[string]bool, 2)
-	lc, err := c.checkID(ctx, s, recvID, groupID, options)
+	lc, err := c.checkID(ctx, s, recvID, groupID, sessionType, options)
 	if err != nil {
 		return nil, err
+	}
+	if sessionType == constant.CustomerServiceChatType {
+		options[constant.IsCustomerService] = true
 	}
 	callback, _ := ctx.Value("callback").(open_im_sdk_callback.SendMsgCallBack)
 
@@ -706,12 +703,15 @@ func (c *Conversation) SendMessageNotOss(ctx context.Context, s *sdk_struct.MsgS
 	return c.sendMessageToServer(ctx, s, lc, callback, delFile, p, options)
 }
 
-func (c *Conversation) SendMessageByBuffer(ctx context.Context, s *sdk_struct.MsgStruct, recvID, groupID string,
+func (c *Conversation) SendMessageByBuffer(ctx context.Context, s *sdk_struct.MsgStruct, recvID, groupID string, sessionType int32,
 	p *sdkws.OfflinePushInfo, buffer1, buffer2 *bytes.Buffer) (*sdk_struct.MsgStruct, error) {
 	options := make(map[string]bool, 2)
-	lc, err := c.checkID(ctx, s, recvID, groupID, options)
+	lc, err := c.checkID(ctx, s, recvID, groupID, sessionType, options)
 	if err != nil {
 		return nil, err
+	}
+	if sessionType == constant.CustomerServiceChatType {
+		options[constant.IsCustomerService] = true
 	}
 	callback, _ := ctx.Value("callback").(open_im_sdk_callback.SendMsgCallBack)
 	// t := time.Now()

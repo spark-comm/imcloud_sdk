@@ -289,6 +289,10 @@ func (c *Conversation) faceURLAndNicknameHandle(ctx context.Context, self, other
 	lc, _ := c.db.GetConversation(ctx, conversationID)
 	switch lc.ConversationType {
 	case constant.SingleChatType:
+		fallthrough
+	case constant.CustomerServiceChatType:
+		fallthrough
+	case constant.EncryptedChatType:
 		c.singleHandle(ctx, self, others, lc)
 	case constant.SuperGroupChatType:
 		c.groupHandle(ctx, self, others, lc)

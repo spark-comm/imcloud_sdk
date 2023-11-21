@@ -29,8 +29,7 @@ import (
 	sdk "open_im_sdk/pkg/sdk_params_callback"
 	"open_im_sdk/pkg/sdkerrs"
 	"open_im_sdk/pkg/server_api_params"
-	"sort"
-	"strings"
+	"open_im_sdk/pkg/utils"
 )
 
 func (f *Friend) GetSpecifiedFriendsInfo(ctx context.Context, friendUserIDList []string) ([]*server_api_params.FullUserInfo, error) {
@@ -374,19 +373,7 @@ func (f *Friend) SetFriendDestroyMsgStatus(ctx context.Context, friendID string,
 
 // getConversationIDBySessionType 获取会话类型
 func (f *Friend) getConversationIDBySessionType(sourceID string, sessionType int) string {
-	switch sessionType {
-	case constant.SingleChatType:
-		l := []string{f.loginUserID, sourceID}
-		sort.Strings(l)
-		return "si_" + strings.Join(l, "_") // single chat
-	case constant.GroupChatType:
-		return "g_" + sourceID // group chat
-	case constant.SuperGroupChatType:
-		return "sg_" + sourceID // super group chat
-	case constant.NotificationChatType:
-		return "sn_" + sourceID // server notification chat
-	}
-	return ""
+	return utils.GetConversationIDBySessionType(sessionType, f.loginUserID, sourceID)
 }
 
 // CheckCompleted 检查数据是否完整

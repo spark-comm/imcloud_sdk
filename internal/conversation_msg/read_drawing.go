@@ -29,14 +29,16 @@ import (
 	"github.com/imCloud/im/pkg/proto/sdkws"
 )
 
-func (c *Conversation) markMsgAsRead2Svr(ctx context.Context, conversationID string, seqs []int64) error {
+func (c *Conversation) markMsgAsRead2Svr(ctx context.Context, conversation *model_struct.LocalConversation, seqs []int64) error {
 	//req := &pbMsg.MarkMsgsAsReadReq{UserID: c.loginUserID, ConversationID: conversationID, Seqs: seqs}
 	_, err := util.ProtoApiPost[pbMsg.MarkMsgsAsReadReq, empty.Empty](
 		ctx,
 		constant.MarkMsgsAsReadRouter,
 		&pbMsg.MarkMsgsAsReadReq{
 			UserID:         c.loginUserID,
-			ConversationID: conversationID,
+			ConversationID: conversation.ConversationID,
+			SessionType:    conversation.ConversationType,
+			RecvID:         c.conversationAndGetRecvID(conversation, c.loginUserID),
 			Seqs:           seqs},
 	)
 	if err != nil {
@@ -46,7 +48,7 @@ func (c *Conversation) markMsgAsRead2Svr(ctx context.Context, conversationID str
 	//return util.ApiPost(ctx, constant.MarkMsgsAsReadRouter, req, nil)
 }
 
-func (c *Conversation) markConversationAsReadSvr(ctx context.Context, conversationID string, hasReadSeq int64, seqs []int64) error {
+func (c *Conversation) markConversationAsReadSvr(ctx context.Context, conversation *model_struct.LocalConversation, hasReadSeq int64, seqs []int64) error {
 	//req := &pbMsg.MarkConversationAsReadReq{UserID: c.loginUserID, ConversationID: conversationID, HasReadSeq: hasReadSeq, Seqs: seqs}
 	//return util.ApiPost(ctx, constant.MarkConversationAsRead, req, nil)
 	_, err := util.ProtoApiPost[pbMsg.MarkConversationAsReadReq, empty.Empty](
@@ -54,7 +56,9 @@ func (c *Conversation) markConversationAsReadSvr(ctx context.Context, conversati
 		constant.MarkConversationAsRead,
 		&pbMsg.MarkConversationAsReadReq{
 			UserID:         c.loginUserID,
-			ConversationID: conversationID,
+			ConversationID: conversation.ConversationID,
+			SessionType:    conversation.ConversationType,
+			RecvID:         c.conversationAndGetRecvID(conversation, c.loginUserID),
 			HasReadSeq:     hasReadSeq,
 			Seqs:           seqs},
 	)
@@ -97,7 +101,7 @@ func (c *Conversation) getConversationMaxSeqAndSetHasRead(ctx context.Context, c
 
 // mark a conversation's all message as read
 func (c *Conversation) markConversationMessageAsRead(ctx context.Context, conversationID string) error {
-	_, err := c.db.GetConversation(ctx, conversationID)
+	conversation, err := c.db.GetConversation(ctx, conversationID)
 	if err != nil {
 		return err
 	}
@@ -120,7 +124,7 @@ func (c *Conversation) markConversationMessageAsRead(ctx context.Context, conver
 		return nil
 	}
 	log.ZDebug(ctx, "markConversationMessageAsRead", "conversationID", conversationID, "seqs", seqs, "peerUserMaxSeq", peerUserMaxSeq, "maxSeq", maxSeq)
-	if err := c.markConversationAsReadSvr(ctx, conversationID, maxSeq, seqs); err != nil {
+	if err := c.markConversationAsReadSvr(ctx, conversation, maxSeq, seqs); err != nil {
 		return err
 	}
 	_, err = c.db.MarkConversationMessageAsReadDB(ctx, conversationID, msgIDs)
@@ -137,7 +141,7 @@ func (c *Conversation) markConversationMessageAsRead(ctx context.Context, conver
 
 // mark a conversation's message as read by seqs
 func (c *Conversation) markMessagesAsReadByMsgID(ctx context.Context, conversationID string, msgIDs []string) error {
-	_, err := c.db.GetConversation(ctx, conversationID)
+	conversation, err := c.db.GetConversation(ctx, conversationID)
 	if err != nil {
 		return err
 	}
@@ -159,7 +163,7 @@ func (c *Conversation) markMessagesAsReadByMsgID(ctx context.Context, conversati
 		log.ZWarn(ctx, "seqs is empty", nil, "conversationID", conversationID)
 		return nil
 	}
-	if err := c.markMsgAsRead2Svr(ctx, conversationID, seqs); err != nil {
+	if err := c.markMsgAsRead2Svr(ctx, conversation, seqs); err != nil {
 		return err
 	}
 	decrCount, err := c.db.MarkConversationMessageAsReadDB(ctx, conversationID, markAsReadMsgIDs)
@@ -222,9 +226,10 @@ func (c *Conversation) doUnreadCount(ctx context.Context, conversationID string,
 
 }
 
+// doReadDrawing 处理消息已读
 func (c *Conversation) doReadDrawing(ctx context.Context, msg *sdkws.MsgData) {
 	tips := &sdkws.MarkAsReadTips{}
-	utils.UnmarshalNotificationElem(msg.Content, tips)
+	_ = utils.UnmarshalNotificationElem(msg.Content, tips)
 	if tips.MarkAsReadUserID != c.loginUserID {
 		log.ZDebug(ctx, "do readDrawing", "tips", tips)
 		conversation, err := c.db.GetConversation(ctx, tips.ConversationID)
@@ -280,4 +285,17 @@ func (c *Conversation) doReadDrawing(ctx context.Context, msg *sdkws.MsgData) {
 		log.ZDebug(ctx, "do unread count", "tips", tips)
 		c.doUnreadCount(ctx, tips.ConversationID, tips.HasReadSeq, tips.Seqs)
 	}
+}
+func (c *Conversation) conversationAndGetRecvID(conversation *model_struct.LocalConversation, userID string) (recvID string) {
+	if conversation.ConversationType == constant.SingleChatType ||
+		conversation.ConversationType == constant.NotificationChatType || conversation.ConversationType == constant.EncryptedChatType || conversation.ConversationType == constant.CustomerServiceChatType {
+		if userID == conversation.UserID {
+			recvID = conversation.UserID
+		} else {
+			recvID = userID
+		}
+	} else if conversation.ConversationType == constant.SuperGroupChatType {
+		recvID = conversation.GroupID
+	}
+	return
 }

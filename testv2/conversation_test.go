@@ -56,7 +56,7 @@ func Test_GetAllConversationList(t *testing.T) {
 }
 
 func Test_GetConversationListSplit(t *testing.T) {
-	conversations, err := open_im_sdk.UserForSDK.Conversation().GetConversationListSplit(ctx, 0, 20)
+	conversations, err := open_im_sdk.UserForSDK.Conversation().GetConversationListSplit(ctx, 0, 30)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -356,11 +356,13 @@ func Test_RevokeMessage(t *testing.T) {
 	time.Sleep(time.Second * 10)
 }
 
+// 标记会话已读
 func Test_MarkConversationMessageAsRead(t *testing.T) {
-	err := open_im_sdk.UserForSDK.Conversation().MarkConversationMessageAsRead(ctx, "si_2688118337_7249315132")
+	err := open_im_sdk.UserForSDK.Conversation().MarkConversationMessageAsRead(ctx, "ec_55122519589392384_55122519694249984")
 	if err != nil {
 		t.Fatal(err)
 	}
+	time.Sleep(time.Minute * 5)
 }
 
 func Test_MarkMsgsAsRead(t *testing.T) {

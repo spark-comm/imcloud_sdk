@@ -1,6 +1,6 @@
 module open_im_sdk
 
-go 1.21
+go 1.20
 
 // go get -u github.com/OpenIMSDK/Open-IM-Server@main
 require (
@@ -40,6 +40,7 @@ require (
 	github.com/cncf/xds/go v0.0.0-20230607035331-e9ce68804cb4 // indirect
 	github.com/envoyproxy/go-control-plane v0.11.2-0.20230627204322-7d0032219fcb // indirect
 	github.com/envoyproxy/protoc-gen-validate v1.0.2 // indirect
+	github.com/go-kratos/kratos/v2 v2.7.1 // indirect
 	github.com/go-kratos/kratos/v2 v2.7.1 // indirect
 	github.com/golang/glog v1.1.2 // indirect
 	github.com/golang/snappy v0.0.4 // indirect

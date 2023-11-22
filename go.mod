@@ -1,6 +1,6 @@
 module open_im_sdk
 
-go 1.21
+go 1.20
 
 // go get -u github.com/OpenIMSDK/Open-IM-Server@main
 require (
@@ -33,7 +33,7 @@ replace github.com/imCloud => ../imCloud
 require (
 	github.com/bwmarrin/snowflake v0.3.0 // indirect
 	github.com/envoyproxy/protoc-gen-validate v1.0.2 // indirect
-	github.com/go-kratos/kratos/v2 v2.7.0 // indirect
+	github.com/go-kratos/kratos/v2 v2.7.1 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
@@ -53,11 +53,8 @@ require (
 	go.uber.org/zap v1.24.0 // indirect
 	golang.org/x/crypto v0.15.0 // indirect
 	golang.org/x/image v0.14.0 // indirect
-	golang.org/x/mobile v0.0.0-20231108233038-35478a0c49da // indirect
-	golang.org/x/mod v0.14.0 // indirect
 	golang.org/x/sync v0.5.0 // indirect
 	golang.org/x/sys v0.14.0 // indirect
-	golang.org/x/tools v0.15.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20230822172742-b8732ec3820d // indirect
 	google.golang.org/grpc v1.59.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect

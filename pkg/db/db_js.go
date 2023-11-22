@@ -6,7 +6,6 @@ package db
 import (
 	"context"
 	"errors"
-	"open_im_sdk/pkg/db/model_struct"
 	"open_im_sdk/wasm/exec"
 	"open_im_sdk/wasm/indexdb"
 )
@@ -30,32 +29,8 @@ type IndexDB struct {
 	*indexdb.LocalChatLogReactionExtensions
 	*indexdb.NotificationSeqs
 	*indexdb.LocalMoments
+	*indexdb.LocalUpload
 	loginUserID string
-}
-
-func (i IndexDB) GetUpload(ctx context.Context, partHash string) (*model_struct.LocalUpload, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (i IndexDB) InsertUpload(ctx context.Context, upload *model_struct.LocalUpload) error {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (i IndexDB) DeleteUpload(ctx context.Context, partHash string) error {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (i IndexDB) UpdateUpload(ctx context.Context, upload *model_struct.LocalUpload) error {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (i IndexDB) DeleteExpireUpload(ctx context.Context) error {
-	//TODO implement me
-	panic("implement me")
 }
 
 func (i IndexDB) Close(ctx context.Context) error {
@@ -85,6 +60,7 @@ func NewDataBase(ctx context.Context, loginUserID string, dbDir string) (*IndexD
 		LocalChatLogReactionExtensions:  indexdb.NewLocalChatLogReactionExtensions(),
 		NotificationSeqs:                indexdb.NewNotificationSeqs(),
 		LocalMoments:                    indexdb.NewLocalMoments(),
+		LocalUpload:                     indexdb.NewLocalUpload(),
 		loginUserID:                     loginUserID,
 	}
 	err := i.InitDB(ctx, loginUserID, dbDir)

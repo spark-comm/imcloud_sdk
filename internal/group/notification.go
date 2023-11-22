@@ -143,6 +143,8 @@ func (g *Group) doNotification(ctx context.Context, msg *sdkws.MsgData) error {
 			for _, info := range detail.KickedUserList {
 				userIDs = append(userIDs, info.UserID)
 			}
+			//同步群数量
+
 			//删除指定成员
 			return g.deleteGroupMembers(ctx, detail.Group.GroupID, userIDs...)
 		}

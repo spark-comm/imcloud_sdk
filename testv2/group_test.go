@@ -319,9 +319,9 @@ func Test_TransferGroupOwner(t *testing.T) {
 func Test_InviteUserToGroup(t *testing.T) {
 	err := open_im_sdk.UserForSDK.Group().InviteUserToGroup(
 		ctx,
-		"395156234702848",
+		"99173974151168",
 		"测试邀请人进群",
-		[]string{"55122366002368512"})
+		[]string{"55122367646535680"})
 	if err != nil {
 		t.Fatal(err)
 	}

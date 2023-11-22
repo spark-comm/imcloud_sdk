@@ -147,8 +147,8 @@ func (g *Group) initSyncer() {
 			//	_ = common.TriggerCmdUpdateConversationBackgroundURL(ctx, sessionType, server.BackgroundURL, g.conversationCh)
 			//}
 			g.listener.OnGroupMemberAdded(utils.StructToJsonString(server))
-			_ = common.TriggerCmdUpdateConversation(ctx, common.UpdateConNode{Action: constant.UpdateConFaceUrlAndNickName, Args: common.SourceIDAndSessionType{SourceID: server.GroupID,
-				SessionType: constant.SuperGroupChatType, FaceURL: server.FaceURL, Nickname: server.GroupUserName}}, g.conversationCh)
+			//_ = common.TriggerCmdUpdateConversation(ctx, common.UpdateConNode{Action: constant.UpdateConFaceUrlAndNickName, Args: common.SourceIDAndSessionType{SourceID: server.GroupID,
+			//	SessionType: constant.SuperGroupChatType, FaceURL: server.FaceURL, Nickname: server.GroupUserName}}, g.conversationCh)
 		case syncer.Delete:
 			g.listener.OnGroupMemberDeleted(utils.StructToJsonString(local))
 			g.listener.OnGroupMemberInfoChanged(utils.StructToJsonString(server))

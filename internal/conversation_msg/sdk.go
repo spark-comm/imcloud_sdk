@@ -388,7 +388,11 @@ func (c *Conversation) checkID(ctx context.Context, s *sdk_struct.MsgStruct,
 		attachedInfo.GroupHasReadInfo.GroupMemberCount = g.MemberCount
 		s.AttachedInfoElem = &attachedInfo
 	} else {
-		s.SessionType = sessionType
+		if sessionType == 0 {
+			s.SessionType = constant.SingleChatType
+		} else {
+			s.SessionType = sessionType
+		}
 		s.RecvID = recvID
 		lc.ConversationID = utils.GetConversationIDByMsg(s)
 		lc.UserID = recvID

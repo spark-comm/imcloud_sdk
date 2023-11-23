@@ -222,6 +222,7 @@ type ConversationDatabase interface {
 	GetMultipleConversationDB(ctx context.Context, conversationIDList []string) (result []*model_struct.LocalConversation, err error)
 	SearchAllMessageByContentType(ctx context.Context, conversationID string, contentType int) ([]*model_struct.LocalChatLog, error)
 	SuperGroupSearchAllMessageByContentType(ctx context.Context, superGroupID string, contentType int32) ([]*model_struct.LocalChatLog, error)
+	GetPrivacyConversationForPage(ctx context.Context, isLimit bool, pageSize, pageNum int) ([]*model_struct.LocalConversation, error)
 }
 
 type UserDatabase interface {

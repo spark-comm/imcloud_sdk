@@ -1275,3 +1275,15 @@ func (c *Conversation) GetMessageListReactionExtensions(ctx context.Context, con
 func (c *Conversation) Get123dfsd(ctx context.Context, conversationID string) (*model_struct.LocalConversation, error) {
 	return c.db.GetConversation(ctx, conversationID)
 }
+
+func (c *Conversation) GetPrivacyConversation(ctx context.Context, pageSize, pageNum int) ([]*model_struct.LocalConversation, error) {
+	bl := false
+	if pageSize != 0 && pageNum != 0 {
+		bl = true
+	}
+	privacyConversationInfo, err := c.db.GetPrivacyConversationForPage(ctx, bl, pageSize, pageNum)
+	if err != nil {
+		return nil, err
+	}
+	return privacyConversationInfo, nil
+}

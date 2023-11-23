@@ -409,3 +409,12 @@ func Test_GetConversationIDBySessionType(t *testing.T) {
 	conId := open_im_sdk.GetConversationIDBySessionType("ssss", "1463426512456", 1) //open_im_sdk.UserForSDK.Conversation().GetConversationIDBySessionType(context.Background(), "12312", 1)
 	t.Logf("send conId => %s\n", conId)
 }
+
+func Test_GetPrivacyConversation(t *testing.T) {
+	conversation, err := open_im_sdk.UserForSDK.Conversation().GetPrivacyConversation(ctx, 0, 0)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	log.Info(fmt.Sprintf("%v", conversation))
+}

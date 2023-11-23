@@ -105,5 +105,5 @@ func (t TempUploadFile) Complete(size int64, url string, typ int) {
 func UploadFile(callback event_listener.UploadInterface, operationID string, req string) {
 	b := NewTempBase(callback)
 	t := NewTempUploadFile(callback)
-	open_im_sdk.UploadFileFullPath(b, operationID, req, t)
+	open_im_sdk.UploadFile(b, operationID, req, t)
 }

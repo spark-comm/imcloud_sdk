@@ -289,3 +289,10 @@ func SetMessageLocalEx(callback open_im_sdk_callback.Base, operationID string, c
 func SyncConversationMsg(callback open_im_sdk_callback.Base, operationID string, conversationID string) {
 	call(callback, operationID, UserForSDK.MsgSyncer().SyncConversationMsg, conversationID)
 }
+
+func GetPrivacyConversation(callback open_im_sdk_callback.Base, operationID string) {
+	call(callback, operationID, UserForSDK.Conversation().GetPrivacyConversation, 0, 0)
+}
+func GetPrivacyConversationForPage(callback open_im_sdk_callback.Base, operationID string, pageSize, pageNum int) {
+	call(callback, operationID, UserForSDK.Conversation().GetPrivacyConversation, pageSize, pageNum)
+}

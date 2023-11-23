@@ -19,7 +19,6 @@ package exec
 
 import (
 	"errors"
-	"fmt"
 	"open_im_sdk/pkg/log"
 	"open_im_sdk/pkg/utils"
 	"runtime"
@@ -61,7 +60,6 @@ func Exec(args ...interface{}) (output interface{}, err error) {
 	defer close(catchChannel)
 	pc, _, _, _ := runtime.Caller(1)
 	funcName := utils.CleanUpfuncName(runtime.FuncForPC(pc).Name())
-	log.Error("ssss", fmt.Sprintf("获取执行的方法名称%s", funcName))
 	data := CallbackData{}
 	thenFunc := js.FuncOf(func(this js.Value, args []js.Value) interface{} {
 		defer func() {
@@ -94,7 +92,7 @@ func Exec(args ...interface{}) (output interface{}, err error) {
 				}
 			}
 		}()
-		log.Debug("js catch function", "=> (main go context) "+funcName+" with respone ", args[0])
+		log.Debug("js catch function", "=> (main go context) "+funcName+" with respone ", args[0].String())
 		catchChannel <- args
 		return nil
 	})
@@ -124,7 +122,6 @@ func Exec(args ...interface{}) (output interface{}, err error) {
 		if catch[0].InstanceOf(jsErr) {
 			return nil, js.Error{Value: catch[0]}
 		} else {
-			log.NewError("上传图片错误", fmt.Sprintf("%v", catch[0]))
 			panic("unknown javascript exception")
 		}
 	case <-time.After(TIMEOUT * time.Second):

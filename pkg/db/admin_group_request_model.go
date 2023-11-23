@@ -70,30 +70,6 @@ func (d *DataBase) GetAdminGroupApplication(ctx context.Context) ([]*model_struc
 	return transfer, nil
 }
 
-func (d *DataBase) GetAdminGroupApplicationV2(ctx context.Context, groupID string) ([]*model_struct.LocalAdminGroupRequest, error) {
-	d.groupMtx.Lock()
-	defer d.groupMtx.Unlock()
-	var groupRequestList []model_struct.LocalAdminGroupRequest
-	err := utils.Wrap(d.conn.WithContext(ctx).
-		Where("group_id = ?", groupID).
-		Where("handle_result = 0"). //只获取待处理的群
-		Order("create_time DESC").Find(&groupRequestList).Error, "")
-	if err != nil {
-		return nil, utils.Wrap(err, "")
-	}
-	var transfer []*model_struct.LocalAdminGroupRequest
-	var groupMap = make(map[string]struct{})
-	for _, v := range groupRequestList {
-		v1 := v
-		if _, ok := groupMap[v.GroupID]; ok {
-			continue
-		}
-		groupMap[v.GroupID] = struct{}{}
-		transfer = append(transfer, &v1)
-	}
-	return transfer, nil
-}
-
 func (d *DataBase) GetPageGroupApplicationListAsRecipient(ctx context.Context, groupId string, page *pg.Page) ([]*model_struct.LocalAdminGroupRequest, error) {
 	d.groupMtx.Lock()
 	defer d.groupMtx.Unlock()

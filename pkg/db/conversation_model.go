@@ -28,17 +28,42 @@ import (
 	"gorm.io/gorm"
 )
 
+const (
+	PrivacyConversationType = 6 //私密会话
+)
+
 func (d *DataBase) GetConversationByUserID(ctx context.Context, userID string) (*model_struct.LocalConversation, error) {
 	var conversation model_struct.LocalConversation
 	err := utils.Wrap(d.conn.WithContext(ctx).Where("user_id=?", userID).Find(&conversation).Error, "GetConversationByUserID error")
 	return &conversation, err
 }
 
+func (d *DataBase) GetPrivacyConversationForPage(ctx context.Context, isLimit bool, pageSize, pageNum int) ([]*model_struct.LocalConversation, error) {
+	d.mRWMutex.Lock()
+	defer d.mRWMutex.Unlock()
+	var conversationList []*model_struct.LocalConversation
+	tx := d.conn.WithContext(ctx).Scopes(func(db *gorm.DB) *gorm.DB {
+		db.Where("latest_msg_send_time > ?", 0)
+		db.Where("conversation_type = ?", PrivacyConversationType)
+		return db
+	}).Order("case when is_pinned=1 then 0 else 1 end,max(latest_msg_send_time,draft_text_time) DESC")
+	if isLimit {
+		tx = tx.Offset(pageSize * (pageNum - 1)).Limit(pageNum)
+	}
+	err := tx.Find(&conversationList).Error
+	if err != nil {
+		return []*model_struct.LocalConversation{}, err
+	}
+	return conversationList, nil
+}
+
 func (d *DataBase) GetAllConversationListDB(ctx context.Context) ([]*model_struct.LocalConversation, error) {
 	d.mRWMutex.Lock()
 	defer d.mRWMutex.Unlock()
 	var conversationList []*model_struct.LocalConversation
-	err := utils.Wrap(d.conn.WithContext(ctx).Where("latest_msg_send_time > ?", 0).Order("case when is_pinned=1 then 0 else 1 end,max(latest_msg_send_time,draft_text_time) DESC").Find(&conversationList).Error,
+	err := utils.Wrap(d.conn.WithContext(ctx).Where("latest_msg_send_time > ?", 0).
+		Where("conversation_type != ?", PrivacyConversationType). //去除私密会话
+		Order("case when is_pinned=1 then 0 else 1 end,max(latest_msg_send_time,draft_text_time) DESC").Find(&conversationList).Error,
 		"GetAllConversationList failed")
 	if err != nil {
 		return nil, err
@@ -88,7 +113,9 @@ func (d *DataBase) GetConversationListSplitDB(ctx context.Context, offset, count
 	d.mRWMutex.Lock()
 	defer d.mRWMutex.Unlock()
 	var conversationList []model_struct.LocalConversation
-	err := utils.Wrap(d.conn.WithContext(ctx).Where("latest_msg_send_time > ?", 0).Order("case when is_pinned=1 then 0 else 1 end,max(latest_msg_send_time,draft_text_time) DESC").Offset(offset).Limit(count).Find(&conversationList).Error,
+	err := utils.Wrap(d.conn.WithContext(ctx).Where("latest_msg_send_time > ?", 0).
+		Where("conversation_type != ?", PrivacyConversationType). //去除私密会话
+		Order("case when is_pinned=1 then 0 else 1 end,max(latest_msg_send_time,draft_text_time) DESC").Offset(offset).Limit(count).Find(&conversationList).Error,
 		"GetFriendList failed")
 	var transfer []*model_struct.LocalConversation
 	for _, v := range conversationList {

@@ -354,3 +354,8 @@ func (i *LocalGroupMember) GetOwnerOrAdminGroupReqInfo(ctx context.Context, grou
 	// todo
 	return nil, nil
 }
+
+func (i *LocalGroupMember) GetAdminGroupApplicationV2(ctx context.Context, groupID string) ([]*model_struct.LocalAdminGroupRequest, error) {
+	// todo
+	return nil, nil
+}

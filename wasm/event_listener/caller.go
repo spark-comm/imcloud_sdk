@@ -243,7 +243,7 @@ func (r *ReflectCall) SyncCall() (result []interface{}) {
 		case reflect.Bool:
 			values = append(values, reflect.ValueOf(r.arguments[i].Bool()))
 		default:
-			panic("implement me")
+			log.NewError("", "implement me,掉用引起的错误")
 		}
 	}
 	returnValues := funcName.Call(values)

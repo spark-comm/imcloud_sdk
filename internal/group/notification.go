@@ -89,8 +89,9 @@ func (g *Group) doNotification(ctx context.Context, msg *sdkws.MsgData) error {
 			return g.SyncOneGroupApplicationsFunc(ctx, detail.Group.GroupID)
 			//return g.SyncAdminGroupApplications(ctx, detail.Group.GroupID)
 		}
-		g.syncGroupMembers(ctx, detail.Group.GroupID, detail.OpUser.InviterUserID)
-		return g.SyncGroups(ctx, detail.Group.GroupID)
+		return nil
+		//g.syncGroupMembers(ctx, detail.Group.GroupID, detail.OpUser.InviterUserID)
+		//return g.SyncGroups(ctx, detail.Group.GroupID)
 		//群请求拒绝通知
 	case constant.GroupApplicationRejectedNotification: // 1506
 		var detail sdkws.GroupApplicationRejectedTips
@@ -142,6 +143,8 @@ func (g *Group) doNotification(ctx context.Context, msg *sdkws.MsgData) error {
 			for _, info := range detail.KickedUserList {
 				userIDs = append(userIDs, info.UserID)
 			}
+			//同步群数量
+
 			//删除指定成员
 			return g.deleteGroupMembers(ctx, detail.Group.GroupID, userIDs...)
 		}
@@ -153,10 +156,12 @@ func (g *Group) doNotification(ctx context.Context, msg *sdkws.MsgData) error {
 		}
 		if detail.QuitUser.UserID == g.loginUserID {
 			//退群为自己  删除操作
-			return g.deleteGroup(ctx, detail.Group.GroupID)
+			g.deleteGroup(ctx, detail.Group.GroupID)
 		} else { //群成员同步
-			return g.deleteGroupMembers(ctx, detail.Group.GroupID, detail.QuitUser.UserID)
+			g.deleteGroupMembers(ctx, detail.Group.GroupID, detail.QuitUser.UserID)
 		}
+		//同步指定的群成员信息
+		return g.syncGroupMembers(ctx, detail.Group.GroupID, detail.QuitUser.UserID)
 		//成员邀请通知
 	case constant.MemberInvitedNotification: // 1509
 		var detail sdkws.MemberInvitedTips
@@ -170,7 +175,6 @@ func (g *Group) doNotification(ctx context.Context, msg *sdkws.MsgData) error {
 		if err := g.SyncGroups(ctx, detail.Group.GroupID); err != nil {
 			return err
 		}
-		g.SyncOneGroupApplicationsFunc(ctx, detail.Group.GroupID) //同步邀请需要申请的请求
 		return g.syncGroupMembers(ctx, detail.Group.GroupID, userIDs...)
 		//if utils.IsContain(g.loginUserID, userIDs) {
 		//	return g.SyncGroups(ctx, detail.Group.GroupID)

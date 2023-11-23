@@ -147,19 +147,20 @@ func (g *Group) initSyncer() {
 			//	_ = common.TriggerCmdUpdateConversationBackgroundURL(ctx, sessionType, server.BackgroundURL, g.conversationCh)
 			//}
 			g.listener.OnGroupMemberAdded(utils.StructToJsonString(server))
+			//_ = common.TriggerCmdUpdateConversation(ctx, common.UpdateConNode{Action: constant.UpdateConFaceUrlAndNickName, Args: common.SourceIDAndSessionType{SourceID: server.GroupID,
+			//	SessionType: constant.SuperGroupChatType, FaceURL: server.FaceURL, Nickname: server.GroupUserName}}, g.conversationCh)
 		case syncer.Delete:
 			g.listener.OnGroupMemberDeleted(utils.StructToJsonString(local))
-		case syncer.Update:
-			g.listener.OnGroupMemberInfoChanged(utils.StructToJsonString(server))
-			if server.Nickname != local.Nickname || server.FaceURL != local.FaceURL || server.GroupUserName != local.GroupUserName {
-				nickname := server.Nickname
-				if server.GroupUserName != "" {
-					nickname = server.GroupUserName
-				}
-				// 更新本地消息
-				_ = common.TriggerCmdUpdateMessage(ctx, common.UpdateMessageNode{Action: constant.UpdateMsgFaceUrlAndNickName, Args: common.UpdateMessageInfo{UserID: server.UserID, FaceURL: server.FaceURL,
-					Nickname: nickname, GroupID: server.GroupID}}, g.conversationCh)
-			}
+			//g.listener.OnGroupMemberInfoChanged(utils.StructToJsonString(server))
+			//if server.Nickname != local.Nickname || server.FaceURL != local.FaceURL || server.GroupUserName != local.GroupUserName {
+			//	nickname := server.Nickname
+			//	if server.GroupUserName != "" {
+			//		nickname = server.GroupUserName
+			//	}
+			//	// 更新本地消息
+			//	_ = common.TriggerCmdUpdateMessage(ctx, common.UpdateMessageNode{Action: constant.UpdateMsgFaceUrlAndNickName, Args: common.UpdateMessageInfo{UserID: server.UserID, FaceURL: server.FaceURL,
+			//		Nickname: nickname, GroupID: server.GroupID}}, g.conversationCh)
+			//}
 		}
 		return nil
 	})

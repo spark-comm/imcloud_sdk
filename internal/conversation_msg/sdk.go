@@ -478,6 +478,7 @@ func (c *Conversation) SendMessage(ctx context.Context, s *sdk_struct.MsgStruct,
 			Filepath: sourcePath,
 			Name:     c.fileName("picture", s.ClientMsgID) + filepath.Ext(sourcePath),
 			Cause:    "msg-picture",
+			Uuid:     s.PictureElem.SourcePicture.UUID,
 		}, NewUploadFileCallback(ctx, callback.OnProgress, s, lc.ConversationID, c.db))
 		if err != nil {
 			c.updateMsgStatusAndTriggerConversation(ctx, s.ClientMsgID, "", s.CreateTime, constant.MsgStatusSendFailed, s, lc)
@@ -515,6 +516,7 @@ func (c *Conversation) SendMessage(ctx context.Context, s *sdk_struct.MsgStruct,
 			Filepath: sourcePath,
 			Name:     c.fileName("voice", s.ClientMsgID) + filepath.Ext(sourcePath),
 			Cause:    "msg-voice",
+			Uuid:     s.SoundElem.UUID,
 		}, NewUploadFileCallback(ctx, callback.OnProgress, s, lc.ConversationID, c.db))
 		if err != nil {
 			c.updateMsgStatusAndTriggerConversation(ctx, s.ClientMsgID, "", s.CreateTime, constant.MsgStatusSendFailed, s, lc)
@@ -551,6 +553,7 @@ func (c *Conversation) SendMessage(ctx context.Context, s *sdk_struct.MsgStruct,
 				Filepath: snapPath,
 				Name:     c.fileName("videoSnapshot", s.ClientMsgID) + filepath.Ext(snapPath),
 				Cause:    "msg-video-snapshot",
+				Uuid:     s.VideoElem.VideoUUID,
 			}, nil)
 			if err != nil {
 				c.updateMsgStatusAndTriggerConversation(ctx, s.ClientMsgID, "", s.CreateTime, constant.MsgStatusSendFailed, s, lc)
@@ -566,6 +569,7 @@ func (c *Conversation) SendMessage(ctx context.Context, s *sdk_struct.MsgStruct,
 				Filepath: videoPath,
 				Name:     c.fileName("video", s.ClientMsgID) + filepath.Ext(videoPath),
 				Cause:    "msg-video",
+				Uuid:     s.VideoElem.VideoUUID,
 			}, NewUploadFileCallback(ctx, callback.OnProgress, s, lc.ConversationID, c.db))
 			if err != nil {
 				c.updateMsgStatusAndTriggerConversation(ctx, s.ClientMsgID, "", s.CreateTime, constant.MsgStatusSendFailed, s, lc)
@@ -590,6 +594,7 @@ func (c *Conversation) SendMessage(ctx context.Context, s *sdk_struct.MsgStruct,
 			Filepath: s.FileElem.FilePath,
 			Name:     c.fileName("file", s.ClientMsgID) + filepath.Ext(s.FileElem.FilePath),
 			Cause:    "msg-file",
+			Uuid:     s.FileElem.UUID,
 		}, NewUploadFileCallback(ctx, callback.OnProgress, s, lc.ConversationID, c.db))
 		if err != nil {
 			c.updateMsgStatusAndTriggerConversation(ctx, s.ClientMsgID, "", s.CreateTime, constant.MsgStatusSendFailed, s, lc)

@@ -396,7 +396,7 @@ func (c *Conversation) checkID(ctx context.Context, s *sdk_struct.MsgStruct,
 		s.RecvID = recvID
 		lc.ConversationID = utils.GetConversationIDByMsg(s)
 		lc.UserID = recvID
-		lc.ConversationType = constant.SingleChatType
+		lc.ConversationType = s.SessionType
 		oldLc, err := c.db.GetConversation(ctx, lc.ConversationID)
 		if err == nil && oldLc.IsPrivateChat {
 			options[constant.IsNotPrivate] = false

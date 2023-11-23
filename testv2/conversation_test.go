@@ -99,7 +99,7 @@ func Test_GetConversationRecvMessageOpt(t *testing.T) {
 
 func Test_GetGlobalRecvMessageOpt(t *testing.T) {
 	opt, err := open_im_sdk.UserForSDK.Conversation().
-		GetOneConversation(ctx, 1, "55224333915656192", false)
+		GetOneNormalConversation(ctx, constant.CustomerServiceChatType, "55122332229832704")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -186,7 +186,7 @@ func Test_GetTotalUnreadMsgCount(t *testing.T) {
 func Test_SendMessage(t *testing.T) {
 	ctx = context.WithValue(ctx, "callback", TestSendMsg{})
 	msg, _ := open_im_sdk.UserForSDK.Conversation().CreateTextMessage(ctx, "加密会话消息1")
-	_, err := open_im_sdk.UserForSDK.Conversation().SendMessage(ctx, msg, "55122332229832704", "", constant.CustomerServiceChatType, nil)
+	_, err := open_im_sdk.UserForSDK.Conversation().SendMessage(ctx, msg, "55122332330496000", "", constant.CustomerServiceChatType, nil)
 	if err != nil {
 		t.Fatal(err)
 	}

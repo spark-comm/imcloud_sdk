@@ -181,6 +181,13 @@ func GetConversationIDBySessionType(operationID string, sourceID string, session
 }
 
 // SendMessage 发送消息
+// par callback 会调
+// par operationID string 链路id
+// par message     string 消息内容
+// par recvID      string 接受者id
+// par groupID     string 群ID
+// par sessionType number 会话类型
+// par offlinePushInfo string 消息通知指定
 func SendMessage(callback open_im_sdk_callback.SendMsgCallBack, operationID, message, recvID, groupID string, sessionType int32, offlinePushInfo string) {
 	messageCall(callback,
 		operationID,
@@ -193,11 +200,27 @@ func SendMessage(callback open_im_sdk_callback.SendMsgCallBack, operationID, mes
 }
 
 // SendMessageNotOss 发送消息不走sdk
+// par callback 会调
+// par operationID string 链路id
+// par message     string 消息内容
+// par recvID      string 接受者id
+// par groupID     string 群ID
+// par sessionType number 会话类型
+// par offlinePushInfo string 消息通知指定
 func SendMessageNotOss(callback open_im_sdk_callback.SendMsgCallBack, operationID string, message, recvID, groupID string, sessionType int32, offlinePushInfo string) {
 	messageCall(callback, operationID, UserForSDK.Conversation().SendMessageNotOss, message, recvID, groupID, sessionType, offlinePushInfo)
 }
 
 // SendMessageByBuffer 根据buffer发送消息
+// par callback 会调
+// par operationID string 链路id
+// par message     string 消息内容
+// par recvID      string 接受者id
+// par groupID     string 群ID
+// par sessionType number 会话类型
+// par offlinePushInfo string 消息通知指定
+// par buffer1      bytes  文件
+// par buffer2      bytes  文件
 func SendMessageByBuffer(callback open_im_sdk_callback.SendMsgCallBack, operationID string, message, recvID, groupID string, sessionType int32, offlinePushInfo string, buffer1, buffer2 *bytes.Buffer) {
 	messageCall(callback, operationID, UserForSDK.Conversation().SendMessageByBuffer, message, recvID, groupID, sessionType, offlinePushInfo, buffer1, buffer2)
 }

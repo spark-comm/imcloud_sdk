@@ -34,7 +34,7 @@ func Test_GetSelfUserInfo(t *testing.T) {
 }
 
 func Test_GetUsersInfo(t *testing.T) {
-	userInfo, err := open_im_sdk.UserForSDK.Full().GetUsersInfo(ctx, []string{"45778745637736448"})
+	userInfo, err := open_im_sdk.UserForSDK.Full().GetUsersInfo(ctx, []string{"88591724615569408"})
 	if err != nil {
 		t.Error(err)
 	}

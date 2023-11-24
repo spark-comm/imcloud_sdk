@@ -380,7 +380,8 @@ type LocalChatLog struct {
 }
 
 type LocalErrChatLog struct {
-	Seq              int64  `gorm:"column:seq;primary_key" json:"seq"`
+	//Seq              int64  `gorm:"column:seq;primary_key" json:"seq"`
+	Seq              int64  `gorm:"column:seq" json:"seq"`
 	ClientMsgID      string `gorm:"column:client_msg_id;type:char(64)" json:"clientMsgID"`
 	ServerMsgID      string `gorm:"column:server_msg_id;type:char(64)" json:"serverMsgID"`
 	SendID           string `gorm:"column:send_id;type:char(64)" json:"sendID"`

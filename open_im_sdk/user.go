@@ -44,7 +44,7 @@ func UpdateMsgSenderInfo(callback open_im_sdk_callback.Base, operationID string,
 // SearchUser by search value and search type
 // par operationID  链路id
 // par searchValue  搜索的值
-// par searchType   类型 1:手机号，2:id,3扫码
+// par searchType   类型 1:手机号，2:id,3扫码,5:邮箱
 func SearchUser(callback open_im_sdk_callback.Base, operationID string, searchValue string, searchType int) {
 	call(callback, operationID, UserForSDK.User().SearchUserInfo, searchValue, searchType)
 }

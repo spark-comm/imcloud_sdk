@@ -51,7 +51,7 @@ func (u *User) UpdateMsgSenderInfo(ctx context.Context, nickname, faceURL string
 	return nil
 }
 
-// SearchUserInfo 1-手机 2-用户ID 3-扫码
+// SearchUserInfo 1-手机 2-用户ID 3-扫码 5-邮箱
 // todo 新添加方法
 func (u *User) SearchUserInfo(ctx context.Context, searchValue string, searchType int) (*model_struct.LocalUser, error) {
 	return u.searchUser(ctx, searchValue, searchType)

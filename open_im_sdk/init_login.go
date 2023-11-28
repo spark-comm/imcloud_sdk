@@ -42,8 +42,10 @@ func SetHeartbeatInterval(heartbeatInterval int) {
 // language -》en:英文:zh:简体中文；zh-Hant:繁体中文
 func InitSDK(listener open_im_sdk_callback.OnConnListener, operationID string, config string) bool {
 	if UserForSDK != nil {
-		fmt.Println(operationID, "Initialize multiple times, use the existing ", UserForSDK, " Previous configuration ", UserForSDK.ImConfig(), " now configuration: ", config)
-		return true
+		//fmt.Println(operationID, "Initialize multiple times, use the existing ", UserForSDK, " Previous configuration ", UserForSDK.ImConfig(), " now configuration: ", config)
+		//return true
+		UserForSDK.UnInitSDK()
+		UserForSDK = nil
 	}
 	var configArgs sdk_struct.IMConfig
 	if err := json.Unmarshal([]byte(config), &configArgs); err != nil {
@@ -75,6 +77,17 @@ func InitSDK(listener open_im_sdk_callback.OnConnListener, operationID string, c
 	}
 	UserForSDK = new(login.LoginMgr)
 	return UserForSDK.InitSDK(configArgs, listener)
+}
+
+// UnInitSDK 反初始化
+func UnInitSDK(operationID string) {
+	if UserForSDK == nil {
+		fmt.Println(operationID, "UserForSDK is nil,")
+		return
+	}
+	UserForSDK.UnInitSDK()
+	UserForSDK = nil
+
 }
 
 func Login(callback open_im_sdk_callback.Base, operationID string, userID, token string) {

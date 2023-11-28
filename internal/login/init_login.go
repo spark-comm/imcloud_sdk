@@ -16,6 +16,7 @@ package login
 
 import (
 	"context"
+	"fmt"
 	"github.com/imCloud/im/pkg/proto/sdkws"
 	"open_im_sdk/internal/business"
 	"open_im_sdk/internal/cache"
@@ -416,6 +417,15 @@ func (u *LoginMgr) logout(ctx context.Context, isTokenValid bool) error {
 	u.initResources()
 	log.ZDebug(ctx, "TriggerCmdLogout client success...", "isTokenValid", isTokenValid)
 	return nil
+}
+
+func (u *LoginMgr) UnInitSDK() {
+	if u.getLoginStatus(context.Background()) == Logged {
+		fmt.Println("sdk not logout, please logout first")
+		return
+	}
+	u.info = nil
+	u.setLoginStatus(Logout)
 }
 
 func (u *LoginMgr) setAppBackgroundStatus(ctx context.Context, isBackground bool) error {

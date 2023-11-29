@@ -33,5 +33,7 @@ func ServerUserToLocalUser(user *imUserPb.ProfileReply) (*model_struct.LocalUser
 		return nil, err
 	}
 	loginUser.Options = string(b)
+	loginUser.AccountType = user.AccountType
+	loginUser.Account = user.Account
 	return &loginUser, nil
 }

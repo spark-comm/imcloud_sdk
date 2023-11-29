@@ -282,6 +282,8 @@ type LocalUser struct {
 	Ex               string `gorm:"column:ex;type:varchar(1024)" json:"ex"`
 	AttachedInfo     string `gorm:"column:attached_info;type:varchar(1024)" json:"attachedInfo"`
 	GlobalRecvMsgOpt int32  `gorm:"column:global_recv_msg_opt" json:"globalRecvMsgOpt"`
+	Account          string `gorm:"column:account" json:"account"`
+	AccountType      int32  `gorm:"column:account_type" json:"accountType"`
 }
 
 // message BlackInfo{

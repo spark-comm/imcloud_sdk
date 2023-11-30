@@ -158,7 +158,7 @@ func (c *Conversation) GetOneConversation(ctx context.Context, sessionType int32
 		if err != nil {
 			return nil, err
 		}
-		c.addFaceURLAndNameBackgroundURL(ctx, lc)
+		//c.addFaceURLAndNameBackgroundURL(ctx, lc)
 		//是否私聊
 		newConversation.IsPrivateChat = isPrivateChat
 		return &newConversation, nil

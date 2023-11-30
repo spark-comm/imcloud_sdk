@@ -87,6 +87,7 @@ func (c *Cache) GetUserNameFaceURLAndBackgroundUrl(ctx context.Context, userID s
 		info := value.(UserInfo)
 		return info.FaceURL, info.Nickname, info.BackgroundURL, nil
 	}
+	// todo 客服打包注释掉下方内容
 	//get from local db
 	friendInfo, err := c.friend.Db().GetFriendInfoByFriendUserID(ctx, userID)
 	if err == nil {
@@ -113,9 +114,6 @@ func (c *Cache) GetUserNameFaceURLAndBackgroundUrl(ctx context.Context, userID s
 		c.userMap.Store(userID, UserInfo{FaceURL: faceURL, Nickname: name, BackgroundURL: backgroundURL})
 		return faceURL, name, backgroundURL, nil
 	}
-	//conversationID := utils2.GetConversationIDBySessionType(constant.SingleChatType, c.loginUserID, userID)
-	//common.TriggerCmdDeleteConversationAndMessage(ctx, userID, conversationID, constant.SingleChatType, c.ch)
-	//return "", "", "", errors.New(fmt.Sprintf("user %s is not in friend list", userID))
 	//get from server db
 	users, err := c.user.GetServerUserInfo(ctx, []string{userID})
 	if err != nil {

@@ -40,7 +40,6 @@ type GroupDatabase interface {
 	DeleteAdminGroupRequest(ctx context.Context, groupID, userID string) error
 	UpdateAdminGroupRequest(ctx context.Context, groupRequest *model_struct.LocalAdminGroupRequest) error
 	GetAdminGroupApplication(ctx context.Context) ([]*model_struct.LocalAdminGroupRequest, error)
-	GetAdminGroupApplicationV2(ctx context.Context, groupID string) ([]*model_struct.LocalAdminGroupRequest, error)
 	// GetPageGroupApplicationListAsRecipient 分页获取待处理的请求
 	GetPageGroupApplicationListAsRecipient(ctx context.Context, groupId string, page *pg.Page) ([]*model_struct.LocalAdminGroupRequest, error)
 	InsertGroupRequest(ctx context.Context, groupRequest *model_struct.LocalGroupRequest) error
@@ -223,6 +222,7 @@ type ConversationDatabase interface {
 	GetMultipleConversationDB(ctx context.Context, conversationIDList []string) (result []*model_struct.LocalConversation, err error)
 	SearchAllMessageByContentType(ctx context.Context, conversationID string, contentType int) ([]*model_struct.LocalChatLog, error)
 	SuperGroupSearchAllMessageByContentType(ctx context.Context, superGroupID string, contentType int32) ([]*model_struct.LocalChatLog, error)
+	GetPrivacyConversationForPage(ctx context.Context, isLimit bool, pageSize, pageNum int) ([]*model_struct.LocalConversation, error)
 }
 
 type UserDatabase interface {

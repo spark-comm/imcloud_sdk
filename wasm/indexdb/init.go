@@ -48,7 +48,6 @@ type IndexDB struct {
 	*Friend
 	LocalChatLogReactionExtensions
 	loginUserID string
-	LocalUpload
 }
 
 func (i IndexDB) Close(ctx context.Context) error {

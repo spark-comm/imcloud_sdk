@@ -410,3 +410,25 @@ func (i *LocalConversations) UpdateOrCreateConversations(ctx context.Context, co
 	//	}
 	//}
 }
+
+func (i *LocalConversations) GetPrivacyConversationForPage(ctx context.Context, isLimit bool, pageSize, pageNum int) (result []*model_struct.LocalConversation, err error) {
+	var conversationList []*model_struct.LocalConversation
+	cList, err := exec.Exec(isLimit, pageSize, pageNum)
+	if err != nil {
+		return nil, err
+	} else {
+		if v, ok := cList.(string); ok {
+			err := utils.JsonStringToStruct(v, &conversationList)
+			if err != nil {
+				return nil, err
+			}
+			for _, v := range conversationList {
+				v1 := v
+				result = append(result, v1)
+			}
+			return result, err
+		} else {
+			return nil, exec.ErrType
+		}
+	}
+}

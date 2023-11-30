@@ -941,6 +941,10 @@ func (c *Conversation) getMessageListReactionExtensions(ctx context.Context, con
 	for _, msgStruct := range messageList {
 		switch msgStruct.SessionType {
 		case constant.SingleChatType:
+			fallthrough
+		case constant.CustomerServiceChatType:
+			fallthrough
+		case constant.EncryptedChatType:
 			if msgStruct.SendID == c.loginUserID {
 				sourceID = msgStruct.RecvID
 			} else {

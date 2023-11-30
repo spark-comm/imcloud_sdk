@@ -615,13 +615,6 @@ func (g *Group) SyncOneGroupApplicationsFunc(ctx context.Context, groupID string
 	if err := g.groupRequestSyncer.Sync(ctx, util.Batch(ServerGroupRequestToLocalGroupRequest, svrGroupReq), localData, nil); err != nil {
 		return err
 	}
-	localAdminData, err := g.db.GetAdminGroupApplicationV2(ctx, groupID)
-	if err != nil {
-		return err
-	}
-	if err := g.groupAdminRequestSyncer.Sync(ctx, util.Batch(ServerGroupRequestToLocalAdminGroupRequest, svrGroupReq), localAdminData, nil); err != nil {
-		return err
-	}
 	return nil
 }
 

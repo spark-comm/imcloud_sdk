@@ -316,19 +316,29 @@ func StructToMap(user interface{}) map[string]interface{} {
 	return m
 }
 
-//	funcation GetConversationIDBySessionType(sourceID string, sessionType int) string {
-//		switch sessionType {
-//		case constant.SingleChatType:
-//			return "single_" + sourceID
-//		case constant.GroupChatType:
-//			return "group_" + sourceID
-//		case constant.SuperGroupChatType:
-//			return "super_group_" + sourceID
-//		case constant.NotificationChatType:
-//			return "notification_" + sourceID
-//		}
-//		return ""
-//	}
+// GetConversationIDBySessionType 获取会话id
+func GetConversationIDBySessionType(sessionType int, ids ...string) string {
+	sort.Strings(ids)
+	if len(ids) > 2 || len(ids) < 1 {
+		return ""
+	}
+	switch sessionType {
+	case constant.SingleChatType:
+		return "si_" + strings.Join(ids, "_") // single chat
+	case constant.GroupChatType:
+		return "g_" + ids[0] // group chat
+	case constant.SuperGroupChatType:
+		return "sg_" + ids[0] // super group chat
+	case constant.NotificationChatType:
+		return "sn_" + ids[0] // server notification chat
+	case constant.CustomerServiceChatType:
+		return "cs_" + strings.Join(ids, "_")
+	case constant.EncryptedChatType:
+		return "ec_" + strings.Join(ids, "_")
+	}
+	return ""
+}
+
 func GetConversationIDByMsg(msg *sdk_struct.MsgStruct) string {
 	switch msg.SessionType {
 	case constant.SingleChatType:
@@ -341,6 +351,14 @@ func GetConversationIDByMsg(msg *sdk_struct.MsgStruct) string {
 		return "sg_" + msg.GroupID // super group chat
 	case constant.NotificationChatType:
 		return "sn_" + msg.SendID + "_" + msg.RecvID // server notification chat
+	case constant.CustomerServiceChatType:
+		l := []string{msg.SendID, msg.RecvID}
+		sort.Strings(l)
+		return "cs_" + strings.Join(l, "_")
+	case constant.EncryptedChatType:
+		l := []string{msg.SendID, msg.RecvID}
+		sort.Strings(l)
+		return "ec_" + strings.Join(l, "_")
 	}
 	return ""
 }

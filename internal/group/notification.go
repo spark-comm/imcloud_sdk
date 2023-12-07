@@ -16,6 +16,7 @@ package group
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/imCloud/api/im/v1"
@@ -268,6 +269,12 @@ func (g *Group) doNotification(ctx context.Context, msg *sdkws.MsgData) error {
 func (g *Group) DismissedNotification(ctx context.Context, detail *sdkws.GroupDismissedTips) error {
 	//删除会话
 	g.DelGroupConversation(ctx, detail.Group.GroupID)
+	marshal, err := json.Marshal(detail.Group)
+	if err != nil {
+		log.ZError(ctx, "DismissedNotification marshal detail error", err)
+	} else {
+		g.listener.OnGroupDismissed(string(marshal))
+	}
 	//删除群成员
 	if err := g.db.DeleteGroupAllMembers(ctx, detail.Group.GroupID); err != nil {
 		return err

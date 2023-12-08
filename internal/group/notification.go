@@ -171,7 +171,10 @@ func (g *Group) doNotification(ctx context.Context, msg *sdkws.MsgData) error {
 		if err := g.SyncGroups(ctx, detail.Group.GroupID); err != nil {
 			return err
 		}
-		g.SyncOneGroupApplicationsFunc(ctx, detail.Group.GroupID) //同步邀请需要申请的请求
+		err := g.SyncOneGroupApplicationsFunc(ctx, detail.Group.GroupID)
+		if err != nil {
+			log.ZError(ctx, "邀请通知", err)
+		} //同步邀请需要申请的请求
 		return g.syncGroupMembers(ctx, detail.Group.GroupID, userIDs...)
 		//if utils.IsContain(g.loginUserID, userIDs) {
 		//	return g.SyncGroups(ctx, detail.Group.GroupID)

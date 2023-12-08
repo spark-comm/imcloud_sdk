@@ -74,12 +74,6 @@ func (g *Group) JoinGroup(ctx context.Context, groupID, reqMsg string, joinSourc
 
 // QuitGroup 退出群聊
 func (g *Group) QuitGroup(ctx context.Context, groupID string) error {
-	//if err := util.ApiPost(ctx, constant.QuitGroupRouter, groupv1.QuitAllGroupsReq{
-	//	UserID: g.loginUserID,
-	//}, nil); err != nil {
-	//	return err
-	//}
-
 	if _, err := util.ProtoApiPost[groupv1.QuitGroupReq, empty.Empty](
 		ctx,
 		constant.QuitGroupRouter,
@@ -611,6 +605,7 @@ func (g *Group) GetGroupApplicationListAsApplicant(ctx context.Context) ([]*mode
 	return g.db.GetSendGroupApplication(ctx)
 }
 
+// AcceptGroupApplication 同意加群请求
 func (g *Group) AcceptGroupApplication(ctx context.Context, groupID, fromUserID, handleMsg string) error {
 	return g.HandlerGroupApplication(ctx,
 		&groupv1.ApplicationResponseReq{
@@ -620,11 +615,9 @@ func (g *Group) AcceptGroupApplication(ctx context.Context, groupID, fromUserID,
 			HandleResult: constant.GroupResponseAgree,
 			UserID:       g.loginUserID,
 		})
-	//&group.GroupApplicationResponseReq{GroupID: groupID,
-	//FromUserID: fromUserID, HandledMsg: handleMsg,
-	//HandleResult: constant.GroupResponseAgree})
 }
 
+// RefuseGroupApplication 拒绝加群请求
 func (g *Group) RefuseGroupApplication(ctx context.Context, groupID, fromUserID, handleMsg string) error {
 	return g.HandlerGroupApplication(ctx,
 		&groupv1.ApplicationResponseReq{
@@ -634,15 +627,9 @@ func (g *Group) RefuseGroupApplication(ctx context.Context, groupID, fromUserID,
 			HandleResult: constant.GroupResponseRefuse,
 			UserID:       g.loginUserID,
 		})
-	//&group.GroupApplicationResponseReq{GroupID: groupID,
-	//	FromUserID: fromUserID, HandledMsg: handleMsg, HandleResult: constant.GroupResponseRefuse})
 }
 
 func (g *Group) HandlerGroupApplication(ctx context.Context, req *groupv1.ApplicationResponseReq) error {
-	//if err := util.ApiPost(ctx, constant.AcceptGroupApplicationRouter, req, nil); err != nil {
-	//	return err
-	//}
-
 	if _, err := util.ProtoApiPost[groupv1.ApplicationResponseReq, empty.Empty](
 		ctx,
 		constant.AcceptGroupApplicationRouter,

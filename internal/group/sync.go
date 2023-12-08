@@ -292,13 +292,6 @@ func (g *Group) SyncAllJoinedGroupsAndMembers(ctx context.Context) error {
 
 // GetDesignatedGroupMembers 获取指定群成员信息
 func (g *Group) GetDesignatedGroupMembers(ctx context.Context, groupID string, userIDs ...string) ([]*groupv1.MembersInfo, error) {
-	//resp := &groupv1.MemberByIdsRes{}
-	//if err := util.ApiPost(ctx, constant.GetGroupMemberByIdsRouter, &groupv1.MemberByIdsReq{
-	//	GroupID: groupID,
-	//	UserIDs: userIDs,
-	//}, resp); err != nil {
-	//	return nil, err
-	//}
 	resp, err := util.ProtoApiPost[groupv1.MemberByIdsReq, groupv1.MemberByIdsRes](
 		ctx,
 		constant.GetGroupMemberByIdsRouter,
@@ -470,13 +463,9 @@ func (g *Group) SyncAllJoinedGroupMembers(ctx context.Context) error {
 	return nil
 }
 
+// syncUserReqGroupInfo 同步加群请求
 func (g *Group) syncUserReqGroupInfo(ctx context.Context, fromUserID, groupID string) error {
 	//获取用户加入单个群的申请信息
-	//req := groupv1.UserJoinGroupRequestReq{
-	//	GroupID: groupID,
-	//	UserID:  fromUserID,
-	//}
-	//reqInfos, err := util.CallApi[groupv1.UserJoinGroupRequestReps](ctx, constant.GetJoinGroupRequestDetailRouter, &req)
 	reqInfos := &groupv1.UserJoinGroupRequestReps{}
 	err := util.CallPostApi[*groupv1.UserJoinGroupRequestReq, *groupv1.UserJoinGroupRequestReps](
 		ctx, constant.GetJoinGroupRequestDetailRouter,

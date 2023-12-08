@@ -911,7 +911,7 @@ func mapConversationToList(m map[string]*model_struct.LocalConversation) (cs []*
 }
 func (c *Conversation) addFaceURLAndNameBackgroundURL(ctx context.Context, lc *model_struct.LocalConversation) error {
 	switch lc.ConversationType {
-	case constant.SingleChatType, constant.NotificationChatType:
+	case constant.SingleChatType, constant.NotificationChatType, constant.CustomerServiceChatType, constant.EncryptedChatType:
 		faceUrl, name, backgroundURL, err := c.cache.GetUserNameFaceURLAndBackgroundUrl(ctx, lc.UserID)
 		if err != nil {
 			return err

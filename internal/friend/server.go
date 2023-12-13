@@ -35,7 +35,7 @@ func (f *Friend) GetFriendBaseInfoSvr(ctx context.Context) ([]*friendPb.SyncFrie
 	resp := &friendPb.GetSyncFriendResp{}
 	respList, err := util.GetPageAll(ctx, constant.GetSyncFriendList, req, resp, fn)
 	if err != nil {
-		return respList, err
+		return nil, err
 	}
-	return resp.List, nil
+	return respList, nil
 }

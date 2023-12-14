@@ -133,6 +133,7 @@ type LocalFriendRequest struct {
 //	)`
 
 const (
+	NoIsCompleteSys  = 1
 	FinishMemberSync = 2
 )
 

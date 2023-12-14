@@ -238,6 +238,7 @@ func (m *MsgSyncer) doConnected(ctx context.Context) {
 	}
 	wctx, cancelFunc := context.WithTimeout(ctx, time.Second*60*5)
 	defer cancelFunc()
+	// 同步基本信息
 	m.syncBaseInformation(wctx)
 	//根据seq同步消息
 	m.compareSeqsAndBatchSync(wctx, resp.MaxSeqs, resp.MinSeqs, connectPullNums)
@@ -492,7 +493,7 @@ func (m *MsgSyncer) syncBaseInformation(ctx context.Context) {
 		m.user.SyncLoginUserInfo,
 		m.friend.SyncQuantityFriendList, //全量同步简单字段数据
 		m.group.InitSyncGroupData,       //全量同步群组简单字段
-		m.group.GetUserMemberInfoInGroup,
+		//m.group.GetUserMemberInfoInGroup,
 	} {
 		wg.Add(1)
 		go func(syncFunc func(c context.Context) error) {

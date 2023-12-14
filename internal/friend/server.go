@@ -28,7 +28,9 @@ func (f *Friend) GetFriendByIdsSvr(ctx context.Context, friendUserIDList []strin
 }
 
 func (f *Friend) GetFriendBaseInfoSvr(ctx context.Context) ([]*friendPb.SyncFriendInfo, error) {
-	req := &friendPb.GetPaginationFriendsInfo{UserID: f.loginUserID, Pagination: &commonPb.RequestPagination{}}
+	req := &friendPb.GetPaginationFriendsInfo{UserID: f.loginUserID, Pagination: &commonPb.RequestPagination{
+		ShowNumber: 10,
+	}}
 	fn := func(resp *friendPb.GetSyncFriendResp) []*friendPb.SyncFriendInfo {
 		return resp.List
 	}

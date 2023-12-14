@@ -41,21 +41,21 @@ func (g *Group) SyncAllGroupMember(ctx context.Context, groupID string) error {
 		return err
 	}
 	//获取本地的成员列表
-	localData, err := g.db.GetGroupMemberListSplit(ctx1, groupID, 0, 0, 9999999)
+	localData, err := g.db.GetGroupMemberListByGroupID(context.Background(), groupID)
 	if err != nil {
 		return err
 	}
 	log.ZInfo(ctx1, "SyncGroupMember Info", "groupID", groupID, "members", len(members), "localData", len(localData))
 
 	//util.Batch(ServerGroupMemberToLocalGroupMember, members) 远程数据序列化为本地结构
-	err = g.groupMemberSyncer.Sync(ctx1, util.Batch(ServerGroupMemberToLocalGroupMember, members), localData, nil)
+	err = g.groupMemberSyncer.Sync(context.Background(), util.Batch(ServerGroupMemberToLocalGroupMember, members), localData, nil)
 	if err != nil {
 		return err
 	}
 	//if len(members) != len(localData) {
 	log.ZInfo(ctx1, "SyncGroupMember Sync Group Member Count", "groupID", groupID, "members", len(members), "localData", len(localData))
 	//获取远程群组数据（单条）
-	gs, err := g.GetSpecifiedGroupsInfo(ctx1, []string{groupID})
+	gs, err := g.db.GetGroupInfoByGroupIDs(context.Background(), groupID)
 	if err != nil {
 		return err
 	}
@@ -63,25 +63,24 @@ func (g *Group) SyncAllGroupMember(ctx context.Context, groupID string) error {
 	if len(gs) > 0 {
 		v := gs[0]
 		count := int32(len(members))
-		if v.MemberCount != count {
-			v.MemberCount = int32(len(members))
-			if v.GroupType == constant.SuperGroupChatType {
-				if err := g.db.UpdateSuperGroup(ctx1, v); err != nil {
-					//return err
-					log.ZError(ctx1, "SyncGroupMember UpdateSuperGroup", err, "groupID", groupID, "info", v)
-				}
-			} else {
-				if err := g.db.UpdateGroup(ctx1, v); err != nil {
-					log.ZError(ctx1, "SyncGroupMember UpdateGroup", err, "groupID", groupID, "info", v)
-				}
+		v.IsComplete = model_struct.FinishMemberSync
+		v.MemberCount = count
+		if v.GroupType == constant.SuperGroupChatType {
+			if err := g.db.UpdateSuperGroup(ctx1, v); err != nil {
+				//return err
+				log.ZError(ctx1, "SyncGroupMember UpdateSuperGroup", err, "groupID", groupID, "info", v)
 			}
-			data, err := json.Marshal(v)
-			if err != nil {
-				return err
+		} else {
+			if err := g.db.UpdateGroup(ctx1, v); err != nil {
+				log.ZError(ctx1, "SyncGroupMember UpdateGroup", err, "groupID", groupID, "info", v)
 			}
-			log.ZInfo(ctx1, "SyncGroupMember OnGroupInfoChanged", "groupID", groupID, "data", string(data))
-			g.listener.OnGroupInfoChanged(string(data))
 		}
+		data, err := json.Marshal(v)
+		if err != nil {
+			return err
+		}
+		log.ZInfo(ctx1, "SyncGroupMember OnGroupInfoChanged", "groupID", groupID, "data", string(data))
+		g.listener.OnGroupInfoChanged(string(data))
 	}
 	//标记群已经同步
 	g.syncGroup[groupID] = true
@@ -429,23 +428,24 @@ func (g *Group) InitSyncData(ctx context.Context) error {
 
 // delaySyncJoinGroup 延迟同步加入的群
 func (g *Group) delaySyncJoinGroup(ctx context.Context) {
-	ctx1, cl := context.WithTimeout(ctx, time.Minute*5)
-	defer cl()
 	//从延迟队列中取数据
-	for emtry := range g.syncGroupQueue.Channel(ctx1, 1) {
-		log.ZDebug(ctx1, "delay sync join group", emtry)
-		err := g.SyncAllJoinedGroups(ctx)
-		if err != nil {
-			log.ZError(ctx, "SyncAllJoinedGroups failed", err)
-		}
-		// 同步所有群成员
-		go g.SyncAllJoinedGroupMembers(ctx1)
-	}
+	//for emtry := range g.syncGroupQueue.Channel(ctx1, 1) {
+	//	log.ZDebug(ctx1, "delay sync join group", emtry)
+	//	err := g.SyncAllJoinedGroups(ctx)
+	//	if err != nil {
+	//		log.ZError(ctx, "SyncAllJoinedGroups failed", err)
+	//	}
+	//	// 同步所有群成员
+	//	go g.SyncAllJoinedGroupMembers(ctx1)
+	//}
+	g.SyncAllJoinedGroupMembers(ctx)
 }
 
 // SyncAllJoinedGroupMembers 同步所有加入群的群成员
 func (g *Group) SyncAllJoinedGroupMembers(ctx context.Context) error {
-	groups, err := g.db.GetJoinedGroupListDB(ctx)
+	ctx1, cl := context.WithTimeout(ctx, time.Minute*5)
+	defer cl()
+	groups, err := g.db.GetJoinedGroupListDB(ctx1)
 	if err != nil {
 		return err
 	}
@@ -453,9 +453,11 @@ func (g *Group) SyncAllJoinedGroupMembers(ctx context.Context) error {
 	for _, group := range groups {
 		wg.Add(1)
 		go func(groupID string) {
+			t, ctl := context.WithTimeout(ctx, time.Minute*5)
+			defer ctl()
 			defer wg.Done()
-			if err := g.SyncAllGroupMember(ctx, groupID); err != nil {
-				log.ZError(ctx, "SyncGroupMember failed", err)
+			if err := g.SyncAllGroupMember(t, groupID); err != nil {
+				log.ZError(t, "SyncGroupMember failed", err)
 			}
 		}(group.GroupID)
 	}

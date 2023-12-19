@@ -423,6 +423,9 @@ func (c *Conversation) checkID(ctx context.Context, s *sdk_struct.MsgStruct,
 
 // getConversationIDBySessionType 根据类型获取会话
 func (c *Conversation) getConversationIDBySessionType(sourceID string, sessionType int) string {
+	if sessionType == constant.SuperGroupChatType || sessionType == constant.GroupChatType || sessionType == constant.NotificationChatType {
+		return utils.GetConversationIDBySessionType(sessionType, sourceID)
+	}
 	return utils.GetConversationIDBySessionType(sessionType, c.loginUserID, sourceID)
 }
 func (c *Conversation) GetConversationIDBySessionType(_ context.Context, sourceID string, sessionType int) string {

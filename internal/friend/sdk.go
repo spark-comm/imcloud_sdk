@@ -225,8 +225,16 @@ func (f *Friend) DeleteFriend(ctx context.Context, friendUserID string) error {
 
 func (f *Friend) GetFriendList(ctx context.Context) ([]*model_struct.LocalFriend, error) {
 	localFriendList, err := f.db.GetAllFriendList(ctx)
-	if err != nil {
-		return nil, err
+	if err != nil || len(localFriendList) == 0 {
+		//从远程重新拉取
+		err = f.SyncFriend(ctx)
+		if err != nil {
+			return nil, err
+		}
+		localFriendList, err = f.db.GetAllFriendList(ctx)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return localFriendList, nil
@@ -234,8 +242,16 @@ func (f *Friend) GetFriendList(ctx context.Context) ([]*model_struct.LocalFriend
 
 func (f *Friend) GetFriendListPage(ctx context.Context, no, size int64) ([]*model_struct.LocalFriend, error) {
 	localFriendList, err := f.db.GetFriendList(ctx, &pg.Page{NO: no, Size: size})
-	if err != nil {
-		return nil, err
+	if err != nil || len(localFriendList) == 0 {
+		//从远程重新拉取
+		err = f.SyncFriend(ctx)
+		if err != nil {
+			return nil, err
+		}
+		localFriendList, err = f.db.GetFriendList(ctx, &pg.Page{NO: no, Size: size})
+		if err != nil {
+			return nil, err
+		}
 	}
 	return localFriendList, nil
 }

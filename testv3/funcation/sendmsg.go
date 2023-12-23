@@ -31,6 +31,6 @@ func SendMsg(ctx context.Context, fromID, recvID, groupID, msg string) (*sdk_str
 	}
 	o := sdkws.OfflinePushInfo{Title: "title", Desc: "desc"}
 	log.ZInfo(ctx, "SendMessage ", "fromID", fromID, "recvID", recvID, "groupID", groupID, "message", message)
-	AllLoginMgr[fromID].Mgr.Conversation().SendMessage(ctx, message, recvID, groupID, &o)
+	AllLoginMgr[fromID].Mgr.Conversation().SendMessage(ctx, message, recvID, groupID, 1, &o)
 	return message, nil
 }

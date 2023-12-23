@@ -24,7 +24,7 @@ import (
 	"sync"
 )
 
-type UserInfo struct {
+type BaseInfo struct {
 	Nickname      string
 	FaceURL       string
 	BackgroundURL string
@@ -42,8 +42,8 @@ func NewCache(user *user.User, friend *friend.Friend, loginUserID string, ch cha
 	return &Cache{user: user, friend: friend, loginUserID: loginUserID, ch: ch}
 }
 
-func (c *Cache) Update(userID, faceURL, nickname string) {
-	c.userMap.Store(userID, UserInfo{FaceURL: faceURL, Nickname: nickname})
+func (c *Cache) Update(userID, faceURL, nickname, backgroundURL string) {
+	c.userMap.Store(userID, BaseInfo{FaceURL: faceURL, Nickname: nickname, BackgroundURL: backgroundURL})
 }
 func (c *Cache) UpdateConversation(conversation model_struct.LocalConversation) {
 	c.conversationMap.Store(conversation.ConversationID, conversation)
@@ -84,11 +84,9 @@ func (c *Cache) GetConversation(conversationID string) model_struct.LocalConvers
 func (c *Cache) GetUserNameFaceURLAndBackgroundUrl(ctx context.Context, userID string) (faceURL, name, backgroundURL string, err error) {
 	//find in cache
 	if value, ok := c.userMap.Load(userID); ok {
-		info := value.(UserInfo)
+		info := value.(*BaseInfo)
 		return info.FaceURL, info.Nickname, info.BackgroundURL, nil
 	}
-	// todo 客服打包注释掉下方内容
-	//get from local db
 	friendInfo, err := c.friend.Db().GetFriendInfoByFriendUserID(ctx, userID)
 	if err == nil {
 		faceURL = friendInfo.FaceURL
@@ -100,28 +98,18 @@ func (c *Cache) GetUserNameFaceURLAndBackgroundUrl(ctx context.Context, userID s
 		backgroundURL = friendInfo.BackgroundURL
 		return faceURL, name, backgroundURL, nil
 	}
-	//从服务端获取好友信息
-	svrData, err := c.friend.GetFriendByIdsSvr(ctx, []string{userID})
-	if err == nil && len(svrData) > 0 {
-		svrFriend := svrData[0]
-		faceURL = svrFriend.FaceURL
-		if svrFriend.Remark != "" {
-			name = svrFriend.Remark
-		} else {
-			name = svrFriend.Nickname
-		}
-		backgroundURL = svrFriend.BackgroundUrl
-		c.userMap.Store(userID, UserInfo{FaceURL: faceURL, Nickname: name, BackgroundURL: backgroundURL})
-		return faceURL, name, backgroundURL, nil
-	}
 	//get from server db
-	users, err := c.user.GetServerUserInfo(ctx, []string{userID})
+	users, err := c.user.FindFullProfile(ctx, userID)
 	if err != nil {
 		return "", "", "", err
 	}
 	if len(users) == 0 {
 		return "", "", "", sdkerrs.ErrUserIDNotFound.Wrap(userID)
 	}
-	c.userMap.Store(userID, UserInfo{FaceURL: users[0].FaceURL, Nickname: users[0].Nickname, BackgroundURL: ""})
+	c.userMap.Store(userID, &BaseInfo{FaceURL: users[0].FaceURL, Nickname: users[0].Nickname, BackgroundURL: ""})
 	return users[0].FaceURL, users[0].Nickname, "", nil
+}
+
+func (c *Cache) Store(userID string, data *BaseInfo) {
+	c.userMap.Store(userID, data)
 }

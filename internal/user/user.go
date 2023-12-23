@@ -426,3 +426,18 @@ func (u *User) getDefUserOption() (string, error) {
 	marshal, err := json.Marshal(options)
 	return string(marshal), err
 }
+
+// FindFullProfile 获取群完整信息忽略删除和解散
+func (u *User) FindFullProfile(ctx context.Context, ids ...string) ([]*imUserPb.ProfileReply, error) {
+	resp, err := util.ProtoApiPost[imUserPb.FindFullProfileByUserIdReq, imUserPb.FindFullProfileByUserIdReply](
+		ctx,
+		constant.FindFullProfileByUserIdRouter,
+		&imUserPb.FindFullProfileByUserIdReq{
+			UserIds: ids,
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+	return resp.List, nil
+}

@@ -210,6 +210,7 @@ func (u *LoginMgr) SetGroupListener(groupListener open_im_sdk_callback.OnGroupLi
 	}
 }
 
+// SetMomentListener 设置圈子监听
 func (u *LoginMgr) SetMomentListener(momentListener open_im_sdk_callback.OnMomentsListener) {
 	if u.moments != nil {
 		u.moments.SetMomentListener(momentListener)
@@ -318,10 +319,10 @@ func (u *LoginMgr) login(ctx context.Context, userID, token string) error {
 	log.ZDebug(ctx, "forcedSynchronization success...", "login cost time: ", time.Since(t1))
 
 	u.longConnMgr.Run(ctx)
-	//消息同步
-	u.msgSyncer, _ = interaction.NewMsgSyncer(ctx, u.conversationCh, u.pushSeqCh, u.loginUserID, u.longConnMgr, u.db, 0, u.friend, u.group, u.user)
 	//会话同步
 	u.conversation = conv.NewConversation(ctx, u.longConnMgr, u.db, u.conversationCh, u.friend, u.group, u.user, u.conversationListener, u.advancedMsgListener, u.business, u.cache, u.full, u.file)
+	//消息同步
+	u.msgSyncer, _ = interaction.NewMsgSyncer(ctx, u.conversationCh, u.pushSeqCh, u.loginUserID, u.longConnMgr, u.db, 0, u.friend, u.group, u.user)
 	u.conversation.SetLoginTime()
 	if u.batchMsgListener != nil {
 		u.conversation.SetBatchMsgListener(u.batchMsgListener)

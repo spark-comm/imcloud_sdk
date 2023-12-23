@@ -909,9 +909,11 @@ func mapConversationToList(m map[string]*model_struct.LocalConversation) (cs []*
 	}
 	return cs
 }
+
+// addFaceURLAndNameBackgroundURL 添加头像昵称和聊天背景
 func (c *Conversation) addFaceURLAndNameBackgroundURL(ctx context.Context, lc *model_struct.LocalConversation) error {
 	switch lc.ConversationType {
-	case constant.SingleChatType, constant.NotificationChatType:
+	case constant.SingleChatType, constant.NotificationChatType, constant.CustomerServiceChatType, constant.EncryptedChatType:
 		faceUrl, name, backgroundURL, err := c.cache.GetUserNameFaceURLAndBackgroundUrl(ctx, lc.UserID)
 		if err != nil {
 			return err
@@ -931,4 +933,9 @@ func (c *Conversation) addFaceURLAndNameBackgroundURL(ctx context.Context, lc *m
 		}
 	}
 	return nil
+}
+
+// IsGroupConversation 是否是群会话
+func (c *Conversation) IsGroupConversation(lc *model_struct.LocalConversation) bool {
+	return lc.ConversationType == constant.GroupChatType || lc.ConversationType == constant.SuperGroupChatType
 }

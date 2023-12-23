@@ -22,7 +22,6 @@ type SendMsgCallBack interface {
 	Base
 	OnProgress(progress int)
 }
-
 type OnConnListener interface {
 	OnConnecting()
 	OnConnectSuccess()

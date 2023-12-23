@@ -341,33 +341,6 @@ func (g *Group) SearchGroups(ctx context.Context, param sdk_params_callback.Sear
 	return groups, nil
 }
 
-// SetGroupVerification 获取群是否需要验证
-//func (g *Group) SetGroupVerification(ctx context.Context, groupID string, verification int32) error {
-//	needVerification := int64(verification)
-//	return g.SetGroupInfo(ctx, &groupv1.EditGroupProfileRequest{
-//		GroupID:          groupID,
-//		NeedVerification: &needVerification,
-//	})
-//}
-//
-//func (g *Group) SetGroupLookMemberInfo(ctx context.Context, groupID string, rule int32) error {
-//	return g.SetGroupInfo(ctx,
-//		&groupv1.EditGroupProfileRequest{
-//			GroupID:        groupID,
-//			LookMemberInfo: &rule,
-//			//&sdkws.GroupInfoForSet{GroupID: groupID, LookMemberInfo: wrapperspb.Int32(rule)
-//		})
-//}
-//
-//func (g *Group) SetGroupApplyMemberFriend(ctx context.Context, groupID string, rule int32) error {
-//	return g.SetGroupInfo(ctx,
-//		&groupv1.EditGroupProfileRequest{
-//			GroupID:           groupID,
-//			ApplyMemberFriend: &rule,
-//			//&sdkws.GroupInfoForSet{GroupID: groupID, ApplyMemberFriend: wrapperspb.Int32(rule)
-//		})
-//}
-
 // SetGroupInfo 更新群信息
 func (g *Group) SetGroupInfo(ctx context.Context, groupInfo *groupv1.EditGroupProfileRequest) error {
 	groupInfo.UserID = g.loginUserID
@@ -504,15 +477,6 @@ func (g *Group) GetSpecifiedGroupMembersInfo(ctx context.Context, groupID string
 }
 
 func (g *Group) KickGroupMember(ctx context.Context, groupID string, reason string, userIDList []string) error {
-	//if err := util.ApiPost(ctx, constant.KickGroupMemberRouter, &groupv1.KickGroupMemberReq{
-	//	GroupID:          groupID,
-	//	KickedUserIdList: userIDList,
-	//	UserID:           g.loginUserID,
-	//	HandledMsg:       reason,
-	//},
-	//	nil); err != nil {
-	//	return err
-	//}
 	if _, err := util.ProtoApiPost[groupv1.KickGroupMemberReq, empty.Empty](
 		ctx,
 		constant.KickGroupMemberRouter,
@@ -530,15 +494,6 @@ func (g *Group) KickGroupMember(ctx context.Context, groupID string, reason stri
 
 // TransferGroupOwner 转让群主
 func (g *Group) TransferGroupOwner(ctx context.Context, groupID, newOwnerUserID string) error {
-	//if err := util.ApiPost(ctx, constant.TransferGroupRouter, &groupv1.TransferGroupReq{
-	//	GroupID:        groupID,
-	//	NewOwnerUserID: newOwnerUserID,
-	//	UserID:         g.loginUserID,
-	//},
-	//	nil); err != nil {
-	//	return err
-	//}
-
 	if _, err := util.ProtoApiPost[groupv1.TransferGroupReq, empty.Empty](
 		ctx,
 		constant.TransferGroupRouter,
@@ -558,15 +513,6 @@ func (g *Group) TransferGroupOwner(ctx context.Context, groupID, newOwnerUserID 
 
 // InviteUserToGroup 邀请用户进群
 func (g *Group) InviteUserToGroup(ctx context.Context, groupID, reason string, userIDList []string) error {
-	//if err := util.ApiPost(ctx, constant.InviteUserToGroupRouter, &groupv1.InviteUserToGroupReq{
-	//	GroupID:           groupID,
-	//	InvitedUserIdList: userIDList,
-	//	Reason:            reason,
-	//	UserID:            g.loginUserID,
-	//},
-	//	nil); err != nil {
-	//	return nil
-	//}
 	if _, err := util.ProtoApiPost[groupv1.InviteUserToGroupReq, empty.Empty](
 		ctx,
 		constant.InviteUserToGroupRouter,
@@ -733,16 +679,8 @@ func (g *Group) GetNotInGroupFriendInfoList(ctx context.Context, searchParam *sd
 	return result, nil
 }
 
+// GetUserOwnerJoinRequestNum 已管理员或群主身份获取加群请求数量
 func (g *Group) GetUserOwnerJoinRequestNum(ctx context.Context) (groupv1.GetOwnerJoinRequestNumReps, error) {
-	//resp := groupv1.GetOwnerJoinRequestNumReps{}
-	//if err := util.ApiPost(ctx, constant.GetUserOwnerJoinRequestNumRouter,
-	//	&groupv1.GetOwnerJoinRequestNumReq{
-	//		UserID: g.loginUserID,
-	//	},
-	//	&resp); err != nil {
-	//	return resp, err
-	//}
-
 	resp, err := util.ProtoApiPost[groupv1.GetOwnerJoinRequestNumReq, groupv1.GetOwnerJoinRequestNumReps](
 		ctx,
 		constant.GetUserOwnerJoinRequestNumRouter,
@@ -783,12 +721,6 @@ func (g *Group) syncDelGroup(ctx context.Context, groupID string) error {
 
 // SearchGroupInfo 搜索群
 func (g *Group) SearchGroupInfo(ctx context.Context, keyWord string, pageSize, pageNum int64) (groupv1.SearchGroupInfoResp, error) {
-	//resp := groupv1.SearchGroupInfoResp{}
-	//err := util.ApiPost(ctx, constant.SearchGroupInfoRouter, &groupv1.SearchGroupInfoReq{
-	//	KeyWord:  keyWord,
-	//	PageSize: pageSize,
-	//	PageNum:  pageNum,
-	//}, &resp)
 	resp, err := util.ProtoApiPost[groupv1.SearchGroupInfoReq, groupv1.SearchGroupInfoResp](
 		ctx,
 		constant.SearchGroupInfoRouter,
@@ -842,9 +774,9 @@ func (g *Group) getConversationIDBySessionType(sourceID string, sessionType int)
 	return utils.GetConversationIDBySessionType(sessionType, g.loginUserID, sourceID)
 }
 
-func (g *Group) SetGroupChatBackground(ctx context.Context) error {
-	return g.GetUserMemberInfoInGroup(ctx)
-}
+//func (g *Group) SetGroupChatBackground(ctx context.Context) error {
+//	return g.GetUserMemberInfoInGroup(ctx)
+//}
 
 func (g *Group) GetGroupAllMember(ctx context.Context, groupID string) ([]*model_struct.LocalGroupMember, error) {
 

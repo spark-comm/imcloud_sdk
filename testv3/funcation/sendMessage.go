@@ -53,7 +53,7 @@ func DoTestSendMsg(index int, sendId, recvID string, groupID string, idx string)
 
 	log.Info(operationID, "SendMessage", sendId, recvID, groupID, testSendMsg.msgID, index)
 	// 如果 recvID 为空 代表发送群聊消息，反之
-	AllLoginMgr[strconv.Itoa(index)].Mgr.Conversation().SendMessage(ctx, s, recvID, groupID, &o)
+	AllLoginMgr[strconv.Itoa(index)].Mgr.Conversation().SendMessage(ctx, s, recvID, groupID, 1, &o)
 	SendMsgMapLock.Lock()
 	defer SendMsgMapLock.Unlock()
 	x := SendRecvTime{SendTime: utils.GetCurrentTimestampByMill()}

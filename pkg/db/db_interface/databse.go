@@ -55,6 +55,7 @@ type GroupDatabase interface {
 	DeleteSuperGroup(ctx context.Context, groupID string) error
 	GetGroupMemberInfoByGroupIDUserID(ctx context.Context, groupID, userID string) (*model_struct.LocalGroupMember, error)
 	GetAllGroupMemberList(ctx context.Context) ([]model_struct.LocalGroupMember, error)
+	GetUserInAllGroupMemberList(ctx context.Context, userId string) ([]model_struct.LocalGroupMember, error)
 	GetAllGroupMemberUserIDList(ctx context.Context) ([]model_struct.LocalGroupMember, error)
 	GetGroupMemberCount(ctx context.Context, groupID string) (int32, error)
 	GetGroupSomeMemberInfo(ctx context.Context, groupID string, userIDList []string) ([]*model_struct.LocalGroupMember, error)
@@ -83,6 +84,8 @@ type GroupDatabase interface {
 	GetOwnerOrAdminGroupReqInfo(ctx context.Context, groupID string, offset, count int) ([]model_struct.LocalGroupRequest, error)
 	//获取自己在的群中自己的信息
 	GetOwnerGroupMemberInfo(ctx context.Context, userID string) ([]*model_struct.LocalGroupMember, error)
+	GetGroupMemberUpdateTime(ctx context.Context, groupID string) (map[string]int64, error)
+	GetGroupUpdateTime(ctx context.Context) (map[string]int64, error)
 }
 
 type MessageDatabase interface {
@@ -234,7 +237,7 @@ type UserDatabase interface {
 
 type FriendDatabase interface {
 	InsertFriend(ctx context.Context, friend *model_struct.LocalFriend) error
-	DeleteFriendDB(ctx context.Context, friendUserID string) error
+	DeleteFriendDB(ctx context.Context, friendUserID ...string) error
 	UpdateFriend(ctx context.Context, friend *model_struct.LocalFriend) error
 	GetAllFriendList(ctx context.Context) ([]*model_struct.LocalFriend, error)
 	GetPageFriendList(ctx context.Context, offset, count int) ([]*model_struct.LocalFriend, error)
@@ -269,6 +272,8 @@ type FriendDatabase interface {
 	GetUnprocessedNum(ctx context.Context) (int64, error)
 	//获取不在列表的好友数据
 	GetNotInListFriendInfo(ctx context.Context, cond, user string, userIDs []string, pageSize, pageNum int) ([]sdk_params_callback.SearchNotInGroupUserResp, int64, error)
+	// 获取更新时间
+	GetFriendUpdateTime(ctx context.Context) (map[string]int64, error)
 }
 
 type ReactionDatabase interface {

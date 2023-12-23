@@ -60,6 +60,7 @@ func ServerFriendToLocalFriend(info *friendPb.FriendInfo) *model_struct.LocalFri
 		BackgroundURL:  info.BackgroundUrl,
 		IsComplete:     info.IsComplete,
 		IsDestroyMsg:   info.IsDestroyMsg,
+		UpdatedTime:    info.UpdateAt,
 	}
 }
 
@@ -84,4 +85,20 @@ func getSortFlag(remake, nickname string) string {
 		return utils.GetChineseFirstLetter(remake)
 	}
 	return utils.GetChineseFirstLetter(nickname)
+}
+
+// ServerBaseFriendToLocalFriend 基础信息转换
+func ServerBaseFriendToLocalFriend(info *friendPb.SyncFriendInfo) *model_struct.LocalFriend {
+	return &model_struct.LocalFriend{
+		FriendUserID:   info.FriendID,
+		Remark:         info.Remark,
+		FaceURL:        info.FaceURL,
+		Nickname:       info.NickName,
+		Code:           info.Code,
+		SortFlag:       getSortFlag(info.Remark, info.NickName),
+		NotPeersFriend: info.NotPeersFriend,
+		BackgroundURL:  info.BackgroundURL,
+		IsComplete:     IsNotComplete,
+		UpdatedTime:    info.UpdateAt,
+	}
 }

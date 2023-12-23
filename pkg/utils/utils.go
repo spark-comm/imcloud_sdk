@@ -362,6 +362,7 @@ func GetConversationIDByMsg(msg *sdk_struct.MsgStruct) string {
 	}
 	return ""
 }
+
 func GetConversationTableName(conversationID string) string {
 	return constant.ChatLogsTableNamePre + conversationID
 }
@@ -483,6 +484,8 @@ func DifferenceSubset(mainSlice, subSlice []int64) []int64 {
 	}
 	return n
 }
+
+// DifferenceSubsetString 字符串差异对比
 func DifferenceSubsetString(mainSlice, subSlice []string) []string {
 	m := make(map[string]bool)
 	n := make([]string, 0)

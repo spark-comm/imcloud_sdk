@@ -27,6 +27,7 @@ import (
 	"open_im_sdk/pkg/db/model_struct"
 	"open_im_sdk/pkg/delayqueue"
 	"open_im_sdk/pkg/syncer"
+	"open_im_sdk/pkg/utils"
 )
 
 func NewFriend(ctx context.Context, loginUserID string, db db_interface.DataBase, user *user.User, conversationCh, groupCh chan common.Cmd2Value) *Friend {
@@ -62,35 +63,7 @@ func (f *Friend) initSyncer() {
 		return f.db.UpdateFriend(ctx, server)
 	}, func(value *model_struct.LocalFriend) [2]string {
 		return [...]string{value.OwnerUserID, value.FriendUserID}
-	}, nil, func(ctx context.Context, state int, server, local *model_struct.LocalFriend) error {
-		if f.friendListener == nil {
-			return nil
-		}
-		switch state {
-		case syncer.Insert:
-			f.friendListener.OnFriendAdded(*server)
-		case syncer.Delete:
-			log.ZDebug(ctx, "syncer OnFriendDeleted", "local", local)
-			f.friendListener.OnFriendDeleted(*local)
-		case syncer.Update:
-			f.friendListener.OnFriendInfoChanged(*server)
-			if local.Nickname != server.Nickname || local.FaceURL != server.FaceURL || local.Remark != server.Remark {
-				if server.Remark != "" {
-					server.Nickname = server.Remark
-				}
-				//更新会话
-				_ = common.TriggerCmdUpdateConversation(ctx, common.UpdateConNode{Action: constant.UpdateConFaceUrlAndNickName,
-					Args: common.SourceIDAndSessionType{SourceID: server.FriendUserID, SessionType: constant.SingleChatType, FaceURL: server.FaceURL, Nickname: server.Nickname}}, f.conversationCh)
-				//更新消息
-				_ = common.TriggerCmdUpdateMessage(ctx, common.UpdateMessageNode{Action: constant.UpdateMsgFaceUrlAndNickName,
-					Args: common.UpdateMessageInfo{UserID: server.FriendUserID, FaceURL: server.FaceURL, Nickname: server.Nickname}}, f.conversationCh)
-				//更新所在群的信息
-				_ = common.TriggerCmdGroupMemberChange(ctx, common.UpdateGroupMemberInfo{UserId: server.FriendUserID, Nickname: server.Nickname, FaceUrl: server.FaceURL}, f.groupCh)
-			}
-
-		}
-		return nil
-	})
+	}, nil, f.NotificationFun)
 	//黑名单同步
 	f.blockSyncer = syncer.New(func(ctx context.Context, value *model_struct.LocalBlack) error {
 		return f.db.InsertBlack(ctx, value)
@@ -254,4 +227,50 @@ func (f *Friend) syncFriendByNotification(ctx context.Context, friendId string) 
 // DelLocalFriend 删除本地好友
 func (f *Friend) DelLocalFriend(ctx context.Context, friendId string) error {
 	return f.db.DeleteFriendDB(ctx, friendId)
+}
+
+// NotificationFun 好友通知
+func (f *Friend) NotificationFun(ctx context.Context, state int, server, local *model_struct.LocalFriend) error {
+	if f.friendListener == nil {
+		return nil
+	}
+	switch state {
+	case syncer.Insert:
+		f.friendListener.OnFriendAdded(*server)
+	case syncer.Delete:
+		log.ZDebug(ctx, "syncer OnFriendDeleted", "local", local)
+		f.friendListener.OnFriendDeleted(*local)
+	case syncer.Update:
+		f.friendListener.OnFriendInfoChanged(*server)
+		if local.Nickname != server.Nickname || local.FaceURL != server.FaceURL || local.Remark != server.Remark {
+			if server.Remark != "" {
+				server.Nickname = server.Remark
+			}
+			//更新会话
+			_ = common.TriggerCmdUpdateConversation(ctx, common.UpdateConNode{Action: constant.UpdateConFaceUrlAndNickName,
+				Args: common.SourceIDAndSessionType{SourceID: server.FriendUserID, SessionType: constant.SingleChatType, FaceURL: server.FaceURL, Nickname: server.Nickname}}, f.conversationCh)
+			//更新消息
+			_ = common.TriggerCmdUpdateMessage(ctx, common.UpdateMessageNode{Action: constant.UpdateMsgFaceUrlAndNickName,
+				Args: common.UpdateMessageInfo{UserID: server.FriendUserID, FaceURL: server.FaceURL, Nickname: server.Nickname}}, f.conversationCh)
+			//更新所在群的信息
+			_ = common.TriggerCmdGroupMemberChange(ctx, common.UpdateGroupMemberInfo{UserId: server.FriendUserID, Nickname: server.Nickname, FaceUrl: server.FaceURL}, f.groupCh)
+		}
+
+	}
+	return nil
+}
+
+// DelFriendConversation 删除群会话
+func (f *Friend) DelFriendConversation(ctx context.Context, friend string) {
+	//删除会话
+	conversationID := utils.GetConversationIDBySessionType(constant.SingleChatType, friend)
+	err := common.TriggerCmdDeleteConversationAndMessage(
+		ctx,
+		friend,
+		conversationID,
+		constant.SingleChatType,
+		f.conversationCh)
+	if err != nil {
+		log.ZDebug(ctx, "QuitGroup  after delete conversation err", err)
+	}
 }

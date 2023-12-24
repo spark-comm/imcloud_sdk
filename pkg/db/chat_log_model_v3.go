@@ -314,6 +314,11 @@ func (d *DataBase) GetConversationNormalMsgSeq(ctx context.Context, conversation
 	return seq, utils.Wrap(err, "GetConversationNormalMsgSeq")
 }
 
+func (d *DataBase) GetConversationMessageSeq(ctx context.Context, conversationID string) (result []int64, err error) {
+	d.initChatLog(ctx, conversationID)
+	err = d.conn.WithContext(ctx).Table(utils.GetConversationTableName(conversationID)).Select("seq").Pluck("seq", &result).Error
+	return
+}
 func (d *DataBase) GetConversationPeerNormalMsgSeq(ctx context.Context, conversationID string) (int64, error) {
 	var seq int64
 	err := d.conn.WithContext(ctx).Table(utils.GetConversationTableName(conversationID)).Select("IFNULL(max(seq),0)").Where("send_id != ?", d.loginUserID).Find(&seq).Error

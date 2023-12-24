@@ -63,6 +63,14 @@ func Test_GetConversationMaxSeq(t *testing.T) {
 	t.Log(seq)
 }
 
+func Test_SyncConversationMsg(t *testing.T) {
+	err := open_im_sdk.UserForSDK.MsgSyncer().SyncConversationMsg(ctx, "si_55122332682817536_55122332783480832")
+	if err != nil {
+		t.Fatal(err)
+	}
+	time.Sleep(time.Second * 30)
+}
+
 func Test_GetConversationListSplit(t *testing.T) {
 	conversations, err := open_im_sdk.UserForSDK.Conversation().GetConversationListSplit(ctx, 0, 30)
 	if err != nil {

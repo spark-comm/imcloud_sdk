@@ -473,6 +473,7 @@ func (m *MsgSyncer) syncMsgBySeqs(ctx context.Context, conversationID string, se
 		i++
 		allMsgs = append(allMsgs, pullMsgResp.Msgs[conversationID].Msgs...)
 	}
+
 	return allMsgs, nil
 }
 
@@ -502,6 +503,23 @@ func (m *MsgSyncer) SyncConversationMsg(ctx context.Context, conversationID stri
 		return err
 	}
 	minSeq := m.synceMinSeqs[conversationID]
+	//获取本地消息的seq
+	// todo 拉取不到消息暂时屏蔽
+	//seq, err := m.db.GetConversationMessageSeq(ctx, conversationID)
+	//if err == nil && len(seq) > 0 {
+	//	//最小左侧补齐
+	//	if seq[0] > minSeq {
+	//		seq = append([]int64{minSeq}, seq...)
+	//	}
+	//	if seq[len(seq)-1] < maxSeq {
+	//		seq = append(seq, maxSeq)
+	//	}
+	//	//找出缺省的数据
+	//	_, missing := utils.FixNotConnected(seq)
+	//	if len(missing) > 0 {
+	//		return m.syncMsgBySeqsAndConversation(ctx, conversationID, missing)
+	//	}
+	//}
 	if maxSeq > 0 {
 		//有需要同步的数据
 		spiltList := m.SpiltList(minSeq, maxSeq, constant.SplitPullMsgNum)
@@ -578,4 +596,29 @@ func (m *MsgSyncer) syncBaseInformation(ctx context.Context) {
 	//基础信息同步完成触发通知
 	common.TriggerCmdNotification(m.ctx, sdk_struct.CmdNewMsgComeToConversation{SyncFlag: constant.BaseDataSyncComplete}, m.conversationCh)
 	log.ZError(ctx, "base info sync success", nil)
+}
+
+// syncMsgBySeqsAndConversation 根据seq触发同步
+func (m *MsgSyncer) syncMsgBySeqsAndConversation(ctx context.Context, conversationID string, seqsNeedSync []int64) error {
+	pullMsgReq := sdkws.PullMessageBySeqsReq{}
+	pullMsgReq.UserID = m.loginUserID
+	split := constant.SplitPullMsgNum
+	seqsList := m.splitSeqs(split, seqsNeedSync)
+	allMsgs := make([]*sdkws.MsgData, 0)
+	for i := 0; i < len(seqsList); {
+		var pullMsgResp sdkws.PullMessageBySeqsResp
+		err := m.longConnMgr.SendReqWaitResp(ctx, &pullMsgReq, constant.PullMsgBySeqList, &pullMsgResp)
+		if err != nil {
+			log.ZError(ctx, "syncMsgFromSvrSplit err", err, "pullMsgReq", pullMsgReq)
+			continue
+		}
+		i++
+		if pullMsgResp.Msgs != nil && pullMsgResp.Msgs[conversationID] != nil {
+			allMsgs = append(allMsgs, pullMsgResp.Msgs[conversationID].Msgs...)
+		}
+	}
+	msgs := make(map[string]*sdkws.PullMsgs)
+	msgs[conversationID] = &sdkws.PullMsgs{Msgs: allMsgs}
+	_ = m.triggerConversation(ctx, msgs)
+	return nil
 }

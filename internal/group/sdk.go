@@ -535,6 +535,13 @@ func (g *Group) InviteUserToGroup(ctx context.Context, groupID, reason string, u
 }
 
 func (g *Group) GetGroupApplicationListAsRecipient(ctx context.Context) ([]*model_struct.LocalAdminGroupRequest, error) {
+	requests, err := g.db.GetAdminGroupApplication(ctx)
+	if err != nil || len(requests) == 0 {
+		err = g.SyncAdminGroupUntreatedApplication(ctx)
+		if err != nil {
+			return nil, err
+		}
+	}
 	return g.db.GetAdminGroupApplication(ctx)
 }
 

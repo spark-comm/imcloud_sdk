@@ -482,6 +482,17 @@ func Test_SearchGroupInfo(t *testing.T) {
 	}
 }
 
+func Test_KickGroupMemberList(t *testing.T) {
+	list, err := open_im_sdk.UserForSDK.Group().KickGroupMemberList(ctx, &sdk_params_callback.GetKickGroupListReq{
+		GroupID: "45362416979968",
+		Name:    "sss",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log(list)
+}
+
 func Test_GetAppointGroupRequestInfo(t *testing.T) {
 	info, err := open_im_sdk.UserForSDK.Group().GetAppointGroupRequestInfo(
 		ctx,
@@ -537,5 +548,12 @@ func Test_SyncGroupMemberInfo(t *testing.T) {
 	}
 	for _, v := range groupInfos {
 		t.Log(v)
+	}
+}
+
+func Test_SyncAdminGroupUntreatedApplication(t *testing.T) {
+	err := open_im_sdk.UserForSDK.Group().SyncAdminGroupUntreatedApplication(ctx)
+	if err != nil {
+		t.Fatal(err)
 	}
 }

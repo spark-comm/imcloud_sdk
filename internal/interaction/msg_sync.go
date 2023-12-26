@@ -497,15 +497,19 @@ func (m *MsgSyncer) triggerNotification(ctx context.Context, msgs map[string]*sd
 
 // SyncConversationMsg 同步会话消息
 func (m *MsgSyncer) SyncConversationMsg(ctx context.Context, conversationID string) error {
-	//获取当前会话的最大seq
-	maxSeq, err := m.GetConversationMaxSeq(ctx, conversationID)
-	if err != nil {
-		return err
-	}
-	minSeq := m.synceMinSeqs[conversationID]
-	//获取本地消息的seq
-	// todo 拉取不到消息暂时屏蔽
+	return nil
+	////获取当前会话的最大seq
+	//maxSeq, err := m.GetConversationMaxSeq(ctx, conversationID)
+	//if err != nil {
+	//	return err
+	//}
+	//minSeq := m.synceMinSeqs[conversationID]
+	////获取本地消息的seq
+	//// todo 拉取不到消息暂时屏蔽
 	//seq, err := m.db.GetConversationMessageSeq(ctx, conversationID)
+	//if len(seq) == 0 {
+	//	seq = []int64{0, maxSeq}
+	//}
 	//if err == nil && len(seq) > 0 {
 	//	//最小左侧补齐
 	//	if seq[0] > minSeq {
@@ -520,23 +524,23 @@ func (m *MsgSyncer) SyncConversationMsg(ctx context.Context, conversationID stri
 	//		return m.syncMsgBySeqsAndConversation(ctx, conversationID, missing)
 	//	}
 	//}
-	if maxSeq > 0 {
-		//有需要同步的数据
-		spiltList := m.SpiltList(minSeq, maxSeq, constant.SplitPullMsgNum)
-		// 有需要同步的数据
-		if len(spiltList) > 0 {
-			//加入异步队列
-			for i := 0; i < len(spiltList); i++ {
-				seqRange := spiltList[i]
-				m.msgSync <- &sdkws.SeqRange{
-					ConversationID: conversationID,
-					Begin:          seqRange[0],
-					End:            seqRange[1],
-					Num:            constant.SplitPullMsgNum,
-				}
-			}
-		}
-	}
+	//if maxSeq > 0 {
+	//	//有需要同步的数据
+	//	spiltList := m.SpiltList(minSeq, maxSeq, constant.SplitPullMsgNum)
+	//	// 有需要同步的数据
+	//	if len(spiltList) > 0 {
+	//		//加入异步队列
+	//		for i := 0; i < len(spiltList); i++ {
+	//			seqRange := spiltList[i]
+	//			m.msgSync <- &sdkws.SeqRange{
+	//				ConversationID: conversationID,
+	//				Begin:          seqRange[0],
+	//				End:            seqRange[1],
+	//				Num:            constant.SplitPullMsgNum,
+	//			}
+	//		}
+	//	}
+	//}
 	return nil
 }
 
@@ -606,6 +610,12 @@ func (m *MsgSyncer) syncMsgBySeqsAndConversation(ctx context.Context, conversati
 	seqsList := m.splitSeqs(split, seqsNeedSync)
 	allMsgs := make([]*sdkws.MsgData, 0)
 	for i := 0; i < len(seqsList); {
+		pullMsgReq.SeqRanges = []*sdkws.SeqRange{{
+			ConversationID: conversationID,
+			Begin:          seqsNeedSync[0],
+			End:            seqsNeedSync[len(seqsNeedSync)-1],
+			Num:            int64(len(seqsNeedSync)),
+		}}
 		var pullMsgResp sdkws.PullMessageBySeqsResp
 		err := m.longConnMgr.SendReqWaitResp(ctx, &pullMsgReq, constant.PullMsgBySeqList, &pullMsgResp)
 		if err != nil {

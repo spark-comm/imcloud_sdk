@@ -333,7 +333,7 @@ func (d *DataBase) SearchKickMemberList(ctx context.Context, params sdk_params_c
 	tx1 := d.conn.WithContext(ctx).Model(&model_struct.LocalGroupMember{}).
 		Select([]string{
 			"group_id", "user_id", "nickname", "role_level", "join_time", "face_url",
-			"code", "phone", "gender", "group_user_name", "sort_flag",
+			"code", "group_user_name", "sort_flag",
 		}).Where("group_id = ? AND user_id != ?", params.GroupID, params.UserID).
 		Scopes(func(db *gorm.DB) *gorm.DB {
 			if params.IsManger { //管理员只可踢普通用户
@@ -344,7 +344,7 @@ func (d *DataBase) SearchKickMemberList(ctx context.Context, params sdk_params_c
 		})
 	tx2 := d.conn.WithContext(ctx).Model(&model_struct.LocalGroupMember{}).Select([]string{
 		"group_id", "user_id", "nickname", "role_level", "join_time", "face_url",
-		"code", "phone", "gender", "group_user_name", "sort_flag",
+		"code", "group_user_name", "sort_flag",
 	}).Where("group_id = ? AND user_id != ?", params.GroupID, params.UserID).
 		Scopes(func(db *gorm.DB) *gorm.DB {
 			if params.IsManger { //管理员只可踢普通用户
@@ -356,7 +356,7 @@ func (d *DataBase) SearchKickMemberList(ctx context.Context, params sdk_params_c
 	tx3 := d.conn.WithContext(ctx).Model(&model_struct.LocalGroupMember{}).
 		Select([]string{
 			"group_id", "user_id", "nickname", "role_level", "join_time", "face_url",
-			"code", "phone", "gender", "group_user_name", "sort_flag",
+			"code", "group_user_name", "sort_flag",
 		}).Where("group_id = ? AND user_id != ?", params.GroupID, params.UserID).
 		Scopes(func(db *gorm.DB) *gorm.DB {
 			if params.IsManger { //管理员只可踢普通用户

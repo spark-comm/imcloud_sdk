@@ -17,8 +17,8 @@ package testv2
 import "open_im_sdk/sdk_struct"
 
 const (
-	//APIADDR = "http://43.154.157.177:10002"
-	//WSADDR  = "ws://43.154.157.177:10001"
+	//APIADDR = "http://47.108.68.161:9099"
+	//WSADDR  = "ws://47.108.68.161:10001"
 	//UserID  = "kernaltestuid2"
 
 	//APIADDR = "http://127.0.0.1:9099"
@@ -26,8 +26,8 @@ const (
 	//预生产
 	APIADDR = "http://8.137.13.1:9099"
 	WSADDR  = "ws://8.137.13.1:10001"
-	UserID  = "55122332682817536"
-	token   = "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJpbUNsb3VkIiwic3ViIjoie1widXNlcklkXCI6XCI1NTEyMjMzMjY4MjgxNzUzNlwiLFwicGxhdGZvcm1cIjpcIkFuZHJvaWRcIixcInRlbmFudElkXCI6XCJcIixcInNlcnZlcl9jb2RlXCI6XCJcIixcInJvbGVcIjpcIlVTRVJcIn0iLCJleHAiOjE3MDM1MTYzMzEsIm5iZiI6MTcwMzE1NjMzMSwiaWF0IjoxNzAzMTU2MzMxfQ.gMz4O2ejMJ6oBxXUyHb6tB4v-oxL4N5yhK3AWgpujsbK1jP_y-8kSH2E_0HLoo2_xY7pJp2C67I6LixOYG8mPw"
+	UserID  = "95799453247606784"
+	token   = "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJpbUNsb3VkIiwic3ViIjoie1widXNlcklkXCI6XCI5NTc5OTQ1MzI0NzYwNjc4NFwiLFwicGxhdGZvcm1cIjpcIkFuZHJvaWRcIixcInRlbmFudElkXCI6XCI0NDc0NTUyNTUzODM2NTQ0XCIsXCJzZXJ2ZXJfY29kZVwiOlwiXCIsXCJyb2xlXCI6XCJVU0VSXCJ9IiwiZXhwIjoxNzAzOTE3NzI5LCJuYmYiOjE3MDM1NTc3MjksImlhdCI6MTcwMzU1NzcyOX0.bX9QXV5IuHNBHKcxRU5j72TcL4c8-19yS1DscOlUOdgDpyFaIDxEeTe5AKSSKrJzGToYCzQDBKuG6owyWFlTRA"
 )
 
 func getConf(APIADDR, WSADDR string) sdk_struct.IMConfig {

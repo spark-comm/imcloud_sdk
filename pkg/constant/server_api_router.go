@@ -19,7 +19,7 @@ const (
 	BaseRouterV2 = "/api/app/v2"
 )
 const (
-	GetSelfUserInfoRouter         = BaseRouter + "/user/get_self_user_info"
+	GetSelfUserInfoRouter         = BaseRouter + "/user/get_pb_self_user_info"
 	GetUsersInfoRouter            = BaseRouter + "/user/get_users_info"
 	FindFullProfileByUserIdRouter = BaseRouter + "/user/find_full_users_info"
 	UpdateSelfUserInfoRouter      = BaseRouter + "/user/update_user_info"

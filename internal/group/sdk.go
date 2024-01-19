@@ -66,9 +66,9 @@ func (g *Group) JoinGroup(ctx context.Context, groupID, reqMsg string, joinSourc
 		}); err != nil {
 		return err
 	}
-	if err := g.SyncSelfGroupApplications(ctx, groupID); err != nil {
-		return err
-	}
+	//if err := g.SyncSelfGroupApplications(ctx, groupID); err != nil {
+	//	return err
+	//}
 	return nil
 }
 

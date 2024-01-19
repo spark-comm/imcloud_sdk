@@ -17,6 +17,8 @@ package friend
 import (
 	"context"
 	"fmt"
+	"github.com/imCloud/api/common/enums"
+	"github.com/imCloud/api/common/notice"
 	"github.com/imCloud/im/pkg/common/log"
 	"github.com/imCloud/im/pkg/proto/sdkws"
 	"open_im_sdk/internal/user"
@@ -186,18 +188,18 @@ func (f *Friend) DoNotification(ctx context.Context, msg *sdkws.MsgData) {
 }
 
 // syncApplication 同步好友申请
-func (f *Friend) syncApplication(ctx context.Context, from *sdkws.FromToUserID) error {
+func (f *Friend) syncApplication(ctx context.Context, from *notice.FromToUserID) error {
+	if from.Operation == enums.Operation_Delete {
+		f.friendListener.OnFriendApplicationDeleted(model_struct.LocalFriendRequest{
+			FromUserID: from.FromUserID,
+			ToUserID:   from.ToUserID,
+		})
+	}
 	if from.FromUserID == f.loginUserID {
-		// 自己发起的请求
-		if err := f.SyncFriendApplication(ctx); err != nil {
-			return err
-		}
+		// 自己发起的好友请求
 		return f.SyncSelfFriendApplication(ctx)
 	} else if from.ToUserID == f.loginUserID {
-		// 发给自己的请求
-		if err := f.SyncSelfFriendApplication(ctx); err != nil {
-			return err
-		}
+		// 发给自己的请求,同步自己收到的好友请求
 		return f.SyncFriendApplication(ctx)
 	}
 	return nil

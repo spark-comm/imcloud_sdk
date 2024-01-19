@@ -364,8 +364,16 @@ func Test_ClearConversationAndDeleteAllMsg(t *testing.T) {
 }
 
 func Test_RevokeMessage(t *testing.T) {
-	conId := open_im_sdk.GetConversationIDBySessionType("ssss", "1463426512456", 1)
+	conId := open_im_sdk.GetConversationIDBySessionType("ssss", "2664338510843904", 3)
 	err := open_im_sdk.UserForSDK.Conversation().RevokeMessage(ctx, conId, "bf70f6d012eb3254c03595cc2c2e0dc2")
+	if err != nil {
+		t.Fatal(err)
+	}
+	time.Sleep(time.Second * 10)
+}
+
+func Test_RevokeOneMessage(t *testing.T) {
+	err := open_im_sdk.UserForSDK.Conversation().RevokeOneMessage(ctx, "sg_2664338510843904", 76)
 	if err != nil {
 		t.Fatal(err)
 	}

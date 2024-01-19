@@ -16,6 +16,7 @@ package user
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/imCloud/im/pkg/common/log"
 	"github.com/imCloud/im/pkg/errs"
@@ -25,14 +26,14 @@ import (
 
 // SyncLoginUserInfo 同步用户信息
 func (u *User) SyncLoginUserInfo(ctx context.Context) error {
-	remoteUser, err := u.GetSingleUserFromSvr(ctx, u.loginUserID)
+	remoteUser, err := u.GetSelfUserInfoFromSvr(ctx)
 	if err != nil {
 		return err
 	}
 	log.ZInfo(ctx, fmt.Sprintf("获取远程用户信息成功，data:%+v", remoteUser))
 	localUser, err := u.GetLoginUser(ctx, u.loginUserID)
 	log.ZInfo(ctx, fmt.Sprintf("获取本地用户信息成功，data:%+v", localUser))
-	if err != nil && errs.Unwrap(err) != gorm.ErrRecordNotFound {
+	if err != nil && !errors.Is(errs.Unwrap(err), gorm.ErrRecordNotFound) {
 		log.ZInfo(ctx, fmt.Sprintf("获取本地用户信息失败，err:%+v", err))
 		return err
 	}

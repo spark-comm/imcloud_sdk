@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/imCloud/api/common/notice"
 	"github.com/imCloud/im/pkg/proto/sdkws"
 	"log"
 	"open_im_sdk/pkg/constant"
@@ -19,13 +20,13 @@ func (f *Friend) doNotification(ctx context.Context, msg *sdkws.MsgData) error {
 	}
 	switch msg.ContentType {
 	case constant.FriendApplicationNotification:
-		//好友请求增加
-		tips := sdkws.FriendApplicationTips{}
+		//好友请求通知
+		tips := notice.FriendApplicationTips{}
 		if err := utils.UnmarshalNotificationElem(msg.Content, &tips); err != nil {
 			return err
 		}
 		log.Println(fmt.Sprintf("收到好友请求通知，开始同步数据,tips data:%+v", tips))
-		return f.syncApplicationByNotification(ctx, tips.FromToUserID)
+		return f.syncApplication(ctx, tips.FromToUserID)
 	case constant.FriendApplicationApprovedNotification:
 		//发起的好友请求被同意
 		var tips sdkws.FriendApplicationApprovedTips
@@ -49,6 +50,11 @@ func (f *Friend) doNotification(ctx context.Context, msg *sdkws.MsgData) error {
 		if err := utils.UnmarshalNotificationElem(msg.Content, &tips); err != nil {
 			return err
 		}
+		//如果是后台处理这里的好友请求需要重新同步，否则移动端还能处理
+		//err := f.SyncUntreatedFriendReceiveFriendApplication(ctx)
+		//if err != nil {
+		//	log.Println(fmt.Sprintf("SyncUntreatedFriendReceiveFriendApplication err:%+v", err))
+		//}
 		return f.syncFriendByNotification(ctx, tips.Friend.OwnerUserID)
 	case constant.FriendDeletedNotification:
 		//好友被删除通知

@@ -186,7 +186,7 @@ type LocalUser struct {
 	Birth            int64  `json:"birth" gorm:"column:birth;comment:生日"`
 	Gender           int32  `gorm:"column:gender;comment:性别" json:"gender"`
 	CreateTime       int64  `gorm:"column:create_time" json:"createTime"`
-	ShareCode        string `json:"shareCode" gorm:"column:share_code;size:20;not null;default:'';comment:分享码"`
+	ShareCode        string `json:"shareCode" gorm:"column:share_code;size:50;not null;default:'';comment:分享码"`
 	LastLogin        int64  `json:"lastLogin" gorm:"column:last_login;default:0;comment:上次登陆时间"`
 	Options          string `json:"options" gorm:"column:options;default:'';size:3000;comment:用户配置项"`
 	AppMangerLevel   int32  `gorm:"column:app_manger_level" json:"-"`

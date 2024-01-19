@@ -87,6 +87,7 @@ func (c *Cache) GetUserNameFaceURLAndBackgroundUrl(ctx context.Context, userID s
 		info := value.(*BaseInfo)
 		return info.FaceURL, info.Nickname, info.BackgroundURL, nil
 	}
+	// 从本地获取
 	friendInfo, err := c.friend.Db().GetFriendInfoByFriendUserID(ctx, userID)
 	if err == nil {
 		faceURL = friendInfo.FaceURL
@@ -96,6 +97,19 @@ func (c *Cache) GetUserNameFaceURLAndBackgroundUrl(ctx context.Context, userID s
 			name = friendInfo.Nickname
 		}
 		backgroundURL = friendInfo.BackgroundURL
+		return faceURL, name, backgroundURL, nil
+	}
+	//从服务端上传
+	svrFriends, err := c.friend.GetFriendByIdsSvr(ctx, []string{userID})
+	if err == nil && len(svrFriends) > 0 {
+		svrFriend := svrFriends[0]
+		faceURL = svrFriend.FaceURL
+		if svrFriend.Remark != "" {
+			name = svrFriend.Remark
+		} else {
+			name = svrFriend.Nickname
+		}
+		backgroundURL = svrFriend.BackgroundUrl
 		return faceURL, name, backgroundURL, nil
 	}
 	//get from server db

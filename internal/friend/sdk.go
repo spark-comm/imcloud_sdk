@@ -131,9 +131,6 @@ func (f *Friend) RespondFriendApply(ctx context.Context, req *friend.RespondFrie
 	if req.ToUserID == "" {
 		req.ToUserID = f.loginUserID
 	}
-	//if err := util.ApiPost(ctx, constant.AddFriendResponse, req, nil); err != nil {
-	//	return err
-	//}
 	if _, err := util.ProtoApiPost[friendPb.AddFriendResponseRequest, empty.Empty](
 		ctx,
 		constant.AddFriendResponse,
@@ -151,7 +148,6 @@ func (f *Friend) RespondFriendApply(ctx context.Context, req *friend.RespondFrie
 	}
 	_ = f.SyncFriendApplication(ctx)
 	return nil
-	//return f.SyncFriendApplication(ctx)
 }
 
 func (f *Friend) CheckFriend(ctx context.Context, friendUserIDList []string) ([]*server_api_params.UserIDResult, error) {

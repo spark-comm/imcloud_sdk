@@ -238,7 +238,13 @@ func (f *Friend) NotificationFun(ctx context.Context, state int, server, local *
 	}
 	switch state {
 	case syncer.Insert:
+		//尝试更新会话
 		f.friendListener.OnFriendAdded(*server)
+		if server.Remark != "" {
+			server.Nickname = server.Remark
+		}
+		_ = common.TriggerCmdUpdateConversation(ctx, common.UpdateConNode{Action: constant.UpdateConFaceUrlAndNickName,
+			Args: common.SourceIDAndSessionType{SourceID: server.FriendUserID, SessionType: constant.SingleChatType, FaceURL: server.FaceURL, Nickname: server.Nickname}}, f.conversationCh)
 	case syncer.Delete:
 		log.ZDebug(ctx, "syncer OnFriendDeleted", "local", local)
 		f.friendListener.OnFriendDeleted(*local)

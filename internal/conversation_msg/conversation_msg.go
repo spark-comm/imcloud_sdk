@@ -352,7 +352,7 @@ func (c *Conversation) doMsgNew(c2v common.Cmd2Value) {
 		updateMsg[conversationID] = updateMessage
 	}
 
-	list, err := c.db.GetAllConversationListDB(ctx)
+	list, err := c.db.GetAllConversationListDB(ctx, true)
 	if err != nil {
 		log.ZError(ctx, "GetAllConversationListDB", err)
 	}

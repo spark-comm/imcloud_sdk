@@ -199,6 +199,15 @@ func Test_GetTotalUnreadMsgCount(t *testing.T) {
 	t.Log(count)
 }
 
+// 测试加密会话未读数量
+func Test_GetTotalEncryptUnreadMsgCount(t *testing.T) {
+	count, err := open_im_sdk.UserForSDK.Conversation().GetTotalEncryptUnreadMsgCount(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log(count)
+}
+
 func Test_SendMessage(t *testing.T) {
 	ctx = context.WithValue(ctx, "callback", TestSendMsg{})
 	msg, _ := open_im_sdk.UserForSDK.Conversation().CreateTextMessage(ctx, "加密会话消息1")

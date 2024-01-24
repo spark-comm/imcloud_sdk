@@ -212,6 +212,11 @@ func (f *Friend) DeleteFriend(ctx context.Context, friendUserID string) error {
 	conversationID := f.getConversationIDBySessionType(friendUserID, constant.SingleChatType)
 	//删除好友后删除对应的会话消息
 	err := common.TriggerCmdDeleteConversationAndMessage(ctx, friendUserID, conversationID, constant.SingleChatType, f.conversationCh)
+	//加密会话处理
+	//获取会话id
+	ecConversationID := f.getConversationIDBySessionType(friendUserID, constant.EncryptedChatType)
+	//删除好友后删除对应的会话消息
+	err = common.TriggerCmdDeleteConversationAndMessage(ctx, friendUserID, ecConversationID, constant.EncryptedChatType, f.conversationCh)
 	if err != nil {
 		log.ZDebug(ctx, "delete friend after delete conversation and message")
 	}

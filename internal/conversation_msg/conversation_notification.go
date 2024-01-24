@@ -63,6 +63,16 @@ func (c *Conversation) Work(c2v common.Cmd2Value) {
 func (c *Conversation) doDeleteConversation(c2v common.Cmd2Value) {
 	node := c2v.Value.(common.DeleteConNode)
 	ctx := c2v.Ctx
+	//会话id
+	conversationID := node.ConversationID
+	if utils.IsEncrypted(conversationID) {
+		//加密会话先判断会话是否存在
+		conversation, err := c.db.GetConversation(ctx, conversationID)
+		//判断加密会话是否存在，存在则不进行处理
+		if conversation == nil || conversation.ConversationID == "" || err != nil {
+			return
+		}
+	}
 	// 将会话标记为删除
 	// Mark messages related to this conversation for deletion
 	err := c.db.UpdateMessageStatusBySourceID(context.Background(), node.SourceID, constant.MsgStatusHasDeleted, int32(node.SessionType))

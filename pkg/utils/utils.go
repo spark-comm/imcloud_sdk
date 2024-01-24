@@ -339,6 +339,11 @@ func GetConversationIDBySessionType(sessionType int, ids ...string) string {
 	return ""
 }
 
+// IsEncrypted 是否加密会话
+func IsEncrypted(conversationID string) bool {
+	return strings.HasPrefix(conversationID, "ec_")
+}
+
 func GetConversationIDByMsg(msg *sdk_struct.MsgStruct) string {
 	switch msg.SessionType {
 	case constant.SingleChatType:

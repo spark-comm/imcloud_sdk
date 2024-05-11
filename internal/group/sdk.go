@@ -251,6 +251,7 @@ func (g *Group) SetGroupMemberInfo(ctx context.Context, groupMemberInfo *groupv1
 
 // GetJoinedGroupList 获取加入的群列表
 func (g *Group) GetJoinedGroupList(ctx context.Context) ([]*model_struct.LocalGroup, error) {
+	log.ZError(ctx, "GetJoinedGroupList", nil)
 	return g.db.GetJoinedGroupListDB(ctx)
 }
 

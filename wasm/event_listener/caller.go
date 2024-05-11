@@ -87,7 +87,7 @@ func (r *ReflectCall) asyncCallWithCallback() {
 		log.Error("sdfasdfasd", "传入参数小于方法需要参数", funcName)
 		r.arguments = append(r.arguments, js.Value{})
 	}
-	log.Error("sdfasdfasd", "进行方法调用", len(r.arguments), funcName, funcFieldsNum)
+	//log.Error("sdfasdfasd", "进行方法调用", len(r.arguments), funcName, funcFieldsNum)
 	for i := 0; i < len(r.arguments); i++ {
 		if hasCallback {
 			temp++
@@ -95,7 +95,7 @@ func (r *ReflectCall) asyncCallWithCallback() {
 			temp = i
 		}
 		//log.NewDebug(r.callback.GetOperationID(), "type is ", typeFuncName.In(temp).Kind(), r.arguments[i].IsNaN())
-		log.NewDebug(r.callback.GetOperationID(), "type is ", "当前temp", temp, typeFuncName.In(i).Kind(), r.arguments[i].IsNaN())
+		//log.NewDebug(r.callback.GetOperationID(), "type is ", "当前temp", temp, typeFuncName.In(i).Kind(), r.arguments[i].IsNaN())
 		switch typeFuncName.In(temp).Kind() {
 		case reflect.String:
 			convertValue := r.arguments[i].String()

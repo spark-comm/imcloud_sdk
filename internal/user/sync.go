@@ -29,16 +29,15 @@ func (u *User) SyncLoginUserInfo(ctx context.Context) error {
 	}
 	//去掉比较同步后就插入最新的
 	log.ZInfo(ctx, fmt.Sprintf("获取远程用户信息成功，data:%+v", remoteUser))
-	//localUser, err := u.GetLoginUser(ctx, u.loginUserID)
-	//log.ZInfo(ctx, fmt.Sprintf("获取本地用户信息成功，data:%+v", localUser))
-	//if err != nil && !errors.Is(errs.Unwrap(err), gorm.ErrRecordNotFound) {
-	//	log.ZInfo(ctx, fmt.Sprintf("获取本地用户信息失败，err:%+v", err))
-	//	return err
-	//}
+	localUser, err := u.GetLoginUser(ctx, u.loginUserID)
+	log.ZInfo(ctx, fmt.Sprintf("获取本地用户信息成功，data:%+v", localUser))
+	if err != nil {
+		log.ZInfo(ctx, fmt.Sprintf("获取本地用户信息失败，err:%+v", err))
+	}
 	var localUsers []*model_struct.LocalUser
-	//if err == nil {
-	//	localUsers = []*model_struct.LocalUser{localUser}
-	//}
+	if err == nil {
+		localUsers = []*model_struct.LocalUser{localUser}
+	}
 	//log.ZDebug(ctx, "SyncLoginUserInfo", "remoteUser", remoteUser, "localUser", localUser)
 	return u.userSyncer.Sync(ctx, []*model_struct.LocalUser{remoteUser}, localUsers, nil)
 }

@@ -756,6 +756,10 @@ func (i *LocalChatLogs) GetConversationAbnormalMsgSeq(ctx context.Context, group
 	//TODO implement me
 	panic("implement me")
 }
+func (d *LocalChatLogs) GetConversationMessageSeq(ctx context.Context, conversationID string) (result []int64, err error) {
+	//TODO implement me
+	panic("implement me")
+}
 
 // DeleteConversationAllMessages deletes all messages of the session
 func (i *LocalChatLogs) DeleteConversationAllMessages(ctx context.Context, conversationID string) error {

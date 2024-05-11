@@ -32,7 +32,7 @@ func NewLocalConversations() *LocalConversations {
 	return &LocalConversations{}
 }
 
-func (i *LocalConversations) GetAllConversationListDB(ctx context.Context) (result []*model_struct.LocalConversation, err error) {
+func (i *LocalConversations) GetAllConversationListDB(ctx context.Context, includeEncrypted ...bool) (result []*model_struct.LocalConversation, err error) {
 	cList, err := exec.Exec()
 	if err != nil {
 		return nil, err
@@ -293,7 +293,7 @@ func (i *LocalConversations) DecrConversationUnreadCount(ctx context.Context, co
 	_, err := exec.Exec(conversationID, count)
 	return err
 }
-func (i *LocalConversations) GetTotalUnreadMsgCountDB(ctx context.Context) (totalUnreadCount int32, err error) {
+func (i *LocalConversations) GetTotalUnreadMsgCountDB(ctx context.Context, conversationType ...int32) (totalUnreadCount int32, err error) {
 	count, err := exec.Exec()
 	if err != nil {
 		return 0, err

@@ -181,3 +181,15 @@ func (i *LocalGroups) GetOwnerGroupMemberInfo(ctx context.Context, userID string
 func (i *LocalGroups) GetOneSendGroupApplication(ctx context.Context, groupID string) ([]*model_struct.LocalGroupRequest, error) {
 	return []*model_struct.LocalGroupRequest{}, nil
 }
+
+// GetGroupMemberUpdateTime 获取群成员信息
+func (d *LocalGroups) GetGroupMemberUpdateTime(ctx context.Context, groupID string) (map[string]int64, error) {
+	res := make(map[string]int64)
+	return res, nil
+}
+
+// GetGroupUpdateTime 获取群信息
+func (d *LocalGroups) GetGroupUpdateTime(ctx context.Context) (map[string]int64, error) {
+	res := make(map[string]int64)
+	return res, nil
+}

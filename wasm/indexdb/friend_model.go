@@ -43,8 +43,8 @@ func (i *Friend) InsertFriend(ctx context.Context, friend *model_struct.LocalFri
 	return err
 }
 
-func (i *Friend) DeleteFriendDB(ctx context.Context, friendUserID string) error {
-	_, err := exec.Exec(friendUserID, i.loginUserID)
+func (i *Friend) DeleteFriendDB(ctx context.Context, friendUserID ...string) error {
+	_, err := exec.Exec(friendUserID[0], i.loginUserID)
 	return err
 }
 
@@ -189,4 +189,10 @@ func (i *Friend) GetNotInListFriendInfo(ctx context.Context, cond, user string, 
 }
 func (i *Friend) GetFriendList(ctx context.Context, page *pg.Page) ([]*model_struct.LocalFriend, error) {
 	return nil, nil
+}
+
+// GetFriendUpdateTime 获取群信息
+func (d *Friend) GetFriendUpdateTime(ctx context.Context) (map[string]int64, error) {
+	res := make(map[string]int64)
+	return res, nil
 }

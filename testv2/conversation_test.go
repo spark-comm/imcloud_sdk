@@ -211,7 +211,7 @@ func Test_GetTotalEncryptUnreadMsgCount(t *testing.T) {
 func Test_SendMessage(t *testing.T) {
 	ctx = context.WithValue(ctx, "callback", TestSendMsg{})
 	msg, _ := open_im_sdk.UserForSDK.Conversation().CreateTextMessage(ctx, "加密会话消息1")
-	_, err := open_im_sdk.UserForSDK.Conversation().SendMessage(ctx, msg, "55122332330496000", "", constant.CustomerServiceChatType, nil)
+	_, err := open_im_sdk.UserForSDK.Conversation().SendMessage(ctx, msg, "469829639213056", "", constant.SingleChatType, nil)
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -84,8 +84,10 @@ func (r *ReflectCall) asyncCallWithCallback() {
 	}
 	funcFieldsNum := typeFuncName.NumIn()
 	if funcFieldsNum-len(r.arguments) > 1 {
+		log.Error("sdfasdfasd", "传入参数小于方法需要参数", funcName)
 		r.arguments = append(r.arguments, js.Value{})
 	}
+	log.Error("sdfasdfasd", "进行方法调用", len(r.arguments), funcName, funcFieldsNum)
 	for i := 0; i < len(r.arguments); i++ {
 		if hasCallback {
 			temp++
@@ -93,6 +95,7 @@ func (r *ReflectCall) asyncCallWithCallback() {
 			temp = i
 		}
 		//log.NewDebug(r.callback.GetOperationID(), "type is ", typeFuncName.In(temp).Kind(), r.arguments[i].IsNaN())
+		log.NewDebug(r.callback.GetOperationID(), "type is ", "当前temp", temp, typeFuncName.In(i).Kind(), r.arguments[i].IsNaN())
 		switch typeFuncName.In(temp).Kind() {
 		case reflect.String:
 			convertValue := r.arguments[i].String()
@@ -118,8 +121,8 @@ func (r *ReflectCall) asyncCallWithCallback() {
 			panic("input args type not support:" + strconv.Itoa(int(typeFuncName.In(temp).Kind())))
 		}
 	}
+	log.Error("sssss", "参数处理完成即将调用方法", funcName)
 	funcName.Call(values)
-
 }
 func (r *ReflectCall) AsyncCallWithOutCallback() interface{} {
 	if r.callback == nil {
@@ -149,7 +152,7 @@ func (r *ReflectCall) asyncCallWithOutCallback() {
 	r.callback.SetOperationID(r.arguments[0].String())
 	//strings.SplitAfter()
 	for i := 0; i < len(r.arguments); i++ {
-		//log.NewDebug(r.callback.GetOperationID(), "type is ", typeFuncName.In(temp).Kind(), r.arguments[i].IsNaN())
+		//log.NewDebug(r.callback.GetOperationID(), "type is ", "当前id", i, typeFuncName.In(i).Kind(), r.arguments[i].IsNaN())
 		switch typeFuncName.In(i).Kind() {
 		case reflect.String:
 			convertValue := r.arguments[i].String()

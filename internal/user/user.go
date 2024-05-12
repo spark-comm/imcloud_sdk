@@ -205,6 +205,7 @@ func (u *User) getSelfUserInfo(ctx context.Context) (*model_struct.LocalUser, er
 func (u *User) searchUser(ctx context.Context, searchValue string, searchType int) (*model_struct.LocalUser, error) {
 	//res, err := util.CallApi[imUserPb.SearchProfileReply](ctx, constant.SearchUserInfoRouter,
 	//	&imUserPb.SearchProfileReq{SearchValue: searchValue, Type: int32(searchType)})
+	log.ZInfo(ctx, "searchUser", searchValue, searchType)
 	res := &imUserPb.SearchProfileReply{}
 	err := util.CallPostApi[*imUserPb.SearchProfileReq, *imUserPb.SearchProfileReply](
 		ctx, constant.SearchUserInfoRouter,

@@ -5,8 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"github.com/imCloud/api/common/notice"
+	"github.com/imCloud/im/pkg/common/log"
 	"github.com/imCloud/im/pkg/proto/sdkws"
-	"log"
 	"open_im_sdk/pkg/constant"
 	"open_im_sdk/pkg/utils"
 )
@@ -25,7 +25,7 @@ func (f *Friend) doNotification(ctx context.Context, msg *sdkws.MsgData) error {
 		if err := utils.UnmarshalNotificationElem(msg.Content, &tips); err != nil {
 			return err
 		}
-		log.Println(fmt.Sprintf("收到好友请求通知，开始同步数据,tips data:%+v", tips))
+		log.ZInfo(ctx, "收到好友请求通知，开始同步数据,tips data:%+v", tips)
 		return f.syncApplication(ctx, tips.FromToUserID)
 	case constant.FriendApplicationApprovedNotification:
 		//发起的好友请求被同意

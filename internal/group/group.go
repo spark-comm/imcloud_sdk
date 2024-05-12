@@ -336,6 +336,11 @@ func (g *Group) GetJoinedDiffusionGroupIDListFromSvr(ctx context.Context) ([]str
 
 // GetGroupMemberFromLocal2Svr 从本地和服务端获取群成员数据
 func (g *Group) GetGroupMemberFromLocal2Svr(ctx context.Context, groupID string, userIDList []string) ([]*model_struct.LocalGroupMember, error) {
+	//log.ZInfo(ctx, "获取群成员GetGroupMemberFromLocal2Svr", "groupID", groupID, "userIDList", userIDList)
+	if groupID == "" {
+		var res []*model_struct.LocalGroupMember
+		return res, nil
+	}
 	localGroupMembers, err := g.db.GetGroupSomeMemberInfo(ctx, groupID, userIDList)
 	if err == nil && len(localGroupMembers) > 0 {
 		return localGroupMembers, nil

@@ -27,10 +27,9 @@ func (f *Friend) GetFriendByIdsSvr(ctx context.Context, friendUserIDList []strin
 	return res.FriendsInfo, nil
 }
 
+// GetFriendBaseInfoSvr 登录同步数据
 func (f *Friend) GetFriendBaseInfoSvr(ctx context.Context) ([]*friendPb.SyncFriendInfo, error) {
-	req := &friendPb.GetPaginationFriendsInfo{UserID: f.loginUserID, Pagination: &commonPb.RequestPagination{
-		ShowNumber: 10,
-	}}
+	req := &friendPb.GetSyncFriendReq{UserID: f.loginUserID, Pagination: &commonPb.RequestPagination{}}
 	fn := func(resp *friendPb.GetSyncFriendResp) []*friendPb.SyncFriendInfo {
 		return resp.List
 	}
@@ -40,4 +39,21 @@ func (f *Friend) GetFriendBaseInfoSvr(ctx context.Context) ([]*friendPb.SyncFrie
 		return nil, err
 	}
 	return respList, nil
+}
+
+// SyncFriendInfoByTime 根据时间点同步信息
+// par dataTime 时间问题
+//
+//	返回 新增好友，更新好友，删除好友
+func (f *Friend) SyncFriendInfoByTime(ctx context.Context, dataTime map[string]int64) ([]*friendPb.SyncFriendInfo, []*friendPb.SyncFriendInfo, []string, error) {
+	res := &friendPb.SyncFriendInfoByTimeReply{}
+	err := util.CallPostApi[*friendPb.SyncFriendInfoByTimeReq, *friendPb.SyncFriendInfoByTimeReply](
+		ctx, constant.SyncFriendInfoByTimeRouter,
+		&friendPb.SyncFriendInfoByTimeReq{UserID: f.loginUserID, TimeData: dataTime},
+		res,
+	)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+	return res.AddList, res.UpdateList, res.DelIds, nil
 }

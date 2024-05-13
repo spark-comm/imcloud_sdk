@@ -17,7 +17,9 @@ package group
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"gorm.io/gorm"
 	"open_im_sdk/internal/util"
 	"open_im_sdk/pkg/common"
 	"open_im_sdk/pkg/constant"
@@ -26,7 +28,6 @@ import (
 	"sync"
 	"time"
 
-	commonPb "github.com/imCloud/api/common"
 	groupv1 "github.com/imCloud/api/group/v1"
 	"github.com/imCloud/im/pkg/common/log"
 )
@@ -41,21 +42,21 @@ func (g *Group) SyncAllGroupMember(ctx context.Context, groupID string) error {
 		return err
 	}
 	//获取本地的成员列表
-	localData, err := g.db.GetGroupMemberListByGroupID(context.Background(), groupID)
+	localData, err := g.db.GetGroupMemberListSplit(ctx1, groupID, 0, 0, 9999999)
 	if err != nil {
 		return err
 	}
 	log.ZInfo(ctx1, "SyncGroupMember Info", "groupID", groupID, "members", len(members), "localData", len(localData))
 
 	//util.Batch(ServerGroupMemberToLocalGroupMember, members) 远程数据序列化为本地结构
-	err = g.groupMemberSyncer.Sync(context.Background(), util.Batch(ServerGroupMemberToLocalGroupMember, members), localData, nil)
+	err = g.groupMemberSyncer.Sync(ctx1, util.Batch(ServerGroupMemberToLocalGroupMember, members), localData, nil)
 	if err != nil {
 		return err
 	}
 	//if len(members) != len(localData) {
 	log.ZInfo(ctx1, "SyncGroupMember Sync Group Member Count", "groupID", groupID, "members", len(members), "localData", len(localData))
 	//获取远程群组数据（单条）
-	gs, err := g.db.GetGroupInfoByGroupIDs(context.Background(), groupID)
+	gs, err := g.GetSpecifiedGroupsInfo(ctx1, []string{groupID})
 	if err != nil {
 		return err
 	}
@@ -63,24 +64,25 @@ func (g *Group) SyncAllGroupMember(ctx context.Context, groupID string) error {
 	if len(gs) > 0 {
 		v := gs[0]
 		count := int32(len(members))
-		v.IsComplete = model_struct.FinishMemberSync
-		v.MemberCount = count
-		if v.GroupType == constant.SuperGroupChatType {
-			if err := g.db.UpdateSuperGroup(ctx1, v); err != nil {
-				//return err
-				log.ZError(ctx1, "SyncGroupMember UpdateSuperGroup", err, "groupID", groupID, "info", v)
+		if v.MemberCount != count {
+			v.MemberCount = int32(len(members))
+			if v.GroupType == constant.SuperGroupChatType {
+				if err := g.db.UpdateSuperGroup(ctx1, v); err != nil {
+					//return err
+					log.ZError(ctx1, "SyncGroupMember UpdateSuperGroup", err, "groupID", groupID, "info", v)
+				}
+			} else {
+				if err := g.db.UpdateGroup(ctx1, v); err != nil {
+					log.ZError(ctx1, "SyncGroupMember UpdateGroup", err, "groupID", groupID, "info", v)
+				}
 			}
-		} else {
-			if err := g.db.UpdateGroup(ctx1, v); err != nil {
-				log.ZError(ctx1, "SyncGroupMember UpdateGroup", err, "groupID", groupID, "info", v)
+			data, err := json.Marshal(v)
+			if err != nil {
+				return err
 			}
+			log.ZInfo(ctx1, "SyncGroupMember OnGroupInfoChanged", "groupID", groupID, "data", string(data))
+			g.listener.OnGroupInfoChanged(string(data))
 		}
-		data, err := json.Marshal(v)
-		if err != nil {
-			return err
-		}
-		log.ZInfo(ctx1, "SyncGroupMember OnGroupInfoChanged", "groupID", groupID, "data", string(data))
-		g.listener.OnGroupInfoChanged(string(data))
 	}
 	//标记群已经同步
 	g.syncGroup[groupID] = true
@@ -162,68 +164,6 @@ func (g *Group) SyncAdminGroupUntreatedApplication(ctx context.Context) error {
 	return g.groupAdminRequestSyncer.Sync(ctx, util.Batch(ServerGroupRequestToLocalAdminGroupRequest, requests), localData, nil)
 }
 
-// GetServerJoinGroup  获取服务端加入的群
-func (g *Group) GetServerJoinGroup(ctx context.Context) ([]*groupv1.GroupInfo, error) {
-	fn := func(resp *groupv1.UserJoinGroupInfoList) []*groupv1.GroupInfo { return resp.Groups }
-	req := &groupv1.GetJoinedGroupListR{FromUserID: g.loginUserID, Pagination: &commonPb.RequestPagination{}}
-	resp := &groupv1.UserJoinGroupInfoList{}
-	return util.GetPageAll(ctx, constant.GetJoinedGroupListRouter, req, resp, fn)
-}
-
-// GetServerFirstPageJoinGroup  从服务器获取第一页数据
-func (g *Group) GetServerFirstPageJoinGroup(ctx context.Context) ([]*groupv1.GroupInfo, error) {
-	fn := func(resp *groupv1.UserJoinGroupInfoList) []*groupv1.GroupInfo { return resp.Groups }
-	req := &groupv1.GetJoinedGroupListR{FromUserID: g.loginUserID, Pagination: &commonPb.RequestPagination{}}
-	resp := &groupv1.UserJoinGroupInfoList{}
-	return util.GetFirstPage(ctx, constant.GetJoinedGroupListRouter, req, resp, fn)
-}
-
-// GetServerAdminGroupApplicationList 获取服务端加群申请
-func (g *Group) GetServerAdminGroupApplicationList(ctx context.Context) ([]*groupv1.GroupRequestInfo, error) {
-	fn := func(resp *groupv1.GetRecvGroupApplicationListResp) []*groupv1.GroupRequestInfo {
-		return resp.GroupRequests
-	}
-	req := &groupv1.GetJoinedGroupListR{FromUserID: g.loginUserID, Pagination: &commonPb.RequestPagination{}}
-	resp := &groupv1.GetRecvGroupApplicationListResp{}
-	return util.GetPageAll(ctx, constant.GetRecvGroupApplicationListRouter, req, resp, fn)
-}
-
-// GetServerSelfGroupApplication 获取服务端的自己的加群请求
-func (g *Group) GetServerSelfGroupApplication(ctx context.Context) ([]*groupv1.GroupRequestInfo, error) {
-	fn := func(resp *groupv1.GetRecvGroupApplicationListResp) []*groupv1.GroupRequestInfo {
-		return resp.GroupRequests
-	}
-	req := &groupv1.GetUserReqApplicationListReq{UserID: g.loginUserID, Pagination: &commonPb.RequestPagination{}}
-	resp := &groupv1.GetRecvGroupApplicationListResp{}
-	return util.GetPageAll(ctx, constant.GetSendGroupApplicationListRouter, req, resp, fn)
-}
-
-// GetServerAdminGroupUntreatedApplicationList 获取服务端未处理加群申请
-func (g *Group) GetServerAdminGroupUntreatedApplicationList(ctx context.Context) ([]*groupv1.GroupRequestInfo, error) {
-	fn := func(resp *groupv1.GetUntreatedGroupApplicationListReply) []*groupv1.GroupRequestInfo {
-		return resp.GroupRequests
-	}
-	req := &groupv1.GetUntreatedRecvGroupApplicationList{FromUserID: g.loginUserID, Pagination: &commonPb.RequestPagination{}}
-	resp := &groupv1.GetUntreatedGroupApplicationListReply{}
-	return util.GetPageAll(ctx, constant.GetUntreatedRecvGroupApplicationListRouter, req, resp, fn)
-}
-
-// GetServerGroupMembers 远程获取群成员
-func (g *Group) GetServerGroupMembers(ctx context.Context, groupID string) ([]*groupv1.MembersInfo, error) {
-	req := &groupv1.GroupMemberListReq{GroupID: groupID, Pagination: &commonPb.RequestPagination{ShowNumber: 100}}
-	fn := func(resp *groupv1.MemberListForSDKReps) []*groupv1.MembersInfo { return resp.Members }
-	resp := &groupv1.MemberListForSDKReps{}
-	return util.GetPageAll(ctx, constant.GetGroupMemberListRouter, req, resp, fn)
-}
-
-// GetServerFirstPageGroupMembers  从服务器获取第一也群数据
-func (g *Group) GetServerFirstPageGroupMembers(ctx context.Context, groupID string) ([]*groupv1.MembersInfo, error) {
-	req := &groupv1.GroupMemberListReq{GroupID: groupID, Pagination: &commonPb.RequestPagination{}}
-	fn := func(resp *groupv1.MemberListForSDKReps) []*groupv1.MembersInfo { return resp.Members }
-	resp := &groupv1.MemberListForSDKReps{}
-	return util.GetFirstPage(ctx, constant.GetGroupMemberListRouter, req, resp, fn)
-}
-
 // SyncGroups 根据id同步群信息
 func (g *Group) SyncGroups(ctx context.Context, id ...string) error {
 	//根据id获取群（远程数据）
@@ -287,22 +227,6 @@ func (g *Group) SyncAllJoinedGroupsAndMembers(ctx context.Context) error {
 	}
 	wg.Wait()
 	return nil
-}
-
-// GetDesignatedGroupMembers 获取指定群成员信息
-func (g *Group) GetDesignatedGroupMembers(ctx context.Context, groupID string, userIDs ...string) ([]*groupv1.MembersInfo, error) {
-	resp, err := util.ProtoApiPost[groupv1.MemberByIdsReq, groupv1.MemberByIdsRes](
-		ctx,
-		constant.GetGroupMemberByIdsRouter,
-		&groupv1.MemberByIdsReq{
-			GroupID: groupID,
-			UserIDs: userIDs,
-		},
-	)
-	if err != nil {
-		return nil, err
-	}
-	return resp.Data, nil
 }
 
 // deleteGroupMembers 删除指定群成员
@@ -428,170 +352,76 @@ func (g *Group) InitSyncData(ctx context.Context) error {
 
 // delaySyncJoinGroup 延迟同步加入的群
 func (g *Group) delaySyncJoinGroup(ctx context.Context) {
+	ctx1, cl := context.WithTimeout(ctx, time.Minute*5)
+	defer cl()
 	//从延迟队列中取数据
-	//for emtry := range g.syncGroupQueue.Channel(ctx1, 1) {
-	//	log.ZDebug(ctx1, "delay sync join group", emtry)
-	//	err := g.SyncAllJoinedGroups(ctx)
-	//	if err != nil {
-	//		log.ZError(ctx, "SyncAllJoinedGroups failed", err)
-	//	}
-	//	// 同步所有群成员
-	//	go g.SyncAllJoinedGroupMembers(ctx1)
-	//}
-	g.SyncAllJoinedGroupMembers(ctx)
+	for emtry := range g.syncGroupQueue.Channel(ctx1, 1) {
+		log.ZDebug(ctx1, "delay sync join group", emtry)
+		err := g.SyncAllJoinedGroups(ctx)
+		if err != nil {
+			log.ZError(ctx, "SyncAllJoinedGroups failed", err)
+		}
+		// 同步所有群成员
+		go g.SyncAllJoinedGroupMembers(ctx1)
+	}
 }
 
 // SyncAllJoinedGroupMembers 同步所有加入群的群成员
 func (g *Group) SyncAllJoinedGroupMembers(ctx context.Context) error {
-	ctx1, cl := context.WithTimeout(ctx, time.Minute*5)
-	defer cl()
-	groups, err := g.db.GetJoinedGroupListDB(ctx1)
+	groups, err := g.db.GetJoinedGroupListDB(ctx)
 	if err != nil {
 		return err
 	}
 	var wg sync.WaitGroup
 	for _, group := range groups {
+		// 获取用户在群中的信息
+		groupMember, err := g.db.GetGroupMemberInfoByGroupIDUserID(ctx, group.GroupID, g.loginUserID)
+		if err != nil {
+			log.ZError(ctx, "sync all group member failed get group member ", err)
+			continue
+		}
+		//普通成员不同步成员的所有信息
+		if groupMember == nil || groupMember.RoleLevel == constant.GroupOrdinaryUsers {
+			continue
+		}
 		wg.Add(1)
 		go func(groupID string) {
-			t, ctl := context.WithTimeout(ctx, time.Minute*5)
-			defer ctl()
 			defer wg.Done()
-			if err := g.SyncAllGroupMember(t, groupID); err != nil {
-				log.ZError(t, "SyncGroupMember failed", err)
+			// 同步群成员
+			if err := g.SyncGroupMembers(ctx, groupID); err != nil {
+				log.ZError(ctx, "SyncGroupMember failed", err)
 			}
+			//if err := g.SyncAllGroupMember(ctx, groupID); err != nil {
+			//	log.ZError(ctx, "SyncGroupMember failed", err)
+			//}
 		}(group.GroupID)
 	}
 	wg.Wait()
 	return nil
 }
 
-// syncUserReqGroupInfo 同步加群请求
-func (g *Group) syncUserReqGroupInfo(ctx context.Context, fromUserID, groupID string) error {
-	//获取用户加入单个群的申请信息
-	reqInfos := &groupv1.UserJoinGroupRequestReps{}
-	err := util.CallPostApi[*groupv1.UserJoinGroupRequestReq, *groupv1.UserJoinGroupRequestReps](
-		ctx, constant.GetJoinGroupRequestDetailRouter,
-		&groupv1.UserJoinGroupRequestReq{
-			GroupID: groupID,
-			UserID:  fromUserID},
-		reqInfos,
-	)
-	if err != nil {
-		return err
-	}
-	localGroupRequest := ServerGroupRequestToLocalGroupRequest(&groupv1.GroupRequestInfo{
-		GroupID:       groupID,
-		CreateTime:    reqInfos.CreateTime,
-		GroupName:     reqInfos.GroupName,
-		Notification:  reqInfos.Notification,
-		Introduction:  reqInfos.Introduction,
-		GroupFaceURL:  reqInfos.GroupFaceURL,
-		Status:        reqInfos.GroupStatus,
-		GroupType:     reqInfos.GroupType,
-		GroupCode:     reqInfos.GroupCode,
-		OwnerUserID:   reqInfos.OwnerUserID,
-		CreatorUserID: reqInfos.CreatorUserID,
-		MemberCount:   int32(reqInfos.MemberCount),
-		UserID:        fromUserID,
-		Nickname:      reqInfos.Nickname,
-		UserFaceURL:   reqInfos.FaceURL,
-		Gender:        reqInfos.Gender,
-		Code:          reqInfos.Code,
-		HandleResult:  reqInfos.HandleResult,
-		ReqMsg:        reqInfos.ReqMsg,
-		HandledMsg:    reqInfos.HandleMsg,
-		ReqTime:       reqInfos.ReqTime,
-		HandledTime:   reqInfos.HandleTime,
-		HandleUserID:  reqInfos.HandleUserID,
-		JoinSource:    reqInfos.JoinSource,
-		InviterUserID: reqInfos.InviterUserID,
-	})
-	g.db.UpdateGroupRequest(ctx, localGroupRequest)
-	return nil
-}
-
-// InitSyncGroupData 初始化同步群数据
-func (g *Group) InitSyncGroupData(ctx context.Context) error {
+// SyncQuantityGroupList 全量同步群
+func (g *Group) SyncQuantityGroupList(ctx context.Context) error {
 	//从群中获取数据
 	groups, err := g.db.GetJoinedGroupListDB(ctx)
 	if err != nil {
 		log.ZError(ctx, "InitSyncGroupData err", err)
 	}
-	//获取远程数据
-	fn := func(resp *groupv1.GetSyncGroupResp) []*groupv1.GetSyncGroupRespInfo { return resp.List }
-	req := &groupv1.GetJoinedGroupListR{FromUserID: g.loginUserID, Pagination: &commonPb.RequestPagination{}}
-	resp := &groupv1.GetSyncGroupResp{}
-	serveGroups, err := util.GetPageAll(ctx, constant.GetSyncGroupInfoList, req, resp, fn)
-	var groupLists = make([]*groupv1.GroupInfo, 0)
-	for _, list := range serveGroups {
-		groupLists = append(groupLists, &groupv1.GroupInfo{
-			GroupID:     list.GroupID,
-			GroupName:   list.NickName,
-			FaceURL:     list.FaceURL,
-			GroupType:   int32(list.GroupType),
-			MemberCount: list.GroupNumber,
-			IsComplete:  IsNotComplete,
-			Status:      list.Status,
-		})
+	serveGroups, err := g.GetSyncGroup(ctx)
+	if err != nil {
+		return err
 	}
-	if err := g.groupSyncer.Sync(ctx, util.Batch(ServerGroupToLocalGroup, groupLists), groups, nil); err != nil {
+	if err := g.groupSyncer.Sync(ctx, util.Batch(ServerBaseGroupToLocalGroup, serveGroups), groups, nil); err != nil {
 		return err
 	}
 	//延迟30秒同步全量数据
 	//g.syncGroupQueue.Push(1, time.Second*30)
 	// 发出同步的通知
-	common.TriggerCmdJoinGroup(ctx, g.groupCh)
+	//common.TriggerCmdJoinGroup(ctx, g.groupCh)
 	return nil
 }
 
-func (g *Group) GetUserMemberInfoInGroup(ctx context.Context) error {
-	//初始化同步用户的所有群中成员信息
-	info, _ := g.db.GetOwnerGroupMemberInfo(ctx, g.loginUserID)
-	resp := &groupv1.GetUserInGroupMemberResp{}
-	//获取远端数据
-	err := util.CallPostApi[*groupv1.GetUserInGroupMemberReq, *groupv1.GetUserInGroupMemberResp](
-		ctx,
-		constant.GetUserMemberInfoInGroup,
-		&groupv1.GetUserInGroupMemberReq{
-			UserID: g.loginUserID,
-		},
-		resp,
-	)
-	if err != nil {
-		return err
-	}
-	if len(resp.List) == 0 {
-		return nil
-	}
-	//同步数据
-	if err := g.groupMemberSyncer.Sync(ctx, util.Batch(ServerGroupMemberToLocalGroupMember, resp.List), info, nil); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (g *Group) GetServerPageGroupMembersInfo(ctx context.Context, groupID string, filter, offset, count int32) ([]*groupv1.MembersInfo, error) {
-	fn := func(resp *groupv1.MemberListForSDKReps) []*groupv1.MembersInfo { return resp.Members }
-	resp := &groupv1.MemberListForSDKReps{}
-	return util.GetFirstPage(ctx, constant.GetGroupMemberListRouter, &groupv1.GroupMemberListReq{
-		GroupID: groupID,
-		Filter:  filter,
-		Pagination: &commonPb.RequestPagination{
-			PageNumber: offset,
-			ShowNumber: count,
-		}}, resp, fn)
-}
-
-func (g *Group) GetServerAllGroupMembersInfo(ctx context.Context, groupID string, count int32) ([]*groupv1.MembersInfo, error) {
-	fn := func(resp *groupv1.MemberListForSDKReps) []*groupv1.MembersInfo { return resp.Members }
-	resp := &groupv1.MemberListForSDKReps{}
-	return util.GetPageAll(ctx, constant.GetGroupMemberListRouter, &groupv1.GroupMemberListReq{
-		GroupID: groupID,
-		Pagination: &commonPb.RequestPagination{
-			ShowNumber: count,
-		}}, resp, fn)
-}
-
+// SyncOneGroupApplicationsFunc 同步单个群的加群请求
 func (g *Group) SyncOneGroupApplicationsFunc(ctx context.Context, groupID string) error {
 	//远程单个群的申请
 	svrGroupReq, err := g.GetServerAdminOneGroupUntreatedApplicationList(ctx, groupID)
@@ -609,14 +439,140 @@ func (g *Group) SyncOneGroupApplicationsFunc(ctx context.Context, groupID string
 	return nil
 }
 
-func (g *Group) GetServerAdminOneGroupUntreatedApplicationList(ctx context.Context, groupID string) ([]*groupv1.GroupRequestInfo, error) {
-	fn := func(resp *groupv1.GetUntreatedGroupApplicationListReply) []*groupv1.GroupRequestInfo {
-		return resp.GroupRequests
+// SyncUserMemberInfoInGroup 同步用户在所有群中的信息
+func (g *Group) SyncUserMemberInfoInGroup(ctx context.Context) error {
+	//初始化同步用户的所有群中成员信息
+	info, _ := g.db.GetOwnerGroupMemberInfo(ctx, g.loginUserID)
+	groups, err := g.GetUserMemberInfoInGroup(ctx)
+	if err != nil {
+		log.ZError(ctx, "sync user member info in group error", err)
+		return nil
 	}
-	req := &groupv1.GetUntreatedRecvGroupApplicationList{
-		GroupID:    groupID,
-		FromUserID: g.loginUserID,
-		Pagination: &commonPb.RequestPagination{}}
-	resp := &groupv1.GetUntreatedGroupApplicationListReply{}
-	return util.GetPageAll(ctx, constant.GetUntreatedRecvGroupApplicationListRouter, req, resp, fn)
+	//同步数据
+	if err := g.groupMemberSyncer.Sync(ctx, util.Batch(ServerGroupMemberToLocalGroupMember, groups), info, nil); err != nil {
+		return err
+	}
+	return nil
+}
+
+// SyncGroup 同步群信息
+func (g *Group) SyncGroup(ctx context.Context) error {
+	udata, err := g.db.GetGroupUpdateTime(ctx)
+	if err != nil || len(udata) == 0 {
+		if errors.Is(err, gorm.ErrRecordNotFound) || len(udata) == 0 {
+			return g.SyncQuantityGroupList(ctx)
+		}
+		return err
+	} else {
+		return g.SyncGroupByTime(ctx, udata)
+	}
+}
+
+// SyncGroupMembers 同步群成员信息
+func (g *Group) SyncGroupMembers(ctx context.Context, groupId string) error {
+	udata, err := g.db.GetGroupMemberUpdateTime(ctx, groupId)
+	if err != nil || len(udata) == 0 {
+		if errors.Is(err, gorm.ErrRecordNotFound) || len(udata) == 0 {
+			return g.SyncOneGroupMember(ctx, groupId)
+		}
+		return err
+	} else {
+		return g.SyncGroupMemberByTime(ctx, groupId, udata)
+	}
+}
+
+// SyncOneGroupMember 同步单个群的成员
+func (g *Group) SyncOneGroupMember(ctx context.Context, groupID string) error {
+	//远程单个群的申请
+	svrGroupReq, err := g.SyncGroupMemberInfo(ctx, groupID)
+	if err != nil {
+		return err
+	}
+	//本地数据
+	localData, err := g.db.GetGroupMemberListByGroupID(ctx, groupID)
+	if err != nil {
+		return err
+	}
+	if err := g.groupMemberSyncer.Sync(ctx, util.Batch(ServerBaseGroupMemberToLocalGroupMember, svrGroupReq), localData, nil); err != nil {
+		return err
+	}
+	return nil
+}
+
+// SyncGroupByTime 同步群组信息
+func (g *Group) SyncGroupByTime(ctx context.Context, udata map[string]int64) error {
+	addList, updateList, delIds, err := g.SyncUserJoinGroupInfoByTime(ctx, udata)
+	if err != nil {
+		log.ZError(ctx, "sync group error", err)
+		return err
+	}
+	//处理新增
+	if len(addList) > 0 {
+		for _, v := range addList {
+			localGroup := ServerBaseGroupToLocalGroup(v)
+			err = g.db.InsertGroup(ctx, localGroup)
+			if err != nil {
+				log.ZError(ctx, "insert friend error", err)
+			}
+			g.listener.OnGroupMemberAdded(utils.StructToJsonString(localGroup))
+		}
+	}
+	//处理修复爱
+	if len(updateList) > 0 {
+		for _, v := range updateList {
+			localGroup := ServerBaseGroupToLocalGroup(v)
+			err = g.db.UpdateGroup(ctx, localGroup)
+			if err != nil {
+				log.ZError(ctx, "insert friend error", err)
+			}
+			g.listener.OnJoinedGroupDeleted(utils.StructToJsonString(localGroup))
+		}
+	}
+	//处理删除
+	if len(delIds) > 0 {
+		for _, v := range delIds {
+			err := g.deleteGroup(ctx, v)
+			if err != nil {
+				log.ZError(ctx, "insert friend error", err)
+			}
+		}
+	}
+	return nil
+}
+
+// SyncGroupMemberByTime 同步群组成员信息
+func (g *Group) SyncGroupMemberByTime(ctx context.Context, groupId string, udata map[string]int64) error {
+	addList, updateList, delIds, err := g.SyncGroupMemberInfoUpdateTime(ctx, groupId, udata)
+	if err != nil {
+		log.ZError(ctx, "sync group member error", err)
+		return err
+	}
+	//处理新增
+	if len(addList) > 0 {
+		for _, v := range addList {
+			localGroupMember := ServerBaseGroupMemberToLocalGroupMember(v)
+			err = g.db.InsertGroupMember(ctx, localGroupMember)
+			if err != nil {
+				log.ZError(ctx, "insert group member error", err)
+			}
+		}
+	}
+	//处理修复爱
+	if len(updateList) > 0 {
+		for _, v := range updateList {
+			localGroupMember := ServerBaseGroupMemberToLocalGroupMember(v)
+			err = g.db.UpdateGroupMember(ctx, localGroupMember)
+			if err != nil {
+				log.ZError(ctx, "update group member error", err)
+			}
+		}
+	}
+	//处理删除
+	if len(delIds) > 0 {
+		err := g.deleteGroupMembers(ctx, groupId, delIds...)
+		if err != nil {
+			log.ZError(ctx, "delete group member error", err)
+		}
+	}
+	return nil
 }

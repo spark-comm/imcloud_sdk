@@ -261,3 +261,34 @@ func Test_GetFriendBaseInfoSvr(t *testing.T) {
 	}
 	t.Log("GetFriendBaseInfoSvr success")
 }
+func Test_SyncFriendInfoByTime(t *testing.T) {
+	updateTime, err2 := open_im_sdk.UserForSDK.Friend().Db().GetFriendUpdateTime(ctx)
+	if err2 != nil {
+		t.Fatal(err2)
+	}
+	friends, up, dl, err := open_im_sdk.UserForSDK.Friend().SyncFriendInfoByTime(ctx, updateTime)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log(friends, up, dl)
+	for _, v := range friends {
+		t.Log("sync data", fmt.Sprintf("%s", utils.StructToJsonString(v)))
+	}
+	t.Log("GetFriendBaseInfoSvr success")
+}
+
+// 新同步好友方法
+func Test_SyncFriendLiat(t *testing.T) {
+	err := open_im_sdk.UserForSDK.Friend().SyncFriend(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	friends, err := open_im_sdk.UserForSDK.Friend().GetFriendList(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, v := range friends {
+		t.Log("sync data", fmt.Sprintf("%s", utils.StructToJsonString(v)))
+	}
+	t.Log("SyncFriendLiat success")
+}

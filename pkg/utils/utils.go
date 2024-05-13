@@ -339,6 +339,11 @@ func GetConversationIDBySessionType(sessionType int, ids ...string) string {
 	return ""
 }
 
+// IsEncrypted 是否加密会话
+func IsEncrypted(conversationID string) bool {
+	return strings.HasPrefix(conversationID, "ec_")
+}
+
 func GetConversationIDByMsg(msg *sdk_struct.MsgStruct) string {
 	switch msg.SessionType {
 	case constant.SingleChatType:
@@ -362,6 +367,7 @@ func GetConversationIDByMsg(msg *sdk_struct.MsgStruct) string {
 	}
 	return ""
 }
+
 func GetConversationTableName(conversationID string) string {
 	return constant.ChatLogsTableNamePre + conversationID
 }
@@ -483,6 +489,8 @@ func DifferenceSubset(mainSlice, subSlice []int64) []int64 {
 	}
 	return n
 }
+
+// DifferenceSubsetString 字符串差异对比
 func DifferenceSubsetString(mainSlice, subSlice []string) []string {
 	m := make(map[string]bool)
 	n := make([]string, 0)
@@ -563,4 +571,54 @@ func InSlice(items []string, item string) bool {
 		}
 	}
 	return false
+}
+
+// InSliceInt64 判断数字是否在 slice 中。
+func InSliceInt64(items []int64, item int64) bool {
+	for _, eachItem := range items {
+		if eachItem == item {
+			return true
+		}
+	}
+	return false
+}
+
+type FixNotConnectedType interface {
+	int
+	int64
+	int32
+	int16
+	int8
+	uint
+	uint32
+	uint64
+	uint16
+	uint8
+}
+
+// FixNotConnected 补齐不连续的元素并返回补齐后的切片和缺失的元素切片。
+func FixNotConnected(slice []int64) ([]int64, []int64) {
+	var fixedSlice []int64
+	var missing []int64
+	for i := 1; i < len(slice); i++ {
+		if slice[i]-slice[i-1] != 1 {
+			// 补齐为连续的元素
+			for j := slice[i-1] + 1; j < slice[i]; j++ {
+				fixedSlice = append(fixedSlice, j)
+				if !InSliceInt64(slice, j) {
+					// 记录缺失的元素
+					missing = append(missing, j)
+				}
+			}
+		}
+		fixedSlice = append(fixedSlice, slice[i])
+	}
+	// 处理最后一个元素
+	//if slice[len(slice)-1] != slice[len(slice)-2]+1 {
+	//	missing = append(missing, slice[len(slice)-1]+1)
+	//	for j := slice[len(slice)-1] + 1; j <= slice[len(slice)-1]; j++ {
+	//		fixedSlice = append(fixedSlice, j)
+	//	}
+	//}
+	return fixedSlice, missing
 }

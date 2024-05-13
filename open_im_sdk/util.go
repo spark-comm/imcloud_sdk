@@ -182,14 +182,14 @@ func call_(operationID string, fn any, args ...any) (res any, err error) {
 		}
 	}
 	if len(outs) == 1 {
-		log.ZInfo(ctx, "output resp", "function name", funcName, "resp", outs[0].Interface(), "cost time", time.Since(t))
+		//log.ZInfo(ctx, "output resp", "function name", funcName, "resp", outs[0].Interface(), "cost time", time.Since(t))
 		return outs[0].Interface(), nil
 	}
 	val := make([]any, 0, len(outs))
 	for i := range outs {
 		val = append(val, outs[i].Interface())
 	}
-	log.ZInfo(ctx, "output resp", "function name", funcName, "resp", val, "cost time", time.Since(t))
+	//log.ZInfo(ctx, "output resp", "function name", funcName, "resp", val, "cost time", time.Since(t))
 	return val, nil
 }
 
@@ -336,6 +336,8 @@ func messageCall(callback open_im_sdk_callback.SendMsgCallBack, operationID stri
 	go messageCall_(callback, operationID, fn, args...)
 }
 func messageCall_(callback open_im_sdk_callback.SendMsgCallBack, operationID string, fn any, args ...any) {
+	ctx := ccontext.WithOperationID(UserForSDK.BaseCtx(), operationID)
+	log.ZInfo(ctx, "发送消息的毁掉方法执行", operationID, fn, args)
 	defer func() {
 		if r := recover(); r != nil {
 			fmt.Println(" panic err:", r, string(debug.Stack()))
@@ -364,7 +366,7 @@ func messageCall_(callback open_im_sdk_callback.SendMsgCallBack, operationID str
 		return
 	}
 	ins := make([]reflect.Value, 0, numIn)
-	ctx := ccontext.WithOperationID(UserForSDK.BaseCtx(), operationID)
+
 	ctx = ccontext.WithSendMessageCallback(ctx, callback)
 
 	ins = append(ins, reflect.ValueOf(ctx))

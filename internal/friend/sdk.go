@@ -131,9 +131,6 @@ func (f *Friend) RespondFriendApply(ctx context.Context, req *friend.RespondFrie
 	if req.ToUserID == "" {
 		req.ToUserID = f.loginUserID
 	}
-	//if err := util.ApiPost(ctx, constant.AddFriendResponse, req, nil); err != nil {
-	//	return err
-	//}
 	if _, err := util.ProtoApiPost[friendPb.AddFriendResponseRequest, empty.Empty](
 		ctx,
 		constant.AddFriendResponse,
@@ -151,7 +148,6 @@ func (f *Friend) RespondFriendApply(ctx context.Context, req *friend.RespondFrie
 	}
 	_ = f.SyncFriendApplication(ctx)
 	return nil
-	//return f.SyncFriendApplication(ctx)
 }
 
 func (f *Friend) CheckFriend(ctx context.Context, friendUserIDList []string) ([]*server_api_params.UserIDResult, error) {
@@ -216,6 +212,11 @@ func (f *Friend) DeleteFriend(ctx context.Context, friendUserID string) error {
 	conversationID := f.getConversationIDBySessionType(friendUserID, constant.SingleChatType)
 	//删除好友后删除对应的会话消息
 	err := common.TriggerCmdDeleteConversationAndMessage(ctx, friendUserID, conversationID, constant.SingleChatType, f.conversationCh)
+	//加密会话处理
+	//获取会话id
+	ecConversationID := f.getConversationIDBySessionType(friendUserID, constant.EncryptedChatType)
+	//删除好友后删除对应的会话消息
+	err = common.TriggerCmdDeleteConversationAndMessage(ctx, friendUserID, ecConversationID, constant.EncryptedChatType, f.conversationCh)
 	if err != nil {
 		log.ZDebug(ctx, "delete friend after delete conversation and message")
 	}
@@ -225,8 +226,16 @@ func (f *Friend) DeleteFriend(ctx context.Context, friendUserID string) error {
 
 func (f *Friend) GetFriendList(ctx context.Context) ([]*model_struct.LocalFriend, error) {
 	localFriendList, err := f.db.GetAllFriendList(ctx)
-	if err != nil {
-		return nil, err
+	if err != nil || len(localFriendList) == 0 {
+		//从远程重新拉取
+		err = f.SyncFriend(ctx)
+		if err != nil {
+			return nil, err
+		}
+		localFriendList, err = f.db.GetAllFriendList(ctx)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return localFriendList, nil
@@ -234,8 +243,16 @@ func (f *Friend) GetFriendList(ctx context.Context) ([]*model_struct.LocalFriend
 
 func (f *Friend) GetFriendListPage(ctx context.Context, no, size int64) ([]*model_struct.LocalFriend, error) {
 	localFriendList, err := f.db.GetFriendList(ctx, &pg.Page{NO: no, Size: size})
-	if err != nil {
-		return nil, err
+	if err != nil || len(localFriendList) == 0 {
+		//从远程重新拉取
+		err = f.SyncFriend(ctx)
+		if err != nil {
+			return nil, err
+		}
+		localFriendList, err = f.db.GetFriendList(ctx, &pg.Page{NO: no, Size: size})
+		if err != nil {
+			return nil, err
+		}
 	}
 	return localFriendList, nil
 }

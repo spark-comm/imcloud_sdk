@@ -352,7 +352,7 @@ func (c *Conversation) doMsgNew(c2v common.Cmd2Value) {
 		updateMsg[conversationID] = updateMessage
 	}
 
-	list, err := c.db.GetAllConversationListDB(ctx)
+	list, err := c.db.GetAllConversationListDB(ctx, true)
 	if err != nil {
 		log.ZError(ctx, "GetAllConversationListDB", err)
 	}
@@ -909,6 +909,8 @@ func mapConversationToList(m map[string]*model_struct.LocalConversation) (cs []*
 	}
 	return cs
 }
+
+// addFaceURLAndNameBackgroundURL 添加头像昵称和聊天背景
 func (c *Conversation) addFaceURLAndNameBackgroundURL(ctx context.Context, lc *model_struct.LocalConversation) error {
 	switch lc.ConversationType {
 	case constant.SingleChatType, constant.NotificationChatType, constant.CustomerServiceChatType, constant.EncryptedChatType:
@@ -931,4 +933,9 @@ func (c *Conversation) addFaceURLAndNameBackgroundURL(ctx context.Context, lc *m
 		}
 	}
 	return nil
+}
+
+// IsGroupConversation 是否是群会话
+func (c *Conversation) IsGroupConversation(lc *model_struct.LocalConversation) bool {
+	return lc.ConversationType == constant.GroupChatType || lc.ConversationType == constant.SuperGroupChatType
 }

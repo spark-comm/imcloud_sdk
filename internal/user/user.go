@@ -173,24 +173,22 @@ func (u *User) GetSingleUserFromSvr(ctx context.Context, userID string) (*model_
 
 // getSelfUserInfo retrieves the user's information.
 func (u *User) getSelfUserInfo(ctx context.Context) (*model_struct.LocalUser, error) {
-	userInfo, errLocal := u.GetLoginUser(ctx, u.loginUserID)
-	if errLocal != nil {
-		log.ZError(ctx, fmt.Sprintf("登录的用户id:%s", u.loginUserID), nil)
-		srvUserInfo, errServer := u.GetServerUserInfo(ctx, []string{u.loginUserID})
-		if errServer != nil {
-			return nil, errServer
-		}
-		log.ZError(ctx, fmt.Sprintf("服务端返回的数据:%s", utils.StructToJsonString(srvUserInfo)), nil)
-		if len(srvUserInfo) == 0 {
-			return nil, sdkerrs.ErrUserIDNotFound
-		}
-		ui, err := ServerUserToLocalUser(srvUserInfo[0])
+	userInfo, err := u.GetSelfUserInfoFromSvr(ctx)
+	if err != nil {
+		userInfo, err = u.GetLoginUser(ctx, u.loginUserID)
 		if err != nil {
-			log.ZDebug(ctx, "get self user info error", err)
-			return nil, err
+			log.ZError(ctx, fmt.Sprintf("登录的用户id:%s", u.loginUserID), nil)
+			srvUserInfo, errServer := u.GetSelfUserInfoFromSvr(ctx)
+			if errServer != nil {
+				return nil, errServer
+			}
+			log.ZError(ctx, fmt.Sprintf("服务端返回的数据:%s", utils.StructToJsonString(srvUserInfo)), nil)
+			if srvUserInfo == nil {
+				return nil, sdkerrs.ErrUserIDNotFound
+			}
+			userInfo = srvUserInfo
+			_ = u.InsertLoginUser(ctx, userInfo)
 		}
-		userInfo = ui
-		_ = u.InsertLoginUser(ctx, userInfo)
 	}
 	//填充默认options
 	if userInfo.Options == "" {
@@ -207,6 +205,7 @@ func (u *User) getSelfUserInfo(ctx context.Context) (*model_struct.LocalUser, er
 func (u *User) searchUser(ctx context.Context, searchValue string, searchType int) (*model_struct.LocalUser, error) {
 	//res, err := util.CallApi[imUserPb.SearchProfileReply](ctx, constant.SearchUserInfoRouter,
 	//	&imUserPb.SearchProfileReq{SearchValue: searchValue, Type: int32(searchType)})
+	log.ZInfo(ctx, "searchUser", searchValue, searchType)
 	res := &imUserPb.SearchProfileReply{}
 	err := util.CallPostApi[*imUserPb.SearchProfileReq, *imUserPb.SearchProfileReply](
 		ctx, constant.SearchUserInfoRouter,
@@ -425,4 +424,19 @@ func (u *User) getDefUserOption() (string, error) {
 	}
 	marshal, err := json.Marshal(options)
 	return string(marshal), err
+}
+
+// FindFullProfile 获取群完整信息忽略删除和解散
+func (u *User) FindFullProfile(ctx context.Context, ids ...string) ([]*imUserPb.ProfileReply, error) {
+	resp, err := util.ProtoApiPost[imUserPb.FindFullProfileByUserIdReq, imUserPb.FindFullProfileByUserIdReply](
+		ctx,
+		constant.FindFullProfileByUserIdRouter,
+		&imUserPb.FindFullProfileByUserIdReq{
+			UserIds: ids,
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+	return resp.List, nil
 }

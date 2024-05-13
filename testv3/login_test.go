@@ -36,3 +36,7 @@ func Test_LoginBatch(t *testing.T) {
 	userIDList := funcation.AllUserID
 	funcation.LoginBatch(userIDList[:count])
 }
+func Test_Len(t *testing.T) {
+	var list []int
+	t.Log(len(list))
+}

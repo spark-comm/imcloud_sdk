@@ -59,7 +59,7 @@ func (u *Full) GetGroupInfoAndSelfGroupMemberInfoFromLocal2Svr(ctx context.Conte
 	switch sessionType {
 	case constant.GroupChatType:
 		svr, member, err := u.group.GetGroupInfoAndSelfGroupMemberInfoFromLocal2Svr(ctx, groupID)
-		if err == nil && svr != nil && member != nil {
+		if err == nil && svr != nil {
 			return svr, member, nil
 		} else {
 			notIntGroup = true
@@ -69,7 +69,7 @@ func (u *Full) GetGroupInfoAndSelfGroupMemberInfoFromLocal2Svr(ctx context.Conte
 		//return g, nil, err
 		// todo 暂时统一处理
 		svr, member, err := u.group.GetGroupInfoAndSelfGroupMemberInfoFromLocal2Svr(ctx, groupID)
-		if err == nil && svr != nil && member != nil {
+		if err == nil && svr != nil {
 			return svr, member, nil
 		} else {
 			notIntGroup = true

@@ -14,34 +14,6 @@
 
 package model_struct
 
-//
-//message FriendInfo{
-//string OwnerUserID = 1;
-//string Remark = 2;
-//int64 CreateTime = 3;
-//UserInfo FriendUser = 4;
-//int32 AddSource = 5;
-//string OperatorUserID = 6;
-//string Ex = 7;
-//}
-//open_im_sdk.FriendInfo(FriendUser) != imdb.Friend(FriendUserID)
-//	table = ` CREATE TABLE IF NOT EXISTS friends(
-//     owner_user_id CHAR (64) NOT NULL,
-//     friend_user_id CHAR (64) NOT NULL ,
-//     name varchar(64) DEFAULT NULL ,
-//	 face_url varchar(100) DEFAULT NULL ,
-//     remark varchar(255) DEFAULT NULL,
-//     gender int DEFAULT NULL ,
-//   	 phone_number varchar(32) DEFAULT NULL ,
-//	 birth INTEGER DEFAULT NULL ,
-//	 email varchar(64) DEFAULT NULL ,
-//	 create_time INTEGER DEFAULT NULL ,
-//	 add_source int DEFAULT NULL ,
-//	 operator_user_id CHAR(64) DEFAULT NULL,
-//  	 ex varchar(1024) DEFAULT NULL,
-//  	 PRIMARY KEY (owner_user_id,friend_user_id)
-// 	)`
-
 type LocalFriend struct {
 	OwnerUserID    string `json:"ownerUserID" gorm:"column:owner_user_id;primary_key;type:varchar(64);comment:所属用户"`
 	FriendUserID   string `json:"friendUserID" gorm:"column:friend_user_id;primary_key;type:varchar(64);comment:好友id"`
@@ -64,19 +36,9 @@ type LocalFriend struct {
 	NotPeersFriend int32  `json:"notPeersFriend" gorm:"column:not_peers_friend;default:0;comment:关系链是否完整；1303断裂"`
 	IsComplete     int32  `gorm:"column:is_complete;default:1;comment:同步完成" json:"isComplete"`
 	IsDestroyMsg   int32  `gorm:"column:is_destroy_msg;not null;tinyint;default:0;comment:阅后即焚开关0-关闭 1-开启" json:"isDestroyMsg" `
+	UpdatedTime    int64  `json:"updatedTime" gorm:"column:updated_time;default:0"`
 }
 
-// message FriendRequest{
-// string  FromUserID = 1;
-// string ToUserID = 2;
-// int32 HandleResult = 3;
-// string ReqMsg = 4;
-// int64 CreateTime = 5;
-// string HandlerUserID = 6;
-// string HandleMsg = 7;
-// int64 HandleTime = 8;
-// string Ex = 9;
-// }
 // open_im_sdk.FriendRequest == imdb.FriendRequest
 type LocalFriendRequest struct {
 	FromUserID    string `gorm:"column:from_user_id;primary_key;type:varchar(64);comment:来源用户ID" json:"fromUserID"`
@@ -103,34 +65,6 @@ type LocalFriendRequest struct {
 	Ex            string `gorm:"column:ex;type:varchar(1024)" json:"ex"`
 	AttachedInfo  string `gorm:"column:attached_info;type:varchar(1024)" json:"attachedInfo"`
 }
-
-//message GroupInfo{
-//  string GroupID = 1;
-//  string GroupName = 2;
-//  string NotificationCmd = 3;
-//  string Introduction = 4;
-//  string FaceUrl = 5;
-//  string OwnerUserID = 6;
-//  uint32 MemberCount = 8;
-//  int64 CreateTime = 7;
-//  string Ex = 9;
-//  int32 Status = 10;
-//  string CreatorUserID = 11;
-//  int32 GroupType = 12;
-//}
-//  open_im_sdk.GroupInfo (OwnerUserID ,  MemberCount )> imdb.Group
-//    	group_id char(64) NOT NULL,
-//		name varchar(64) DEFAULT NULL ,
-//    	introduction varchar(255) DEFAULT NULL,
-//    	notification varchar(255) DEFAULT NULL,
-//    	face_url varchar(100) DEFAULT NULL,
-//    	group_type int DEFAULT NULL,
-//    	status int DEFAULT NULL,
-//    	creator_user_id char(64) DEFAULT NULL,
-//    	create_time INTEGER DEFAULT NULL,
-//    	ex varchar(1024) DEFAULT NULL,
-//    	PRIMARY KEY (group_id)
-//	)`
 
 const (
 	NoIsCompleteSys  = 1
@@ -164,42 +98,18 @@ type LocalGroup struct {
 	AllowPrivateChat       uint   `json:"allowPrivateChat" gorm:"column:allow_private_chat;default:2;comment:允许成员私聊,1:开启;2:关闭"`
 	IsComplete             int32  `gorm:"column:is_complete;default:1;comment:同步完成" json:"isComplete"`
 	MemberIsComplete       int32  `gorm:"column:member_is_complete;default:0;comment:成员同步完成" json:"member_is_complete"`
+	UpdatedAt              int64  `json:"updatedAt" gorm:"column:updated_at;default:0"`
 }
-
-//message GroupMemberFullInfo {
-//string GroupID = 1 ;
-//string UserID = 2 ;
-//int32 roleLevel = 3;
-//int64 JoinTime = 4;
-//string NickName = 5;
-//string FaceUrl = 6;
-//int32 JoinSource = 8;
-//string OperatorUserID = 9;
-//string Ex = 10;
-//int32 AppMangerLevel = 7; //if >0
-//}  open_im_sdk.GroupMemberFullInfo(AppMangerLevel) > imdb.GroupMember
-//  group_id char(64) NOT NULL,
-//   user_id char(64) NOT NULL,
-//   nickname varchar(64) DEFAULT NULL,
-//   user_group_face_url varchar(64) DEFAULT NULL,
-//   role_level int DEFAULT NULL,
-//   join_time INTEGER DEFAULT NULL,
-//   join_source int DEFAULT NULL,
-//   operator_user_id char(64) NOT NULL,
 
 type LocalGroupMember struct {
 	GroupID        string `gorm:"column:group_id;primary_key;type:varchar(64);comment:群id" json:"groupID"`
 	UserID         string `gorm:"column:user_id;primary_key;type:varchar(64);comment:用户id" json:"userID"`
 	FaceURL        string `gorm:"column:face_url;size:255;comment:头像" json:"faceURL"`
 	Nickname       string `gorm:"column:nickname;size:255;comment:用户昵称" json:"nickname"`
+	Phone          string `gorm:"column:phone;size:255;comment:手机号" json:"phone"`
 	SortFlag       string `gorm:"column:sort_flag;size:10;comment:用户昵称排序" json:"sortFlag"`
 	GroupUserName  string `gorm:"column:group_user_name;size:255;comment:用户群中昵称" json:"groupUserName"`
-	Message        string `gorm:"column:message;size:255;comment:个性签名" json:"message"`
 	Code           string `gorm:"column:code;size:6;comment:用户ID" json:"code"`
-	Phone          string `gorm:"column:phone;size:16;comment:手机号码" json:"phone"`
-	Email          string `gorm:"column:email;size:36;comment:邮箱" json:"email"`
-	Birth          int64  `gorm:"column:birth;comment:生日" json:"birth"`
-	Gender         int32  `gorm:"column:gender;default:0;comment:性别，默认女" json:"gender"`
 	RoleLevel      int32  `gorm:"column:role_level;comment:角色20:普通用户100:群主；60:管理员" json:"roleLevel"`
 	JoinTime       int64  `gorm:"column:join_time;index:index_join_tim;comment:加入时间" json:"joinTime"`
 	JoinSource     int32  `gorm:"column:join_source;comment:来源" json:"joinSource"`
@@ -209,6 +119,7 @@ type LocalGroupMember struct {
 	Ex             string `gorm:"column:ex;type:varchar(1024)" json:"ex"`
 	AttachedInfo   string `gorm:"column:attached_info;type:varchar(1024)" json:"attachedInfo"`
 	BackgroundURL  string `json:"backgroundURL" gorm:"column:background_url;type:varchar(255)"`
+	UpdatedAt      int64  `json:"updatedAt" gorm:"column:updated_at;default:0"`
 }
 
 // message GroupRequest{
@@ -276,7 +187,7 @@ type LocalUser struct {
 	Birth            int64  `json:"birth" gorm:"column:birth;comment:生日"`
 	Gender           int32  `gorm:"column:gender;comment:性别" json:"gender"`
 	CreateTime       int64  `gorm:"column:create_time" json:"createTime"`
-	ShareCode        string `json:"shareCode" gorm:"column:share_code;size:20;not null;default:'';comment:分享码"`
+	ShareCode        string `json:"shareCode" gorm:"column:share_code;size:50;not null;default:'';comment:分享码"`
 	LastLogin        int64  `json:"lastLogin" gorm:"column:last_login;default:0;comment:上次登陆时间"`
 	Options          string `json:"options" gorm:"column:options;default:'';size:3000;comment:用户配置项"`
 	AppMangerLevel   int32  `gorm:"column:app_manger_level" json:"-"`

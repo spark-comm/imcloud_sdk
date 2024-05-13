@@ -402,10 +402,11 @@ const (
 	MsgSyncModelLogin    = 1   //SyncFlag
 	SyncOrderStartLatest = 101 //PullMsgOrder
 
-	MsgSyncBegin      = 1001 //
-	MsgSyncProcessing = 1002 //
-	MsgSyncEnd        = 1003 //
-	MsgSyncFailed     = 1004
+	MsgSyncBegin         = 1001 //
+	MsgSyncProcessing    = 1002 //
+	MsgSyncEnd           = 1003 //
+	MsgSyncFailed        = 1004
+	BaseDataSyncComplete = 1005 //
 )
 
 const (

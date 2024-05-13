@@ -35,27 +35,32 @@ type IndexDB struct {
 
 func (i IndexDB) GetUpload(ctx context.Context, partHash string) (*model_struct.LocalUpload, error) {
 	//TODO implement me
-	panic("implement me")
+	//panic("implement me")
+	return nil, nil
 }
 
 func (i IndexDB) InsertUpload(ctx context.Context, upload *model_struct.LocalUpload) error {
 	//TODO implement me
-	panic("implement me")
+	//panic("implement me")
+	return nil
 }
 
 func (i IndexDB) DeleteUpload(ctx context.Context, partHash string) error {
 	//TODO implement me
-	panic("implement me")
+	//panic("implement me")
+	return nil
 }
 
 func (i IndexDB) UpdateUpload(ctx context.Context, upload *model_struct.LocalUpload) error {
 	//TODO implement me
-	panic("implement me")
+	//panic("implement me")
+	return nil
 }
 
 func (i IndexDB) DeleteExpireUpload(ctx context.Context) error {
 	//TODO implement me
-	panic("implement me")
+	//panic("implement me")
+	return nil
 }
 
 func (i IndexDB) Close(ctx context.Context) error {

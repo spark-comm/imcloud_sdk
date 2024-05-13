@@ -63,6 +63,16 @@ func (c *Conversation) Work(c2v common.Cmd2Value) {
 func (c *Conversation) doDeleteConversation(c2v common.Cmd2Value) {
 	node := c2v.Value.(common.DeleteConNode)
 	ctx := c2v.Ctx
+	//会话id
+	conversationID := node.ConversationID
+	if utils.IsEncrypted(conversationID) {
+		//加密会话先判断会话是否存在
+		conversation, err := c.db.GetConversation(ctx, conversationID)
+		//判断加密会话是否存在，存在则不进行处理
+		if conversation == nil || conversation.ConversationID == "" || err != nil {
+			return
+		}
+	}
 	// 将会话标记为删除
 	// Mark messages related to this conversation for deletion
 	err := c.db.UpdateMessageStatusBySourceID(context.Background(), node.SourceID, constant.MsgStatusHasDeleted, int32(node.SessionType))
@@ -400,15 +410,18 @@ func (c *Conversation) doNotificationNew(c2v common.Cmd2Value) {
 	case constant.MsgSyncBegin:
 		//开始同步数据
 		c.ConversationListener.OnSyncServerStart()
-		if err := c.SyncConversationHashReadSeqs(ctx); err != nil {
-			log.ZError(ctx, "SyncConversationHashReadSeqs err", err)
-		}
-		go c.syncOtherInformation(ctx)
 		//for _, syncFunc := range []func(c context.Context) error{c.user.SyncLoginUserInfo, c.SyncConversations} {
 		//	go func(syncFunc func(c context.Context) error) {
 		//		_ = syncFunc(ctx)
 		//	}(syncFunc)
 		//}
+	case constant.BaseDataSyncComplete:
+		//基础数据同步完成
+		go c.syncOtherInformation(ctx)
+		//同步会话消息未读数
+		if err := c.SyncConversationHashReadSeqs(ctx); err != nil {
+			log.ZError(ctx, "SyncConversationHashReadSeqs err", err)
+		}
 	case constant.MsgSyncFailed:
 		// 同步数据错误
 		c.ConversationListener.OnSyncServerFailed()
@@ -503,8 +516,15 @@ func (c *Conversation) syncOtherInformation(ctx context.Context) {
 		//c.friend.SyncSelfFriendApplication, //自己发出的好友请求，暂时业务上没有需要
 		c.group.SyncAdminGroupUntreatedApplication, //获取未处理的加群请求
 		//c.group.SyncSelfGroupApplication, // 自己发出的加群申请，暂时业务上没有需要
-		c.friend.SyncBlackList} {
+		c.friend.SyncBlackList,
+		c.group.SyncAllJoinedGroupMembers, // 同步所有群成员
+	} {
 		go func(syncFunc func(c context.Context) error) {
+			defer func() {
+				if err := recover(); err != nil {
+					log.ZInfo(ctx, "time:%s, err:%v, fatal%s", err)
+				}
+			}()
 			_ = syncFunc(ctx)
 		}(syncFunc)
 	}

@@ -114,3 +114,19 @@ func (d *DataBase) SubtractMemberCount(ctx context.Context, groupID string) erro
 	group := model_struct.LocalGroup{GroupID: groupID}
 	return utils.Wrap(d.conn.WithContext(ctx).Model(&group).Updates(map[string]interface{}{"member_count": gorm.Expr("member_count-1")}).Error, "")
 }
+
+// GetGroupUpdateTime 获取群信息
+func (d *DataBase) GetGroupUpdateTime(ctx context.Context) (map[string]int64, error) {
+	d.friendMtx.Lock()
+	defer d.friendMtx.Unlock()
+	var groupList []model_struct.LocalGroup
+	err := utils.Wrap(d.conn.WithContext(ctx).Select("group_id,updated_at").Find(&groupList).Error, "GetGroupUpdateTime failed")
+	if err != nil {
+		return nil, err
+	}
+	res := make(map[string]int64)
+	for _, v := range groupList {
+		res[v.GroupID] = v.UpdatedAt
+	}
+	return res, nil
+}

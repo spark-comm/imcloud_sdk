@@ -69,6 +69,7 @@ func Get(url string) *HttpCli {
 }
 
 func Post(url string) *HttpCli {
+	fmt.Println(fmt.Sprintf("请求的地址：%s", url))
 	request, err := http.NewRequest("POST", url, nil)
 	return &HttpCli{
 		httpClient:  newHttpClient(),

@@ -19,8 +19,9 @@ const (
 	BaseRouterV2 = "/api/app/v2"
 )
 const (
-	GetSelfUserInfoRouter         = BaseRouter + "/user/get_self_user_info"
+	GetSelfUserInfoRouter         = BaseRouter + "/user/get_pb_self_user_info"
 	GetUsersInfoRouter            = BaseRouter + "/user/get_users_info"
+	FindFullProfileByUserIdRouter = BaseRouter + "/user/find_full_users_info"
 	UpdateSelfUserInfoRouter      = BaseRouter + "/user/update_user_info"
 	SetGlobalRecvMessageOptRouter = BaseRouter + "/user/set_global_msg_recv_opt"
 	GetUsersInfoFromCacheRouter   = BaseRouter + "/user/get_users_info_from_cache"
@@ -39,6 +40,8 @@ const (
 	AddFriendResponse                         = BaseRouter + "/friend/add_friend_response"
 	SetFriendInfoRouter                       = BaseRouter + "/friend/set_friend_info"
 	SetDestroyMsgStatus                       = BaseRouter + "/friend/set_destroy_msg_status"
+	// 根据时间同步用户信息
+	SyncFriendInfoByTimeRouter = BaseRouter + "/friend/sync_friend_info_by_time"
 	// 获取未处理的好友请求
 	GetUntreatedFriendsApplyReceive = BaseRouter + "/friend/get_untreated_friend_apply_receive"
 	// 黑明单
@@ -64,6 +67,7 @@ const (
 	AddMessageReactionExtensionsRouter     = BaseRouter + RouterMsg + "/add_message_reaction_extensions"
 	MarkMsgsAsReadRouter                   = BaseRouter + RouterMsg + "/mark_msgs_as_read"
 	GetConversationsHasReadAndMaxSeqRouter = BaseRouter + RouterMsg + "/get_conversations_has_read_and_max_seq"
+	GetConversationMaxSeqRouter            = BaseRouter + RouterMsg + "/get_conversation_max_seq"
 
 	MarkConversationAsRead    = BaseRouter + RouterMsg + "/mark_conversation_as_read"
 	MarkMsgsAsRead            = BaseRouter + RouterMsg + "/mark_msgs_as_read"
@@ -94,6 +98,7 @@ const (
 	// 以群主或管理员身份获取未处理的加群请求
 	GetUntreatedRecvGroupApplicationListRouter = BaseRouter + RouterGroup + "/get_untreated_recv_group_application_list"
 
+	FindFullGroupInfoRouter           = BaseRouter + RouterGroup + "/find_full_group_info"
 	GetSendGroupApplicationListRouter = BaseRouter + RouterGroup + "/get_user_req_group_applicationList"
 	AcceptGroupApplicationRouter      = BaseRouter + RouterGroup + "/group_application_response"
 	RefuseGroupApplicationRouter      = BaseRouter + RouterGroup + "/group_application_response"
@@ -115,9 +120,16 @@ const (
 	GetSyncGroupInfoList = BaseRouter + RouterGroup + "/get_sync_group_list"
 
 	UpdateGroupSwitch = BaseRouter + RouterGroup + "/set_group_switch_info"
+	//同步群成员
+	SyncGroupMemberInfoRouter = BaseRouter + RouterGroup + "/sync_group_members"
+	//根据时间同步群
+	SyncUserJoinGroupInfoByTimeRouter = BaseRouter + RouterGroup + "/sync_group_info_by_time"
+	//根据时间同步群成员
+	SyncGroupMemberInfoUpdateTimeRouter = BaseRouter + RouterGroup + "/sync_group_member_info_by_time"
 
 	GetUserMemberInfoInGroup = BaseRouter + RouterGroup + "/get_member_in_group"
 	group
+
 	SetReceiveMessageOptRouter         = BaseRouter + "/conversation/set_receive_message_opt"
 	GetReceiveMessageOptRouter         = BaseRouter + "/conversation/get_receive_message_opt"
 	GetAllConversationMessageOptRouter = BaseRouter + "/conversation/get_all_conversation_message_opt"

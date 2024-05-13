@@ -77,12 +77,6 @@ func (c *Conversation) getServerConversationList(ctx context.Context) ([]*model_
 }
 
 func (c *Conversation) getServerHasReadAndMaxSeqs(ctx context.Context) (map[string]*msg.Seqs, error) {
-	//resp := &msg.GetConversationsHasReadAndMaxSeqResp{}
-	//err := util.ApiPost(ctx, constant.GetConversationsHasReadAndMaxSeqRouter, msg.GetConversationsHasReadAndMaxSeqReq{UserID: c.loginUserID}, resp)
-	//if err != nil {
-	//	log.ZError(ctx, "getServerHasReadAndMaxSeqs err", err)
-	//	return nil, err
-	//}
 	resp, err := util.ProtoApiPost[msg.GetConversationsHasReadAndMaxSeqReq, msg.GetConversationsHasReadAndMaxSeqResp](
 		ctx,
 		constant.GetConversationsHasReadAndMaxSeqRouter,

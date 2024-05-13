@@ -16,9 +16,7 @@ package group
 
 import (
 	"context"
-	groupv1 "github.com/imCloud/api/group/v1"
 	"github.com/imCloud/im/pkg/common/log"
-	"github.com/imCloud/im/pkg/proto/group"
 	"open_im_sdk/internal/util"
 	"open_im_sdk/open_im_sdk_callback"
 	"open_im_sdk/pkg/common"
@@ -280,6 +278,14 @@ func (g *Group) GetGroupInfoAndSelfGroupMemberInfoFromLocal2Svr(ctx context.Cont
 	if localHaveGroup {
 		return localGroup, localSelfGroupMember, nil
 	}
+	//不存在从服务端获取
+	groupInfos, err := g.FindFullGroupInfo(ctx, groupID)
+	if err != nil {
+		return nil, localSelfGroupMember, err
+	}
+	if len(groupInfos) > 0 {
+		localGroup = ServerBaseGroupToLocalGroup(groupInfos[0])
+	}
 	return localGroup, localSelfGroupMember, nil
 	//if localHaveGroup {
 	//	return localGroup, localSelfGroupMember, nil
@@ -314,34 +320,6 @@ func (g *Group) GetGroupInfoAndSelfGroupMemberInfoFromLocal(ctx context.Context,
 	return localGroup, localSelfGroupMember, nil
 }
 
-// getGroupsInfoFromSvr 从服务端获取群数据
-func (g *Group) getGroupsInfoFromSvr(ctx context.Context, groupIDs []string) ([]*groupv1.GroupInfo, error) {
-	//resp, err := util.CallApi[groupv1.GetGroupInfoResponse](ctx, constant.GetGroupsInfoRouter, &groupv1.GetGroupInfoReq{GroupID: groupIDs})
-	resp := &groupv1.GetGroupInfoResponse{}
-	err := util.CallPostApi[*groupv1.GetGroupInfoReq, *groupv1.GetGroupInfoResponse](
-		ctx, constant.GetGroupsInfoRouter, &groupv1.GetGroupInfoReq{GroupID: groupIDs}, resp,
-	)
-	if err != nil {
-		return nil, err
-	}
-	return resp.Data, nil
-}
-
-func (g *Group) getGroupAbstractInfoFromSvr(ctx context.Context, groupIDs []string) (*group.GetGroupAbstractInfoResp, error) {
-	//return util.CallApi[group.GetGroupAbstractInfoResp](ctx, constant.GetGroupAbstractInfoRouter,
-	//	&group.GetGroupAbstractInfoReq{GroupIDs: groupIDs})
-	resp := &group.GetGroupAbstractInfoResp{}
-	err := util.CallPostApi[*group.GetGroupAbstractInfoReq, *group.GetGroupAbstractInfoResp](
-		ctx, constant.GetGroupAbstractInfoRouter,
-		&group.GetGroupAbstractInfoReq{GroupIDs: groupIDs},
-		resp,
-	)
-	if err != nil {
-		return nil, err
-	}
-	return resp, nil
-}
-
 func (g *Group) GetJoinedDiffusionGroupIDListFromSvr(ctx context.Context) ([]string, error) {
 	groups, err := g.GetServerJoinGroup(ctx)
 	if err != nil {
@@ -358,6 +336,11 @@ func (g *Group) GetJoinedDiffusionGroupIDListFromSvr(ctx context.Context) ([]str
 
 // GetGroupMemberFromLocal2Svr 从本地和服务端获取群成员数据
 func (g *Group) GetGroupMemberFromLocal2Svr(ctx context.Context, groupID string, userIDList []string) ([]*model_struct.LocalGroupMember, error) {
+	//log.ZInfo(ctx, "获取群成员GetGroupMemberFromLocal2Svr", "groupID", groupID, "userIDList", userIDList)
+	if groupID == "" {
+		var res []*model_struct.LocalGroupMember
+		return res, nil
+	}
 	localGroupMembers, err := g.db.GetGroupSomeMemberInfo(ctx, groupID, userIDList)
 	if err == nil && len(localGroupMembers) > 0 {
 		return localGroupMembers, nil

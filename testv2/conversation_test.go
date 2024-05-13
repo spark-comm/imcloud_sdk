@@ -55,6 +55,22 @@ func Test_GetAllConversationList(t *testing.T) {
 	}
 }
 
+func Test_GetConversationMaxSeq(t *testing.T) {
+	seq, err := open_im_sdk.UserForSDK.MsgSyncer().GetConversationMaxSeq(ctx, "cs_55122331994951680_55122332112392192")
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log(seq)
+}
+
+func Test_SyncConversationMsg(t *testing.T) {
+	err := open_im_sdk.UserForSDK.MsgSyncer().SyncConversationMsg(ctx, "si_55223677259616256_55224026938740736")
+	if err != nil {
+		t.Fatal(err)
+	}
+	time.Sleep(time.Second * 30)
+}
+
 func Test_GetConversationListSplit(t *testing.T) {
 	conversations, err := open_im_sdk.UserForSDK.Conversation().GetConversationListSplit(ctx, 0, 30)
 	if err != nil {
@@ -183,10 +199,19 @@ func Test_GetTotalUnreadMsgCount(t *testing.T) {
 	t.Log(count)
 }
 
+// 测试加密会话未读数量
+func Test_GetTotalEncryptUnreadMsgCount(t *testing.T) {
+	count, err := open_im_sdk.UserForSDK.Conversation().GetTotalEncryptUnreadMsgCount(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log(count)
+}
+
 func Test_SendMessage(t *testing.T) {
 	ctx = context.WithValue(ctx, "callback", TestSendMsg{})
 	msg, _ := open_im_sdk.UserForSDK.Conversation().CreateTextMessage(ctx, "加密会话消息1")
-	_, err := open_im_sdk.UserForSDK.Conversation().SendMessage(ctx, msg, "", "3456611934801920", constant.SuperGroupChatType, nil)
+	_, err := open_im_sdk.UserForSDK.Conversation().SendMessage(ctx, msg, "469829639213056", "", constant.SingleChatType, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -348,8 +373,16 @@ func Test_ClearConversationAndDeleteAllMsg(t *testing.T) {
 }
 
 func Test_RevokeMessage(t *testing.T) {
-	conId := open_im_sdk.GetConversationIDBySessionType("ssss", "1463426512456", 1)
+	conId := open_im_sdk.GetConversationIDBySessionType("ssss", "2664338510843904", 3)
 	err := open_im_sdk.UserForSDK.Conversation().RevokeMessage(ctx, conId, "bf70f6d012eb3254c03595cc2c2e0dc2")
+	if err != nil {
+		t.Fatal(err)
+	}
+	time.Sleep(time.Second * 10)
+}
+
+func Test_RevokeOneMessage(t *testing.T) {
+	err := open_im_sdk.UserForSDK.Conversation().RevokeOneMessage(ctx, "sg_2664338510843904", 76)
 	if err != nil {
 		t.Fatal(err)
 	}

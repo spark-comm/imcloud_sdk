@@ -52,6 +52,7 @@ func ServerGroupToLocalGroup(info *groupv1.GroupInfo) *model_struct.LocalGroup {
 		IsOpen:                 uint(info.IsOpen),
 		AllowPrivateChat:       uint(info.AllowPrivateChat),
 		IsComplete:             info.IsComplete,
+		UpdatedAt:              info.UpdateAt,
 	}
 }
 
@@ -72,14 +73,10 @@ func ServerGroupMemberToLocalGroupMember(info *groupv1.MembersInfo) *model_struc
 		OperatorUserID: info.OperatorUserID,
 		Ex:             info.Ex,
 		MuteEndTime:    info.MuteEndTime,
-		Message:        info.Message,
 		Code:           info.Code,
-		Phone:          info.Phone,
-		Email:          info.Email,
-		Birth:          info.Birth,
-		Gender:         info.Gender,
 		InviterUserID:  info.InviterUserID,
 		BackgroundURL:  info.BackgroundUrl,
+		UpdatedAt:      info.UpdateAt,
 	}
 }
 
@@ -112,6 +109,40 @@ func ServerGroupRequestToLocalGroupRequest(info *groupv1.GroupRequestInfo) *mode
 		HandledTime:   info.HandledTime,
 		JoinSource:    info.JoinSource,
 		InviterUserID: info.InviterUserID,
+	}
+}
+
+func ServerBaseGroupToLocalGroup(info *groupv1.BaseGroupInfo) *model_struct.LocalGroup {
+	return &model_struct.LocalGroup{
+		GroupID:       info.GroupID,
+		GroupName:     info.NickName,
+		FaceURL:       info.FaceURL,
+		Status:        info.Status,
+		GroupType:     int32(info.GroupType),
+		MemberCount:   int32(info.MemberCount),
+		Code:          info.Code,
+		CreatorUserID: info.CreatorUserID,
+		OwnerUserID:   info.OwnerUserID,
+		IsComplete:    IsNotComplete,
+		UpdatedAt:     info.UpdateAt,
+	}
+}
+
+func ServerBaseGroupMemberToLocalGroupMember(info *groupv1.BaseGroupMemberInfo) *model_struct.LocalGroupMember {
+	return &model_struct.LocalGroupMember{
+		GroupID:   info.GroupID,
+		UserID:    info.UserID,
+		RoleLevel: info.RoleLevel,
+		Nickname:  info.NickName,
+		SortFlag: func() string {
+			return utils.GetChineseFirstLetter(info.NickName)
+		}(),
+		GroupUserName: info.GroupUserName,
+		FaceURL:       info.FaceURL,
+		MuteEndTime:   info.MuteEndTime,
+		Code:          info.Code,
+		UpdatedAt:     info.UpdateAt,
+		BackgroundURL: info.BackgroundUrl,
 	}
 }
 

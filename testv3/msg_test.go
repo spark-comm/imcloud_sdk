@@ -71,7 +71,7 @@ func Test_SendMsgNoFriend(t *testing.T) {
 		OperationID: operationID,
 	})
 
-	funcation.AllLoginMgr[userA].Mgr.Conversation().GetOneConversation(ctx, 1, userB)
+	//funcation.AllLoginMgr[userA].Mgr.Conversation().GetOneConversation(ctx, 1, userB)
 	msg := fmt.Sprintf("%v send to %v a message", userA, userB)
 	t.Log("prefix ", msg)
 	funcation.SendMsg(ctx, userA, userB, "", msg)
@@ -115,7 +115,7 @@ func Test_SendMsgNoFriendBatch(t *testing.T) {
 	for i := range users {
 		msg := fmt.Sprintf("%v send to %v a message", userA, users[i].Uid)
 		t.Log("prefix ", msg)
-		funcation.AllLoginMgr[userA].Mgr.Conversation().GetOneConversation(ctx, 1, users[i].Uid)
+		//funcation.AllLoginMgr[userA].Mgr.Conversation().GetOneConversation(ctx, 1, users[i].Uid)
 		funcation.SendMsg(ctx, userA, users[i].Uid, "", msg)
 	}
 }
@@ -138,7 +138,7 @@ func Test_SendMsgNoFriendBatch2(t *testing.T) {
 
 	for i := range funcation.AllLoginMgr {
 		users := fmt.Sprintf("register_test_%v", i)
-		funcation.AllLoginMgr[userA].Mgr.Conversation().GetOneConversation(ctx, 1, users)
+		//funcation.AllLoginMgr[userA].Mgr.Conversation().GetOneConversation(ctx, 1, users)
 		for i := 1; i <= 1000; i++ {
 			// time.Sleep(200 * time.Millisecond)
 			msg := fmt.Sprintf("%v send to %v message by %d ", userA, users, i)
@@ -169,7 +169,7 @@ func Test_SendMsgBatch(t *testing.T) {
 	})
 	time.Sleep(10 * time.Millisecond)
 	log.ZInfo(ctx, "start send message")
-	funcation.AllLoginMgr[userA].Mgr.Conversation().GetOneConversation(ctx, 1, userB)
+	//funcation.AllLoginMgr[userA].Mgr.Conversation().GetOneConversation(ctx, 1, userB)
 	for i := 1; i <= 100000; i++ {
 		// time.Sleep(200 * time.Millisecond)
 		msg := fmt.Sprintf("%v send to %v message by %d ", userA, userB, i)

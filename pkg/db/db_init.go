@@ -24,6 +24,7 @@ import (
 	"open_im_sdk/pkg/constant"
 	"open_im_sdk/pkg/db/model_struct"
 	"open_im_sdk/pkg/utils"
+	"os"
 	"path/filepath"
 	"sync"
 	"time"
@@ -32,6 +33,8 @@ import (
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
+	glog "gorm.io/gorm/logger"
+	slog "log"
 )
 
 //"github.com/glebarez/sqlite"
@@ -264,7 +267,23 @@ func (d *DataBase) open(ctx context.Context) error {
 		return err
 	}
 	log.ZInfo(ctx, "sqlite", "path", dbFileName)
-	db, err := gorm.Open(sqlite.Open(dbFileName), &gorm.Config{Logger: log.NewSqlLogger(logger.LogLevel(logger.Silent), false, time.Millisecond*200)})
+	db, err := gorm.Open(sqlite.Open(dbFileName), &gorm.Config{
+		Logger: func() glog.Interface {
+			return glog.New(
+				slog.New(os.Stdout, "\r\n", slog.LstdFlags), // io producer
+				glog.Config{
+					SlowThreshold:             time.Second, // 慢查询 SQL 阈值
+					IgnoreRecordNotFoundError: false,
+					LogLevel:                  glog.Info, // Log lever
+				},
+			)
+		}(),
+		//NamingStrategy: schema.NamingStrategy{
+		//	SingularTable: true, //取消复数表明
+		//},
+		DisableForeignKeyConstraintWhenMigrating: true, //禁用主外健迁移
+		QueryFields:                              true,
+	})
 	if err != nil {
 		return utils.Wrap(err, "open db failed "+dbFileName)
 	}

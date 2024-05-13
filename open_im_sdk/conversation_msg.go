@@ -95,6 +95,12 @@ func SetConversationRecvMessageOpt(callback open_im_sdk_callback.Base, operation
 func GetTotalUnreadMsgCount(callback open_im_sdk_callback.Base, operationID string) {
 	call(callback, operationID, UserForSDK.Conversation().GetTotalUnreadMsgCount)
 }
+
+// GetTotalEncryptUnreadMsgCount 获取加密会话未读数量
+func GetTotalEncryptUnreadMsgCount(callback open_im_sdk_callback.Base, operationID string) {
+	call(callback, operationID, UserForSDK.Conversation().GetTotalEncryptUnreadMsgCount)
+}
+
 func GetAtAllTag(operationID string) string {
 	return syncCall(operationID, UserForSDK.Conversation().GetAtAllTag)
 

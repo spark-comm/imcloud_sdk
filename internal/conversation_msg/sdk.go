@@ -255,6 +255,11 @@ func (c *Conversation) GetTotalUnreadMsgCount(ctx context.Context) (totalUnreadC
 	return c.db.GetTotalUnreadMsgCountDB(ctx)
 }
 
+// GetTotalEncryptUnreadMsgCount 获取加密会话未读消息数量
+func (c *Conversation) GetTotalEncryptUnreadMsgCount(ctx context.Context) (totalUnreadCount int32, err error) {
+	return c.db.GetTotalUnreadMsgCountDB(ctx, constant.EncryptedChatType)
+}
+
 func (c *Conversation) SetConversationListener(listener open_im_sdk_callback.OnConversationListener) {
 	if c.ConversationListener != nil {
 		return
@@ -1283,6 +1288,7 @@ func (c *Conversation) Get123dfsd(ctx context.Context, conversationID string) (*
 	return c.db.GetConversation(ctx, conversationID)
 }
 
+// GetPrivacyConversation 获取加密会话列表
 func (c *Conversation) GetPrivacyConversation(ctx context.Context, pageSize, pageNum int) ([]*model_struct.LocalConversation, error) {
 	bl := false
 	if pageSize != 0 && pageNum != 0 {

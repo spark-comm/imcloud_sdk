@@ -43,6 +43,13 @@ func (d *DataBase) GetAllGroupMemberList(ctx context.Context) ([]model_struct.Lo
 	var groupMemberList []model_struct.LocalGroupMember
 	return groupMemberList, utils.Wrap(d.conn.WithContext(ctx).Find(&groupMemberList).Error, "GetAllGroupMemberList failed")
 }
+
+func (d *DataBase) GetUserInAllGroupMemberList(ctx context.Context, userId string) ([]model_struct.LocalGroupMember, error) {
+	d.groupMtx.Lock()
+	defer d.groupMtx.Unlock()
+	var groupMemberList []model_struct.LocalGroupMember
+	return groupMemberList, utils.Wrap(d.conn.WithContext(ctx).Where("user_id = ?", userId).Find(&groupMemberList).Error, "GetAllGroupMemberList failed")
+}
 func (d *DataBase) GetAllGroupMemberUserIDList(ctx context.Context) ([]model_struct.LocalGroupMember, error) {
 	d.groupMtx.Lock()
 	defer d.groupMtx.Unlock()
@@ -326,7 +333,7 @@ func (d *DataBase) SearchKickMemberList(ctx context.Context, params sdk_params_c
 	tx1 := d.conn.WithContext(ctx).Model(&model_struct.LocalGroupMember{}).
 		Select([]string{
 			"group_id", "user_id", "nickname", "role_level", "join_time", "face_url",
-			"code", "phone", "gender", "group_user_name", "sort_flag",
+			"code", "group_user_name", "sort_flag",
 		}).Where("group_id = ? AND user_id != ?", params.GroupID, params.UserID).
 		Scopes(func(db *gorm.DB) *gorm.DB {
 			if params.IsManger { //管理员只可踢普通用户
@@ -337,7 +344,7 @@ func (d *DataBase) SearchKickMemberList(ctx context.Context, params sdk_params_c
 		})
 	tx2 := d.conn.WithContext(ctx).Model(&model_struct.LocalGroupMember{}).Select([]string{
 		"group_id", "user_id", "nickname", "role_level", "join_time", "face_url",
-		"code", "phone", "gender", "group_user_name", "sort_flag",
+		"code", "group_user_name", "sort_flag",
 	}).Where("group_id = ? AND user_id != ?", params.GroupID, params.UserID).
 		Scopes(func(db *gorm.DB) *gorm.DB {
 			if params.IsManger { //管理员只可踢普通用户
@@ -349,7 +356,7 @@ func (d *DataBase) SearchKickMemberList(ctx context.Context, params sdk_params_c
 	tx3 := d.conn.WithContext(ctx).Model(&model_struct.LocalGroupMember{}).
 		Select([]string{
 			"group_id", "user_id", "nickname", "role_level", "join_time", "face_url",
-			"code", "phone", "gender", "group_user_name", "sort_flag",
+			"code", "group_user_name", "sort_flag",
 		}).Where("group_id = ? AND user_id != ?", params.GroupID, params.UserID).
 		Scopes(func(db *gorm.DB) *gorm.DB {
 			if params.IsManger { //管理员只可踢普通用户
@@ -384,4 +391,20 @@ func (d *DataBase) GetOwnerGroupMemberInfo(ctx context.Context, userID string) (
 	err := d.conn.WithContext(ctx).
 		Where("user_id = ?", userID).Find(&result).Error
 	return result, err
+}
+
+// GetGroupMemberUpdateTime 获取群成员信息
+func (d *DataBase) GetGroupMemberUpdateTime(ctx context.Context, groupID string) (map[string]int64, error) {
+	d.friendMtx.Lock()
+	defer d.friendMtx.Unlock()
+	var groupMemberList []model_struct.LocalGroupMember
+	err := utils.Wrap(d.conn.WithContext(ctx).Where("group_id = ?", groupID).Select("user_id,updated_at").Find(&groupMemberList).Error, "GetGroupMemberUpdateTime failed")
+	if err != nil {
+		return nil, err
+	}
+	res := make(map[string]int64)
+	for _, v := range groupMemberList {
+		res[v.UserID] = v.UpdatedAt
+	}
+	return res, nil
 }

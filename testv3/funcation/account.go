@@ -17,10 +17,8 @@ package funcation
 import (
 	"github.com/imCloud/im/pkg/proto/sdkws"
 	userPB "github.com/imCloud/im/pkg/proto/user"
-	"open_im_sdk/internal/util"
 	"open_im_sdk/pkg/log"
 	"open_im_sdk/pkg/utils"
-	"time"
 )
 
 func RegisterOne(uid, nickname, faceurl string) (bool, error) {
@@ -63,10 +61,10 @@ func checkUserAccount(uid string) (bool, error) {
 	var getAccountCheckResp userPB.AccountCheckResp
 	getAccountCheckReq.CheckUserIDs = []string{uid}
 	for {
-		err := util.ApiPost(ctx, "/user/account_check", &getAccountCheckReq, &getAccountCheckResp)
-		if err != nil {
-			return false, err
-		}
+		//err := util.ApiPost(ctx, "/user/account_check", &getAccountCheckReq, &getAccountCheckResp)
+		//if err != nil {
+		//	return false, err
+		//}
 		if len(getAccountCheckResp.Results) == 1 && getAccountCheckResp.Results[0].AccountStatus == "registered" {
 			log.Warn(getAccountCheckReq.CheckUserIDs[0], "Already registered ", uid, getAccountCheckResp.Results)
 			userLock.Lock()
@@ -77,7 +75,7 @@ func checkUserAccount(uid string) (bool, error) {
 			log.Info(getAccountCheckReq.CheckUserIDs[0], "not registered ", uid, getAccountCheckResp.Results)
 			break
 		} else {
-			log.Error(getAccountCheckReq.CheckUserIDs[0], " failed, continue ", err, REGISTERADDR, getAccountCheckReq.CheckUserIDs)
+			log.Error(getAccountCheckReq.CheckUserIDs[0], " failed, continue ", nil, REGISTERADDR, getAccountCheckReq.CheckUserIDs)
 			continue
 		}
 	}
@@ -89,18 +87,18 @@ func registerUserAccount(uid, nickname, faceurl string) bool {
 	req.Users = []*sdkws.UserInfo{{UserID: uid, Nickname: nickname, FaceURL: faceurl}}
 	req.Secret = Secret
 	for {
-		err := util.ApiPost(ctx, "/user/user_register", &req, nil)
-		if err != nil {
-			log.Error("post failed ,continue ", err.Error(), REGISTERADDR)
-			time.Sleep(100 * time.Millisecond)
-			continue
-		} else {
-			log.Info("register ok ", REGISTERADDR)
-			userLock.Lock()
-			AllUserID = append(AllUserID, uid)
-			userLock.Unlock()
-			return true
-		}
+		//err := util.ApiPost(ctx, "/user/user_register", &req, nil)
+		//if err != nil {
+		//	log.Error("post failed ,continue ", err.Error(), REGISTERADDR)
+		//	time.Sleep(100 * time.Millisecond)
+		//	continue
+		//} else {
+		//	log.Info("register ok ", REGISTERADDR)
+		//	userLock.Lock()
+		//	AllUserID = append(AllUserID, uid)
+		//	userLock.Unlock()
+		//	return true
+		//}
 	}
 	return false
 }

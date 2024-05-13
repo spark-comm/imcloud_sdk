@@ -210,3 +210,17 @@ func (c *Conversation) revokeOneMessage(ctx context.Context, conversationID, cli
 	})
 	return nil
 }
+
+func (c *Conversation) RevokeOneMessage(ctx context.Context, conversationID string, seq int64) error {
+	if _, err := util.ProtoApiPost[pbMsg.RevokeMsgReq, empty.Empty](
+		ctx,
+		constant.RevokeMsgRouter,
+		&pbMsg.RevokeMsgReq{
+			ConversationID: conversationID,
+			Seq:            seq,
+			UserID:         c.loginUserID},
+	); err != nil {
+		return err
+	}
+	return nil
+}

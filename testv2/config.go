@@ -17,17 +17,17 @@ package testv2
 import "open_im_sdk/sdk_struct"
 
 const (
-	//APIADDR = "http://43.154.157.177:10002"
-	//WSADDR  = "ws://43.154.157.177:10001"
+	//APIADDR = "http://47.108.68.161:9099"
+	//WSADDR  = "ws://47.108.68.161:10001"
 	//UserID  = "kernaltestuid2"
 
 	//APIADDR = "http://127.0.0.1:9099"
 	//WSADDR  = "ws://127.0.0.1:10001"
 	//预生产
-	APIADDR = "http://47.108.68.161:9099"
-	WSADDR  = "ws://47.108.68.161:10001"
-	UserID  = "97887958438252544"
-	token   = "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJpbUNsb3VkIiwic3ViIjoie1widXNlcklkXCI6XCI5Nzg4Nzk1ODQzODI1MjU0NFwiLFwicGxhdGZvcm1cIjpcIkFuZHJvaWRcIixcInRlbmFudElkXCI6XCIxMjE2MTE4MTQ0NDA5NjBcIixcInNlcnZlcl9jb2RlXCI6XCJcIixcInJvbGVcIjpcIlVTRVJcIn0iLCJleHAiOjE3MDM4NjEyNDMsIm5iZiI6MTcwMzUwMTI0MywiaWF0IjoxNzAzNTAxMjQzfQ.424DjKbI2KwROl1foBwPyjYOjheF_jBJEGswuAvNh70nK5Xulnfgz7dVtsT4N7a2klKkfvt63O73den08CeNzQ"
+	APIADDR = "http://8.137.13.1:9099"
+	WSADDR  = "ws://8.137.13.1:10001"
+	UserID  = "5324390178754560"
+	token   = "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJpbUNsb3VkIiwic3ViIjoie1widXNlcklkXCI6XCI1MzI0MzkwMTc4NzU0NTYwXCIsXCJjZW50ZXJfdXNlcl9pZFwiOlwiNTMyNDM5MDE3ODc1NDU2MFwiLFwicGxhdGZvcm1cIjpcIklPU1wiLFwidGVuYW50SWRcIjpcIjQxNjYzNjc4ODAxOTIwMFwiLFwic2VydmVyX2NvZGVcIjpcIlwiLFwicm9sZVwiOlwiVXNlclwiLFwic2NvcGVcIjpcIlwiLFwibm9kZUlkXCI6XCI0MTY2MzY3ODgwMTkyMDBcIixcIm9wdGlvbnNcIjpudWxsfSIsImV4cCI6MTcxMzY5NjgxMCwibmJmIjoxNzEzMzM2ODEwLCJpYXQiOjE3MTMzMzY4MTB9.Pag6jjPQMCEM-DD2qb47dZhEuNhXKUe8SRknlyDmVZq9RBNoAOjFgFLO93-YKFJZtp-Fk7mjHr2uRmlqFfDdEA"
 )
 
 func getConf(APIADDR, WSADDR string) sdk_struct.IMConfig {

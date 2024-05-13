@@ -33,7 +33,7 @@ func (d *DataBase) InsertFriend(ctx context.Context, friend *model_struct.LocalF
 	var res model_struct.LocalFriend
 	results := d.conn.WithContext(ctx).Where("owner_user_id = ? and friend_user_id = ?", friend.OwnerUserID, friend.FriendUserID).First(&res)
 	if results.Error != nil {
-		if results.Error == gorm.ErrRecordNotFound {
+		if errors.Is(results.Error, gorm.ErrRecordNotFound) {
 			return utils.Wrap(d.conn.WithContext(ctx).Create(friend).Error, "InsertFriend failed")
 		}
 	} else {
@@ -42,10 +42,10 @@ func (d *DataBase) InsertFriend(ctx context.Context, friend *model_struct.LocalF
 	return nil
 }
 
-func (d *DataBase) DeleteFriendDB(ctx context.Context, friendUserID string) error {
+func (d *DataBase) DeleteFriendDB(ctx context.Context, friendUserID ...string) error {
 	d.friendMtx.Lock()
 	defer d.friendMtx.Unlock()
-	return utils.Wrap(d.conn.WithContext(ctx).Where("owner_user_id=? and friend_user_id=?", d.loginUserID, friendUserID).Delete(&model_struct.LocalFriend{}).Error, "DeleteFriend failed")
+	return utils.Wrap(d.conn.WithContext(ctx).Where("owner_user_id=? and friend_user_id in ?", d.loginUserID, friendUserID).Delete(&model_struct.LocalFriend{}).Error, "DeleteFriend failed")
 }
 
 func (d *DataBase) UpdateFriend(ctx context.Context, friend *model_struct.LocalFriend) error {
@@ -155,4 +155,20 @@ func (d *DataBase) GetFriendInfoNotPeersList(ctx context.Context, friendUserIDLi
 		transfer = append(transfer, &v1)
 	}
 	return transfer, err
+}
+
+// GetFriendUpdateTime 获取群信息
+func (d *DataBase) GetFriendUpdateTime(ctx context.Context) (map[string]int64, error) {
+	d.friendMtx.Lock()
+	defer d.friendMtx.Unlock()
+	var friendList []*model_struct.LocalFriend
+	err := d.conn.WithContext(ctx).Where("owner_user_id = ?", d.loginUserID).Find(&friendList).Error
+	if err != nil {
+		return nil, err
+	}
+	res := make(map[string]int64)
+	for _, v := range friendList {
+		res[v.FriendUserID] = v.UpdatedTime
+	}
+	return res, nil
 }

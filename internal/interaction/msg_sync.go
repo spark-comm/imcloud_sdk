@@ -16,10 +16,12 @@ package interaction
 
 import (
 	"context"
+	"github.com/imCloud/im/pkg/proto/msg"
 	"math"
 	"open_im_sdk/internal/friend"
 	"open_im_sdk/internal/group"
 	"open_im_sdk/internal/user"
+	"open_im_sdk/internal/util"
 	"open_im_sdk/pkg/ccontext"
 	"open_im_sdk/pkg/common"
 	"open_im_sdk/pkg/constant"
@@ -52,6 +54,8 @@ type MsgSyncer struct {
 	conversationInitStatus map[string]bool       // 是否完成了会话的初始化加载
 	db                     db_interface.DataBase // data store
 	syncTimes              int                   // times of sync
+	reinstalled            bool                  //true if the app was uninstalled and reinstalled
+	isLoginInit            bool                  // tre is init
 	ctx                    context.Context       // context
 	friend                 *friend.Friend
 	group                  *group.Group
@@ -76,6 +80,7 @@ func NewMsgSyncer(ctx context.Context, conversationCh, PushSeqCh chan common.Cmd
 		friend:                 friend,
 		group:                  group,
 		user:                   user,
+		isLoginInit:            true,
 	}
 	if err := m.loadSeq(ctx); err != nil {
 		log.ZError(ctx, "loadSeq err", err)
@@ -86,6 +91,7 @@ func NewMsgSyncer(ctx context.Context, conversationCh, PushSeqCh chan common.Cmd
 }
 
 // seq The db reads the data to the memory,set syncedMaxSeqs
+// seq数据库将数据读取到内存，设置syncedMaxSeqs
 func (m *MsgSyncer) loadSeq(ctx context.Context) error {
 	conversationIDList, err := m.db.GetAllConversationIDList(ctx)
 	if err != nil {
@@ -129,6 +135,7 @@ func (m *MsgSyncer) DoListener() {
 }
 
 // get seqs need sync interval
+// 获取seqs需要同步间隔
 func (m *MsgSyncer) getSeqsNeedSync(syncedMaxSeq, maxSeq int64) []int64 {
 	var seqs []int64
 	for i := syncedMaxSeq + 1; i <= maxSeq; i++ {
@@ -148,31 +155,78 @@ func (m *MsgSyncer) handlePushMsgAndEvent(cmd common.Cmd2Value) {
 		log.ZDebug(cmd.Ctx, "recv max seqs from long conn mgr, start sync msgs", "cmd", cmd.Cmd, "value", cmd.Value)
 		wsSeqResp := cmd.Value.(*sdkws.GetMaxSeqResp)
 		//同步消息
-		m.compareSeqsAndBatchSync(cmd.Ctx, wsSeqResp.MaxSeqs, wsSeqResp.MinSeqs, defaultPullNums)
+		m.compareSeqsAndBatchSync(cmd.Ctx, wsSeqResp.MaxSeqs, defaultPullNums)
 	case constant.CmdPushMsg:
 		m.doPushMsg(cmd.Ctx, cmd.Value.(*sdkws.PushMessages))
 	}
 }
 
-// compareSeqsAndBatchSync 批量同步消息
-func (m *MsgSyncer) compareSeqsAndBatchSync(ctx context.Context, maxSeqToSync map[string]int64, minSeqToSync map[string]int64, pullNums int64) {
+// // compareSeqsAndBatchSync 批量同步消息
+//
+//	func (m *MsgSyncer) compareSeqsAndBatchSync(ctx context.Context, maxSeqToSync map[string]int64, minSeqToSync map[string]int64, pullNums int64) {
+//		needSyncSeqMap := make(map[string][2]int64)
+//		for conversationID, maxSeq := range maxSeqToSync {
+//			if syncedMaxSeq, ok := m.syncedMaxSeqs[conversationID]; ok {
+//				if maxSeq > syncedMaxSeq {
+//					needSyncSeqMap[conversationID] = [2]int64{syncedMaxSeq, maxSeq}
+//				}
+//			} else {
+//				//使用服务端的最小seq
+//				syncedMinSeq := int64(0)
+//				if minSeqToSync != nil {
+//					if i, ok1 := minSeqToSync[conversationID]; ok1 {
+//						syncedMinSeq = i
+//					}
+//				}
+//				needSyncSeqMap[conversationID] = [2]int64{syncedMinSeq, maxSeq}
+//			}
+//		}
+//		_ = m.syncAndTriggerMsgs(m.ctx, needSyncSeqMap, pullNums)
+//	}
+func (m *MsgSyncer) compareSeqsAndBatchSync(ctx context.Context, maxSeqToSync map[string]int64, pullNums int64) {
 	needSyncSeqMap := make(map[string][2]int64)
-	for conversationID, maxSeq := range maxSeqToSync {
-		if syncedMaxSeq, ok := m.syncedMaxSeqs[conversationID]; ok {
-			if maxSeq > syncedMaxSeq {
-				needSyncSeqMap[conversationID] = [2]int64{syncedMaxSeq, maxSeq}
+	//when app reinstalled do not pull notifications messages.
+	if m.reinstalled {
+		notificationsSeqMap := make(map[string]int64)
+		messagesSeqMap := make(map[string]int64)
+		for conversationID, seq := range maxSeqToSync {
+			if IsNotification(conversationID) {
+				notificationsSeqMap[conversationID] = seq
+			} else {
+				messagesSeqMap[conversationID] = seq
 			}
-		} else {
-			//使用服务端的最小seq
-			syncedMinSeq := int64(0)
-			if minSeqToSync != nil {
-				if i, ok1 := minSeqToSync[conversationID]; ok1 {
-					syncedMinSeq = i
+		}
+		for conversationID, seq := range notificationsSeqMap {
+			err := m.db.SetNotificationSeq(ctx, conversationID, seq)
+			if err != nil {
+				log.ZWarn(ctx, "SetNotificationSeq err", err, "conversationID", conversationID, "seq", seq)
+				continue
+			} else {
+				m.syncedMaxSeqs[conversationID] = seq
+			}
+		}
+		for conversationID, maxSeq := range messagesSeqMap {
+			if syncedMaxSeq, ok := m.syncedMaxSeqs[conversationID]; ok {
+				if maxSeq > syncedMaxSeq {
+					needSyncSeqMap[conversationID] = [2]int64{syncedMaxSeq + 1, maxSeq}
 				}
+			} else {
+				needSyncSeqMap[conversationID] = [2]int64{0, maxSeq}
 			}
-			needSyncSeqMap[conversationID] = [2]int64{syncedMinSeq, maxSeq}
+		}
+		m.reinstalled = false
+	} else {
+		for conversationID, maxSeq := range maxSeqToSync {
+			if syncedMaxSeq, ok := m.syncedMaxSeqs[conversationID]; ok {
+				if maxSeq > syncedMaxSeq {
+					needSyncSeqMap[conversationID] = [2]int64{syncedMaxSeq + 1, maxSeq}
+				}
+			} else {
+				needSyncSeqMap[conversationID] = [2]int64{0, maxSeq}
+			}
 		}
 	}
+	// 同步数据
 	_ = m.syncAndTriggerMsgs(m.ctx, needSyncSeqMap, pullNums)
 }
 
@@ -227,10 +281,14 @@ func (m *MsgSyncer) pushTriggerAndSync(ctx context.Context, pullMsgs map[string]
 // Called after successful reconnection to synchronize the latest message
 // 在成功重新连接后调用以同步最新消息
 func (m *MsgSyncer) doConnected(ctx context.Context) {
+	// 同步触发通知
 	common.TriggerCmdNotification(m.ctx, sdk_struct.CmdNewMsgComeToConversation{SyncFlag: constant.MsgSyncBegin}, m.conversationCh)
+	// 同步数据
+	go m.syncBaseInformation(ctx)
 	var resp sdkws.GetMaxSeqResp
+	// 获取会话的最大和最小seq
 	if err := m.longConnMgr.SendReqWaitResp(m.ctx, &sdkws.GetMaxSeqReq{UserID: m.loginUserID}, constant.GetNewestSeq, &resp); err != nil {
-		log.ZError(m.ctx, "get max seq error", err)
+		log.ZError(m.ctx, "获取最大的seq", err)
 		common.TriggerCmdNotification(m.ctx, sdk_struct.CmdNewMsgComeToConversation{SyncFlag: constant.MsgSyncFailed}, m.conversationCh)
 		return
 	} else {
@@ -238,10 +296,10 @@ func (m *MsgSyncer) doConnected(ctx context.Context) {
 	}
 	wctx, cancelFunc := context.WithTimeout(ctx, time.Second*60*5)
 	defer cancelFunc()
-	// 同步基本信息
-	m.syncBaseInformation(wctx)
 	//根据seq同步消息
-	m.compareSeqsAndBatchSync(wctx, resp.MaxSeqs, resp.MinSeqs, connectPullNums)
+	m.compareSeqsAndBatchSync(wctx, resp.MaxSeqs, connectPullNums)
+	//最小seq
+	m.synceMinSeqs = resp.MinSeqs
 	common.TriggerCmdNotification(m.ctx, sdk_struct.CmdNewMsgComeToConversation{SyncFlag: constant.MsgSyncEnd}, m.conversationCh)
 }
 
@@ -256,7 +314,6 @@ func (m *MsgSyncer) syncAndTriggerMsgs(ctx context.Context, seqMap map[string][2
 		tempSeqMap := make(map[string][2]int64, 50)
 		msgNum := 0
 		for k, v := range seqMap {
-
 			oneConversationSyncNum := v[1] - v[0]
 			if (oneConversationSyncNum/SplitPullMsgNum) > 1 && IsNotification(k) {
 				nSeqMap := make(map[string][2]int64, 1)
@@ -312,27 +369,27 @@ func (m *MsgSyncer) syncAndTriggerMsgs(ctx context.Context, seqMap map[string][2
 
 // Fragment synchronization message, seq refresh after successful trigger
 // 片段同步消息，成功触发后seq刷新
-// func (m *MsgSyncer) syncAndTriggerMsgs(ctx context.Context, seqMap map[string][2]int64, syncMsgNum int64) error {
-// 	if len(seqMap) > 0 {
-// 		resp, err := m.pullMsgBySeqRange(ctx, seqMap, syncMsgNum)
-// 		if err != nil {
-// 			log.ZError(ctx, "syncMsgFromSvr err", err, "seqMap", seqMap)
-// 			return err
-// 		}
-// 		_ = m.triggerConversation(ctx, resp.Msgs)
-// 		_ = m.triggerNotification(ctx, resp.NotificationMsgs)
-// 		//更新最大wz
-// 		for conversationID, seqs := range seqMap {
-// 			m.syncedMaxSeqs[conversationID] = seqs[1]
-// 			//同步到的最小seq
-// 			m.synceMinSeqs[conversationID] = seqs[0]
-// 			//师傅初始化加载完成
-// 			m.conversationInitStatus[conversationID] = true
-// 		}
-// 		return err
-// 	}
-// 	return nil
-// }
+//func (m *MsgSyncer) syncAndTriggerMsgs(ctx context.Context, seqMap map[string][2]int64, syncMsgNum int64) error {
+//	if len(seqMap) > 0 {
+//		resp, err := m.pullMsgBySeqRange(ctx, seqMap, syncMsgNum)
+//		if err != nil {
+//			log.ZError(ctx, "syncMsgFromSvr err", err, "seqMap", seqMap)
+//			return err
+//		}
+//		_ = m.triggerConversation(ctx, resp.Msgs)
+//		_ = m.triggerNotification(ctx, resp.NotificationMsgs)
+//		//更新最大wz
+//		for conversationID, seqs := range seqMap {
+//			m.syncedMaxSeqs[conversationID] = seqs[1]
+//			//同步到的最小seq
+//			m.synceMinSeqs[conversationID] = seqs[0]
+//			//师傅初始化加载完成
+//			m.conversationInitStatus[conversationID] = true
+//		}
+//		return err
+//	}
+//	return nil
+//}
 
 func (m *MsgSyncer) splitSeqs(split int, seqsNeedSync []int64) (splitSeqs [][]int64) {
 	if len(seqsNeedSync) <= split {
@@ -416,6 +473,7 @@ func (m *MsgSyncer) syncMsgBySeqs(ctx context.Context, conversationID string, se
 		i++
 		allMsgs = append(allMsgs, pullMsgResp.Msgs[conversationID].Msgs...)
 	}
+
 	return allMsgs, nil
 }
 
@@ -438,28 +496,65 @@ func (m *MsgSyncer) triggerNotification(ctx context.Context, msgs map[string]*sd
 }
 
 // SyncConversationMsg 同步会话消息
-func (m *MsgSyncer) SyncConversationMsg(ctx context.Context, conversationID string) {
-	if status, b := m.conversationInitStatus[conversationID]; !status || b {
-		//获取当前同步的最小seq当作最大使用
-		minSeq := m.synceMinSeqs[conversationID]
-		if minSeq > 0 {
-			//有需要同步的数据
-			spiltList := m.SpiltList(0, minSeq, constant.SplitPullMsgNum)
-			// 有需要同步的数据
-			if len(spiltList) > 0 {
-				//加入异步队列
-				for i := 0; i < len(spiltList); i++ {
-					seqRange := spiltList[i]
-					m.msgSync <- &sdkws.SeqRange{
-						ConversationID: conversationID,
-						Begin:          seqRange[0],
-						End:            seqRange[1],
-						Num:            constant.SplitPullMsgNum,
-					}
-				}
-			}
-		}
+func (m *MsgSyncer) SyncConversationMsg(ctx context.Context, conversationID string) error {
+	return nil
+	////获取当前会话的最大seq
+	//maxSeq, err := m.GetConversationMaxSeq(ctx, conversationID)
+	//if err != nil {
+	//	return err
+	//}
+	//minSeq := m.synceMinSeqs[conversationID]
+	////获取本地消息的seq
+	//// todo 拉取不到消息暂时屏蔽
+	//seq, err := m.db.GetConversationMessageSeq(ctx, conversationID)
+	//if len(seq) == 0 {
+	//	seq = []int64{0, maxSeq}
+	//}
+	//if err == nil && len(seq) > 0 {
+	//	//最小左侧补齐
+	//	if seq[0] > minSeq {
+	//		seq = append([]int64{minSeq}, seq...)
+	//	}
+	//	if seq[len(seq)-1] < maxSeq {
+	//		seq = append(seq, maxSeq)
+	//	}
+	//	//找出缺省的数据
+	//	_, missing := utils.FixNotConnected(seq)
+	//	if len(missing) > 0 {
+	//		return m.syncMsgBySeqsAndConversation(ctx, conversationID, missing)
+	//	}
+	//}
+	//if maxSeq > 0 {
+	//	//有需要同步的数据
+	//	spiltList := m.SpiltList(minSeq, maxSeq, constant.SplitPullMsgNum)
+	//	// 有需要同步的数据
+	//	if len(spiltList) > 0 {
+	//		//加入异步队列
+	//		for i := 0; i < len(spiltList); i++ {
+	//			seqRange := spiltList[i]
+	//			m.msgSync <- &sdkws.SeqRange{
+	//				ConversationID: conversationID,
+	//				Begin:          seqRange[0],
+	//				End:            seqRange[1],
+	//				Num:            constant.SplitPullMsgNum,
+	//			}
+	//		}
+	//	}
+	//}
+	return nil
+}
+
+// GetConversationMaxSeq 获取最大的seq
+func (m *MsgSyncer) GetConversationMaxSeq(ctx context.Context, conversationId string) (int64, error) {
+	resp, err := util.ProtoApiPost[msg.GetConversationMaxSeqReq, msg.GetConversationMaxSeqResp](
+		ctx,
+		constant.GetConversationMaxSeqRouter,
+		&msg.GetConversationMaxSeqReq{ConversationID: conversationId},
+	)
+	if err != nil {
+		return 0, err
 	}
+	return resp.MaxSeq, nil
 }
 
 // SpiltList 分片
@@ -491,9 +586,9 @@ func (m *MsgSyncer) syncBaseInformation(ctx context.Context) {
 	var wg sync.WaitGroup
 	for _, syncFunc := range []func(c context.Context) error{
 		m.user.SyncLoginUserInfo,
-		m.friend.SyncQuantityFriendList, //全量同步简单字段数据
-		m.group.InitSyncGroupData,       //全量同步群组简单字段
-		//m.group.GetUserMemberInfoInGroup,
+		m.friend.SyncFriend,               //同步好友
+		m.group.SyncGroup,                 //全量同步群组简单字段
+		m.group.SyncUserMemberInfoInGroup, //同步自己在所有群中信息
 	} {
 		wg.Add(1)
 		go func(syncFunc func(c context.Context) error) {
@@ -502,5 +597,38 @@ func (m *MsgSyncer) syncBaseInformation(ctx context.Context) {
 		}(syncFunc)
 	}
 	wg.Wait()
+	//基础信息同步完成触发通知
+	common.TriggerCmdNotification(m.ctx, sdk_struct.CmdNewMsgComeToConversation{SyncFlag: constant.BaseDataSyncComplete}, m.conversationCh)
 	log.ZError(ctx, "base info sync success", nil)
+}
+
+// syncMsgBySeqsAndConversation 根据seq触发同步
+func (m *MsgSyncer) syncMsgBySeqsAndConversation(ctx context.Context, conversationID string, seqsNeedSync []int64) error {
+	pullMsgReq := sdkws.PullMessageBySeqsReq{}
+	pullMsgReq.UserID = m.loginUserID
+	split := constant.SplitPullMsgNum
+	seqsList := m.splitSeqs(split, seqsNeedSync)
+	allMsgs := make([]*sdkws.MsgData, 0)
+	for i := 0; i < len(seqsList); {
+		pullMsgReq.SeqRanges = []*sdkws.SeqRange{{
+			ConversationID: conversationID,
+			Begin:          seqsNeedSync[0],
+			End:            seqsNeedSync[len(seqsNeedSync)-1],
+			Num:            int64(len(seqsNeedSync)),
+		}}
+		var pullMsgResp sdkws.PullMessageBySeqsResp
+		err := m.longConnMgr.SendReqWaitResp(ctx, &pullMsgReq, constant.PullMsgBySeqList, &pullMsgResp)
+		if err != nil {
+			log.ZError(ctx, "syncMsgFromSvrSplit err", err, "pullMsgReq", pullMsgReq)
+			continue
+		}
+		i++
+		if pullMsgResp.Msgs != nil && pullMsgResp.Msgs[conversationID] != nil {
+			allMsgs = append(allMsgs, pullMsgResp.Msgs[conversationID].Msgs...)
+		}
+	}
+	msgs := make(map[string]*sdkws.PullMsgs)
+	msgs[conversationID] = &sdkws.PullMsgs{Msgs: allMsgs}
+	_ = m.triggerConversation(ctx, msgs)
+	return nil
 }

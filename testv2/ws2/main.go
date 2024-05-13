@@ -45,16 +45,16 @@ const (
 	WSADDR  = "ws://8.137.13.1:10001"
 	//APIADDR = "http://127.0.0.1:9099"
 	//WSADDR  = "ws://127.0.0.1:10001"
-	UserID = "55122333186134016"
-	token  = "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJpbUNsb3VkIiwic3ViIjoie1widXNlcklkXCI6XCI1NTEyMjMzMzE4NjEzNDAxNlwiLFwicGxhdGZvcm1cIjpcIkFuZHJvaWRcIixcInRlbmFudElkXCI6XCJcIixcInNlcnZlcl9jb2RlXCI6XCJcIixcInJvbGVcIjpcIlVTRVJcIn0iLCJleHAiOjE3MDI4OTQwNDgsIm5iZiI6MTcwMjUzNDA0OCwiaWF0IjoxNzAyNTM0MDQ4fQ.HkGvNYcJVYmt-s9-tMzfTA6HUH6jvb5Q9DpAWTGEOd_FuLmYjrsgJsAqDvCWXGFIESW4ADBOG2OrC5eeig9Bgg"
+	UserID = "405431151235072"
+	token  = "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJpbUNsb3VkIiwic3ViIjoie1widXNlcklkXCI6XCI0MDU0MzExNTEyMzUwNzJcIixcImNlbnRlcl91c2VyX2lkXCI6XCI1MzE2OTg4MTkyNzI3MDRcIixcInBsYXRmb3JtXCI6XCJJT1NcIixcInRlbmFudElkXCI6XCIxMjIyOTgxNzg3MzYxMjhcIixcInNlcnZlcl9jb2RlXCI6XCJcIixcInJvbGVcIjpcIlVzZXJcIixcInNjb3BlXCI6XCJcIixcIm5vZGVJZFwiOlwiMTIyMjk4MTc4NzM2MTI4XCIsXCJvcHRpb25zXCI6bnVsbH0iLCJleHAiOjE3MDYzNTYyNzMsIm5iZiI6MTcwNTk5NjI3MywiaWF0IjoxNzA1OTk2MjczfQ.8MCD_JvvpklN5VEI9LjpJJet8ujY-tM7pXIjbotRICOurSkhTbyiiB3w_AXprMK0sUSxxFz8i2bZ4nWeGUcWmw"
 )
 
 func getConf(APIADDR, WSADDR string) sdk_struct.IMConfig {
 	var cf sdk_struct.IMConfig
 	cf.ApiAddr = APIADDR
 	cf.WsAddr = WSADDR
-	cf.DataDir = "../"
-	cf.LogLevel = 6
+	cf.DataDir = "./"
+	cf.LogLevel = 2
 	cf.IsExternalExtensions = true
 	cf.PlatformID = 3
 	cf.LogFilePath = ""

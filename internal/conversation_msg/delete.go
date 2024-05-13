@@ -123,7 +123,7 @@ func (c *Conversation) deleteAllMessageFromSvr(ctx context.Context) error {
 
 // Delete all messages from the local
 func (c *Conversation) deleteAllMsgFromLocal(ctx context.Context, markDelete bool) error {
-	conversations, err := c.db.GetAllConversationListDB(ctx)
+	conversations, err := c.db.GetAllConversationListDB(ctx, true)
 	if err != nil {
 		return err
 	}

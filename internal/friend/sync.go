@@ -17,6 +17,7 @@ package friend
 import (
 	"context"
 	"errors"
+	"fmt"
 	commonPb "github.com/imCloud/api/common"
 	friendPb "github.com/imCloud/api/friend/v1"
 	"github.com/imCloud/im/pkg/common/log"
@@ -238,6 +239,7 @@ func (f *Friend) SyncQuantityFriendList(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
+	fmt.Println("获取到的好友信息", len(respList))
 	localData, err := f.db.GetAllFriendList(ctx)
 	if err != nil {
 		return err
@@ -249,9 +251,11 @@ func (f *Friend) SyncQuantityFriendList(ctx context.Context) error {
 			FriendUserID:  info.FriendID,
 			Nickname:      info.NickName,
 			FaceURL:       info.FaceURL,
+			Code:          info.Code,
 			Remark:        info.Remark,
 			BackgroundUrl: info.BackgroundURL,
 			IsComplete:    IsNotComplete, //未同步完成标记
+			UpdateAt:      info.UpdateAt,
 		})
 	}
 	//同步本地没有的数据
@@ -259,7 +263,72 @@ func (f *Friend) SyncQuantityFriendList(ctx context.Context) error {
 	if err = f.friendSyncer.Sync(ctx, util.Batch(ServerFriendToLocalFriend, friends), localData, nil); err != nil {
 		log.ZDebug(ctx, "sync first page friend error", err)
 	}
-	//加入延迟队列做同步
-	//f.syncFriendQueue.Push(1, time.Second*20)
 	return err
+}
+
+// SyncFriend 同步好友信息
+func (f *Friend) SyncFriend(ctx context.Context) error {
+	udata, err := f.db.GetFriendUpdateTime(ctx)
+	if err != nil || len(udata) == 0 {
+		if errors.Is(err, gorm.ErrRecordNotFound) || len(udata) == 0 {
+			return f.SyncQuantityFriendList(ctx)
+		}
+		return err
+	} else {
+		return f.SyncFriendByTime(ctx, udata)
+	}
+}
+
+func (f *Friend) SyncFriendByTime(ctx context.Context, udata map[string]int64) error {
+	addList, updateList, delIds, err := f.SyncFriendInfoByTime(ctx, udata)
+	if err != nil {
+		log.ZError(ctx, "sync first page friend error", err)
+		return err
+	}
+	//定义一条改变的数据
+	friend := &model_struct.LocalFriend{}
+	//处理新增
+	if len(addList) > 0 {
+		for i, v := range addList {
+			localFriend := ServerBaseFriendToLocalFriend(v)
+			localFriend.OwnerUserID = f.loginUserID
+			err = f.db.InsertFriend(ctx, localFriend)
+			if err != nil {
+				log.ZError(ctx, "insert friend error", err)
+			}
+			if len(addList) == i+1 {
+				friend = localFriend
+			}
+		}
+	}
+	//处理修复爱
+	if len(updateList) > 0 {
+		for i, v := range updateList {
+			localFriend := ServerBaseFriendToLocalFriend(v)
+			localFriend.OwnerUserID = f.loginUserID
+			err = f.db.UpdateFriend(ctx, localFriend)
+			if err != nil {
+				log.ZError(ctx, "insert friend error", err)
+			}
+			if len(addList) == i+1 {
+				friend = localFriend
+			}
+		}
+	}
+	//处理删除
+	if len(delIds) > 0 {
+		friend.FriendUserID = delIds[0]
+		err = f.db.DeleteFriendDB(ctx, delIds...)
+		if err != nil {
+			log.ZError(ctx, "insert friend error", err)
+		}
+		for _, v := range delIds {
+			f.DelFriendConversation(ctx, v)
+		}
+	}
+	if friend.FriendUserID != "" {
+		//最后触发用户信息变动
+		f.friendListener.OnFriendInfoChanged(*friend)
+	}
+	return nil
 }

@@ -18,7 +18,6 @@ import (
 	"context"
 	authPB "github.com/imCloud/im/pkg/proto/auth"
 	"net"
-	"open_im_sdk/internal/util"
 	"open_im_sdk/pkg/ccontext"
 	"open_im_sdk/pkg/log"
 	"open_im_sdk/pkg/utils"
@@ -59,11 +58,11 @@ func getToken(uid string) (string, int64) {
 	config.Token = ""
 	req := authPB.UserTokenReq{PlatformID: PlatformID, UserID: uid, Secret: Secret}
 	resp := authPB.UserTokenResp{}
-	err := util.ApiPost(ctx, "/auth/user_token", &req, &resp)
-	if err != nil {
-		log.Error(req.UserID, "ApiPost failed ", err.Error(), TOKENADDR, req)
-		return "", 0
-	}
+	//err := util.ApiPost(ctx, "/auth/user_token", &req, &resp)
+	//if err != nil {
+	//	log.Error(req.UserID, "ApiPost failed ", err.Error(), TOKENADDR, req)
+	//	return "", 0
+	//}
 	config.Token = resp.Token
 	log.Info(req.UserID, "get token: ", resp.Token, " expireTimeSeconds: ", resp.ExpireTimeSeconds)
 	return resp.Token, resp.ExpireTimeSeconds

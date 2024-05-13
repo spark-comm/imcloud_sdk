@@ -55,6 +55,7 @@ type GroupDatabase interface {
 	DeleteSuperGroup(ctx context.Context, groupID string) error
 	GetGroupMemberInfoByGroupIDUserID(ctx context.Context, groupID, userID string) (*model_struct.LocalGroupMember, error)
 	GetAllGroupMemberList(ctx context.Context) ([]model_struct.LocalGroupMember, error)
+	GetUserInAllGroupMemberList(ctx context.Context, userId string) ([]model_struct.LocalGroupMember, error)
 	GetAllGroupMemberUserIDList(ctx context.Context) ([]model_struct.LocalGroupMember, error)
 	GetGroupMemberCount(ctx context.Context, groupID string) (int32, error)
 	GetGroupSomeMemberInfo(ctx context.Context, groupID string, userIDList []string) ([]*model_struct.LocalGroupMember, error)
@@ -83,6 +84,8 @@ type GroupDatabase interface {
 	GetOwnerOrAdminGroupReqInfo(ctx context.Context, groupID string, offset, count int) ([]model_struct.LocalGroupRequest, error)
 	//获取自己在的群中自己的信息
 	GetOwnerGroupMemberInfo(ctx context.Context, userID string) ([]*model_struct.LocalGroupMember, error)
+	GetGroupMemberUpdateTime(ctx context.Context, groupID string) (map[string]int64, error)
+	GetGroupUpdateTime(ctx context.Context) (map[string]int64, error)
 }
 
 type MessageDatabase interface {
@@ -128,7 +131,7 @@ type MessageDatabase interface {
 	GetMessagesBySeqs(ctx context.Context, conversationID string, seqs []int64) (result []*model_struct.LocalChatLog, err error)
 	GetConversationNormalMsgSeq(ctx context.Context, conversationID string) (int64, error)
 	GetConversationPeerNormalMsgSeq(ctx context.Context, conversationID string) (int64, error)
-
+	GetConversationMessageSeq(ctx context.Context, conversationID string) (result []int64, err error)
 	GetTestMessage(ctx context.Context, seq uint32) (*model_struct.LocalChatLog, error)
 	UpdateMsgSenderNickname(ctx context.Context, sendID, nickname string, sType int) error
 	UpdateMsgSenderFaceURL(ctx context.Context, sendID, faceURL string, sType int) error
@@ -192,7 +195,7 @@ type MessageDatabase interface {
 
 type ConversationDatabase interface {
 	GetConversationByUserID(ctx context.Context, userID string) (*model_struct.LocalConversation, error)
-	GetAllConversationListDB(ctx context.Context) ([]*model_struct.LocalConversation, error)
+	GetAllConversationListDB(ctx context.Context, includeEncrypted ...bool) ([]*model_struct.LocalConversation, error)
 	GetHiddenConversationList(ctx context.Context) ([]*model_struct.LocalConversation, error)
 	GetAllConversations(ctx context.Context) ([]*model_struct.LocalConversation, error)
 	GetAllSingleConversationIDList(ctx context.Context) (result []string, err error)
@@ -217,7 +220,7 @@ type ConversationDatabase interface {
 	UpdateAllConversation(ctx context.Context, conversation *model_struct.LocalConversation) error
 	IncrConversationUnreadCount(ctx context.Context, conversationID string) error
 	DecrConversationUnreadCount(ctx context.Context, conversationID string, count int64) (err error)
-	GetTotalUnreadMsgCountDB(ctx context.Context) (totalUnreadCount int32, err error)
+	GetTotalUnreadMsgCountDB(ctx context.Context, conversationType ...int32) (totalUnreadCount int32, err error)
 	SetMultipleConversationRecvMsgOpt(ctx context.Context, conversationIDList []string, opt int) (err error)
 	GetMultipleConversationDB(ctx context.Context, conversationIDList []string) (result []*model_struct.LocalConversation, err error)
 	SearchAllMessageByContentType(ctx context.Context, conversationID string, contentType int) ([]*model_struct.LocalChatLog, error)
@@ -234,7 +237,7 @@ type UserDatabase interface {
 
 type FriendDatabase interface {
 	InsertFriend(ctx context.Context, friend *model_struct.LocalFriend) error
-	DeleteFriendDB(ctx context.Context, friendUserID string) error
+	DeleteFriendDB(ctx context.Context, friendUserID ...string) error
 	UpdateFriend(ctx context.Context, friend *model_struct.LocalFriend) error
 	GetAllFriendList(ctx context.Context) ([]*model_struct.LocalFriend, error)
 	GetPageFriendList(ctx context.Context, offset, count int) ([]*model_struct.LocalFriend, error)
@@ -269,6 +272,8 @@ type FriendDatabase interface {
 	GetUnprocessedNum(ctx context.Context) (int64, error)
 	//获取不在列表的好友数据
 	GetNotInListFriendInfo(ctx context.Context, cond, user string, userIDs []string, pageSize, pageNum int) ([]sdk_params_callback.SearchNotInGroupUserResp, int64, error)
+	// 获取更新时间
+	GetFriendUpdateTime(ctx context.Context) (map[string]int64, error)
 }
 
 type ReactionDatabase interface {

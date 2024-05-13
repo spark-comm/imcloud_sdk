@@ -354,3 +354,7 @@ func (i *LocalGroupMember) GetOwnerOrAdminGroupReqInfo(ctx context.Context, grou
 	// todo
 	return nil, nil
 }
+func (d *LocalGroupMember) GetUserInAllGroupMemberList(ctx context.Context, userId string) ([]model_struct.LocalGroupMember, error) {
+	res := []model_struct.LocalGroupMember{}
+	return res, nil
+}

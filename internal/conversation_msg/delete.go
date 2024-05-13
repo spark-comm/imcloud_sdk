@@ -150,6 +150,14 @@ func (c *Conversation) deleteMessage(ctx context.Context, conversationID string,
 	return c.deleteMessageFromLocal(ctx, conversationID, clientMsgID)
 }
 
+// Delete a message from the local and server
+func (c *Conversation) deleteSelfAndOtherMessage(ctx context.Context, conversationID string, clientMsgID string) error {
+	if err := c.deleteMessageFromSvr(ctx, conversationID, clientMsgID); err != nil {
+		return err
+	}
+	return c.deleteMessageFromLocal(ctx, conversationID, clientMsgID)
+}
+
 // The user deletes part of the message from the server
 func (c *Conversation) deleteMessageFromSvr(ctx context.Context, conversationID string, clientMsgID string) error {
 	_, err := c.db.GetMessage(ctx, conversationID, clientMsgID)
@@ -173,7 +181,34 @@ func (c *Conversation) deleteMessageFromSvr(ctx context.Context, conversationID 
 		return err
 	}
 	return nil
-	//return util.ApiPost(ctx, constant.DeleteMsgsRouter, &apiReq, nil)
+}
+
+// Users delete partial messages of themselves and others from the server
+func (c *Conversation) deleteSelfAndOtherMessageFromSvr(ctx context.Context, conversationID string, clientMsgID string) error {
+	_, err := c.db.GetMessage(ctx, conversationID, clientMsgID)
+	if err != nil {
+		return err
+	}
+	localMessage, err := c.db.GetMessage(ctx, conversationID, clientMsgID)
+	if err != nil {
+		return err
+	}
+	_, err = util.ProtoApiPost[pbMsg.DeleteMsgsReq, empty.Empty](
+		ctx,
+		constant.DeleteMsgsRouter,
+		&pbMsg.DeleteMsgsReq{
+			UserID:         c.loginUserID,
+			Seqs:           []int64{localMessage.Seq},
+			ConversationID: conversationID,
+			DeleteSyncOpt: &pbMsg.DeleteSyncOpt{
+				IsSyncOther: true,
+			},
+		},
+	)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // Delete messages from local
@@ -242,6 +277,8 @@ func (c *Conversation) doDeleteMsgs(ctx context.Context, msg *sdkws.MsgData) {
 		if err := c.deleteMessageFromLocal(ctx, tips.ConversationID, msg.ClientMsgID); err != nil {
 			log.ZError(ctx, "deleteMessageFromLocal err", err, "conversationID", tips.ConversationID, "seq", v)
 		}
+		//新增删除消息回调
+		c.msgListener.OnMsgDeleted(utils.StructToJsonString(s))
 	}
 }
 

@@ -1018,6 +1018,11 @@ func (c *Conversation) DeleteMessage(ctx context.Context, conversationID string,
 	return c.deleteMessage(ctx, conversationID, clientMsgID)
 }
 
+// DeleteSelfAndOtherMessage  删除自己发出的消息
+func (c *Conversation) DeleteSelfAndOtherMessage(ctx context.Context, conversationID string, clientMsgID string) error {
+	return c.deleteSelfAndOtherMessageFromSvr(ctx, conversationID, clientMsgID)
+}
+
 func (c *Conversation) DeleteAllMessage(ctx context.Context) error {
 	return c.deleteAllMessage(ctx)
 }

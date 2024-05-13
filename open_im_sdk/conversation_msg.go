@@ -276,6 +276,11 @@ func DeleteMessage(callback open_im_sdk_callback.Base, operationID string, conve
 	call(callback, operationID, UserForSDK.Conversation().DeleteMessage, conversationID, clientMsgID)
 }
 
+// DeleteSelfAndOtherMessage 删除自己的消息同时同步删除其他的人的
+func DeleteSelfAndOtherMessage(callback open_im_sdk_callback.Base, operationID string, conversationID string, clientMsgID string) {
+	call(callback, operationID, UserForSDK.Conversation().DeleteSelfAndOtherMessage, conversationID, clientMsgID)
+}
+
 func DeleteConversationFromLocal(callback open_im_sdk_callback.Base, operationID string, conversationID string) {
 	call(callback, operationID, UserForSDK.Conversation().DeleteAllConversationFromLocal)
 }

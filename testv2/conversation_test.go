@@ -211,7 +211,8 @@ func Test_GetTotalEncryptUnreadMsgCount(t *testing.T) {
 func Test_SendMessage(t *testing.T) {
 	ctx = context.WithValue(ctx, "callback", TestSendMsg{})
 	msg, _ := open_im_sdk.UserForSDK.Conversation().CreateTextMessage(ctx, "加密会话消息1")
-	_, err := open_im_sdk.UserForSDK.Conversation().SendMessage(ctx, msg, "469829639213056", "", constant.SingleChatType, nil)
+	log.Info("发出的消息是", msg.ClientMsgID)
+	_, err := open_im_sdk.UserForSDK.Conversation().SendMessage(ctx, msg, "14749549822218240", "", constant.SingleChatType, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -335,22 +336,29 @@ func Test_SearchLocalMessages(t *testing.T) {
 }
 
 // // delete
-// funcation Test_DeleteMessageFromLocalStorage(t *testing.T) {
-//	err := open_im_sdk.UserForSDK.Conversation().DeleteMessageFromLocalStorage(ctx, &sdk_struct.MsgStruct{SessionType: 1, ContentType: 1203,
-//		ClientMsgID: "ef02943b05b02d02f92b0e92516099a3", Seq: 31, SendID: "kernaltestuid8", RecvID: "kernaltestuid9"})
-//	if err != nil {
-//		t.Fatal(err)
-//	}
-// }
 //
-// funcation Test_DeleteMessage(t *testing.T) {
-//	err := open_im_sdk.UserForSDK.Conversation().DeleteMessage(ctx, &sdk_struct.MsgStruct{SessionType: 1, ContentType: 1203,
-//		ClientMsgID: "ef02943b05b02d02f92b0e92516099a3", Seq: 31, SendID: "kernaltestuid8", RecvID: "kernaltestuid9"})
-//	if err != nil {
-//		t.Fatal(err)
+//	funcation Test_DeleteMessageFromLocalStorage(t *testing.T) {
+//		err := open_im_sdk.UserForSDK.Conversation().DeleteMessageFromLocalStorage(ctx, &sdk_struct.MsgStruct{SessionType: 1, ContentType: 1203,
+//			ClientMsgID: "ef02943b05b02d02f92b0e92516099a3", Seq: 31, SendID: "kernaltestuid8", RecvID: "kernaltestuid9"})
+//		if err != nil {
+//			t.Fatal(err)
+//		}
 //	}
-// }
-
+//
+//	funcation Test_DeleteMessage(t *testing.T) {
+//		err := open_im_sdk.UserForSDK.Conversation().DeleteMessage(ctx, &sdk_struct.MsgStruct{SessionType: 1, ContentType: 1203,
+//			ClientMsgID: "ef02943b05b02d02f92b0e92516099a3", Seq: 31, SendID: "kernaltestuid8", RecvID: "kernaltestuid9"})
+//		if err != nil {
+//			t.Fatal(err)
+//		}
+//	}
+func Test_DeleteSelfAndOtherMessage(t *testing.T) {
+	cnvId := "si_14743920172863488_14749549822218240"
+	err := open_im_sdk.UserForSDK.Conversation().DeleteSelfAndOtherMessage(ctx, cnvId, "0b56aa441f24e55c6fda9b8ae77b9bb3")
+	if err != nil {
+		t.Fatal(err)
+	}
+}
 func Test_DeleteAllMessage(t *testing.T) {
 	err := open_im_sdk.UserForSDK.Conversation().DeleteAllMessage(ctx)
 	if err != nil {

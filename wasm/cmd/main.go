@@ -95,6 +95,8 @@ func registerFunc() {
 	js.Global().Set("getConversationListSplit", js.FuncOf(wrapperConMsg.GetConversationListSplit))
 	js.Global().Set("getOneConversation", js.FuncOf(wrapperConMsg.GetOneConversation))
 	js.Global().Set("deleteConversationAndDeleteAllMsg", js.FuncOf(wrapperConMsg.DeleteConversationAndDeleteAllMsg))
+	//清除自己和对方的会话
+	js.Global().Set("clearConversationAllMsg", js.FuncOf(wrapperConMsg.ClearConversationAllMsg))
 	js.Global().Set("getAdvancedHistoryMessageList", js.FuncOf(wrapperConMsg.GetAdvancedHistoryMessageList))
 	js.Global().Set("getAdvancedHistoryMessageListReverse", js.FuncOf(wrapperConMsg.GetAdvancedHistoryMessageListReverse))
 	js.Global().Set("getMultipleConversation", js.FuncOf(wrapperConMsg.GetMultipleConversation))

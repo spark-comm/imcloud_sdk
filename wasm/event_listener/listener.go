@@ -96,6 +96,11 @@ func (c ConversationCallback) OnDeleteConversation(conversationList string) {
 	c.CallbackWriter.SetEvent(utils.GetSelfFuncName()).SetData(conversationList).SendMessage()
 }
 
+// 会话清除回调
+func (c ConversationCallback) OnClearConversation(conversationIds string) {
+	c.CallbackWriter.SetEvent(utils.GetSelfFuncName()).SetData(conversationIds).SendMessage()
+}
+
 type AdvancedMsgCallback struct {
 	CallbackWriter
 }

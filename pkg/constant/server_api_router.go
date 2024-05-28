@@ -59,9 +59,10 @@ const (
 	NewestSeqRouter        = "/chat/newest_seq"
 
 	//msg
-	ClearConversationMsgRouter             = BaseRouter + RouterMsg + "/clear_conversation_msg" // Clear the message of the specified conversation
-	ClearAllMsgRouter                      = BaseRouter + RouterMsg + "/user_clear_all_msg"     // Clear all messages of the current user
-	DeleteMsgsRouter                       = BaseRouter + RouterMsg + "/delete_msgs"            // Delete the specified message
+	ClearConversationMsgRouter             = BaseRouter + RouterMsg + "/clear_conversation_msg"
+	ClearConversationsAllMsgRouter         = BaseRouter + RouterMsg + "/clear_conversation_all_msg" // Clear the message of the specified conversation
+	ClearAllMsgRouter                      = BaseRouter + RouterMsg + "/user_clear_all_msg"         // Clear all messages of the current user
+	DeleteMsgsRouter                       = BaseRouter + RouterMsg + "/delete_msgs"                // Delete the specified message
 	RevokeMsgRouter                        = BaseRouter + RouterMsg + "/revoke_msg"
 	SetMessageReactionExtensionsRouter     = BaseRouter + RouterMsg + "/set_message_reaction_extensions"
 	AddMessageReactionExtensionsRouter     = BaseRouter + RouterMsg + "/add_message_reaction_extensions"

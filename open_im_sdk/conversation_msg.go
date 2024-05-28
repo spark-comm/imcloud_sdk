@@ -301,6 +301,10 @@ func DeleteConversationAndDeleteAllMsg(callback open_im_sdk_callback.Base, opera
 	call(callback, operationID, UserForSDK.Conversation().DeleteConversationAndDeleteAllMsg, conversationID)
 }
 
+// ClearConversationAllMsg 清除双方的会话
+func ClearConversationAllMsg(callback open_im_sdk_callback.Base, operationID string, conversationID string) {
+	call(callback, operationID, UserForSDK.Conversation().ClearConversationAllMsg, conversationID)
+}
 func InsertSingleMessageToLocalStorage(callback open_im_sdk_callback.Base, operationID string, message string, recvID string, sendID string) {
 	call(callback, operationID, UserForSDK.Conversation().InsertSingleMessageToLocalStorage, message, recvID, sendID)
 }

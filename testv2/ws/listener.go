@@ -89,6 +89,9 @@ func (o *onConversationListener) OnConversationChanged(conversationList string) 
 func (o *onConversationListener) OnTotalUnreadMessageCountChanged(totalUnreadCount int32) {
 	log.ZDebug(o.ctx, "OnTotalUnreadMessageCountChanged", "totalUnreadCount", totalUnreadCount)
 }
+func (o *onConversationListener) OnClearConversation(conversationId string) {
+	log.ZDebug(o.ctx, "OnClearConversation", "conversationId", conversationId)
+}
 
 type onGroupListener struct {
 	ctx context.Context

@@ -1039,6 +1039,14 @@ func (c *Conversation) DeleteConversationAndDeleteAllMsg(ctx context.Context, co
 	return c.clearConversationFromLocalAndSvr(ctx, conversationID, c.db.ResetConversation)
 }
 
+// ClearConversationAllMsg 会话所有信息
+func (c *Conversation) ClearConversationAllMsg(ctx context.Context, conversationID string) error {
+	if err := c.clearConversationSelfAndOtherFromLocalAndSvr(ctx, conversationID, c.db.ResetConversation); err != nil {
+		log.ZError(ctx, "ClearSelfAndFriendAll:err", err)
+	}
+	return nil
+}
+
 // insert
 func (c *Conversation) InsertSingleMessageToLocalStorage(ctx context.Context, s *sdk_struct.MsgStruct, recvID, sendID string) (*sdk_struct.MsgStruct, error) {
 	if recvID == "" || sendID == "" {

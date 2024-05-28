@@ -63,6 +63,7 @@ type OnConversationListener interface {
 	OnConversationChanged(conversationList string)
 	OnTotalUnreadMessageCountChanged(totalUnreadCount int32)
 	OnDeleteConversation(conversationList string)
+	OnClearConversation(conversationIds string)
 }
 type OnAdvancedMsgListener interface {
 	OnRecvNewMessage(message string)

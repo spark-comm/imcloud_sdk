@@ -445,6 +445,10 @@ func (c *Conversation) ProcessingGroupMessage(ctx context.Context, v *sdkws.MsgD
 		lc.FaceURL = tips.Group.FaceURL
 		//c.group.SyncJoinedGroup(ctx)
 		//c.group.SyncGroupMember(ctx, tips.Group.GroupID)
+	} else {
+		if err := c.addFaceURLAndNameBackgroundURL(ctx, lc); err != nil {
+			log.ZDebug(ctx, "ProcessingGroupMessage->addFaceURLAndNameBackgroundURL", err)
+		}
 	}
 	//log.ZInfo(ctx, fmt.Sprintf("新增群会话:%v", lc))
 }

@@ -37,7 +37,7 @@ import (
 )
 
 const (
-	connectPullNums = 1
+	connectPullNums = 100
 	defaultPullNums = 30
 	SplitPullMsgNum = 100
 )

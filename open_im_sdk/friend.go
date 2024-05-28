@@ -50,7 +50,7 @@ func CheckFriend(callback open_im_sdk_callback.Base, operationID string, userIDL
 	call(callback, operationID, UserForSDK.Friend().CheckFriend, userIDList)
 }
 
-// AddFriend 添加好友
+// AddFriend 添加好友checkFriend
 // par operationID  链路id
 // par userIDReqMsg  用户ID
 func AddFriend(callback open_im_sdk_callback.Base, operationID string, userIDReqMsg string) {

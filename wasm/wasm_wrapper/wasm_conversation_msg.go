@@ -310,6 +310,11 @@ func (w *WrapperConMsg) DeleteConversationAndDeleteAllMsg(_ js.Value, args []js.
 	return event_listener.NewCaller(open_im_sdk.DeleteConversationAndDeleteAllMsg, callback, &args).AsyncCallWithCallback()
 }
 
+func (w *WrapperConMsg) ClearConversationAllMsg(_ js.Value, args []js.Value) interface{} {
+	callback := event_listener.NewBaseCallback(utils.FirstLower(utils.GetSelfFuncName()), w.commonFunc)
+	return event_listener.NewCaller(open_im_sdk.ClearConversationAllMsg, callback, &args).AsyncCallWithCallback()
+}
+
 func (w *WrapperConMsg) DeleteAllConversationFromLocal(_ js.Value, args []js.Value) interface{} {
 	callback := event_listener.NewBaseCallback(utils.FirstLower(utils.GetSelfFuncName()), w.commonFunc)
 	return event_listener.NewCaller(open_im_sdk.DeleteAllConversationFromLocal, callback, &args).AsyncCallWithCallback()

@@ -374,7 +374,7 @@ func Test_DeleteAllMessageFromLocalStorage(t *testing.T) {
 }
 
 func Test_ClearConversationAndDeleteAllMsg(t *testing.T) {
-	err := open_im_sdk.UserForSDK.Conversation().ClearConversationAndDeleteAllMsg(ctx, "si_3271407977_7152307910")
+	err := open_im_sdk.UserForSDK.Conversation().ClearConversationAndDeleteAllMsg(ctx, "si_133374647734272_14743920172863488")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -458,4 +458,13 @@ func Test_GetPrivacyConversation(t *testing.T) {
 		return
 	}
 	log.Info(fmt.Sprintf("%v", conversation))
+}
+
+func Test_ClearConversationSelfAndOtherAllMsg(t *testing.T) {
+	err := open_im_sdk.UserForSDK.Conversation().ClearConversationAllMsg(ctx, "sg_908575283089408")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	log.Info("aa", "清除会话成功")
 }

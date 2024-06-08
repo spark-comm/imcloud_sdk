@@ -116,6 +116,7 @@ func registerFunc() {
 	js.Global().Set("typingStatusUpdate", js.FuncOf(wrapperConMsg.TypingStatusUpdate))
 	js.Global().Set("deleteMessageFromLocalStorage", js.FuncOf(wrapperConMsg.DeleteMessageFromLocalStorage))
 	js.Global().Set("deleteMessage", js.FuncOf(wrapperConMsg.DeleteMessage))
+	js.Global().Set("deleteSelfAndOtherMessage", js.FuncOf(wrapperConMsg.DeleteSelfAndOtherMessage))
 	js.Global().Set("deleteAllMsgFromLocalAndSvr", js.FuncOf(wrapperConMsg.DeleteAllMsgFromLocalAndSvr))
 	js.Global().Set("deleteAllMsgFromLocal", js.FuncOf(wrapperConMsg.DeleteAllMsgFromLocal))
 	js.Global().Set("clearConversationAndDeleteAllMsg", js.FuncOf(wrapperConMsg.ClearConversationAndDeleteAllMsg))

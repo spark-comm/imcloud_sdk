@@ -260,6 +260,10 @@ func (w *WrapperConMsg) DeleteAllMsgFromLocalAndSvr(_ js.Value, args []js.Value)
 	callback := event_listener.NewBaseCallback(utils.FirstLower(utils.GetSelfFuncName()), w.commonFunc)
 	return event_listener.NewCaller(open_im_sdk.DeleteAllMsgFromLocalAndSvr, callback, &args).AsyncCallWithCallback()
 }
+func (w *WrapperConMsg) DeleteSelfAndOtherMessage(_ js.Value, args []js.Value) interface{} {
+	callback := event_listener.NewBaseCallback(utils.FirstLower(utils.GetSelfFuncName()), w.commonFunc)
+	return event_listener.NewCaller(open_im_sdk.DeleteSelfAndOtherMessage, callback, &args).AsyncCallWithCallback()
+}
 
 func (w *WrapperConMsg) DeleteAllMsgFromLocal(_ js.Value, args []js.Value) interface{} {
 	callback := event_listener.NewBaseCallback(utils.FirstLower(utils.GetSelfFuncName()), w.commonFunc)

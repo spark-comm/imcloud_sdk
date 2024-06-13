@@ -121,7 +121,7 @@ func (r *ReflectCall) asyncCallWithCallback() {
 			panic("input args type not support:" + strconv.Itoa(int(typeFuncName.In(temp).Kind())))
 		}
 	}
-	log.Error("sssss", "参数处理完成即将调用方法", funcName)
+	//log.Error("sssss", "参数处理完成即将调用方法", funcName)
 	funcName.Call(values)
 }
 func (r *ReflectCall) AsyncCallWithOutCallback() interface{} {

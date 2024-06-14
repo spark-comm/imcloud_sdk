@@ -195,7 +195,7 @@ type MessageDatabase interface {
 
 type ConversationDatabase interface {
 	GetConversationByUserID(ctx context.Context, userID string) (*model_struct.LocalConversation, error)
-	GetAllConversationListDB(ctx context.Context, includeEncrypted ...bool) ([]*model_struct.LocalConversation, error)
+	GetAllConversationListDB(ctx context.Context, includeEncrypted bool) ([]*model_struct.LocalConversation, error)
 	GetHiddenConversationList(ctx context.Context) ([]*model_struct.LocalConversation, error)
 	GetAllConversations(ctx context.Context) ([]*model_struct.LocalConversation, error)
 	GetAllSingleConversationIDList(ctx context.Context) (result []string, err error)

@@ -49,7 +49,7 @@ import (
 )
 
 func (c *Conversation) GetAllConversationList(ctx context.Context) ([]*model_struct.LocalConversation, error) {
-	return c.db.GetAllConversationListDB(ctx)
+	return c.db.GetAllConversationListDB(ctx, false)
 }
 
 func (c *Conversation) GetConversationListSplit(ctx context.Context, offset, count int) ([]*model_struct.LocalConversation, error) {

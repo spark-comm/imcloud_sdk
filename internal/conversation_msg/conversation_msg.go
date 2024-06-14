@@ -174,7 +174,7 @@ func (c *Conversation) initSyncer() {
 				server.MinSeq != local.MinSeq ||
 				server.HasReadSeq != local.HasReadSeq ||
 				server.MsgDestructTime != local.MsgDestructTime ||
-				server.IsMsgDestruct != local.IsMsgDestruct {
+				server.IsMsgDestruct != local.IsMsgDestruct || server.LatestMsgSendTime != local.LatestMsgSendTime {
 				log.ZDebug(context.Background(), "not same", "conversationID", server.ConversationID, "server", server.RecvMsgOpt, "local", local.RecvMsgOpt)
 				return false
 			}
@@ -251,8 +251,8 @@ func (c *Conversation) doMsgNew(c2v common.Cmd2Value) {
 				continue
 			}
 			log.ZDebug(ctx, "decode message", "msg", msg)
-			if v.SendID == c.loginUserID { //seq
-				// Messages sent by myself  //if  sent through  this terminal
+			var newLc *model_struct.LocalConversation
+			if v.SendID == c.loginUserID {
 				m, err := c.db.GetMessage(ctx, conversationID, msg.ClientMsgID)
 				if err == nil {
 					log.ZDebug(ctx, "have message", "msg", msg)
@@ -292,6 +292,7 @@ func (c *Conversation) doMsgNew(c2v common.Cmd2Value) {
 					if isHistory {
 						insertMessage = append(insertMessage, c.msgStructToLocalChatLog(msg))
 					}
+					newLc = &lc
 				}
 			} else { //Sent by others
 				if _, err := c.db.GetMessage(ctx, conversationID, msg.ClientMsgID); err != nil {
@@ -338,7 +339,7 @@ func (c *Conversation) doMsgNew(c2v common.Cmd2Value) {
 						newMessages = append(newMessages, msg)
 					default:
 					}
-
+					newLc = &lc
 				} else {
 					exceptionMsg = append(exceptionMsg, c.msgStructToLocalErrChatLog(msg))
 					log.ZWarn(ctx, "Deduplication operation ", nil, "msg", *c.msgStructToLocalErrChatLog(msg))
@@ -346,6 +347,10 @@ func (c *Conversation) doMsgNew(c2v common.Cmd2Value) {
 					msg.ClientMsgID = msg.ClientMsgID + utils.Int64ToString(utils.GetCurrentTimestampByNano())
 					insertMessage = append(insertMessage, c.msgStructToLocalChatLog(msg))
 				}
+			}
+			if newLc != nil {
+				//newConversationSet[newLc.ConversationID] = newLc
+				log.ZDebug(ctx, "InsertConversation", nil, "conversation", *newLc)
 			}
 		}
 		insertMsg[conversationID] = insertMessage
@@ -395,13 +400,13 @@ func (c *Conversation) doMsgNew(c2v common.Cmd2Value) {
 		}
 	}
 	//Changed conversation storage
-
-	if err := c.db.BatchUpdateConversationList(ctx, append(mapConversationToList(conversationChangedSet), mapConversationToList(phConversationChangedSet)...)); err != nil {
+	updateCvn := append(mapConversationToList(conversationChangedSet), mapConversationToList(phConversationChangedSet)...)
+	if err := c.db.BatchUpdateConversationList(ctx, c.conversationSaveBefore(ctx, updateCvn)); err != nil {
 		log.ZError(ctx, "insert changed conversation err :", err)
 	}
-	//New conversation storage
 
-	if err := c.db.BatchInsertConversationList(ctx, mapConversationToList(phNewConversationSet)); err != nil {
+	//New conversation storage
+	if err = c.db.BatchInsertConversationList(ctx, c.conversationSaveBefore(ctx, mapConversationToList(phNewConversationSet))); err != nil {
 		log.ZError(ctx, "insert new conversation err:", err)
 	}
 	// c.doMsgReadState(ctx, msgReadList)
@@ -429,6 +434,27 @@ func (c *Conversation) doMsgNew(c2v common.Cmd2Value) {
 	log.ZDebug(ctx, "insert msg", "cost time", time.Since(b), "len", len(allMsg))
 }
 
+// 会话保存前操作
+func (c *Conversation) conversationSaveBefore(ctx context.Context, data []*model_struct.LocalConversation) []*model_struct.LocalConversation {
+	//处理会话头像为空的问题
+	newCvnData := make([]*model_struct.LocalConversation, len(data))
+	for i, v := range data {
+		//d := model_struct.LocalConversation{}
+		//err := copier.Copy(&d, v)
+		//if err != nil {
+		//	log.ZError(ctx, "addFaceURLAndNameBackgroundURL err :", err)
+		//}
+		if v.ShowName == "" {
+			err := c.addFaceURLAndNameBackgroundURL(ctx, v)
+			if err != nil {
+				log.ZError(ctx, "addFaceURLAndNameBackgroundURL err :", err)
+			}
+		}
+		newCvnData[i] = v
+	}
+	return newCvnData
+}
+
 // ProcessingGroupMessage 处理创建群的消息
 func (c *Conversation) ProcessingGroupMessage(ctx context.Context, v *sdkws.MsgData, lc *model_struct.LocalConversation) {
 	if v.ContentType == constant.GroupCreatedNotification {
@@ -445,10 +471,6 @@ func (c *Conversation) ProcessingGroupMessage(ctx context.Context, v *sdkws.MsgD
 		lc.FaceURL = tips.Group.FaceURL
 		//c.group.SyncJoinedGroup(ctx)
 		//c.group.SyncGroupMember(ctx, tips.Group.GroupID)
-	} else {
-		if err := c.addFaceURLAndNameBackgroundURL(ctx, lc); err != nil {
-			log.ZDebug(ctx, "ProcessingGroupMessage->addFaceURLAndNameBackgroundURL", err)
-		}
 	}
 	//log.ZInfo(ctx, fmt.Sprintf("新增群会话:%v", lc))
 }

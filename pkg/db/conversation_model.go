@@ -53,12 +53,12 @@ func (d *DataBase) GetPrivacyConversationForPage(ctx context.Context, isLimit bo
 	return conversationList, nil
 }
 
-func (d *DataBase) GetAllConversationListDB(ctx context.Context, includeEncrypted ...bool) ([]*model_struct.LocalConversation, error) {
+func (d *DataBase) GetAllConversationListDB(ctx context.Context, includeEncrypted bool) ([]*model_struct.LocalConversation, error) {
 	d.mRWMutex.Lock()
 	defer d.mRWMutex.Unlock()
 	var conversationList []*model_struct.LocalConversation
 	err := utils.Wrap(d.conn.WithContext(ctx).Where("latest_msg_send_time > ?", 0).Scopes(func(db *gorm.DB) *gorm.DB {
-		if len(includeEncrypted) > 0 && !includeEncrypted[0] {
+		if !includeEncrypted {
 			db = db.Where("conversation_type != ?", constant.EncryptedChatType) //去除私密会话
 		}
 		return db

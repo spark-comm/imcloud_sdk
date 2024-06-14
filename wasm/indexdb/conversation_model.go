@@ -32,7 +32,7 @@ func NewLocalConversations() *LocalConversations {
 	return &LocalConversations{}
 }
 
-func (i *LocalConversations) GetAllConversationListDB(ctx context.Context, includeEncrypted ...bool) (result []*model_struct.LocalConversation, err error) {
+func (i *LocalConversations) GetAllConversationListDB(ctx context.Context, includeEncrypted bool) (result []*model_struct.LocalConversation, err error) {
 	cList, err := exec.Exec()
 	if err != nil {
 		return nil, err

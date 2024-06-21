@@ -124,7 +124,7 @@ func (d *DataBase) GetConversationListSplitDB(ctx context.Context, offset, count
 	return transfer, err
 }
 func (d *DataBase) BatchInsertConversationList(ctx context.Context, conversationList []*model_struct.LocalConversation) error {
-	if conversationList == nil {
+	if conversationList == nil || len(conversationList) == 0 {
 		return nil
 	}
 	d.mRWMutex.Lock()

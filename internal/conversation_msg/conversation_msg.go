@@ -78,6 +78,9 @@ type Conversation struct {
 	ctxInfo              ccontext.ContextInfo
 	baseInfoSync         chan struct{}
 	moment               *moments.Moments
+	lastSentTime         time.Time
+	minInterval          time.Duration
+	msgSyncCh            chan common.Cmd2Value
 }
 
 func (c *Conversation) SetListenerForService(listener open_im_sdk_callback.OnListenerForService) {
@@ -110,6 +113,7 @@ func (c *Conversation) LoginTime() int64 {
 
 func NewConversation(ctx context.Context, longConnMgr *interaction.LongConnMgr, db db_interface.DataBase,
 	ch chan common.Cmd2Value,
+	msgSyncCh chan common.Cmd2Value, // channel sync message
 	friend *friend.Friend, group *group.Group, user *user.User,
 	conversationListener open_im_sdk_callback.OnConversationListener,
 	msgListener open_im_sdk_callback.OnAdvancedMsgListener, business *business.Business, cache *cache.Cache, full *full.Full, file *file.File) *Conversation {
@@ -131,6 +135,9 @@ func NewConversation(ctx context.Context, longConnMgr *interaction.LongConnMgr, 
 		maxSeqRecorder:       NewMaxSeqRecorder(),
 		ctxInfo:              info,
 		baseInfoSync:         make(chan struct{}),
+		lastSentTime:         time.Now(),
+		minInterval:          300 * time.Millisecond,
+		msgSyncCh:            msgSyncCh,
 	}
 	n.SetMsgListener(msgListener)
 	n.SetConversationListener(conversationListener)
@@ -211,6 +218,7 @@ func (c *Conversation) doMsgNew(c2v common.Cmd2Value) {
 			conversationID, "message length", len(msgs.Msgs))
 		var insertMessage []*model_struct.LocalChatLog
 		var updateMessage []*model_struct.LocalChatLog
+		seqs := make([]int64, 0)
 		for _, v := range msgs.Msgs {
 			log.ZDebug(ctx, "parse message ", "conversationID", conversationID, "msg", v)
 			isHistory = utils.GetSwitchFromOptions(v.Options, constant.IsHistory)
@@ -352,9 +360,13 @@ func (c *Conversation) doMsgNew(c2v common.Cmd2Value) {
 				//newConversationSet[newLc.ConversationID] = newLc
 				log.ZDebug(ctx, "InsertConversation", nil, "conversation", *newLc)
 			}
+			seqs = append(seqs, msg.Seq)
 		}
 		insertMsg[conversationID] = insertMessage
 		updateMsg[conversationID] = updateMessage
+		if err := common.TriggerCmdNewMsgToConversation(ctx, conversationID, seqs, c.recvCH); err != nil {
+			log.ZError(ctx, "TriggerCmdNewMsgToConversation", err, "conversationID", conversationID)
+		}
 	}
 
 	list, err := c.db.GetAllConversationListDB(ctx, true)
@@ -768,22 +780,6 @@ func (c *Conversation) doMsgReadState(ctx context.Context, msgReadList []*sdk_st
 		}
 		var msgIdListStatusOK []string
 		for _, v := range msgIdList {
-			//m, err := c.db.GetMessage(ctx, v)
-			//if err != nil {
-			//	log.Error("internal", "GetMessage err:", err, "ClientMsgID", v)
-			//	continue
-			//}
-			//attachInfo := sdk_struct.AttachedInfoElem{}
-			//_ = utils.JsonStringToStruct(m.AttachedInfo, &attachInfo)
-			//attachInfo.HasReadTime = rd.SendTime
-			//m.AttachedInfo = utils.StructToJsonString(attachInfo)
-			//m.IsRead = true
-			//err = c.db.UpdateMessage(ctx, m)
-			//if err != nil {
-			//	log.Error("internal", "setMessageHasReadByMsgID err:", err, "ClientMsgID", v)
-			//	continue
-			//}
-
 			msgIdListStatusOK = append(msgIdListStatusOK, v)
 		}
 		if len(msgIdListStatusOK) > 0 {
@@ -964,4 +960,43 @@ func (c *Conversation) addFaceURLAndNameBackgroundURL(ctx context.Context, lc *m
 // IsGroupConversation 是否是群会话
 func (c *Conversation) IsGroupConversation(lc *model_struct.LocalConversation) bool {
 	return lc.ConversationType == constant.GroupChatType || lc.ConversationType == constant.SuperGroupChatType
+}
+
+// CompleteTheMessage 根据会话和当前的sql补齐历史消息防止漏消息
+func (c *Conversation) CompleteTheMessage(ctx context.Context, conversationId string, nowSeq int64, missingSeq ...int64) {
+	historySeq := make([]int64, 0)
+	for i := 0; i < 50 && nowSeq > 0; i++ {
+		nowSeq -= 1
+		if nowSeq > 0 {
+			historySeq = append(historySeq, nowSeq)
+		}
+	}
+	needSysncSeq := make([]int64, 0)
+	if len(historySeq) > 0 {
+		messages, err := c.db.GetMessagesBySeqs(ctx, conversationId, historySeq)
+		if err != nil {
+			log.ZDebug(ctx, "CompleteTheMessage GetMessagesBySeqs error", err, "conversationId", conversationId, "historySeq", historySeq)
+			needSysncSeq = historySeq
+		} else {
+			historyMsgSeqs := make([]int64, 0)
+			for _, message := range messages {
+				historyMsgSeqs = append(historyMsgSeqs, message.Seq)
+			}
+			//获取需要同步的不在本地数据库的消息
+			needSysncSeq = utils.DifferenceSubset(historySeq, historyMsgSeqs)
+		}
+		if len(missingSeq) > 0 {
+			needSysncSeq = append(needSysncSeq, missingSeq...)
+		}
+	} else if len(missingSeq) > 0 {
+		needSysncSeq = missingSeq
+	}
+	//是否需要同步
+	if len(needSysncSeq) > 0 {
+		sort.Slice(needSysncSeq, func(i, j int) bool { return needSysncSeq[i] < needSysncSeq[j] })
+		//发送同步通知
+		if err := common.TriggerCmdSysncMsgSeq(ctx, conversationId, needSysncSeq, c.msgSyncCh); err != nil {
+			log.ZError(ctx, "CompleteTheMessage TriggerCmdSysncMsgSeq error", err, "conversationId", conversationId, "missingSeq", missingSeq)
+		}
+	}
 }

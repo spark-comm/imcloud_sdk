@@ -22,11 +22,9 @@ import (
 	"open_im_sdk/internal/group"
 	"open_im_sdk/internal/user"
 	"open_im_sdk/internal/util"
-	"open_im_sdk/pkg/ccontext"
 	"open_im_sdk/pkg/common"
 	"open_im_sdk/pkg/constant"
 	"open_im_sdk/pkg/db/db_interface"
-	"open_im_sdk/pkg/utils"
 	"open_im_sdk/sdk_struct"
 	"strings"
 	"sync"
@@ -48,7 +46,7 @@ type MsgSyncer struct {
 	longConnMgr            *LongConnMgr          // long connection manager
 	PushSeqCh              chan common.Cmd2Value // channel for receiving push messages and the maximum SEQ number
 	conversationCh         chan common.Cmd2Value // storage and session triggering
-	msgSync                chan *sdkws.SeqRange  // channel sync message
+	msgSyncCh              chan common.Cmd2Value // channel sync message
 	syncedMaxSeqs          map[string]int64      // map of the maximum synced SEQ numbers for all group IDs
 	synceMinSeqs           map[string]int64      // 消息加载到的最小seq
 	conversationInitStatus map[string]bool       // 是否完成了会话的初始化加载
@@ -60,10 +58,11 @@ type MsgSyncer struct {
 	friend                 *friend.Friend
 	group                  *group.Group
 	user                   *user.User
+	syncingMsg             bool
 }
 
 // NewMsgSyncer creates a new instance of the message synchronizer.
-func NewMsgSyncer(ctx context.Context, conversationCh, PushSeqCh chan common.Cmd2Value,
+func NewMsgSyncer(ctx context.Context, conversationCh, PushSeqCh, msgSyncCh chan common.Cmd2Value,
 	loginUserID string, longConnMgr *LongConnMgr, db db_interface.DataBase, syncTimes int, friend *friend.Friend, group *group.Group, user *user.User) (*MsgSyncer, error) {
 	m := &MsgSyncer{
 		loginUserID:            loginUserID,
@@ -74,13 +73,14 @@ func NewMsgSyncer(ctx context.Context, conversationCh, PushSeqCh chan common.Cmd
 		syncedMaxSeqs:          make(map[string]int64),
 		synceMinSeqs:           make(map[string]int64),
 		conversationInitStatus: make(map[string]bool),
-		msgSync:                make(chan *sdkws.SeqRange, 1000),
+		msgSyncCh:              msgSyncCh,
 		db:                     db,
 		syncTimes:              syncTimes,
 		friend:                 friend,
 		group:                  group,
 		user:                   user,
 		isLoginInit:            true,
+		syncingMsg:             false,
 	}
 	if err := m.loadSeq(ctx); err != nil {
 		log.ZError(ctx, "loadSeq err", err)
@@ -125,8 +125,8 @@ func (m *MsgSyncer) DoListener() {
 		select {
 		case cmd := <-m.PushSeqCh:
 			m.handlePushMsgAndEvent(cmd)
-		case seqRange := <-m.msgSync:
-			m.handleSync(seqRange)
+		case cmd := <-m.msgSyncCh:
+			m.handleSync(cmd)
 		case <-m.ctx.Done():
 			log.ZInfo(m.ctx, "msg syncer done, sdk logout.....")
 			return
@@ -185,6 +185,7 @@ func (m *MsgSyncer) handlePushMsgAndEvent(cmd common.Cmd2Value) {
 //	}
 func (m *MsgSyncer) compareSeqsAndBatchSync(ctx context.Context, maxSeqToSync map[string]int64, pullNums int64) {
 	needSyncSeqMap := make(map[string][2]int64)
+	m.syncingMsg = true
 	//when app reinstalled do not pull notifications messages.
 	if m.reinstalled {
 		notificationsSeqMap := make(map[string]int64)
@@ -228,6 +229,7 @@ func (m *MsgSyncer) compareSeqsAndBatchSync(ctx context.Context, maxSeqToSync ma
 	}
 	// 同步数据
 	_ = m.syncAndTriggerMsgs(m.ctx, needSyncSeqMap, pullNums)
+	m.syncingMsg = false
 }
 
 // compareSeqsAndSync 比较seq和同步消息
@@ -366,31 +368,6 @@ func (m *MsgSyncer) syncAndTriggerMsgs(ctx context.Context, seqMap map[string][2
 	}
 	return nil
 }
-
-// Fragment synchronization message, seq refresh after successful trigger
-// 片段同步消息，成功触发后seq刷新
-//func (m *MsgSyncer) syncAndTriggerMsgs(ctx context.Context, seqMap map[string][2]int64, syncMsgNum int64) error {
-//	if len(seqMap) > 0 {
-//		resp, err := m.pullMsgBySeqRange(ctx, seqMap, syncMsgNum)
-//		if err != nil {
-//			log.ZError(ctx, "syncMsgFromSvr err", err, "seqMap", seqMap)
-//			return err
-//		}
-//		_ = m.triggerConversation(ctx, resp.Msgs)
-//		_ = m.triggerNotification(ctx, resp.NotificationMsgs)
-//		//更新最大wz
-//		for conversationID, seqs := range seqMap {
-//			m.syncedMaxSeqs[conversationID] = seqs[1]
-//			//同步到的最小seq
-//			m.synceMinSeqs[conversationID] = seqs[0]
-//			//师傅初始化加载完成
-//			m.conversationInitStatus[conversationID] = true
-//		}
-//		return err
-//	}
-//	return nil
-//}
-
 func (m *MsgSyncer) splitSeqs(split int, seqsNeedSync []int64) (splitSeqs [][]int64) {
 	if len(seqsNeedSync) <= split {
 		splitSeqs = append(splitSeqs, seqsNeedSync)
@@ -445,15 +422,21 @@ func (m *MsgSyncer) pullMsgBySeqRange(ctx context.Context, seqMap map[string][2]
 }
 
 // handleSync 处理消息同步
-func (m *MsgSyncer) handleSync(seqRange *sdkws.SeqRange) {
-	req := sdkws.PullMessageBySeqsReq{UserID: m.loginUserID, SeqRanges: []*sdkws.SeqRange{seqRange}}
-	resp := &sdkws.PullMessageBySeqsResp{}
-	ctx := ccontext.WithOperationID(m.ctx, utils.OperationIDGenerator())
-	if err := m.longConnMgr.SendReqWaitResp(ctx, &req, constant.PullMsgBySeqList, resp); err != nil {
-		log.ZError(ctx, "sync message err", err)
+func (m *MsgSyncer) handleSync(cmd common.Cmd2Value) {
+	if !m.syncingMsg {
+		val := cmd.Value.(*sdk_struct.ConverstionSeqsVal)
+		if err := m.syncMsgBySeqsAndConversation(cmd.Ctx, val.ConversationID, val.Seqs); err != nil {
+			log.ZError(cmd.Ctx, "handleSync error", err, "conversationID", val.ConversationID)
+		}
 	}
-	_ = m.triggerConversation(ctx, resp.Msgs)
-	_ = m.triggerNotification(ctx, resp.NotificationMsgs)
+	//req := sdkws.PullMessageBySeqsReq{UserID: m.loginUserID, SeqRanges: []*sdkws.SeqRange{seqRange}}
+	//resp := &sdkws.PullMessageBySeqsResp{}
+	//ctx := ccontext.WithOperationID(m.ctx, utils.OperationIDGenerator())
+	//if err := m.longConnMgr.SendReqWaitResp(ctx, &req, constant.PullMsgBySeqList, resp); err != nil {
+	//	log.ZError(ctx, "sync message err", err)
+	//}
+	//_ = m.triggerConversation(ctx, resp.Msgs)
+	//_ = m.triggerNotification(ctx, resp.NotificationMsgs)
 }
 
 // synchronizes messages by SEQs.

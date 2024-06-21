@@ -97,11 +97,11 @@ type LoginMgr struct {
 	pushSeqCh      chan common.Cmd2Value
 	loginMgrCh     chan common.Cmd2Value
 	groupCh        chan common.Cmd2Value
-
-	ctx       context.Context
-	cancel    context.CancelFunc
-	info      *ccontext.GlobalConfig
-	id2MinSeq map[string]int64
+	msgSyncCh      chan common.Cmd2Value
+	ctx            context.Context
+	cancel         context.CancelFunc
+	info           *ccontext.GlobalConfig
+	id2MinSeq      map[string]int64
 }
 
 func (u *LoginMgr) BaseCtx() context.Context {
@@ -320,9 +320,9 @@ func (u *LoginMgr) login(ctx context.Context, userID, token string) error {
 
 	u.longConnMgr.Run(ctx)
 	//会话同步
-	u.conversation = conv.NewConversation(ctx, u.longConnMgr, u.db, u.conversationCh, u.friend, u.group, u.user, u.conversationListener, u.advancedMsgListener, u.business, u.cache, u.full, u.file)
+	u.conversation = conv.NewConversation(ctx, u.longConnMgr, u.db, u.conversationCh, u.msgSyncCh, u.friend, u.group, u.user, u.conversationListener, u.advancedMsgListener, u.business, u.cache, u.full, u.file)
 	//消息同步
-	u.msgSyncer, _ = interaction.NewMsgSyncer(ctx, u.conversationCh, u.pushSeqCh, u.loginUserID, u.longConnMgr, u.db, 0, u.friend, u.group, u.user)
+	u.msgSyncer, _ = interaction.NewMsgSyncer(ctx, u.conversationCh, u.pushSeqCh, u.msgSyncCh, u.loginUserID, u.longConnMgr, u.db, 0, u.friend, u.group, u.user)
 	u.conversation.SetLoginTime()
 	if u.batchMsgListener != nil {
 		u.conversation.SetBatchMsgListener(u.batchMsgListener)
@@ -397,6 +397,7 @@ func (u *LoginMgr) initResources() {
 	u.pushSeqCh = make(chan common.Cmd2Value, 1000)
 	u.loginMgrCh = make(chan common.Cmd2Value)
 	u.groupCh = make(chan common.Cmd2Value)
+	u.msgSyncCh = make(chan common.Cmd2Value, 1000)
 	u.setLoginStatus(Logout)
 	u.longConnMgr = interaction.NewLongConnMgr(u.ctx, u.connListener, u.heartbeatCmdCh, u.pushSeqCh, u.loginMgrCh)
 }

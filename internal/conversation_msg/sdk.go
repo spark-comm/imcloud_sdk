@@ -444,6 +444,9 @@ func (c *Conversation) SendMessage(ctx context.Context, s *sdk_struct.MsgStruct,
 	if err != nil {
 		return nil, err
 	}
+	//加入渐进延迟
+	c.ProgressiveDelay()
+	c.lastSentTime = time.Now()
 	if sessionType == constant.CustomerServiceChatType {
 		options[constant.IsCustomerService] = true
 	}
@@ -653,6 +656,8 @@ func (c *Conversation) SendMessageNotOss(ctx context.Context, s *sdk_struct.MsgS
 	if sessionType == constant.CustomerServiceChatType {
 		options[constant.IsCustomerService] = true
 	}
+	//加入渐进延迟
+	c.ProgressiveDelay()
 	callback, _ := ctx.Value("callback").(open_im_sdk_callback.SendMsgCallBack)
 
 	oldMessage, err := c.db.GetMessage(ctx, lc.ConversationID, s.ClientMsgID)
@@ -725,6 +730,8 @@ func (c *Conversation) SendMessageByBuffer(ctx context.Context, s *sdk_struct.Ms
 	if sessionType == constant.CustomerServiceChatType {
 		options[constant.IsCustomerService] = true
 	}
+	//加入渐进延迟
+	c.ProgressiveDelay()
 	callback, _ := ctx.Value("callback").(open_im_sdk_callback.SendMsgCallBack)
 	// t := time.Now()
 	// log.Debug("", "before insert  message is ", s)
@@ -979,6 +986,16 @@ func (c *Conversation) RevokeMessage(ctx context.Context, conversationID, client
 
 func (c *Conversation) TypingStatusUpdate(ctx context.Context, recvID, msgTip string) error {
 	return c.typingStatusUpdate(ctx, recvID, msgTip)
+}
+
+// ProgressiveDelay 消息渐进延迟
+func (c *Conversation) ProgressiveDelay() {
+	timeSinceLastMessage := time.Since(c.lastSentTime)
+	if timeSinceLastMessage < c.minInterval {
+		sleepDuration := c.minInterval - timeSinceLastMessage
+		time.Sleep(sleepDuration)
+	}
+	c.lastSentTime = time.Now()
 }
 
 // funcation (c *Conversation) MarkMessageAsReadByConID(ctx context.Context, conversationID string, msgIDList []string) error {

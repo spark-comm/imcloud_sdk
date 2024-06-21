@@ -27,6 +27,7 @@ import (
 	"open_im_sdk/pkg/db/model_struct"
 	"open_im_sdk/pkg/utils"
 	"open_im_sdk/sdk_struct"
+	"sort"
 )
 
 // Work 会话工作
@@ -56,6 +57,9 @@ func (c *Conversation) Work(c2v common.Cmd2Value) {
 	case constant.CmdAddFriend:
 		//新增会话
 		c.doAddFriend(c2v)
+	case constant.CmdNewMsgCheckCompleteness:
+		//检查消息是否完整
+		c.doNewMsgCheckCompleteness(c2v)
 	}
 }
 
@@ -505,6 +509,25 @@ func (c *Conversation) doNotificationNew(c2v common.Cmd2Value) {
 		}
 	}
 
+}
+
+// doNewMsgCheckCompleteness 新消息检查完整性
+func (c *Conversation) doNewMsgCheckCompleteness(c2v common.Cmd2Value) {
+	val := c2v.Value.(*sdk_struct.CmdNewMsgToConversation)
+	if len(val.Seqs) > 0 {
+		seqs := val.Seqs
+		// 先排序找出最小的
+		sort.Slice(seqs, func(i, j int) bool { return seqs[i] < seqs[j] })
+		// 找出que
+		missing := make([]int64, 0)
+		for i := 1; i < len(seqs); i++ {
+			if seqs[i] != seqs[i-1]+1 {
+				missing = append(missing, seqs[i-1], seqs[i])
+			}
+		}
+		//调用补齐方法
+		c.CompleteTheMessage(c2v.Ctx, val.ConversationID, seqs[0], missing...)
+	}
 }
 
 // syncOtherInformation 同步其他信息

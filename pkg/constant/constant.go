@@ -42,12 +42,14 @@ const (
 	CmdGroupMemberChange = "021"
 	CmdSyncGroup         = "022"
 	CmdSyncGroupMembers  = "023"
-
-	CmdPushSeq      = "maxSeq"
-	CmdPushMsg      = "pushMsg"
-	CmdConnSuccesss = "connSuccess"
-	CmdWakeUp       = "wakeUp"
-	CmdLogOut       = "loginOut"
+	// CmdNewMsgCheckCompleteness 收到新消息检查完整性
+	CmdNewMsgCheckCompleteness = "NewMsgCheckCompleteness"
+	CmdPushSeq                 = "maxSeq"
+	CmdSysncMsG                = "CmdSysncMsG"
+	CmdPushMsg                 = "pushMsg"
+	CmdConnSuccesss            = "connSuccess"
+	CmdWakeUp                  = "wakeUp"
+	CmdLogOut                  = "loginOut"
 )
 
 const (

@@ -165,6 +165,36 @@ func TriggerCmdConnected(ctx context.Context, ch chan Cmd2Value) error {
 	return sendCmd(ch, c2v, 100)
 }
 
+// TriggerCmdNewMsgToConversation success trigger
+func TriggerCmdNewMsgToConversation(ctx context.Context, conversationID string, seqs []int64, ch chan Cmd2Value) error {
+	if ch == nil {
+		return utils.Wrap(errors.New("ch == nil"), "")
+	}
+	c2v := Cmd2Value{
+		Cmd: constant.CmdNewMsgCheckCompleteness,
+		Value: &sdk_struct.CmdNewMsgToConversation{
+			ConversationID: conversationID,
+			Seqs:           seqs,
+		},
+		Ctx: ctx}
+	return sendCmd(ch, c2v, 100)
+}
+
+// TriggerCmdSysncMsgSeq success trigger
+func TriggerCmdSysncMsgSeq(ctx context.Context, conversationID string, seqs []int64, ch chan Cmd2Value) error {
+	if ch == nil {
+		return utils.Wrap(errors.New("ch == nil"), "")
+	}
+	c2v := Cmd2Value{
+		Cmd: constant.CmdSysncMsG,
+		Value: &sdk_struct.ConverstionSeqsVal{
+			ConversationID: conversationID,
+			Seqs:           seqs,
+		},
+		Ctx: ctx}
+	return sendCmd(ch, c2v, 100)
+}
+
 // TriggerCmdGroupMemberChange 更新群成员信息
 func TriggerCmdGroupMemberChange(ctx context.Context, node UpdateGroupMemberInfo, groupCh chan<- Cmd2Value) error {
 	c2v := Cmd2Value{

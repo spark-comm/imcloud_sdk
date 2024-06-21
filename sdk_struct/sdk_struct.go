@@ -332,6 +332,11 @@ type CmdNewMsgComeToConversation struct {
 	SyncFlag int
 }
 
+// CmdNewMsgToConversation 同步会话数据
+type CmdNewMsgToConversation struct {
+	Seqs           []int64
+	ConversationID string
+}
 type CmdPushMsgToMsgSync struct {
 	Msgs []*sdkws.PushMessages
 }
@@ -371,4 +376,9 @@ type MsgDeleteNotificationElem struct {
 	GroupID     string   `json:"groupID"`
 	IsAllDelete bool     `json:"isAllDelete"`
 	SeqList     []string `json:"seqList"`
+}
+
+type ConverstionSeqsVal struct {
+	ConversationID string  `json:"conversationID"`
+	Seqs           []int64 `json:"seqs"`
 }

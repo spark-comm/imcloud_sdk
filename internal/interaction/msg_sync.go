@@ -16,6 +16,7 @@ package interaction
 
 import (
 	"context"
+	"fmt"
 	"github.com/imCloud/im/pkg/proto/msg"
 	"math"
 	"open_im_sdk/internal/friend"
@@ -35,7 +36,7 @@ import (
 )
 
 const (
-	connectPullNums = 1000
+	connectPullNums = 100
 	defaultPullNums = 100
 	SplitPullMsgNum = 100
 )
@@ -80,7 +81,7 @@ func NewMsgSyncer(ctx context.Context, conversationCh, PushSeqCh, msgSyncCh chan
 		group:                  group,
 		user:                   user,
 		isLoginInit:            true,
-		syncingMsg:             false,
+		syncingMsg:             true,
 	}
 	if err := m.loadSeq(ctx); err != nil {
 		log.ZError(ctx, "loadSeq err", err)
@@ -121,12 +122,19 @@ func (m *MsgSyncer) loadSeq(ctx context.Context) error {
 // DoListener Listen to the message pipe of the message synchronizer
 // and process received and pushed messages
 func (m *MsgSyncer) DoListener() {
+	go func(m *MsgSyncer) {
+		timer := time.NewTimer(2 * time.Minute)
+		<-timer.C
+		m.syncingMsg = false
+	}(m)
 	for {
 		select {
 		case cmd := <-m.PushSeqCh:
 			m.handlePushMsgAndEvent(cmd)
 		case cmd := <-m.msgSyncCh:
 			m.handleSync(cmd)
+		//case <-time.After(10 * time.Second):
+		//	m.syncingMsg = true
 		case <-m.ctx.Done():
 			log.ZInfo(m.ctx, "msg syncer done, sdk logout.....")
 			return
@@ -185,7 +193,6 @@ func (m *MsgSyncer) handlePushMsgAndEvent(cmd common.Cmd2Value) {
 //	}
 func (m *MsgSyncer) compareSeqsAndBatchSync(ctx context.Context, maxSeqToSync map[string]int64, pullNums int64) {
 	needSyncSeqMap := make(map[string][2]int64)
-	m.syncingMsg = true
 	//when app reinstalled do not pull notifications messages.
 	if m.reinstalled {
 		notificationsSeqMap := make(map[string]int64)
@@ -229,7 +236,6 @@ func (m *MsgSyncer) compareSeqsAndBatchSync(ctx context.Context, maxSeqToSync ma
 	}
 	// 同步数据
 	_ = m.syncAndTriggerMsgs(m.ctx, needSyncSeqMap, pullNums)
-	m.syncingMsg = false
 }
 
 // compareSeqsAndSync 比较seq和同步消息
@@ -285,8 +291,8 @@ func (m *MsgSyncer) pushTriggerAndSync(ctx context.Context, pullMsgs map[string]
 func (m *MsgSyncer) doConnected(ctx context.Context) {
 	// 同步触发通知
 	common.TriggerCmdNotification(m.ctx, sdk_struct.CmdNewMsgComeToConversation{SyncFlag: constant.MsgSyncBegin}, m.conversationCh)
-	// 同步数据
-	go m.syncBaseInformation(ctx)
+	// 同步最基础的数据
+	m.syncBaseInformation(ctx)
 	var resp sdkws.GetMaxSeqResp
 	// 获取会话的最大和最小seq
 	if err := m.longConnMgr.SendReqWaitResp(m.ctx, &sdkws.GetMaxSeqReq{UserID: m.loginUserID}, constant.GetNewestSeq, &resp); err != nil {
@@ -296,10 +302,8 @@ func (m *MsgSyncer) doConnected(ctx context.Context) {
 	} else {
 		log.ZDebug(m.ctx, "get max seq success", "resp", resp)
 	}
-	wctx, cancelFunc := context.WithTimeout(ctx, time.Second*60*5)
-	defer cancelFunc()
 	//根据seq同步消息
-	m.compareSeqsAndBatchSync(wctx, resp.MaxSeqs, connectPullNums)
+	m.compareSeqsAndBatchSync(ctx, resp.MaxSeqs, connectPullNums)
 	//最小seq
 	m.synceMinSeqs = resp.MinSeqs
 	common.TriggerCmdNotification(m.ctx, sdk_struct.CmdNewMsgComeToConversation{SyncFlag: constant.MsgSyncEnd}, m.conversationCh)
@@ -328,6 +332,11 @@ func (m *MsgSyncer) syncAndTriggerMsgs(ctx context.Context, seqMap map[string][2
 					}
 					_ = m.triggerConversation(ctx, resp.Msgs)
 					_ = m.triggerNotification(ctx, resp.NotificationMsgs)
+					// 遍历map并将键添加到切片中
+					for key, v := range tempSeqMap {
+						fmt.Println(fmt.Sprintf("同步的会话：%s,同步的seq,%v", key, v))
+					}
+					fmt.Println(fmt.Sprintf("同步的消息,%v", resp.Msgs))
 					for conversationID, seqs := range nSeqMap {
 						m.syncedMaxSeqs[conversationID] = seqs[1]
 					}
@@ -347,9 +356,11 @@ func (m *MsgSyncer) syncAndTriggerMsgs(ctx context.Context, seqMap map[string][2
 				}
 				_ = m.triggerConversation(ctx, resp.Msgs)
 				_ = m.triggerNotification(ctx, resp.NotificationMsgs)
-				for conversationID, seqs := range tempSeqMap {
-					m.syncedMaxSeqs[conversationID] = seqs[1]
+				// 遍历map并将键添加到切片中
+				for key, v := range tempSeqMap {
+					fmt.Println(fmt.Sprintf("同步的会话：%s,同步的seq,%v", key, v))
 				}
+				fmt.Println(fmt.Sprintf("同步的消息,%v", resp.Msgs))
 				tempSeqMap = make(map[string][2]int64, 50)
 				msgNum = 0
 			}
@@ -362,6 +373,11 @@ func (m *MsgSyncer) syncAndTriggerMsgs(ctx context.Context, seqMap map[string][2
 		}
 		_ = m.triggerConversation(ctx, resp.Msgs)
 		_ = m.triggerNotification(ctx, resp.NotificationMsgs)
+		// 遍历map并将键添加到切片中
+		for key, v := range tempSeqMap {
+			fmt.Println(fmt.Sprintf("同步的会话：%s,同步的seq,%v", key, v))
+		}
+		fmt.Println(fmt.Sprintf("同步的消息,%v", resp.Msgs))
 		for conversationID, seqs := range seqMap {
 			m.syncedMaxSeqs[conversationID] = seqs[1]
 		}
@@ -565,6 +581,11 @@ func (m *MsgSyncer) SpiltList(min, max, size int64) [][]int64 {
 
 // syncBaseInformation 同步基本信息
 func (m *MsgSyncer) syncBaseInformation(ctx context.Context) {
+	defer func() {
+		if r := recover(); r != nil {
+			log.ZError(ctx, "syncBaseInformation", nil)
+		}
+	}()
 	// 同步数据
 	var wg sync.WaitGroup
 	for _, syncFunc := range []func(c context.Context) error{
@@ -582,7 +603,6 @@ func (m *MsgSyncer) syncBaseInformation(ctx context.Context) {
 	wg.Wait()
 	//基础信息同步完成触发通知
 	common.TriggerCmdNotification(m.ctx, sdk_struct.CmdNewMsgComeToConversation{SyncFlag: constant.BaseDataSyncComplete}, m.conversationCh)
-	log.ZError(ctx, "base info sync success", nil)
 }
 
 // syncMsgBySeqsAndConversation 根据seq触发同步

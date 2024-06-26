@@ -162,6 +162,9 @@ func (o *onConversationListener) OnTotalUnreadMessageCountChanged(totalUnreadCou
 func (c *onConversationListener) OnDeleteConversation(str string) {
 
 }
+func (c *onConversationListener) OnClearConversation(conversationIds string) {
+
+}
 
 type onGroupListener struct {
 	ctx context.Context

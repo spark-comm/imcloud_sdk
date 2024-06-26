@@ -435,11 +435,11 @@ func Test_SendImgMsg(t *testing.T) {
 
 func Test_SendFileMsg(t *testing.T) {
 	ctx = context.WithValue(ctx, "callback", TestSendMsg{})
-	msg, err := open_im_sdk.UserForSDK.Conversation().CreateFileMessageFromFullPath(ctx, "/Users/tang/workspace/weisancloud.zip", "weisancloud.zip")
+	msg, err := open_im_sdk.UserForSDK.Conversation().CreateFileMessageFromFullPath(ctx, "/Users/tang/workspace/go/imCloud-sdk-core/README.md", "README.md")
 	if err != nil {
 		t.Fatal(err)
 	}
-	res, err := open_im_sdk.UserForSDK.Conversation().SendMessage(ctx, msg, "49395156675203072", "", constant.SendSignalMsg, nil)
+	res, err := open_im_sdk.UserForSDK.Conversation().SendMessage(ctx, msg, "1873636612902912", "", constant.SendSignalMsg, nil)
 	if err != nil {
 		t.Fatal(err)
 	}

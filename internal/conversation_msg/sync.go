@@ -16,35 +16,22 @@ package conversation_msg
 
 import (
 	"context"
-	"open_im_sdk/pkg/common"
-	"open_im_sdk/pkg/constant"
-	"open_im_sdk/pkg/db/model_struct"
-	"open_im_sdk/pkg/syncer"
+	utils2 "github.com/OpenIMSDK/tools/utils"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/common"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/constant"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/db/model_struct"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/syncer"
 	"time"
 
-	"github.com/imCloud/im/pkg/common/log"
+	"github.com/OpenIMSDK/tools/log"
 )
 
-// SyncConversations 同步会话
-func (c *Conversation) SyncConversations(ctx context.Context) error {
-	ccTime := time.Now()
-	conversationsOnServer, err := c.getServerConversationList(ctx)
-	if err != nil {
-		log.ZError(ctx, "get server conversation list failed", err)
-		return err
-	}
-	if len(conversationsOnServer) == 0 {
-		return nil
-	}
-	log.ZDebug(ctx, "get server cost time", "cost time", time.Since(ccTime), "conversation on server", conversationsOnServer)
+func (c *Conversation) SyncConversationsAndTriggerCallback(ctx context.Context, conversationsOnServer []*model_struct.LocalConversation) error {
 	conversationsOnLocal, err := c.db.GetAllConversations(ctx)
 	if err != nil {
-		log.ZError(ctx, "get server conversation list failed", err)
+		return err
 	}
-	log.ZDebug(ctx, "get local cost time", "cost time", time.Since(ccTime), "conversation on local", conversationsOnLocal)
-	conversationsOnServer, err = c.CompletingConversationInformation(ctx, conversationsOnServer)
-	if err != nil {
-		log.ZError(ctx, "get server conversation list failed", err)
+	if err := c.batchAddFaceURLAndName(ctx, conversationsOnServer...); err != nil {
 		return err
 	}
 	if err = c.conversationSyncer.Sync(ctx, conversationsOnServer, conversationsOnLocal, func(ctx context.Context, state int, server, local *model_struct.LocalConversation) error {
@@ -55,37 +42,28 @@ func (c *Conversation) SyncConversations(ctx context.Context) error {
 	}, true); err != nil {
 		return err
 	}
-	conversationsOnLocal, err = c.db.GetAllConversations(ctx)
+	return nil
+}
+
+func (c *Conversation) SyncConversations(ctx context.Context, conversationIDs []string) error {
+	conversationsOnServer, err := c.getServerConversationsByIDs(ctx, conversationIDs)
 	if err != nil {
 		return err
 	}
-	c.cache.UpdateConversations(conversationsOnLocal)
-	return nil
+	return c.SyncConversationsAndTriggerCallback(ctx, conversationsOnServer)
 }
 
-func (c *Conversation) SyncConversationUnreadCount(ctx context.Context) error {
-	var conversationChangedList []string
-	allConversations := c.cache.GetAllHasUnreadMessageConversations()
-	log.ZDebug(ctx, "get unread message length", "len", len(allConversations))
-	for _, conversation := range allConversations {
-		if deleteRows := c.db.DeleteConversationUnreadMessageList(ctx, conversation.ConversationID, conversation.UpdateUnreadCountTime); deleteRows > 0 {
-			log.ZDebug(ctx, "DeleteConversationUnreadMessageList", conversation.ConversationID, conversation.UpdateUnreadCountTime, "delete rows:", deleteRows)
-			if err := c.db.DecrConversationUnreadCount(ctx, conversation.ConversationID, deleteRows); err != nil {
-				log.ZDebug(ctx, "DecrConversationUnreadCount", conversation.ConversationID, conversation.UpdateUnreadCountTime, "decr unread count err:", err.Error())
-			} else {
-				conversationChangedList = append(conversationChangedList, conversation.ConversationID)
-			}
-		}
+func (c *Conversation) SyncAllConversations(ctx context.Context) error {
+	ccTime := time.Now()
+	conversationsOnServer, err := c.getServerConversationList(ctx)
+	if err != nil {
+		return err
 	}
-	if len(conversationChangedList) > 0 {
-		if err := common.TriggerCmdUpdateConversation(ctx, common.UpdateConNode{Action: constant.ConChange, Args: conversationChangedList}, c.GetCh()); err != nil {
-			return err
-		}
-	}
-	return nil
+	log.ZDebug(ctx, "get server cost time", "cost time", time.Since(ccTime), "conversation on server", conversationsOnServer)
+	return c.SyncConversationsAndTriggerCallback(ctx, conversationsOnServer)
 }
 
-func (c *Conversation) SyncConversationHashReadSeqs(ctx context.Context) error {
+func (c *Conversation) SyncAllConversationHashReadSeqs(ctx context.Context) error {
 	log.ZDebug(ctx, "start SyncConversationHashReadSeqs")
 	seqs, err := c.getServerHasReadAndMaxSeqs(ctx)
 	if err != nil {
@@ -94,141 +72,77 @@ func (c *Conversation) SyncConversationHashReadSeqs(ctx context.Context) error {
 	if len(seqs) == 0 {
 		return nil
 	}
-	var conversations []*model_struct.LocalConversation
-	var conversationIDs []string
-	allConversations, err := c.db.GetAllConversationIDList(ctx)
+	var conversationChangedIDs []string
+	var conversationIDsNeedSync []string
+
+	conversationsOnLocal, err := c.db.GetAllConversations(ctx)
+	if err != nil {
+		log.ZWarn(ctx, "get all conversations err", err)
+		return err
+	}
+	conversationsOnLocalMap := utils2.SliceToMap(conversationsOnLocal, func(e *model_struct.LocalConversation) string {
+		return e.ConversationID
+	})
 	for conversationID, v := range seqs {
-		c.maxSeqRecorder.Set(conversationID, v.MaxSeq)
-		if len(allConversations) == 0 {
-			continue
-		}
 		var unreadCount int32
+		c.maxSeqRecorder.Set(conversationID, v.MaxSeq)
 		if v.MaxSeq-v.HasReadSeq < 0 {
 			unreadCount = 0
+			log.ZWarn(ctx, "unread count is less than 0", nil, "conversationID",
+				conversationID, "maxSeq", v.MaxSeq, "hasReadSeq", v.HasReadSeq)
 		} else {
 			unreadCount = int32(v.MaxSeq - v.HasReadSeq)
 		}
-		// 初次登录更新全会报错
-		if err := c.db.UpdateColumnsConversation(ctx, conversationID, map[string]interface{}{"unread_count": unreadCount, "has_read_seq": v.HasReadSeq}); err != nil {
-			log.ZError(ctx, "UpdateColumnsConversation err", err, "conversationID", conversationID)
+		if conversation, ok := conversationsOnLocalMap[conversationID]; ok {
+			if conversation.UnreadCount != unreadCount || conversation.HasReadSeq != v.HasReadSeq {
+				if err := c.db.UpdateColumnsConversation(ctx, conversationID, map[string]interface{}{"unread_count": unreadCount, "has_read_seq": v.HasReadSeq}); err != nil {
+					log.ZWarn(ctx, "UpdateColumnsConversation err", err, "conversationID", conversationID)
+					continue
+				}
+				conversationChangedIDs = append(conversationChangedIDs, conversationID)
+			}
+		} else {
+			conversationIDsNeedSync = append(conversationIDsNeedSync, conversationID)
 		}
-		conversationIDs = append(conversationIDs, conversationID)
+
 	}
-	log.ZDebug(ctx, "update conversations", "conversations", conversations)
-	// 会话注册
-	if len(conversations) > 0 {
-		common.TriggerCmdUpdateConversation(ctx, common.UpdateConNode{Action: constant.ConChange, Args: conversationIDs}, c.GetCh())
-		common.TriggerCmdUpdateConversation(ctx, common.UpdateConNode{Action: constant.TotalUnreadMessageChanged, Args: conversationIDs}, c.GetCh())
+	if len(conversationIDsNeedSync) > 0 {
+		conversationsOnServer, err := c.getServerConversationsByIDs(ctx, conversationIDsNeedSync)
+		if err != nil {
+			log.ZWarn(ctx, "getServerConversationsByIDs err", err, "conversationIDs", conversationIDsNeedSync)
+			return err
+		}
+		if err := c.batchAddFaceURLAndName(ctx, conversationsOnServer...); err != nil {
+			log.ZWarn(ctx, "batchAddFaceURLAndName err", err, "conversationsOnServer", conversationsOnServer)
+			return err
+		}
+
+		for _, conversation := range conversationsOnServer {
+			var unreadCount int32
+			v, ok := seqs[conversation.ConversationID]
+			if !ok {
+				continue
+			}
+			if v.MaxSeq-v.HasReadSeq < 0 {
+				unreadCount = 0
+				log.ZWarn(ctx, "unread count is less than 0", nil, "server seq", v, "conversation", conversation)
+			} else {
+				unreadCount = int32(v.MaxSeq - v.HasReadSeq)
+			}
+			conversation.UnreadCount = unreadCount
+			conversation.HasReadSeq = v.HasReadSeq
+		}
+		err = c.db.BatchInsertConversationList(ctx, conversationsOnServer)
+		if err != nil {
+			log.ZWarn(ctx, "BatchInsertConversationList err", err, "conversationsOnServer", conversationsOnServer)
+		}
+
+	}
+
+	log.ZDebug(ctx, "update conversations", "conversations", conversationChangedIDs)
+	if len(conversationChangedIDs) > 0 {
+		common.TriggerCmdUpdateConversation(ctx, common.UpdateConNode{Action: constant.ConChange, Args: conversationChangedIDs}, c.GetCh())
+		common.TriggerCmdUpdateConversation(ctx, common.UpdateConNode{Action: constant.TotalUnreadMessageChanged}, c.GetCh())
 	}
 	return nil
-}
-
-// CompletingConversationInformation 补齐会话细信息
-func (c *Conversation) CompletingConversationInformation(ctx context.Context, data []*model_struct.LocalConversation) ([]*model_struct.LocalConversation, error) {
-	//singleConversationRevIDs := make([]string, 0)
-	//groupConversationGroupIDs := make([]string, 0)
-	//mapBaseInfo := make(map[string]*cache.BaseInfo)
-	//localFriendIds := make([]string, 0)
-	//localGroupIds := make([]string, 0)
-	////获取所有的好友
-	//list, err := c.db.GetAllFriendList(ctx)
-	//if err != nil {
-	//	log.ZError(ctx, "CompletingConversationInformation get user friend err", err)
-	//}
-	//if len(list) > 0 {
-	//	for _, v := range list {
-	//		localFriendIds = append(localFriendIds, v.FriendUserID)
-	//		showName := v.Nickname
-	//		if v.Remark != "" {
-	//			showName = v.Remark
-	//		}
-	//		mapBaseInfo[v.FriendUserID] = &cache.BaseInfo{
-	//			FaceURL:       v.FaceURL,
-	//			Nickname:      v.Nickname,
-	//			BackgroundURL: showName,
-	//		}
-	//	}
-	//}
-	////获取所有的群
-	//groups, err := c.db.GetJoinedGroupListDB(ctx)
-	//if err != nil {
-	//	log.ZError(ctx, "CompletingConversationInformation get user join group err", err)
-	//}
-	//if len(groups) > 0 {
-	//	//获取用户在群中的信息
-	//	memberList, err := c.db.GetUserInAllGroupMemberList(ctx, c.loginUserID)
-	//	if err != nil {
-	//		log.ZError(ctx, "CompletingConversationInformation get user in group member err", err)
-	//	}
-	//	mapGroupMember := make(map[string]model_struct.LocalGroupMember)
-	//	if len(memberList) > 0 {
-	//		for _, v := range memberList {
-	//			mapGroupMember[v.GroupID] = v
-	//		}
-	//	}
-	//	for _, v := range groups {
-	//		localGroupIds = append(localGroupIds, v.GroupID)
-	//		baseInfo := &cache.BaseInfo{
-	//			FaceURL:  v.FaceURL,
-	//			Nickname: v.GroupName,
-	//		}
-	//		if m, ok := mapGroupMember[v.GroupID]; ok {
-	//			baseInfo.BackgroundURL = m.BackgroundURL
-	//		}
-	//	}
-	//}
-	////取相关id
-	//for _, v := range data {
-	//	if c.IsGroupConversation(v) {
-	//		groupConversationGroupIDs = append(groupConversationGroupIDs, v.GroupID)
-	//	} else {
-	//		split := strings.Split(v.ConversationID, "_")
-	//		if len(split) > 2 {
-	//			singleConversationRevIDs = append(singleConversationRevIDs, split[2])
-	//		} else if len(split) == 2 {
-	//			singleConversationRevIDs = append(singleConversationRevIDs, split[1])
-	//		}
-	//	}
-	//}
-	////取不在好友列表的单聊会话id
-	//if len(singleConversationRevIDs) > len(localFriendIds) {
-	//	notInFriendIds := utils.DifferenceSubsetString(singleConversationRevIDs, localFriendIds)
-	//	profile, err := c.user.FindFullProfile(ctx, notInFriendIds...)
-	//	if err != nil {
-	//		log.ZError(ctx, "CompletingConversationInformation get user in group member err", err)
-	//	}
-	//	if profile != nil && len(profile) > 0 {
-	//		for _, v := range profile {
-	//			mapBaseInfo[v.UserId] = &cache.BaseInfo{
-	//				FaceURL:  v.FaceURL,
-	//				Nickname: v.Nickname,
-	//			}
-	//		}
-	//	}
-	//}
-	////获取不在本地的群信息
-	//if len(groupConversationGroupIDs) > len(localGroupIds) {
-	//	notInGroupIds := utils.DifferenceSubsetString(groupConversationGroupIDs, localGroupIds)
-	//	groupInfos, err := c.group.FindFullGroupInfo(ctx, notInGroupIds...)
-	//	if err != nil {
-	//		log.ZError(ctx, "CompletingConversationInformation get user in group member err", err)
-	//	}
-	//	if groupInfos != nil && len(groupInfos) > 0 {
-	//		for _, v := range groupInfos {
-	//			mapBaseInfo[v.GroupID] = &cache.BaseInfo{
-	//				FaceURL:  v.FaceURL,
-	//				Nickname: v.NickName,
-	//			}
-	//		}
-	//	}
-	//}
-	res := make([]*model_struct.LocalConversation, len(data))
-	for i, v := range data {
-		err := c.addFaceURLAndNameBackgroundURL(ctx, v)
-		if err != nil {
-			log.ZError(ctx, "CompletingConversationInformation addFaceURLAndNameBackgroundURL err", err)
-		}
-		res[i] = v
-	}
-	return res, nil
 }

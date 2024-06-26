@@ -21,9 +21,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/db/model_struct"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/utils"
+
 	"gorm.io/gorm"
-	"open_im_sdk/pkg/db/model_struct"
-	"open_im_sdk/pkg/utils"
 )
 
 func (d *DataBase) InsertGroup(ctx context.Context, groupInfo *model_struct.LocalGroup) error {
@@ -53,36 +54,39 @@ func (d *DataBase) GetJoinedGroupListDB(ctx context.Context) ([]*model_struct.Lo
 	defer d.groupMtx.Unlock()
 	var groupList []model_struct.LocalGroup
 	err := d.conn.WithContext(ctx).Find(&groupList).Error
-	transfer := make([]*model_struct.LocalGroup, 0)
-	if err == gorm.ErrRecordNotFound {
-		return transfer, nil
-	}
+	var transfer []*model_struct.LocalGroup
 	for _, v := range groupList {
 		v1 := v
 		transfer = append(transfer, &v1)
 	}
 	return transfer, utils.Wrap(err, "GetJoinedGroupList failed ")
 }
+
+func (d *DataBase) GetGroups(ctx context.Context, groupIDs []string) ([]*model_struct.LocalGroup, error) {
+	d.groupMtx.Lock()
+	defer d.groupMtx.Unlock()
+	var groupList []model_struct.LocalGroup
+	err := d.conn.WithContext(ctx).Where("group_id in (?)", groupIDs).Find(&groupList).Error
+	var transfer []*model_struct.LocalGroup
+	for _, v := range groupList {
+		v1 := v
+		transfer = append(transfer, &v1)
+	}
+	return transfer, utils.Wrap(err, "GetGroups failed ")
+}
+
 func (d *DataBase) GetGroupInfoByGroupID(ctx context.Context, groupID string) (*model_struct.LocalGroup, error) {
 	d.groupMtx.Lock()
 	defer d.groupMtx.Unlock()
 	var g model_struct.LocalGroup
 	return &g, utils.Wrap(d.conn.WithContext(ctx).Where("group_id = ?", groupID).Take(&g).Error, "GetGroupList failed")
 }
-func (d *DataBase) GetGroupInfoByGroupIDs(ctx context.Context, groupID ...string) ([]*model_struct.LocalGroup, error) {
-	d.groupMtx.Lock()
-	defer d.groupMtx.Unlock()
-	var gr []*model_struct.LocalGroup
-	return gr, utils.Wrap(d.conn.WithContext(ctx).Where("group_id in ?", groupID).Take(&gr).Error, "GetGroupList failed")
-}
-
 func (d *DataBase) GetAllGroupInfoByGroupIDOrGroupName(ctx context.Context, keyword string, isSearchGroupID bool, isSearchGroupName bool) ([]*model_struct.LocalGroup, error) {
 	d.groupMtx.Lock()
 	defer d.groupMtx.Unlock()
 
 	var groupList []model_struct.LocalGroup
 	var condition string
-	//拼接添加
 	if isSearchGroupID {
 		if isSearchGroupName {
 			condition = fmt.Sprintf("group_id like %q or name like %q", "%"+keyword+"%", "%"+keyword+"%")
@@ -113,20 +117,4 @@ func (d *DataBase) SubtractMemberCount(ctx context.Context, groupID string) erro
 	defer d.groupMtx.Unlock()
 	group := model_struct.LocalGroup{GroupID: groupID}
 	return utils.Wrap(d.conn.WithContext(ctx).Model(&group).Updates(map[string]interface{}{"member_count": gorm.Expr("member_count-1")}).Error, "")
-}
-
-// GetGroupUpdateTime 获取群信息
-func (d *DataBase) GetGroupUpdateTime(ctx context.Context) (map[string]int64, error) {
-	d.friendMtx.Lock()
-	defer d.friendMtx.Unlock()
-	var groupList []model_struct.LocalGroup
-	err := utils.Wrap(d.conn.WithContext(ctx).Select("group_id,updated_at").Find(&groupList).Error, "GetGroupUpdateTime failed")
-	if err != nil {
-		return nil, err
-	}
-	res := make(map[string]int64)
-	for _, v := range groupList {
-		res[v.GroupID] = v.UpdatedAt
-	}
-	return res, nil
 }

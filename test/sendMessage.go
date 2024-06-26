@@ -15,12 +15,11 @@
 package test
 
 import (
-	"github.com/imCloud/im/pkg/proto/sdkws"
-	"open_im_sdk/pkg/constant"
-	"open_im_sdk/pkg/log"
-	"open_im_sdk/pkg/utils"
-	//	"open_im_sdk/internal/interaction"
-	"open_im_sdk/internal/login"
+	"github.com/OpenIMSDK/protocol/sdkws"
+	"github.com/OpenIMSDK/tools/log"
+	"github.com/openimsdk/openim-sdk-core/v3/open_im_sdk"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/constant"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/utils"
 )
 
 func init() {
@@ -37,7 +36,7 @@ func init() {
 type CoreNode struct {
 	token             string
 	userID            string
-	mgr               *login.LoginMgr
+	mgr               *open_im_sdk.LoginMgr
 	sendMsgSuccessNum uint32
 	sendMsgFailedNum  uint32
 	idx               int
@@ -129,7 +128,7 @@ func SendTextMessageOnlyForPress(text, senderID, recvID, groupID, operationID st
 	wsMsgData.Options = options
 	wsMsgData.OfflinePushInfo = nil
 	//timeout := 300
-	log.Info(operationID, "SendReqTest begin ", wsMsgData)
+	log.ZInfo(ctx, "SendReqTest begin ", "operationID", operationID, "wsMsgData", wsMsgData)
 	//flag := ws.SendReqTest(&wsMsgData, constant.WSSendMsg, timeout, senderID, operationID)
 	//
 	//if flag != true {

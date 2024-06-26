@@ -20,44 +20,29 @@ package db
 import (
 	"context"
 	"errors"
-	"fmt"
-	"open_im_sdk/pkg/constant"
-	"open_im_sdk/pkg/db/model_struct"
-	"open_im_sdk/pkg/utils"
-	"os"
 	"path/filepath"
 	"sync"
 	"time"
 
-	"github.com/imCloud/im/pkg/common/log"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/constant"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/db/model_struct"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/utils"
+
+	"github.com/OpenIMSDK/tools/log"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
-	glog "gorm.io/gorm/logger"
-	slog "log"
 )
 
-//"github.com/glebarez/sqlite"
-
-var UserDBMap map[string]*DataBase
-
-var UserDBLock sync.RWMutex
-
-func init() {
-	UserDBMap = make(map[string]*DataBase, 0)
-}
-
 type DataBase struct {
-	loginUserID        string
-	dbDir              string
-	conn               *gorm.DB
-	mRWMutex           sync.RWMutex
-	groupMtx           sync.RWMutex
-	friendMtx          sync.RWMutex
-	userMtx            sync.RWMutex
-	superGroupMtx      sync.RWMutex
-	momentsMtx         sync.RWMutex
-	momentsCommentsMtx sync.RWMutex
+	loginUserID   string
+	dbDir         string
+	conn          *gorm.DB
+	mRWMutex      sync.RWMutex
+	groupMtx      sync.RWMutex
+	friendMtx     sync.RWMutex
+	userMtx       sync.RWMutex
+	superGroupMtx sync.RWMutex
 }
 
 func (d *DataBase) GetMultipleMessageReactionExtension(ctx context.Context, msgIDList []string) (result []*model_struct.LocalChatLogReactionExtensions, err error) {
@@ -82,88 +67,31 @@ func (d *DataBase) InitDB(ctx context.Context, userID string, dataDir string) er
 }
 
 func (d *DataBase) Close(ctx context.Context) error {
-	UserDBLock.Lock()
 	dbConn, err := d.conn.WithContext(ctx).DB()
 	if err != nil {
-		// log.Error("", "get db conn failed ", err.Error())
+		return err
 	} else {
 		if dbConn != nil {
-			// log.Info("", "close db finished")
 			err := dbConn.Close()
 			if err != nil {
-				// log.Error("", "close db failed ", err.Error())
+				return err
 			}
 		}
 	}
-	// log.NewInfo("", "CloseDB ok, delete db map ", d.loginUserID)
-	delete(UserDBMap, d.loginUserID)
-	UserDBLock.Unlock()
 	return nil
 }
 
-func NewDataBase(ctx context.Context, loginUserID string, dbDir string) (*DataBase, error) {
-	UserDBLock.Lock()
-	defer UserDBLock.Unlock()
-	dataBase, ok := UserDBMap[loginUserID]
-	if !ok {
-		dataBase = &DataBase{loginUserID: loginUserID, dbDir: dbDir}
-		err := dataBase.initDB(ctx)
-		if err != nil {
-			return dataBase, utils.Wrap(err, "initDB failed "+dbDir)
-		}
-		UserDBMap[loginUserID] = dataBase
-	} else {
-		err := dataBase.open(ctx)
-		if err != nil {
-			return dataBase, utils.Wrap(err, "open db failed "+dbDir)
-		}
+func NewDataBase(ctx context.Context, loginUserID string, dbDir string, logLevel int) (*DataBase, error) {
+	dataBase := &DataBase{loginUserID: loginUserID, dbDir: dbDir}
+	err := dataBase.initDB(ctx, logLevel)
+	if err != nil {
+		return dataBase, utils.Wrap(err, "initDB failed "+dbDir)
 	}
-	dataBase.setChatLogFailedStatus(ctx)
 	return dataBase, nil
 }
 
-func (d *DataBase) setChatLogFailedStatus(ctx context.Context) {
-	msgList, err := d.GetSendingMessageList(ctx)
-	if err != nil {
-		log.ZError(ctx, "GetSendingMessageList failed", err)
-		return
-	}
-	for _, v := range msgList {
-		v.Status = constant.MsgStatusSendFailed
-		//todo
-		err := d.UpdateMessage(ctx, "", v)
-		if err != nil {
-			log.ZError(ctx, "UpdateMessage failed", err, "msg", v)
-			continue
-		}
-	}
-	groupIDList, err := d.GetReadDiffusionGroupIDList(ctx)
-	if err != nil {
-		log.ZError(ctx, "GetReadDiffusionGroupIDList failed", err)
-		return
-	}
-	for _, v := range groupIDList {
-		msgList, err := d.SuperGroupGetSendingMessageList(ctx, v)
-		if err != nil {
-			log.ZError(ctx, "GetSendingMessageList failed", err)
-			return
-		}
-		if len(msgList) > 0 {
-			for _, v := range msgList {
-				v.Status = constant.MsgStatusSendFailed
-				err := d.SuperGroupUpdateMessage(ctx, v)
-				if err != nil {
-					log.ZError(ctx, "UpdateMessage failed", err, "msg", v)
-					continue
-				}
-			}
-		}
-
-	}
-
-}
-
-func (d *DataBase) initDB(ctx context.Context) error {
+func (d *DataBase) initDB(ctx context.Context, logLevel int) error {
+	var zLogLevel logger.LogLevel
 	if d.loginUserID == "" {
 		return errors.New("no uid")
 	}
@@ -178,7 +106,12 @@ func (d *DataBase) initDB(ctx context.Context) error {
 	log.ZInfo(ctx, "sqlite", "path", dbFileName)
 	// slowThreshold := 500
 	// sqlLogger := log.NewSqlLogger(logger.LogLevel(sdk_struct.SvrConf.LogLevel), true, time.Duration(slowThreshold)*time.Millisecond)
-	db, err := gorm.Open(sqlite.Open(dbFileName), &gorm.Config{Logger: log.NewSqlLogger(logger.LogLevel(logger.Silent), false, time.Millisecond*200)})
+	if logLevel > 5 {
+		zLogLevel = logger.Info
+	} else {
+		zLogLevel = logger.Silent
+	}
+	db, err := gorm.Open(sqlite.Open(dbFileName), &gorm.Config{Logger: log.NewSqlLogger(zLogLevel, false, time.Millisecond*200)})
 	if err != nil {
 		return utils.Wrap(err, "open db failed "+dbFileName)
 	}
@@ -187,18 +120,17 @@ func (d *DataBase) initDB(ctx context.Context) error {
 	if err != nil {
 		return utils.Wrap(err, "get sql db failed")
 	}
+
 	sqlDB.SetConnMaxLifetime(time.Hour * 1)
 	sqlDB.SetMaxOpenConns(3)
 	sqlDB.SetMaxIdleConns(2)
 	sqlDB.SetConnMaxIdleTime(time.Minute * 10)
 	d.conn = db
 
-	superGroup := &model_struct.LocalGroup{}
-	localGroup := &model_struct.LocalGroup{}
-
-	err = db.AutoMigrate(&model_struct.LocalFriend{},
+	err = db.AutoMigrate(
+		&model_struct.LocalFriend{},
 		&model_struct.LocalFriendRequest{},
-		localGroup,
+		&model_struct.LocalGroup{},
 		&model_struct.LocalGroupMember{},
 		&model_struct.LocalGroupRequest{},
 		&model_struct.LocalErrChatLog{},
@@ -213,89 +145,27 @@ func (d *DataBase) initDB(ctx context.Context) error {
 		&model_struct.TempCacheLocalChatLog{},
 		&model_struct.LocalChatLogReactionExtensions{},
 		&model_struct.LocalUpload{},
-		&model_struct.LocalMoments{},
-		&model_struct.LocalMomentsComments{},
+		&model_struct.LocalStranger{},
+		&model_struct.LocalSendingMessages{},
+		&model_struct.LocalUserCommand{},
 	)
 	if err != nil {
 		return err
 	}
-	if err := db.Table(constant.SuperGroupTableName).AutoMigrate(superGroup); err != nil {
-		return err
-	}
-	conversationIDs, err := d.FindAllConversationConversationID(ctx)
-	if err != nil {
-		log.ZError(ctx, "FindAllConversationConversationID err", err)
-	}
-	for _, v := range conversationIDs {
-		d.conn.WithContext(ctx).Table(utils.GetTableName(v)).AutoMigrate(&model_struct.LocalChatLog{})
-		var count int64
-		_ = db.Raw(fmt.Sprintf("SELECT COUNT(*) AS count FROM sqlite_master WHERE type = 'index' AND name ='%s' AND tbl_name = '%s'",
-			"index_seq_"+v, utils.GetTableName(v))).Row().Scan(&count)
-		if count == 0 {
-			result := db.Exec(fmt.Sprintf("CREATE INDEX %s ON %s (seq)", "index_seq_"+v, utils.GetTableName(v)))
-			if result.Error != nil {
-				log.ZError(ctx, "create table seq index failed", result.Error, "conversationID", v)
-			}
-		}
-		var count2 int64
-		_ = db.Raw(fmt.Sprintf("SELECT COUNT(*) AS count FROM sqlite_master WHERE type = 'index' AND name ='%s' AND tbl_name = '%s'",
-			"index_send_time_"+v, utils.GetTableName(v))).Row().Scan(&count)
-		if count2 == 0 {
-			result := db.Exec(fmt.Sprintf("CREATE INDEX %s ON %s (send_time)", "index_send_time_"+v, utils.GetTableName(v)))
-			if result.Error != nil {
-				log.ZError(ctx, "create table send_time index failed", result.Error, "conversationID", v)
-			}
-		}
+	//if err := db.Table(constant.SuperGroupTableName).AutoMigrate(superGroup); err != nil {
+	//	return err
+	//}
 
-	}
-	if err := d.InitWorkMomentsNotificationUnreadCount(ctx); err != nil {
-		log.ZError(ctx, "init InitWorkMomentsNotificationUnreadCount failed", err)
-	}
 	return nil
 }
 
-func (d *DataBase) open(ctx context.Context) error {
-	if d.loginUserID == "" {
-		return errors.New("no uid")
-	}
-	d.mRWMutex.Lock()
-	defer d.mRWMutex.Unlock()
-
-	path := d.dbDir + "/OpenIM_" + constant.BigVersion + "_" + d.loginUserID + ".db"
-	dbFileName, err := filepath.Abs(path)
-	if err != nil {
-		return err
-	}
-	log.ZInfo(ctx, "sqlite", "path", dbFileName)
-	db, err := gorm.Open(sqlite.Open(dbFileName), &gorm.Config{
-		Logger: func() glog.Interface {
-			return glog.New(
-				slog.New(os.Stdout, "\r\n", slog.LstdFlags), // io producer
-				glog.Config{
-					SlowThreshold:             time.Second, // 慢查询 SQL 阈值
-					IgnoreRecordNotFoundError: false,
-					LogLevel:                  glog.Info, // Log lever
-				},
-			)
-		}(),
-		//NamingStrategy: schema.NamingStrategy{
-		//	SingularTable: true, //取消复数表明
-		//},
-		DisableForeignKeyConstraintWhenMigrating: true, //禁用主外健迁移
-		QueryFields:                              true,
-	})
-	if err != nil {
-		return utils.Wrap(err, "open db failed "+dbFileName)
-	}
-	log.ZDebug(ctx, "open db success", "db", db, "dbFileName", dbFileName)
-	sqlDB, err := db.DB()
-	if err != nil {
-		return utils.Wrap(err, "get sql db failed")
-	}
-	sqlDB.SetConnMaxLifetime(time.Hour * 1)
-	sqlDB.SetMaxOpenConns(3)
-	sqlDB.SetMaxIdleConns(2)
-	sqlDB.SetConnMaxIdleTime(time.Minute * 10)
-	d.conn = db
-	return nil
+func (d *DataBase) versionDataFix(ctx context.Context) {
+	//todo some model auto migrate data conversion
+	//conversationIDs, err := d.FindAllConversationConversationID(ctx)
+	//if err != nil {
+	//	log.ZError(ctx, "FindAllConversationConversationID err", err)
+	//}
+	//for _, conversationID := range conversationIDs {
+	//	d.conn.WithContext(ctx).Table(utils.GetTableName(conversationID)).AutoMigrate(&model_struct.LocalChatLog{})
+	//}
 }

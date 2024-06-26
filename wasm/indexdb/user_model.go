@@ -19,13 +19,13 @@ package indexdb
 
 import (
 	"context"
-	"open_im_sdk/wasm/exec"
+	"github.com/openimsdk/openim-sdk-core/v3/wasm/exec"
 )
 
 import (
-	"open_im_sdk/pkg/db/model_struct"
-	"open_im_sdk/pkg/utils"
-	"open_im_sdk/wasm/indexdb/temp_struct"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/db/model_struct"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/utils"
+	"github.com/openimsdk/openim-sdk-core/v3/wasm/indexdb/temp_struct"
 	"time"
 )
 
@@ -51,24 +51,16 @@ func (l *LocalUsers) GetLoginUser(ctx context.Context, userID string) (*model_st
 			result.UserID = temp.UserID
 			result.Nickname = temp.Nickname
 			result.FaceURL = temp.FaceURL
-			result.CreateTime = temp.CreateAt
+			result.CreateTime = temp.CreateTime
 			result.AppMangerLevel = temp.AppMangerLevel
 			result.Ex = temp.Ex
 			result.AttachedInfo = temp.Ex
 			result.GlobalRecvMsgOpt = temp.GlobalRecvMsgOpt
-			result.Message = temp.Message
-			result.Code = temp.Code
-			result.Phone = temp.Phone
-			result.Email = temp.Email
-			result.Birth = temp.Birth
-			result.Gender = temp.Gender
-			result.ShareCode = temp.ShareCode
-			result.LastLogin = temp.LastLogin
-			result.Options = temp.Options
 			return &result, err
 		} else {
 			return nil, exec.ErrType
 		}
+
 	}
 }
 
@@ -94,7 +86,7 @@ func (l *LocalUsers) InsertLoginUser(ctx context.Context, user *model_struct.Loc
 	temp.UserID = user.UserID
 	temp.Nickname = user.Nickname
 	temp.FaceURL = user.FaceURL
-	temp.CreateAt = user.CreateTime
+	temp.CreateTime = user.CreateTime
 	temp.AppMangerLevel = user.AppMangerLevel
 	temp.Ex = user.Ex
 	temp.AttachedInfo = user.Ex

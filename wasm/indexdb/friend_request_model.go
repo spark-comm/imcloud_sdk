@@ -19,11 +19,10 @@ package indexdb
 
 import (
 	"context"
-	"open_im_sdk/pkg/db/model_struct"
-	"open_im_sdk/pkg/db/pg"
-	"open_im_sdk/pkg/utils"
-	"open_im_sdk/wasm/exec"
-	"open_im_sdk/wasm/indexdb/temp_struct"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/db/model_struct"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/utils"
+	"github.com/openimsdk/openim-sdk-core/v3/wasm/exec"
+	"github.com/openimsdk/openim-sdk-core/v3/wasm/indexdb/temp_struct"
 )
 
 type FriendRequest struct {
@@ -54,7 +53,7 @@ func (i FriendRequest) UpdateFriendRequest(ctx context.Context, friendRequest *m
 		ToFaceURL:     friendRequest.ToFaceURL,
 		HandleResult:  friendRequest.HandleResult,
 		ReqMsg:        friendRequest.ReqMsg,
-		CreateAt:      friendRequest.CreateAt,
+		CreateTime:    friendRequest.CreateTime,
 		HandlerUserID: friendRequest.HandlerUserID,
 		HandleMsg:     friendRequest.HandleMsg,
 		HandleTime:    friendRequest.HandleTime,
@@ -115,15 +114,12 @@ func (i FriendRequest) GetFriendApplicationByBothID(ctx context.Context, fromUse
 		return nil, err
 	} else {
 		if v, ok := c.(string); ok {
-			result := []model_struct.LocalFriendRequest{}
+			result := model_struct.LocalFriendRequest{}
 			err := utils.JsonStringToStruct(v, &result)
 			if err != nil {
 				return nil, err
 			}
-			if len(result) > 0 {
-				return &result[0], err
-			}
-			return &model_struct.LocalFriendRequest{}, err
+			return &result, err
 		} else {
 			return nil, exec.ErrType
 		}
@@ -150,14 +146,4 @@ func (i FriendRequest) GetBothFriendReq(ctx context.Context, fromUserID, toUserI
 			return nil, exec.ErrType
 		}
 	}
-}
-
-// GetRecvFriendApplicationList 分页获取我收到的好友请求
-func (i FriendRequest) GetRecvFriendApplicationList(ctx context.Context, page *pg.Page) ([]*model_struct.LocalFriendRequest, error) {
-	return nil, nil
-}
-
-// GetSendFriendApplicationList 分页获取我发送的好友请求
-func (i FriendRequest) GetSendFriendApplicationList(ctx context.Context, page *pg.Page) ([]*model_struct.LocalFriendRequest, error) {
-	return nil, nil
 }

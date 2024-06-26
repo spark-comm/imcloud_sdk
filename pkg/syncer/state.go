@@ -14,10 +14,7 @@
 
 package syncer
 
-type SyncTag int
-
 const (
-	// Unchanged 未改变
 	Unchanged = 0
 	Insert    = 1
 	Update    = 2

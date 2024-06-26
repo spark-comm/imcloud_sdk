@@ -15,9 +15,9 @@
 package test
 
 import (
-	"open_im_sdk/pkg/utils"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/utils"
 
-	"github.com/imCloud/im/pkg/common/log"
+	"github.com/OpenIMSDK/tools/log"
 	"golang.org/x/net/context"
 )
 

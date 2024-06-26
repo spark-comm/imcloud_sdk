@@ -16,48 +16,44 @@ package user
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"github.com/golang/protobuf/ptypes/empty"
-	"open_im_sdk/internal/util"
-	"open_im_sdk/pkg/db/db_interface"
-	"open_im_sdk/pkg/db/model_struct"
-	"open_im_sdk/pkg/sdkerrs"
-	"open_im_sdk/pkg/syncer"
+	"github.com/OpenIMSDK/protocol/sdkws"
+	userPb "github.com/OpenIMSDK/protocol/user"
+	"github.com/OpenIMSDK/tools/log"
+	usermodel "github.com/miliao_apis/api/common/model/user/v2"
+	imUserPb "github.com/miliao_apis/api/im_cloud/user/v2"
+	"github.com/openimsdk/openim-sdk-core/v3/internal/cache"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/db/db_interface"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/db/model_struct"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/sdkerrs"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/server_api"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/syncer"
 
-	"open_im_sdk/open_im_sdk_callback"
-	"open_im_sdk/pkg/common"
-	"open_im_sdk/pkg/constant"
-	"open_im_sdk/pkg/utils"
-
-	imUserPb "github.com/imCloud/api/user/v1"
-	"github.com/imCloud/im/pkg/common/log"
-	authPb "github.com/imCloud/im/pkg/proto/auth"
-	"github.com/imCloud/im/pkg/proto/sdkws"
+	"github.com/openimsdk/openim-sdk-core/v3/open_im_sdk_callback"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/common"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/constant"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/utils"
 )
+
+type BasicInfo struct {
+	Nickname string
+	FaceURL  string
+}
 
 // User is a struct that represents a user in the system.
 type User struct {
 	db_interface.DataBase
-	loginUserID    string
-	listener       open_im_sdk_callback.OnUserListener
-	loginTime      int64
-	userSyncer     *syncer.Syncer[*model_struct.LocalUser, string]
-	conversationCh chan common.Cmd2Value
-}
-
-// LoginTime gets the login time of the user.
-func (u *User) LoginTime() int64 {
-	return u.loginTime
-}
-
-// SetLoginTime sets the login time of the user.
-func (u *User) SetLoginTime(loginTime int64) {
-	u.loginTime = loginTime
+	loginUserID       string
+	listener          func() open_im_sdk_callback.OnUserListener
+	userSyncer        *syncer.Syncer[*model_struct.LocalUser, string]
+	commandSyncer     *syncer.Syncer[*model_struct.LocalUserCommand, string]
+	conversationCh    chan common.Cmd2Value
+	UserBasicCache    *cache.Cache[string, *BasicInfo]
+	OnlineStatusCache *cache.Cache[string, *userPb.OnlineStatus]
 }
 
 // SetListener sets the user's listener.
-func (u *User) SetListener(listener open_im_sdk_callback.OnUserListener) {
+func (u *User) SetListener(listener func() open_im_sdk_callback.OnUserListener) {
 	u.listener = listener
 }
 
@@ -65,6 +61,8 @@ func (u *User) SetListener(listener open_im_sdk_callback.OnUserListener) {
 func NewUser(dataBase db_interface.DataBase, loginUserID string, conversationCh chan common.Cmd2Value) *User {
 	user := &User{DataBase: dataBase, loginUserID: loginUserID, conversationCh: conversationCh}
 	user.initSyncer()
+	user.UserBasicCache = cache.NewCache[string, *BasicInfo]()
+	user.OnlineStatusCache = cache.NewCache[string, *userPb.OnlineStatus]()
 	return user
 }
 
@@ -84,16 +82,58 @@ func (u *User) initSyncer() {
 		},
 		nil,
 		func(ctx context.Context, state int, server, local *model_struct.LocalUser) error {
+			switch state {
+			case syncer.Update:
+				u.listener().OnSelfInfoUpdated(utils.StructToJsonString(server))
+				if server.Nickname != local.Nickname || server.FaceURL != local.FaceURL {
+					_ = common.TriggerCmdUpdateMessage(ctx, common.UpdateMessageNode{Action: constant.UpdateMsgFaceUrlAndNickName,
+						Args: common.UpdateMessageInfo{SessionType: constant.SingleChatType, UserID: server.UserID, FaceURL: server.FaceURL, Nickname: server.Nickname}}, u.conversationCh)
+				}
+			}
+			return nil
+		},
+	)
+	u.commandSyncer = syncer.New(
+		func(ctx context.Context, command *model_struct.LocalUserCommand) error {
+			// Logic to insert a command
+			return u.DataBase.ProcessUserCommandAdd(ctx, command)
+		},
+		func(ctx context.Context, command *model_struct.LocalUserCommand) error {
+			// Logic to delete a command
+			return u.DataBase.ProcessUserCommandDelete(ctx, command)
+		},
+		func(ctx context.Context, serverCommand *model_struct.LocalUserCommand, localCommand *model_struct.LocalUserCommand) error {
+			// Logic to update a command
+			if serverCommand == nil || localCommand == nil {
+				return fmt.Errorf("nil command reference")
+			}
+			return u.DataBase.ProcessUserCommandUpdate(ctx, serverCommand)
+		},
+		func(command *model_struct.LocalUserCommand) string {
+			// Return a unique identifier for the command
+			if command == nil {
+				return ""
+			}
+			return command.Uuid
+		},
+		func(a *model_struct.LocalUserCommand, b *model_struct.LocalUserCommand) bool {
+			// Compare two commands to check if they are equal
+			if a == nil || b == nil {
+				return false
+			}
+			return a.Uuid == b.Uuid && a.Type == b.Type && a.Value == b.Value
+		},
+		func(ctx context.Context, state int, serverCommand *model_struct.LocalUserCommand, localCommand *model_struct.LocalUserCommand) error {
 			if u.listener == nil {
 				return nil
 			}
 			switch state {
+			case syncer.Delete:
+				u.listener().OnUserCommandDelete(utils.StructToJsonString(serverCommand))
 			case syncer.Update:
-				u.listener.OnSelfInfoUpdated(utils.StructToJsonString(server))
-				if server.Nickname != local.Nickname || server.FaceURL != local.FaceURL {
-					_ = common.TriggerCmdUpdateMessage(ctx, common.UpdateMessageNode{Action: constant.UpdateMsgFaceUrlAndNickName,
-						Args: common.UpdateMessageInfo{UserID: server.UserID, FaceURL: server.FaceURL, Nickname: server.Nickname}}, u.conversationCh)
-				}
+				u.listener().OnUserCommandUpdate(utils.StructToJsonString(serverCommand))
+			case syncer.Insert:
+				u.listener().OnUserCommandAdd(utils.StructToJsonString(serverCommand))
 			}
 			return nil
 		},
@@ -103,19 +143,18 @@ func (u *User) initSyncer() {
 // DoNotification handles incoming notifications for the user.
 func (u *User) DoNotification(ctx context.Context, msg *sdkws.MsgData) {
 	log.ZDebug(ctx, "user notification", "msg", *msg)
-	if u.listener == nil {
-		// log.Error(operationID, "listener == nil")
-		return
-	}
-	//小于用户的登录时间忽略通知
-	if msg.SendTime < u.loginTime {
-		log.ZWarn(ctx, "ignore notification ", nil, "msg", *msg)
-		return
-	}
 	go func() {
 		switch msg.ContentType {
 		case constant.UserInfoUpdatedNotification:
 			u.userInfoUpdatedNotification(ctx, msg)
+		case constant.UserStatusChangeNotification:
+			u.userStatusChangeNotification(ctx, msg)
+		case constant.UserCommandAddNotification:
+			u.userCommandAddNotification(ctx, msg)
+		case constant.UserCommandDeleteNotification:
+			u.userCommandDeleteNotification(ctx, msg)
+		case constant.UserCommandUpdateNotification:
+			u.userCommandUpdateNotification(ctx, msg)
 		default:
 			// log.Error(operationID, "type failed ", msg.ClientMsgID, msg.ServerMsgID, msg.ContentType)
 		}
@@ -138,28 +177,64 @@ func (u *User) userInfoUpdatedNotification(ctx context.Context, msg *sdkws.MsgDa
 	}
 }
 
-// GetUsersInfoFromSvr retrieves user information from the server.
-func (u *User) GetUsersInfoFromSvr(ctx context.Context, userIDs []string) ([]*model_struct.LocalUser, error) {
-	//resp, err := util.CallApi[imUserPb.FindProfileByUserReply](ctx, constant.GetUsersInfoRouter,
-	//	imUserPb.FindProfileByUserReq{UserIds: userIDs})
-	resp := &imUserPb.FindProfileByUserReply{}
-	err := util.CallPostApi[*imUserPb.FindProfileByUserReq, *imUserPb.FindProfileByUserReply](
-		ctx, constant.GetUsersInfoRouter,
-		&imUserPb.FindProfileByUserReq{UserIds: userIDs},
-		resp,
-	)
-	if err != nil {
-		return nil, sdkerrs.Warp(err, "GetUsersInfoFromSvr failed")
+// userStatusChangeNotification get subscriber status change callback
+func (u *User) userStatusChangeNotification(ctx context.Context, msg *sdkws.MsgData) {
+	log.ZDebug(ctx, "userStatusChangeNotification", "msg", *msg)
+	tips := sdkws.UserStatusChangeTips{}
+	if err := utils.UnmarshalNotificationElem(msg.Content, &tips); err != nil {
+		log.ZError(ctx, "comm.UnmarshalTips failed", err, "msg", msg.Content)
+		return
 	}
-	//信息转换
-	conversion, err := util.BatchConversion(ServerUserToLocalUser, resp.List)
-	if err != nil {
-		return nil, sdkerrs.Warp(err, "GetUsersInfoFromSvr failed")
+	if tips.FromUserID == u.loginUserID {
+		log.ZDebug(ctx, "self terminal login", "tips", tips)
+		return
 	}
-	return conversion, nil
+	u.SyncUserStatus(ctx, tips.FromUserID, tips.Status, tips.PlatformID)
 }
 
-// GetUsersInfoFromSvrNoCallback retrieves user information from the server.
+// userCommandAddNotification handle notification when user add favorite
+func (u *User) userCommandAddNotification(ctx context.Context, msg *sdkws.MsgData) {
+	log.ZDebug(ctx, "userCommandAddNotification", "msg", *msg)
+	tip := sdkws.UserCommandAddTips{}
+	if tip.ToUserID == u.loginUserID {
+		u.SyncAllCommand(ctx)
+	} else {
+		log.ZDebug(ctx, "ToUserID != u.loginUserID, do nothing", "detail.UserID", tip.ToUserID, "u.loginUserID", u.loginUserID)
+	}
+}
+
+// userCommandDeleteNotification handle notification when user delete favorite
+func (u *User) userCommandDeleteNotification(ctx context.Context, msg *sdkws.MsgData) {
+	log.ZDebug(ctx, "userCommandAddNotification", "msg", *msg)
+	tip := sdkws.UserCommandDeleteTips{}
+	if tip.ToUserID == u.loginUserID {
+		u.SyncAllCommand(ctx)
+	} else {
+		log.ZDebug(ctx, "ToUserID != u.loginUserID, do nothing", "detail.UserID", tip.ToUserID, "u.loginUserID", u.loginUserID)
+	}
+}
+
+// userCommandUpdateNotification handle notification when user update favorite
+func (u *User) userCommandUpdateNotification(ctx context.Context, msg *sdkws.MsgData) {
+	log.ZDebug(ctx, "userCommandAddNotification", "msg", *msg)
+	tip := sdkws.UserCommandUpdateTips{}
+	if tip.ToUserID == u.loginUserID {
+		u.SyncAllCommand(ctx)
+	} else {
+		log.ZDebug(ctx, "ToUserID != u.loginUserID, do nothing", "detail.UserID", tip.ToUserID, "u.loginUserID", u.loginUserID)
+	}
+}
+
+// GetUsersInfoFromSvr retrieves user information from the server.
+func (u *User) GetUsersInfoFromSvr(ctx context.Context, userIDs []string) ([]*model_struct.LocalUser, error) {
+	resp, err := server_api.GetServerUserInfo(ctx, userIDs)
+	if err != nil {
+		return nil, sdkerrs.Warp(err, "GetUsersInfoFromSvr failed")
+	}
+	return resp, nil
+}
+
+// GetSingleUserFromSvr retrieves user information from the server.
 func (u *User) GetSingleUserFromSvr(ctx context.Context, userID string) (*model_struct.LocalUser, error) {
 	users, err := u.GetUsersInfoFromSvr(ctx, []string{userID})
 	if err != nil {
@@ -173,270 +248,147 @@ func (u *User) GetSingleUserFromSvr(ctx context.Context, userID string) (*model_
 
 // getSelfUserInfo retrieves the user's information.
 func (u *User) getSelfUserInfo(ctx context.Context) (*model_struct.LocalUser, error) {
-	userInfo, err := u.GetSelfUserInfoFromSvr(ctx)
-	if err != nil {
-		userInfo, err = u.GetLoginUser(ctx, u.loginUserID)
-		if err != nil {
-			log.ZError(ctx, fmt.Sprintf("登录的用户id:%s", u.loginUserID), nil)
-			srvUserInfo, errServer := u.GetSelfUserInfoFromSvr(ctx)
-			if errServer != nil {
-				return nil, errServer
-			}
-			log.ZError(ctx, fmt.Sprintf("服务端返回的数据:%s", utils.StructToJsonString(srvUserInfo)), nil)
-			if srvUserInfo == nil {
-				return nil, sdkerrs.ErrUserIDNotFound
-			}
-			userInfo = srvUserInfo
-			_ = u.InsertLoginUser(ctx, userInfo)
+	userInfo, errLocal := u.GetLoginUser(ctx, u.loginUserID)
+	if errLocal != nil {
+		srvUserInfo, errServer := u.GetServerUserInfo(ctx, []string{u.loginUserID})
+		if errServer != nil {
+			return nil, errServer
 		}
-	}
-	//填充默认options
-	if userInfo.Options == "" {
-		option, err := u.getDefUserOption()
-		if err != nil {
-			return nil, err
+		if len(srvUserInfo) == 0 {
+			return nil, sdkerrs.ErrUserIDNotFound
 		}
-		userInfo.Options = option
+		userInfo = srvUserInfo[0]
+		_ = u.InsertLoginUser(ctx, userInfo)
 	}
 	return userInfo, nil
-}
-
-// searchUser search user info.
-func (u *User) searchUser(ctx context.Context, searchValue string, searchType int) (*model_struct.LocalUser, error) {
-	//res, err := util.CallApi[imUserPb.SearchProfileReply](ctx, constant.SearchUserInfoRouter,
-	//	&imUserPb.SearchProfileReq{SearchValue: searchValue, Type: int32(searchType)})
-	log.ZInfo(ctx, "searchUser", searchValue, searchType)
-	res := &imUserPb.SearchProfileReply{}
-	err := util.CallPostApi[*imUserPb.SearchProfileReq, *imUserPb.SearchProfileReply](
-		ctx, constant.SearchUserInfoRouter,
-		&imUserPb.SearchProfileReq{SearchValue: searchValue, Type: int32(searchType)},
-		res,
-	)
-	if err != nil {
-		return nil, err
-	}
-	user, err := ServerUserToLocalUser(res.Profile)
-	if err != nil {
-		return nil, err
-	}
-	return user, nil
-}
-
-// ParseTokenFromSvr parses a token from the server.
-func (u *User) ParseTokenFromSvr(ctx context.Context) (int64, error) {
-	//resp, err := util.CallApi[authPb.ParseTokenResp](ctx, constant.ParseTokenRouter, authPb.ParseTokenReq{})
-	resp := &authPb.ParseTokenResp{}
-	err := util.CallPostApi[*authPb.ParseTokenReq, *authPb.ParseTokenResp](
-		ctx, constant.ParseTokenRouter,
-		&authPb.ParseTokenReq{},
-		resp,
-	)
-	return resp.ExpireTimeSeconds, err
-}
-
-// GetServerUserInfo retrieves user information from the server.
-func (u *User) GetServerUserInfo(ctx context.Context, userIDs []string) ([]*imUserPb.ProfileReply, error) {
-	//resp, err := util.CallApi[imUserPb.FindProfileByUserReply](ctx, constant.GetUsersInfoRouter,
-	//	&userPb.GetDesignateUsersReq{UserIDs: userIDs})
-	resp := &imUserPb.FindProfileByUserReply{}
-	err := util.CallPostApi[*imUserPb.FindProfileByUserReq, *imUserPb.FindProfileByUserReply](
-		ctx, constant.GetUsersInfoRouter,
-		&imUserPb.FindProfileByUserReq{UserIds: userIDs},
-		resp,
-	)
-	if err != nil {
-		return nil, err
-	}
-	return resp.List, nil
 }
 
 // updateSelfUserInfo updates the user's information.
 func (u *User) updateSelfUserInfo(ctx context.Context, userInfo *imUserPb.UpdateProfileReq) error {
 	userInfo.UserId = u.loginUserID
-	//if err := util.ApiPost(ctx, constant.UpdateSelfUserInfoRouter, userInfo, nil); err != nil {
-	//	return err
-	//}
-	if _, err := util.ProtoApiPost[imUserPb.UpdateProfileReq, empty.Empty](
-		ctx,
-		constant.UpdateSelfUserInfoRouter,
-		userInfo,
-	); err != nil {
+	if err := server_api.UpdateSelfUserInfo(ctx, userInfo); err != nil {
 		return err
 	}
 	_ = u.SyncLoginUserInfo(ctx)
 	return nil
 }
 
-func (u *User) getUserLoginStatus(ctx context.Context, userIDs string) (*imUserPb.GetUserLoginStatusReps, error) {
-	//resp := &imUserPb.GetUserLoginStatusReps{}
-	//err := util.ApiPost(ctx, constant.GetUserLoginStatusRouter, &imUserPb.GetUserLoginStatusReq{
-	//	UserID: userIDs,
-	//}, resp)
-	resp, err := util.ProtoApiPost[imUserPb.GetUserLoginStatusReq, imUserPb.GetUserLoginStatusReps](
-		ctx,
-		constant.GetUserLoginStatusRouter,
-		&imUserPb.GetUserLoginStatusReq{
-			UserID: userIDs,
-		},
-	)
-	if err != nil {
-		return nil, err
-	}
-	return resp, nil
+// updateSelfUserInfoEx updates the user's information with Ex field.
+func (u *User) updateSelfUserInfoEx(ctx context.Context, userInfo *sdkws.UserInfoWithEx) error {
+	//userInfo.UserID = u.loginUserID
+	//if err := util.ApiPost(ctx, constant.UpdateSelfUserInfoExRouter, userPb.UpdateUserInfoExReq{UserInfo: userInfo}, nil); err != nil {
+	//	return err
+	//}
+	//_ = u.SyncLoginUserInfo(ctx)
+	return nil
 }
 
-func (u *User) setUsersOption(ctx context.Context, option string, value int32) error {
-	//err := util.ApiPost(ctx, constant.SetUsersOption, &server_api_params.SetOptionReqReq{
+// CRUD user command
+func (u *User) ProcessUserCommandAdd(ctx context.Context, userCommand *userPb.ProcessUserCommandAddReq) error {
+	//if err := util.ApiPost(ctx, constant.ProcessUserCommandAdd, userPb.ProcessUserCommandAddReq{UserID: u.loginUserID, Type: userCommand.Type, Uuid: userCommand.Uuid, Value: userCommand.Value}, nil); err != nil {
+	//	return err
+	//}
+	//return u.SyncAllCommand(ctx)
+	return nil
+}
+
+// ProcessUserCommandDelete delete user's choice
+func (u *User) ProcessUserCommandDelete(ctx context.Context, userCommand *userPb.ProcessUserCommandDeleteReq) error {
+	//if err := util.ApiPost(ctx, constant.ProcessUserCommandDelete, userPb.ProcessUserCommandDeleteReq{UserID: u.loginUserID,
+	//	Type: userCommand.Type, Uuid: userCommand.Uuid}, nil); err != nil {
+	//	return err
+	//}
+	//return u.SyncAllCommand(ctx)
+	return nil
+}
+
+// ProcessUserCommandUpdate update user's choice
+func (u *User) ProcessUserCommandUpdate(ctx context.Context, userCommand *userPb.ProcessUserCommandUpdateReq) error {
+	//if err := util.ApiPost(ctx, constant.ProcessUserCommandUpdate, userPb.ProcessUserCommandUpdateReq{UserID: u.loginUserID,
+	//	Type: userCommand.Type, Uuid: userCommand.Uuid, Value: userCommand.Value}, nil); err != nil {
+	//	return err
+	//}
+	//return u.SyncAllCommand(ctx)
+	return nil
+}
+
+// ProcessUserCommandGet get user's choice
+func (u *User) ProcessUserCommandGetAll(ctx context.Context) ([]*userPb.CommandInfoResp, error) {
+	localCommands, err := u.DataBase.ProcessUserCommandGetAll(ctx)
+	if err != nil {
+		return nil, err // Handle the error appropriately
+	}
+
+	var result []*userPb.CommandInfoResp
+	for _, localCommand := range localCommands {
+		result = append(result, &userPb.CommandInfoResp{
+			Type:       localCommand.Type,
+			CreateTime: localCommand.CreateTime,
+			Uuid:       localCommand.Uuid,
+			Value:      localCommand.Value,
+		})
+	}
+
+	return result, nil
+}
+
+// ParseTokenFromSvr parses a token from the server.
+func (u *User) ParseTokenFromSvr(ctx context.Context) (int64, error) {
+	return server_api.ParseTokenFromSvr(ctx)
+}
+
+// GetServerUserInfo retrieves user information from the server.
+func (u *User) GetServerUserInfo(ctx context.Context, userIDs []string) ([]*model_struct.LocalUser, error) {
+	return server_api.GetServerUserInfo(ctx, userIDs)
+}
+
+// subscribeUsersStatus Presence status of subscribed users.
+func (u *User) subscribeUsersStatus(ctx context.Context, userIDs []string) ([]*userPb.OnlineStatus, error) {
+	//resp, err := util.CallApi[userPb.SubscribeOrCancelUsersStatusResp](ctx, constant.SubscribeUsersStatusRouter, &userPb.SubscribeOrCancelUsersStatusReq{
+	//	UserID:  u.loginUserID,
+	//	UserIDs: userIDs,
+	//	Genre:   PbConstant.SubscriberUser,
+	//})
+	//if err != nil {
+	//	return nil, err
+	//}
+	//return resp.StatusList, nil
+	return nil, nil
+}
+
+// unsubscribeUsersStatus Unsubscribe a user's presence.
+func (u *User) unsubscribeUsersStatus(ctx context.Context, userIDs []string) error {
+	//_, err := util.CallApi[userPb.SubscribeOrCancelUsersStatusResp](ctx, constant.SubscribeUsersStatusRouter, &userPb.SubscribeOrCancelUsersStatusReq{
+	//	UserID:  u.loginUserID,
+	//	UserIDs: userIDs,
+	//	Genre:   PbConstant.Unsubscribe,
+	//})
+	//if err != nil {
+	//	return err
+	//}
+	return nil
+}
+
+// getSubscribeUsersStatus Get the online status of subscribers.
+func (u *User) getSubscribeUsersStatus(ctx context.Context) ([]*userPb.OnlineStatus, error) {
+	//resp, err := util.CallApi[userPb.GetSubscribeUsersStatusResp](ctx, constant.GetSubscribeUsersStatusRouter, &userPb.GetSubscribeUsersStatusReq{
 	//	UserID: u.loginUserID,
-	//	Option: option,
-	//	Value:  value,
-	//}, nil)
-	//
-	_, err := util.ProtoApiPost[imUserPb.SetOptionReqReq, empty.Empty](
-		ctx,
-		constant.SetUsersOption,
-		&imUserPb.SetOptionReqReq{
-			UserID: u.loginUserID,
-			Option: option,
-			Value:  value,
-		},
-	)
-	if err != nil {
-		return err
-	}
-	_ = u.SyncLoginUserInfo(ctx)
-	return nil
+	//})
+	//if err != nil {
+	//	return nil, err
+	//}
+	//return resp.StatusList, nil
+	return nil, nil
 }
 
-func (u *User) screenUserProfile(ctx context.Context, keyWord string) ([]*imUserPb.ScreenUserInfo, error) {
-	resp, err := util.ProtoApiPost[imUserPb.ScreenUserInfoReq, imUserPb.ScreenUserInfoResp](
-		ctx,
-		constant.ScreenUserProfile,
-		&imUserPb.ScreenUserInfoReq{
-			KeyWord: keyWord,
-		},
-	)
+// getUserStatus Get the online status of users.
+func (u *User) getUserStatus(ctx context.Context, userID string) (*usermodel.OnlineStatus, error) {
+	resp, err := server_api.GetUserLoginStatus(ctx, userID)
 	if err != nil {
 		return nil, err
 	}
-	return resp.List, nil
-}
-
-const (
-	WalletOperation = "is_open_wallet"
-)
-
-func (u *User) syncUserOperation(ctx context.Context) error {
-	//获取远程operation数据
-	//resp := imUserPb.GetOperationResp{}
-	//err := util.ApiPost(ctx, constant.GetUserOperation, &imUserPb.GetOperationReq{
-	//	OperationKeyWord: []string{
-	//		WalletOperation, //只获取钱包数据
-	//	},
-	//}, &resp)
-	//resp, err := util.ProtoApiPost[imUserPb.GetOperationReq, imUserPb.GetOperationResp](
-	//	ctx,
-	//	constant.GetUserOperation,
-	//	&imUserPb.GetOperationReq{},
-	//)
-	//if err != nil {
-	//	return err
-	//}
-	//respMap := resp.UserOperationMap
-	//if _, ok := respMap[WalletOperation]; !ok {
-	//	return nil
-	//}
-	////获取本地数据比对
-	//localUser, err := u.GetLoginUser(ctx, u.loginUserID)
-	//if err != nil {
-	//	return err
-	//}
-	//marshal, err := json.Marshal(respMap)
-	//if err != nil {
-	//	return err
-	//}
-	//return u.DataBase.UpdateLoginUserByMap(ctx, localUser, map[string]interface{}{
-	//	"optionst": string(marshal),
-	//})
-	return u.SyncLoginUserInfo(ctx)
-	////获取远程operation数据
-	//resp := imUserPb.GetOperationResp{}
-	//err := util.ApiPost(ctx, constant.GetUserOperation, &imUserPb.GetOperationReq{}, &resp)
-	//if err != nil {
-	//	return err
-	//}
-	//respMap := resp.UserOperationMap
-	//if _, ok := respMap[WalletOperation]; !ok {
-	//	return nil
-	//}
-	////获取本地数据比对
-	//localUser, err := u.GetLoginUser(ctx, u.loginUserID)
-	//if err != nil {
-	//	return err
-	//}
-	//userOperation := make(map[string]int32)
-	//err = json.Unmarshal([]byte(localUser.Options), &userOperation)
-	//if err != nil {
-	//	userOperation[WalletOperation] = respMap[WalletOperation]
-	//	marshal, err := json.Marshal(userOperation)
-	//	if err != nil {
-	//		return err
-	//	}
-	//	return u.DataBase.UpdateLoginUserByMap(ctx, localUser, map[string]interface{}{
-	//		"optionst": string(marshal),
-	//	})
-	//}
-	//if val, ok := userOperation[WalletOperation]; ok {
-	//	if val == respMap[WalletOperation] {
-	//		return nil
-	//	}
-	//}
-	//userOperation[WalletOperation] = respMap[WalletOperation]
-	//marshal, err := json.Marshal(respMap)
-	//if err != nil {
-	//	return err
-	//}
-	//return u.DataBase.UpdateLoginUserByMap(ctx, localUser, map[string]interface{}{
-	//	"optionst": string(marshal),
-	//})
-}
-
-// getDefUserOption 获取默认option
-func (u *User) getDefUserOption() (string, error) {
-	options := map[string]int32{
-		"is_real":               0,
-		"is_open_moments":       1,
-		"group_add":             1,
-		"qr_code_add":           1,
-		"card_add":              1,
-		"code_add":              1,
-		"phone_add":             1,
-		"show_last_login":       0,
-		"multiple_device_login": 0,
-		"global_recv_msg_opt":   0,
-		"app_manger_level":      0,
-		"is_open_wallet":        0,
-		"is_admin":              0,
-		"not_login_status":      0,
-		"is_customer_service":   0,
-		"is_tenant":             0,
-		"tenant_id":             0,
-	}
-	marshal, err := json.Marshal(options)
-	return string(marshal), err
-}
-
-// FindFullProfile 获取群完整信息忽略删除和解散
-func (u *User) FindFullProfile(ctx context.Context, ids ...string) ([]*imUserPb.ProfileReply, error) {
-	resp, err := util.ProtoApiPost[imUserPb.FindFullProfileByUserIdReq, imUserPb.FindFullProfileByUserIdReply](
-		ctx,
-		constant.FindFullProfileByUserIdRouter,
-		&imUserPb.FindFullProfileByUserIdReq{
-			UserIds: ids,
-		},
-	)
-	if err != nil {
-		return nil, err
-	}
-	return resp.List, nil
+	return &usermodel.OnlineStatus{
+		Status: resp.Status,
+		UserId: resp.UserID,
+	}, nil
 }

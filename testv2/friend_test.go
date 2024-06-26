@@ -15,18 +15,17 @@
 package testv2
 
 import (
-	"fmt"
-	"open_im_sdk/open_im_sdk"
-	"open_im_sdk/pkg/sdk_params_callback"
-	"open_im_sdk/pkg/utils"
+	"github.com/OpenIMSDK/protocol/wrapperspb"
+	"github.com/openimsdk/openim-sdk-core/v3/open_im_sdk"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/sdk_params_callback"
 	"testing"
 	"time"
 
-	friend "github.com/imCloud/api/friend/v1"
+	friend2 "github.com/OpenIMSDK/protocol/friend"
 )
 
 func Test_GetSpecifiedFriendsInfo(t *testing.T) {
-	info, err := open_im_sdk.UserForSDK.Friend().GetSpecifiedFriendsInfo(ctx, []string{"69763666668425216"})
+	info, err := open_im_sdk.UserForSDK.Friend().GetSpecifiedFriendsInfo(ctx, []string{"45644221123"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -37,10 +36,10 @@ func Test_GetSpecifiedFriendsInfo(t *testing.T) {
 }
 
 func Test_AddFriend(t *testing.T) {
-	err := open_im_sdk.UserForSDK.Friend().AddFriend(ctx, &friend.AddFriendRequest{
-		ToUserID:  "55122365784264704",
-		ReqMsg:    "test add",
-		RemarkMsg: "天加",
+	err := open_im_sdk.UserForSDK.Friend().AddFriend(ctx, &friend2.ApplyToAddFriendReq{
+		ToUserID: "2",
+		ReqMsg:   "test add",
+		Ex:       "add",
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -69,7 +68,7 @@ func Test_AddFriend(t *testing.T) {
 //}
 
 func Test_AcceptFriendApplication(t *testing.T) {
-	req := &sdk_params_callback.ProcessFriendApplicationParams{ToUserID: "48676976868724736", HandleMsg: "test accept"}
+	req := &sdk_params_callback.ProcessFriendApplicationParams{ToUserID: "1", HandleMsg: "test accept"}
 	err := open_im_sdk.UserForSDK.Friend().AcceptFriendApplication(ctx, req)
 	if err != nil {
 		t.Fatal(err)
@@ -79,7 +78,7 @@ func Test_AcceptFriendApplication(t *testing.T) {
 }
 
 func Test_RefuseFriendApplication(t *testing.T) {
-	req := &sdk_params_callback.ProcessFriendApplicationParams{ToUserID: "48676976868724736", HandleMsg: "test refuse"}
+	req := &sdk_params_callback.ProcessFriendApplicationParams{ToUserID: "6754269405", HandleMsg: "test refuse"}
 	err := open_im_sdk.UserForSDK.Friend().RefuseFriendApplication(ctx, req)
 	if err != nil {
 		t.Fatal(err)
@@ -89,11 +88,7 @@ func Test_RefuseFriendApplication(t *testing.T) {
 }
 
 func Test_CheckFriend(t *testing.T) {
-	//err2 := open_im_sdk.UserForSDK.Friend().DelLocalFriend(ctx, "55122332112392192")
-	//if err2 != nil {
-	//	t.Fatal(err2)
-	//}
-	res, err := open_im_sdk.UserForSDK.Friend().CheckFriend(ctx, []string{"55122331994951680"})
+	res, err := open_im_sdk.UserForSDK.Friend().CheckFriend(ctx, []string{"863454357", "45644221123"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -102,9 +97,21 @@ func Test_CheckFriend(t *testing.T) {
 		t.Log(re)
 	}
 }
+func Test_PinFriend(t *testing.T) {
+	pinParams := &sdk_params_callback.SetFriendPinParams{
+		ToUserIDs: []string{"2", "3"},
+		IsPinned:  &wrapperspb.BoolValue{Value: false},
+	}
 
+	err := open_im_sdk.UserForSDK.Friend().PinFriends(ctx, pinParams)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log("CheckFriend success", ctx.Value("operationID"))
+}
 func Test_DeleteFriend(t *testing.T) {
-	err := open_im_sdk.UserForSDK.Friend().DeleteFriend(ctx, "55122365549383680")
+	err := open_im_sdk.UserForSDK.Friend().DeleteFriend(ctx, "863454357")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -118,24 +125,12 @@ func Test_GetFriendList(t *testing.T) {
 	}
 	t.Log("GetFriendList success", ctx.Value("operationID"))
 	for _, info := range infos {
-		t.Logf("PublicInfo: %#v", info)
-	}
-}
-
-// Test_GetPageFriendList 分页获取好友数据
-func Test_GetPageFriendList(t *testing.T) {
-	infos, err := open_im_sdk.UserForSDK.Friend().GetFriendListPage(ctx, 1, 20)
-	if err != nil {
-		t.Fatal(err)
-	}
-	t.Log("GetFriendList success", ctx.Value("operationID"))
-	for _, info := range infos {
-		t.Logf("PublicInfo: %#v", info)
+		t.Logf("PublicInfo: %#v, FriendInfo: %#v, BlackInfo: %#v", info.PublicInfo, info.FriendInfo, info.BlackInfo)
 	}
 }
 
 func Test_SearchFriends(t *testing.T) {
-	info, err := open_im_sdk.UserForSDK.Friend().SearchFriends(ctx, &sdk_params_callback.SearchFriendsParam{KeywordList: []string{"我"}, IsSearchUserID: true, IsSearchRemark: true, IsSearchNickname: true})
+	info, err := open_im_sdk.UserForSDK.Friend().SearchFriends(ctx, &sdk_params_callback.SearchFriendsParam{KeywordList: []string{"863454357"}, IsSearchUserID: true})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -154,7 +149,7 @@ func Test_SetFriendRemark(t *testing.T) {
 }
 
 func Test_AddBlack(t *testing.T) {
-	err := open_im_sdk.UserForSDK.Friend().AddBlack(ctx, "863454357")
+	err := open_im_sdk.UserForSDK.Friend().AddBlack(ctx, "863454357", "ex")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -162,7 +157,7 @@ func Test_AddBlack(t *testing.T) {
 }
 
 func Test_RemoveBlack(t *testing.T) {
-	err := open_im_sdk.UserForSDK.Friend().RemoveBlack(ctx, "48672487050842112")
+	err := open_im_sdk.UserForSDK.Friend().RemoveBlack(ctx, "863454357")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -179,116 +174,9 @@ func Test_GetBlackList(t *testing.T) {
 		t.Log(*item)
 	}
 }
-
-func Test_GetFriendListPage(t *testing.T) {
-	info, err := open_im_sdk.UserForSDK.Friend().GetFriendListPage(ctx, 1, 10)
+func Test_SetFriendsEx(t *testing.T) {
+	err := open_im_sdk.UserForSDK.Friend().SetFriendsEx(ctx, []string{"2"}, "exx")
 	if err != nil {
 		t.Fatal(err)
 	}
-	t.Log("GetFriendListPage success", ctx.Value("operationID"))
-	for _, item := range info {
-		t.Log(*item)
-	}
-}
-
-// Test_GetPageFriendApplicationListAsRecipient 收到申请
-func Test_GetPageFriendApplicationListAsRecipient(t *testing.T) {
-	info, err := open_im_sdk.UserForSDK.Friend().GetPageFriendApplicationListAsRecipient(ctx, 1, 10)
-	if err != nil {
-		t.Fatal(err)
-	}
-	t.Log("GetPageFriendApplicationListAsRecipient success", ctx.Value("operationID"))
-	for _, item := range info {
-		t.Log(*item)
-	}
-}
-
-func Test_GetPageFriendApplicationListAsApplicant(t *testing.T) {
-	info, err := open_im_sdk.UserForSDK.Friend().GetPageFriendApplicationListAsApplicant(ctx, 1, 10)
-	if err != nil {
-		t.Fatal(err)
-	}
-	t.Log("GetPageFriendApplicationListAsApplicant success", ctx.Value("operationID"))
-	for _, item := range info {
-		t.Log(*item)
-	}
-}
-func Test_GetPageBlackList(t *testing.T) {
-	info, err := open_im_sdk.UserForSDK.Friend().GetPageBlackList(ctx, 1, 10)
-	if err != nil {
-		t.Fatal(err)
-	}
-	t.Log("GetPageBlackList success", ctx.Value("operationID"))
-	for _, item := range info {
-		t.Log(*item)
-	}
-}
-
-func Test_GetUnprocessedNum(t *testing.T) {
-	count, err := open_im_sdk.UserForSDK.Friend().GetUnprocessedNum(ctx)
-	if err != nil {
-		t.Fatal(err)
-	}
-	t.Log("GetPageBlackList success", ctx.Value("operationID"))
-
-	t.Log("unprocessed num ", count)
-}
-
-func Test_SetFriendChatBackground(t *testing.T) {
-	err := open_im_sdk.UserForSDK.Friend().SetBackgroundUrl(ctx, "55224333915656192", "背景1是群1")
-	if err != nil {
-		t.Fatal(err)
-	}
-	time.Sleep(time.Second * 10)
-	t.Log("SetFriendChatBackground success")
-}
-
-func Test_SetFriendDestroyMsgStatus(t *testing.T) {
-	err := open_im_sdk.UserForSDK.Friend().SetFriendDestroyMsgStatus(ctx, "55122367646535680", 0)
-	if err != nil {
-		t.Fatal(err)
-	}
-	time.Sleep(time.Second * 10)
-	t.Log("SetFriendDestroyMsgStatus success")
-}
-func Test_GetFriendBaseInfoSvr(t *testing.T) {
-	friends, err := open_im_sdk.UserForSDK.Friend().GetFriendBaseInfoSvr(ctx)
-	if err != nil {
-		t.Fatal(err)
-	}
-	for _, v := range friends {
-		t.Log("sync data", fmt.Sprintf("%s", utils.StructToJsonString(v)))
-	}
-	t.Log("GetFriendBaseInfoSvr success")
-}
-func Test_SyncFriendInfoByTime(t *testing.T) {
-	updateTime, err2 := open_im_sdk.UserForSDK.Friend().Db().GetFriendUpdateTime(ctx)
-	if err2 != nil {
-		t.Fatal(err2)
-	}
-	friends, up, dl, err := open_im_sdk.UserForSDK.Friend().SyncFriendInfoByTime(ctx, updateTime)
-	if err != nil {
-		t.Fatal(err)
-	}
-	t.Log(friends, up, dl)
-	for _, v := range friends {
-		t.Log("sync data", fmt.Sprintf("%s", utils.StructToJsonString(v)))
-	}
-	t.Log("GetFriendBaseInfoSvr success")
-}
-
-// 新同步好友方法
-func Test_SyncFriendLiat(t *testing.T) {
-	err := open_im_sdk.UserForSDK.Friend().SyncFriend(ctx)
-	if err != nil {
-		t.Fatal(err)
-	}
-	friends, err := open_im_sdk.UserForSDK.Friend().GetFriendList(ctx)
-	if err != nil {
-		t.Fatal(err)
-	}
-	for _, v := range friends {
-		t.Log("sync data", fmt.Sprintf("%s", utils.StructToJsonString(v)))
-	}
-	t.Log("SyncFriendLiat success")
 }

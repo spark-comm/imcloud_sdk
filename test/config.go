@@ -15,11 +15,11 @@
 package test
 
 import (
-	"open_im_sdk/pkg/constant"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/constant"
 	"sync"
 )
 
-var LogLevel uint32 = 6
+var LogLevel uint32 = 5
 var PlatformID = int32(3)
 var LogName = ""
 var IsLogStandardOutput = true
@@ -38,7 +38,7 @@ var (
 	WSADDR              = "ws://" + TESTIP + ":10001"
 	REGISTERADDR        = APIADDR + "/auth/user_register"
 	TOKENADDR           = APIADDR + "/auth/user_token"
-	SECRET              = "tuoyun"
+	SECRET              = "openIM123"
 	SENDINTERVAL        = 20
 	GETSELFUSERINFO     = APIADDR + "/user/get_self_user_info"
 	CREATEGROUP         = APIADDR + constant.CreateGroupRouter

@@ -17,13 +17,14 @@ package common
 import (
 	"context"
 	"errors"
-	"github.com/imCloud/im/pkg/common/log"
-	"open_im_sdk/pkg/constant"
-	"open_im_sdk/pkg/utils"
-	"open_im_sdk/sdk_struct"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/constant"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/utils"
+	"github.com/openimsdk/openim-sdk-core/v3/sdk_struct"
 	"time"
 
-	"github.com/imCloud/im/pkg/proto/sdkws"
+	"github.com/OpenIMSDK/tools/log"
+
+	"github.com/OpenIMSDK/protocol/sdkws"
 )
 
 func TriggerCmdJoinedSuperGroup(cmd sdk_struct.CmdJoinedSuperGroup, joinedSuperGroupCh chan Cmd2Value) error {
@@ -69,12 +70,11 @@ func TriggerCmdWakeUp(ch chan Cmd2Value) error {
 	return sendCmd(ch, c2v, 100)
 }
 
-func TriggerCmdDeleteConversationAndMessage(ctx context.Context, sourceID, conversationID string, sessionType int, conversationCh chan Cmd2Value) error {
+func TriggerCmdDeleteConversationAndMessage(sourceID, conversationID string, sessionType int, conversationCh chan Cmd2Value) error {
 	if conversationCh == nil {
 		return utils.Wrap(errors.New("ch == nil"), "")
 	}
 	c2v := Cmd2Value{
-		Ctx:   ctx,
 		Cmd:   constant.CmdDeleteConversation,
 		Value: DeleteConNode{SourceID: sourceID, ConversationID: conversationID, SessionType: sessionType},
 	}
@@ -104,21 +104,6 @@ func TriggerCmdUpdateConversation(ctx context.Context, node UpdateConNode, conve
 	return sendCmd(conversationCh, c2v, 100)
 }
 
-// TriggerCmdUpdateConversationBackgroundURL 更新聊天背景
-func TriggerCmdUpdateConversationBackgroundURL(ctx context.Context, conversationId, backgroundURl string, conversationCh chan<- Cmd2Value) error {
-	c2v := Cmd2Value{
-		Cmd: constant.CmdUpdateConversation,
-		Value: UpdateConNode{
-			Action: constant.UpdateBackgroundURL,
-			ConID:  conversationId,
-			Args:   backgroundURl,
-		},
-		Ctx: ctx,
-	}
-
-	return sendCmd(conversationCh, c2v, 100)
-}
-
 func TriggerCmdUpdateMessage(ctx context.Context, node UpdateMessageNode, conversationCh chan Cmd2Value) error {
 	c2v := Cmd2Value{
 		Cmd:   constant.CmdUpdateMessage,
@@ -140,11 +125,11 @@ func TriggerCmdPushMsg(ctx context.Context, msg *sdkws.PushMessages, ch chan Cmd
 }
 
 // seq trigger
-func TriggerCmdPushSeqCh(ctx context.Context, seq *sdkws.GetMaxSeqResp, ch chan Cmd2Value) error {
+func TriggerCmdMaxSeq(ctx context.Context, seq *sdk_struct.CmdMaxSeqToMsgSync, ch chan Cmd2Value) error {
 	if ch == nil {
 		return utils.Wrap(errors.New("ch == nil"), "")
 	}
-	c2v := Cmd2Value{Cmd: constant.CmdPushSeq, Value: seq, Ctx: ctx}
+	c2v := Cmd2Value{Cmd: constant.CmdMaxSeq, Value: seq, Ctx: ctx}
 	return sendCmd(ch, c2v, 100)
 }
 
@@ -163,75 +148,6 @@ func TriggerCmdConnected(ctx context.Context, ch chan Cmd2Value) error {
 	}
 	c2v := Cmd2Value{Cmd: constant.CmdConnSuccesss, Value: nil, Ctx: ctx}
 	return sendCmd(ch, c2v, 100)
-}
-
-// TriggerCmdNewMsgToConversation success trigger
-func TriggerCmdNewMsgToConversation(ctx context.Context, conversationID string, seqs []int64, ch chan Cmd2Value) error {
-	if ch == nil {
-		return utils.Wrap(errors.New("ch == nil"), "")
-	}
-	c2v := Cmd2Value{
-		Cmd: constant.CmdNewMsgCheckCompleteness,
-		Value: &sdk_struct.CmdNewMsgToConversation{
-			ConversationID: conversationID,
-			Seqs:           seqs,
-		},
-		Ctx: ctx}
-	return sendCmd(ch, c2v, 100)
-}
-
-// TriggerCmdSysncMsgSeq success trigger
-func TriggerCmdSysncMsgSeq(ctx context.Context, conversationID string, seqs []int64, ch chan Cmd2Value) error {
-	if ch == nil {
-		return utils.Wrap(errors.New("ch == nil"), "")
-	}
-	c2v := Cmd2Value{
-		Cmd: constant.CmdSysncMsG,
-		Value: &sdk_struct.ConverstionSeqsVal{
-			ConversationID: conversationID,
-			Seqs:           seqs,
-		},
-		Ctx: ctx}
-	return sendCmd(ch, c2v, 100)
-}
-
-// TriggerCmdGroupMemberChange 更新群成员信息
-func TriggerCmdGroupMemberChange(ctx context.Context, node UpdateGroupMemberInfo, groupCh chan<- Cmd2Value) error {
-	c2v := Cmd2Value{
-		Cmd:   constant.CmdGroupMemberChange,
-		Value: node,
-		Ctx:   ctx,
-	}
-	return sendCmd(groupCh, c2v, 100)
-}
-
-// TriggerCmdJoinGroup 同步群信息
-func TriggerCmdJoinGroup(ctx context.Context, groupCh chan<- Cmd2Value) error {
-	c2v := Cmd2Value{
-		Cmd: constant.CmdSyncGroup,
-		Ctx: ctx,
-	}
-	return sendCmd(groupCh, c2v, 100)
-}
-
-// TriggerCmdSyncGroupMembers 同步群成员信息
-func TriggerCmdSyncGroupMembers(ctx context.Context, groupId string, groupCh chan<- Cmd2Value) error {
-	c2v := Cmd2Value{
-		Cmd:   constant.CmdSyncGroupMembers,
-		Value: groupId,
-		Ctx:   ctx,
-	}
-	return sendCmd(groupCh, c2v, 100)
-}
-
-// TriggerCmdAddFriendGenerateSession 新增好友生成会话
-func TriggerCmdAddFriendGenerateSession(ctx context.Context, node SourceIDAndSessionType, conversationCh chan<- Cmd2Value) error {
-	c2v := Cmd2Value{
-		Cmd:   constant.CmdAddFriend,
-		Value: node,
-		Ctx:   ctx,
-	}
-	return sendCmd(conversationCh, c2v, 100)
 }
 
 type DeleteConNode struct {
@@ -265,26 +181,18 @@ type UpdateConInfo struct {
 	GroupID string
 }
 type UpdateMessageInfo struct {
-	UserID   string
-	FaceURL  string
-	Nickname string
-	GroupID  string
+	SessionType int32
+	UserID      string
+	FaceURL     string
+	Nickname    string
+	GroupID     string
 }
 
 type SourceIDAndSessionType struct {
 	SourceID    string
-	SessionType int
+	SessionType int32
 	FaceURL     string
 	Nickname    string
-}
-
-// UpdateGroupMemberInfo 更新群成员信息
-type UpdateGroupMemberInfo struct {
-	// 用户id
-	UserId   string
-	Nickname string
-	FaceUrl  string
-	GroupId  string
 }
 
 func UnInitAll(conversationCh chan Cmd2Value) error {
@@ -317,19 +225,5 @@ func sendCmd(ch chan<- Cmd2Value, value Cmd2Value, timeout int64) error {
 		return nil
 	case <-time.After(time.Millisecond * time.Duration(timeout)):
 		return errors.New("send cmd timeout")
-	}
-}
-
-func ListenerUserInfoChange(ctx context.Context, clChan chan bool, fn func()) {
-	for {
-		select {
-		case bl := <-clChan:
-			if bl {
-				fn()
-				return
-			}
-		case <-ctx.Done():
-			return
-		}
 	}
 }

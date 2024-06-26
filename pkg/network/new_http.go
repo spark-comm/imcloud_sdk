@@ -19,11 +19,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/utils"
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"open_im_sdk/pkg/utils"
 	"strings"
 	"time"
 	"unsafe"
@@ -69,7 +68,6 @@ func Get(url string) *HttpCli {
 }
 
 func Post(url string) *HttpCli {
-	//fmt.Println(fmt.Sprintf("请求的地址：%s", url))
 	request, err := http.NewRequest("POST", url, nil)
 	return &HttpCli{
 		httpClient:  newHttpClient(),
@@ -98,7 +96,7 @@ func (c *HttpCli) BodyWithJson(obj interface{}) *HttpCli {
 		c.Error = utils.Wrap(err, "marshal failed, url")
 		return c
 	}
-	c.httpRequest.Body = io.NopCloser(bytes.NewReader(buf))
+	c.httpRequest.Body = ioutil.NopCloser(bytes.NewReader(buf))
 	c.httpRequest.ContentLength = int64(len(buf))
 	c.httpRequest.Header.Set("Content-Type", "application/json")
 	return c
@@ -108,7 +106,8 @@ func (c *HttpCli) BodyWithBytes(buf []byte) *HttpCli {
 	if c.Error != nil {
 		return c
 	}
-	c.httpRequest.Body = io.NopCloser(bytes.NewReader(buf))
+
+	c.httpRequest.Body = ioutil.NopCloser(bytes.NewReader(buf))
 	c.httpRequest.ContentLength = int64(len(buf))
 	return c
 }
@@ -124,7 +123,7 @@ func (c *HttpCli) BodyWithForm(form map[string]string) *HttpCli {
 	}
 	buf := Str2bytes(value.Encode())
 
-	c.httpRequest.Body = io.NopCloser(bytes.NewReader(buf))
+	c.httpRequest.Body = ioutil.NopCloser(bytes.NewReader(buf))
 	c.httpRequest.ContentLength = int64(len(buf))
 	c.httpRequest.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 	return c
@@ -140,6 +139,7 @@ func (c *HttpCli) ToBytes() (content []byte, err error) {
 	if c.Error != nil {
 		return nil, c.Error
 	}
+
 	resp, err := c.httpClient.Do(c.httpRequest)
 	if err != nil {
 		return nil, utils.Wrap(err, "client.Do failed, url")
@@ -149,9 +149,9 @@ func (c *HttpCli) ToBytes() (content []byte, err error) {
 	if resp.StatusCode != http.StatusOK {
 		return nil, utils.Wrap(errors.New(resp.Status), "status code failed ")
 	}
-	buf, err := io.ReadAll(resp.Body)
+	buf, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return nil, utils.Wrap(err, "io.ReadAll failed, url")
+		return nil, utils.Wrap(err, "ioutil.ReadAll failed, url")
 	}
 
 	return buf, nil

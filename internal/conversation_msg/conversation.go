@@ -17,29 +17,28 @@ package conversation_msg
 import (
 	"context"
 	"errors"
-	"github.com/golang/protobuf/ptypes/empty"
-	_ "open_im_sdk/internal/common"
-	"open_im_sdk/internal/util"
-	"open_im_sdk/pkg/common"
-	"open_im_sdk/pkg/constant"
-	"open_im_sdk/pkg/db/model_struct"
-	sdk "open_im_sdk/pkg/sdk_params_callback"
-	"open_im_sdk/pkg/sdkerrs"
-	"open_im_sdk/pkg/server_api_params"
-	"open_im_sdk/pkg/utils"
-	"open_im_sdk/sdk_struct"
+	_ "github.com/openimsdk/openim-sdk-core/v3/internal/common"
+	"github.com/openimsdk/openim-sdk-core/v3/internal/util"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/common"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/constant"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/db/model_struct"
+	sdk "github.com/openimsdk/openim-sdk-core/v3/pkg/sdk_params_callback"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/sdkerrs"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/server_api_params"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/utils"
+	"github.com/openimsdk/openim-sdk-core/v3/sdk_struct"
 	"sort"
 	"strings"
 	"time"
 
 	"github.com/jinzhu/copier"
 
-	"github.com/imCloud/im/pkg/common/log"
+	"github.com/OpenIMSDK/tools/log"
 
-	"github.com/imCloud/im/pkg/proto/msg"
-	"github.com/imCloud/im/pkg/proto/sdkws"
+	"github.com/OpenIMSDK/protocol/msg"
+	"github.com/OpenIMSDK/protocol/sdkws"
 
-	pbConversation "github.com/imCloud/im/pkg/proto/conversation"
+	pbConversation "github.com/OpenIMSDK/protocol/conversation"
 )
 
 func (c *Conversation) setConversation(ctx context.Context, apiReq *pbConversation.SetConversationsReq, localConversation *model_struct.LocalConversation) error {
@@ -48,244 +47,64 @@ func (c *Conversation) setConversation(ctx context.Context, apiReq *pbConversati
 	apiReq.Conversation.UserID = localConversation.UserID
 	apiReq.Conversation.GroupID = localConversation.GroupID
 	apiReq.UserIDs = []string{c.loginUserID}
-
-	_, err := util.ProtoApiPost[pbConversation.SetConversationsReq, empty.Empty](ctx, constant.SetConversationsRouter, apiReq)
-	if err != nil {
+	if err := util.ApiPost(ctx, constant.SetConversationsRouter, apiReq, nil); err != nil {
 		return err
 	}
-	//if err := util.ApiPost(ctx, constant.SetConversationsRouter, apiReq, nil); err != nil {
-	//	return err
-	//}
 	return nil
 }
 
 func (c *Conversation) getServerConversationList(ctx context.Context) ([]*model_struct.LocalConversation, error) {
-	//resp, err := util.CallApi[pbConversation.GetAllConversationsResp](ctx,
-	//	constant.GetAllConversationsRouter,
-	//	pbConversation.GetAllConversationsReq{OwnerUserID: c.loginUserID})
-	resp := &pbConversation.GetAllConversationsResp{}
-	err := util.CallPostApi[*pbConversation.GetAllConversationsReq, *pbConversation.GetAllConversationsResp](
-		ctx,
-		constant.GetAllConversationsRouter,
-		&pbConversation.GetAllConversationsReq{OwnerUserID: c.loginUserID},
-		resp,
-	)
+	resp, err := util.CallApi[pbConversation.GetAllConversationsResp](ctx, constant.GetAllConversationsRouter, pbConversation.GetAllConversationsReq{OwnerUserID: c.loginUserID})
 	if err != nil {
 		return nil, err
 	}
 	return util.Batch(ServerConversationToLocal, resp.Conversations), nil
 }
 
-func (c *Conversation) getServerHasReadAndMaxSeqs(ctx context.Context) (map[string]*msg.Seqs, error) {
-	resp, err := util.ProtoApiPost[msg.GetConversationsHasReadAndMaxSeqReq, msg.GetConversationsHasReadAndMaxSeqResp](
-		ctx,
-		constant.GetConversationsHasReadAndMaxSeqRouter,
-		&msg.GetConversationsHasReadAndMaxSeqReq{UserID: c.loginUserID},
-	)
+func (c *Conversation) getServerConversationsByIDs(ctx context.Context, conversations []string) ([]*model_struct.LocalConversation, error) {
+	resp, err := util.CallApi[pbConversation.GetConversationsResp](ctx, constant.GetConversationsRouter, pbConversation.GetConversationsReq{OwnerUserID: c.loginUserID, ConversationIDs: conversations})
 	if err != nil {
+		return nil, err
+	}
+	return util.Batch(ServerConversationToLocal, resp.Conversations), nil
+}
+
+func (c *Conversation) getServerHasReadAndMaxSeqs(ctx context.Context, conversationIDs ...string) (map[string]*msg.Seqs, error) {
+	resp := &msg.GetConversationsHasReadAndMaxSeqResp{}
+	req := msg.GetConversationsHasReadAndMaxSeqReq{UserID: c.loginUserID}
+	req.ConversationIDs = conversationIDs
+	err := util.ApiPost(ctx, constant.GetConversationsHasReadAndMaxSeqRouter, &req, resp)
+	if err != nil {
+		log.ZError(ctx, "getServerHasReadAndMaxSeqs err", err)
 		return nil, err
 	}
 	return resp.Seqs, nil
 }
 
-func (c *Conversation) getHistoryMessageList(ctx context.Context, req sdk.GetHistoryMessageListParams, isReverse bool) ([]*sdk_struct.MsgStruct, error) {
-	// t := time.Now()
-	var sourceID string
+func (c *Conversation) getAdvancedHistoryMessageList(ctx context.Context, req sdk.GetAdvancedHistoryMessageListParams, isReverse bool) (*sdk.GetAdvancedHistoryMessageListCallback, error) {
+	t := time.Now()
+	var messageListCallback sdk.GetAdvancedHistoryMessageListCallback
 	var conversationID string
 	var startTime int64
 	var sessionType int
 	var list []*model_struct.LocalChatLog
 	var err error
 	var messageList sdk_struct.NewMsgList
-	var msg sdk_struct.MsgStruct
 	var notStartTime bool
-	if req.ConversationID != "" {
-		conversationID = req.ConversationID
-		lc, err := c.db.GetConversation(ctx, conversationID)
-		if err != nil {
-			return nil, err
-		}
-		switch lc.ConversationType {
-		case constant.SingleChatType, constant.NotificationChatType:
-			sourceID = lc.UserID
-		case constant.GroupChatType, constant.SuperGroupChatType:
-			sourceID = lc.GroupID
-			msg.GroupID = lc.GroupID
-		}
-		sessionType = int(lc.ConversationType)
-		if req.StartClientMsgID == "" {
-			//startTime = lc.LatestMsgSendTime + TimeOffset
-			////startTime = utils.GetCurrentTimestampByMill()
-			notStartTime = true
-		} else {
-			msg.SessionType = lc.ConversationType
-			msg.ClientMsgID = req.StartClientMsgID
-			m, err := c.db.GetMessage(ctx, conversationID, msg.ClientMsgID)
-			if err != nil {
-				return nil, err
-			}
-			startTime = m.SendTime
-		}
-	} else {
-		if req.UserID == "" {
-			newConversationID, newSessionType, err := c.getConversationTypeByGroupID(ctx, req.GroupID)
-			if err != nil {
-				return nil, err
-			}
-			sourceID = req.GroupID
-			sessionType = int(newSessionType)
-			conversationID = newConversationID
-			msg.GroupID = req.GroupID
-			msg.SessionType = newSessionType
-		} else {
-			sourceID = req.UserID
-			conversationID = c.getConversationIDBySessionType(sourceID, constant.SingleChatType)
-			sessionType = constant.SingleChatType
-		}
-		if req.StartClientMsgID == "" {
-			//lc, err := c.db.GetConversation(conversationID)
-			//if err != nil {
-			//	return nil
-			//}
-			//startTime = lc.LatestMsgSendTime + TimeOffset
-			//startTime = utils.GetCurrentTimestampByMill()
-			notStartTime = true
-		} else {
-			msg.ClientMsgID = req.StartClientMsgID
-			m, err := c.db.GetMessage(ctx, conversationID, msg.ClientMsgID)
-			if err != nil {
-				return nil, err
-			}
-			startTime = m.SendTime
-		}
-	}
-	// log.Debug("", "Assembly parameters cost time", time.Since(t))
-	// t = time.Now()
-	// log.Info("", "sourceID:", sourceID, "startTime:", startTime, "count:", req.Count, "not start_time", notStartTime)
-	if notStartTime {
-		list, err = c.db.GetMessageListNoTime(ctx, conversationID, req.Count, isReverse)
-	} else {
-		list, err = c.db.GetMessageList(ctx, conversationID, req.Count, startTime, isReverse)
-	}
-	// log.Debug("", "db cost time", time.Since(t))
+	conversationID = req.ConversationID
+	lc, err := c.db.GetConversation(ctx, conversationID)
 	if err != nil {
 		return nil, err
 	}
-	// t = time.Now()
-	for _, v := range list {
-		temp := sdk_struct.MsgStruct{}
-		// tt := time.Now()
-		temp.ClientMsgID = v.ClientMsgID
-		temp.ServerMsgID = v.ServerMsgID
-		temp.CreateTime = v.CreateTime
-		temp.SendTime = v.SendTime
-		temp.SessionType = v.SessionType
-		temp.SendID = v.SendID
-		temp.RecvID = v.RecvID
-		temp.MsgFrom = v.MsgFrom
-		temp.ContentType = v.ContentType
-		temp.SenderPlatformID = v.SenderPlatformID
-		temp.SenderNickname = v.SenderNickname
-		temp.SenderFaceURL = v.SenderFaceURL
-		temp.Content = v.Content
-		temp.Seq = v.Seq
-		temp.IsRead = v.IsRead
-		temp.Status = v.Status
-		var attachedInfo sdk_struct.AttachedInfoElem
-		_ = utils.JsonStringToStruct(v.AttachedInfo, &attachedInfo)
-		temp.AttachedInfoElem = &attachedInfo
-		temp.Ex = v.Ex
-		temp.IsReact = v.IsReact
-		temp.IsExternalExtensions = v.IsExternalExtensions
-		err := c.msgHandleByContentType(&temp)
-		if err != nil {
-			// log.Error("", "Parsing data error:", err.Error(), temp)
-			continue
-		}
-		// log.Debug("", "internal unmarshal cost time", time.Since(tt))
-
-		switch sessionType {
-		case constant.GroupChatType:
-			fallthrough
-		case constant.SuperGroupChatType:
-			temp.GroupID = temp.RecvID
-			temp.RecvID = c.loginUserID
-		}
-		messageList = append(messageList, &temp)
-	}
-	// log.Debug("", "unmarshal cost time", time.Since(t))
-	// t = time.Now()
-	if !isReverse {
-		sort.Sort(messageList)
-	}
-	// log.Debug("", "sort cost time", time.Since(t))
-	return messageList, nil
-}
-
-func (c *Conversation) getAdvancedHistoryMessageList2(ctx context.Context, req sdk.GetAdvancedHistoryMessageListParams, isReverse bool) (*sdk.GetAdvancedHistoryMessageListCallback, error) {
-	t := time.Now()
-	var messageListCallback sdk.GetAdvancedHistoryMessageListCallback
-	var sourceID string
-	var conversationID string
-	var startTime int64
-
-	var sessionType int
-	var list []*model_struct.LocalChatLog
-	var err error
-	var messageList sdk_struct.NewMsgList
-	var msg sdk_struct.MsgStruct
-	var notStartTime bool
-	if req.ConversationID != "" {
-		conversationID = req.ConversationID
-		lc, err := c.db.GetConversation(ctx, conversationID)
+	sessionType = int(lc.ConversationType)
+	if req.StartClientMsgID == "" {
+		notStartTime = true
+	} else {
+		m, err := c.db.GetMessage(ctx, conversationID, req.StartClientMsgID)
 		if err != nil {
 			return nil, err
 		}
-		switch lc.ConversationType {
-		case constant.SingleChatType, constant.NotificationChatType:
-			sourceID = lc.UserID
-		case constant.GroupChatType, constant.SuperGroupChatType:
-			sourceID = lc.GroupID
-			msg.GroupID = lc.GroupID
-		}
-		sessionType = int(lc.ConversationType)
-		if req.StartClientMsgID == "" {
-			notStartTime = true
-		} else {
-			msg.SessionType = lc.ConversationType
-			msg.ClientMsgID = req.StartClientMsgID
-			m, err := c.db.GetMessage(ctx, conversationID, msg.ClientMsgID)
-			if err != nil {
-				return nil, err
-			}
-			startTime = m.SendTime
-		}
-	} else {
-		if req.UserID == "" {
-			newConversationID, newSessionType, err := c.getConversationTypeByGroupID(ctx, req.GroupID)
-			if err != nil {
-				return nil, err
-			}
-			sourceID = req.GroupID
-			sessionType = int(newSessionType)
-			conversationID = newConversationID
-			msg.GroupID = req.GroupID
-			msg.SessionType = newSessionType
-		} else {
-			sourceID = req.UserID
-			conversationID = c.getConversationIDBySessionType(sourceID, constant.SingleChatType)
-			sessionType = constant.SingleChatType
-		}
-		if req.StartClientMsgID == "" {
-			notStartTime = true
-		} else {
-			msg.ClientMsgID = req.StartClientMsgID
-			m, err := c.db.GetMessage(ctx, conversationID, msg.ClientMsgID)
-			if err != nil {
-				return nil, err
-			}
-			startTime = m.SendTime
-		}
+		startTime = m.SendTime
 	}
 	log.ZDebug(ctx, "Assembly conversation parameters", "cost time", time.Since(t), "conversationID",
 		conversationID, "startTime:", startTime, "count:", req.Count, "not start_time", notStartTime)
@@ -295,7 +114,8 @@ func (c *Conversation) getAdvancedHistoryMessageList2(ctx context.Context, req s
 	} else {
 		list, err = c.db.GetMessageList(ctx, conversationID, req.Count, startTime, isReverse)
 	}
-	log.ZDebug(ctx, "db get messageList", "cost time", time.Since(t), "len", len(list), "err", err, "conversationID", conversationID)
+	log.ZDebug(ctx, "db get messageList", "cost time", time.Since(t), "len", len(list), "err",
+		err, "conversationID", conversationID)
 
 	if err != nil {
 		return nil, err
@@ -303,16 +123,21 @@ func (c *Conversation) getAdvancedHistoryMessageList2(ctx context.Context, req s
 	rawMessageLength := len(list)
 	t = time.Now()
 	if rawMessageLength < req.Count {
-		maxSeq, minSeq, lostSeqListLength := c.messageBlocksInternalContinuityCheck(ctx, conversationID, notStartTime, isReverse, req.Count, sessionType, startTime, &list, &messageListCallback)
-		_ = c.messageBlocksBetweenContinuityCheck(ctx, req.LastMinSeq, maxSeq, conversationID, notStartTime, isReverse, req.Count, sessionType, startTime, &list, &messageListCallback)
+		maxSeq, minSeq, lostSeqListLength := c.messageBlocksInternalContinuityCheck(ctx,
+			conversationID, notStartTime, isReverse, req.Count, startTime, &list, &messageListCallback)
+		_ = c.messageBlocksBetweenContinuityCheck(ctx, req.LastMinSeq, maxSeq, conversationID,
+			notStartTime, isReverse, req.Count, startTime, &list, &messageListCallback)
 		if minSeq == 1 && lostSeqListLength == 0 {
 			messageListCallback.IsEnd = true
 		} else {
-			c.messageBlocksEndContinuityCheck(ctx, minSeq, conversationID, notStartTime, isReverse, req.Count, sessionType, startTime, &list, &messageListCallback)
+			c.messageBlocksEndContinuityCheck(ctx, minSeq, conversationID, notStartTime, isReverse,
+				req.Count, startTime, &list, &messageListCallback)
 		}
 	} else {
-		maxSeq, _, _ := c.messageBlocksInternalContinuityCheck(ctx, conversationID, notStartTime, isReverse, req.Count, sessionType, startTime, &list, &messageListCallback)
-		c.messageBlocksBetweenContinuityCheck(ctx, req.LastMinSeq, maxSeq, conversationID, notStartTime, isReverse, req.Count, sessionType, startTime, &list, &messageListCallback)
+		maxSeq, _, _ := c.messageBlocksInternalContinuityCheck(ctx, conversationID, notStartTime, isReverse,
+			req.Count, startTime, &list, &messageListCallback)
+		c.messageBlocksBetweenContinuityCheck(ctx, req.LastMinSeq, maxSeq, conversationID, notStartTime,
+			isReverse, req.Count, startTime, &list, &messageListCallback)
 
 	}
 	log.ZDebug(ctx, "pull message", "pull cost time", time.Since(t))
@@ -486,27 +311,38 @@ func (c *Conversation) judgeMultipleSubString(keywordList []string, main string,
 	return true
 }
 
+// searchLocalMessages searches for local messages based on the given search parameters.
 func (c *Conversation) searchLocalMessages(ctx context.Context, searchParam *sdk.SearchLocalMessagesParams) (*sdk.SearchLocalMessagesCallback, error) {
-	var r sdk.SearchLocalMessagesCallback
-	var startTime, endTime int64
-	var list []*model_struct.LocalChatLog
-	conversationMap := make(map[string]*sdk.SearchByConversationResult, 10)
-	var err error
-	var conversationID string
+	var r sdk.SearchLocalMessagesCallback                                   // Initialize the result structure
+	var startTime, endTime int64                                            // Variables to hold start and end times for the search
+	var list []*model_struct.LocalChatLog                                   // Slice to store the search results
+	conversationMap := make(map[string]*sdk.SearchByConversationResult, 10) // Map to store results grouped by conversation, with initial capacity of 10
+	var err error                                                           // Variable to store any errors encountered
+	var conversationID string                                               // Variable to store the current conversation ID
+
+	// Set the end time for the search; if SearchTimePosition is 0, use the current timestamp
 	if searchParam.SearchTimePosition == 0 {
 		endTime = utils.GetCurrentTimestampBySecond()
 	} else {
 		endTime = searchParam.SearchTimePosition
 	}
+
+	// Set the start time based on the specified time period
 	if searchParam.SearchTimePeriod != 0 {
 		startTime = endTime - searchParam.SearchTimePeriod
 	}
+	// Convert start and end times to milliseconds
 	startTime = utils.UnixSecondToTime(startTime).UnixNano() / 1e6
 	endTime = utils.UnixSecondToTime(endTime).UnixNano() / 1e6
+
+	// Validate that either keyword list or message type list is provided
 	if len(searchParam.KeywordList) == 0 && len(searchParam.MessageTypeList) == 0 {
 		return nil, errors.New("keywordlist and messageTypelist all null")
 	}
+
+	// Search in a specific conversation if ConversationID is provided
 	if searchParam.ConversationID != "" {
+		// Validate pagination parameters
 		if searchParam.PageIndex < 1 || searchParam.Count < 1 {
 			return nil, errors.New("page or count is null")
 		}
@@ -515,6 +351,7 @@ func (c *Conversation) searchLocalMessages(ctx context.Context, searchParam *sdk
 		if err != nil {
 			return nil, err
 		}
+		// Search by content type or keyword based on provided parameters
 		if len(searchParam.MessageTypeList) != 0 && len(searchParam.KeywordList) == 0 {
 			list, err = c.db.SearchMessageByContentType(ctx, searchParam.MessageTypeList, searchParam.ConversationID, startTime, endTime, offset, searchParam.Count)
 		} else {
@@ -533,15 +370,19 @@ func (c *Conversation) searchLocalMessages(ctx context.Context, searchParam *sdk
 				searchParam.ConversationID, startTime, endTime, offset, searchParam.Count)
 		}
 	} else {
-		//Comprehensive search, search all
+		// Comprehensive search across all conversations
 		if len(searchParam.MessageTypeList) == 0 {
 			searchParam.MessageTypeList = SearchContentType
 		}
 		list, err = c.messageController.SearchMessageByContentTypeAndKeyword(ctx, searchParam.MessageTypeList, searchParam.KeywordList, searchParam.KeywordListMatchType, startTime, endTime)
 	}
+
+	// Handle any errors encountered during the search
 	if err != nil {
 		return nil, err
 	}
+
+	// Logging and processing each message in the search results
 	//localChatLogToMsgStruct(&messageList, list)
 
 	//log.Debug("hahh",utils.KMP("SSSsdf3434","s"))
@@ -551,6 +392,7 @@ func (c *Conversation) searchLocalMessages(ctx context.Context, searchParam *sdk
 	//log.Debug("hahh",utils.KMP("SSSsdf3434","SDF3"))
 	// log.Debug("", "get raw data length is", len(list))
 	log.ZDebug(ctx, "get raw data length is", len(list))
+
 	for _, v := range list {
 		temp := sdk_struct.MsgStruct{}
 		temp.ClientMsgID = v.ClientMsgID
@@ -573,22 +415,17 @@ func (c *Conversation) searchLocalMessages(ctx context.Context, searchParam *sdk
 		_ = utils.JsonStringToStruct(v.AttachedInfo, &attachedInfo)
 		temp.AttachedInfoElem = &attachedInfo
 		temp.Ex = v.Ex
+		temp.LocalEx = v.LocalEx
 		err := c.msgHandleByContentType(&temp)
 		if err != nil {
 			// log.Error("", "Parsing data error:", err.Error(), temp)
 			log.ZError(ctx, "Parsing data error:", err, "msg", temp)
 			continue
 		}
-		if temp.ContentType == constant.File && !c.judgeMultipleSubString(searchParam.KeywordList, temp.FileElem.FileName, searchParam.KeywordListMatchType) {
+		if c.filterMsg(&temp, searchParam) {
 			continue
 		}
-		if temp.ContentType == constant.AtText && !c.judgeMultipleSubString(searchParam.KeywordList, temp.AtTextElem.Text, searchParam.KeywordListMatchType) {
-			continue
-		}
-		if temp.ContentType == constant.Text && !c.judgeMultipleSubString(searchParam.KeywordList, temp.TextElem.Content, searchParam.KeywordListMatchType) {
-			continue
-		}
-
+		// Determine the conversation ID based on the session type
 		switch temp.SessionType {
 		case constant.SingleChatType:
 			if temp.SendID == c.loginUserID {
@@ -605,6 +442,7 @@ func (c *Conversation) searchLocalMessages(ctx context.Context, searchParam *sdk
 			temp.RecvID = c.loginUserID
 			conversationID = c.getConversationIDBySessionType(temp.GroupID, constant.SuperGroupChatType)
 		}
+		// Populate the conversationMap with search results
 		if oldItem, ok := conversationMap[conversationID]; !ok {
 			searchResultItem := sdk.SearchByConversationResult{}
 			localConversation, err := c.db.GetConversation(ctx, conversationID)
@@ -615,6 +453,7 @@ func (c *Conversation) searchLocalMessages(ctx context.Context, searchParam *sdk
 			searchResultItem.ConversationID = conversationID
 			searchResultItem.FaceURL = localConversation.FaceURL
 			searchResultItem.ShowName = localConversation.ShowName
+			searchResultItem.LatestMsgSendTime = localConversation.LatestMsgSendTime
 			searchResultItem.ConversationType = localConversation.ConversationType
 			searchResultItem.MessageList = append(searchResultItem.MessageList, &temp)
 			searchResultItem.MessageCount++
@@ -625,12 +464,68 @@ func (c *Conversation) searchLocalMessages(ctx context.Context, searchParam *sdk
 			conversationMap[conversationID] = oldItem
 		}
 	}
+
+	// Compile the results from the conversationMap into the response structure
 	for _, v := range conversationMap {
 		r.SearchResultItems = append(r.SearchResultItems, v)
 		r.TotalCount += v.MessageCount
-
 	}
-	return &r, nil
+
+	// Sort the search results based on the latest message send time
+	sort.Slice(r.SearchResultItems, func(i, j int) bool {
+		return r.SearchResultItems[i].LatestMsgSendTime > r.SearchResultItems[j].LatestMsgSendTime
+	})
+
+	return &r, nil // Return the final search results
+}
+
+// true is filter, false is not filter
+func (c *Conversation) filterMsg(temp *sdk_struct.MsgStruct, searchParam *sdk.SearchLocalMessagesParams) bool {
+	switch temp.ContentType {
+	case constant.Text:
+		return !c.judgeMultipleSubString(searchParam.KeywordList, temp.TextElem.Content,
+			searchParam.KeywordListMatchType)
+	case constant.AtText:
+		return !c.judgeMultipleSubString(searchParam.KeywordList, temp.AtTextElem.Text,
+			searchParam.KeywordListMatchType)
+	case constant.File:
+		return !c.judgeMultipleSubString(searchParam.KeywordList, temp.FileElem.FileName,
+			searchParam.KeywordListMatchType)
+	case constant.Merger:
+		if !c.judgeMultipleSubString(searchParam.KeywordList, temp.MergeElem.Title, searchParam.KeywordListMatchType) {
+			for _, msgStruct := range temp.MergeElem.MultiMessage {
+				if c.filterMsg(msgStruct, searchParam) {
+					continue
+				} else {
+					break
+				}
+			}
+		}
+	case constant.Card:
+		return !c.judgeMultipleSubString(searchParam.KeywordList, temp.CardElem.Nickname,
+			searchParam.KeywordListMatchType)
+	case constant.Location:
+		return !c.judgeMultipleSubString(searchParam.KeywordList, temp.LocationElem.Description,
+			searchParam.KeywordListMatchType)
+	case constant.Custom:
+		return !c.judgeMultipleSubString(searchParam.KeywordList, temp.CustomElem.Description,
+			searchParam.KeywordListMatchType)
+	case constant.Quote:
+		if !c.judgeMultipleSubString(searchParam.KeywordList, temp.QuoteElem.Text, searchParam.KeywordListMatchType) {
+			return c.filterMsg(temp.QuoteElem.QuoteMessage, searchParam)
+		}
+	case constant.Picture:
+		fallthrough
+	case constant.Video:
+		if len(searchParam.KeywordList) == 0 {
+			return false
+		} else {
+			return true
+		}
+	default:
+		return true
+	}
+	return false
 }
 
 func (c *Conversation) delMsgBySeq(seqList []uint32) error {
@@ -935,10 +830,6 @@ func (c *Conversation) getMessageListReactionExtensions(ctx context.Context, con
 	for _, msgStruct := range messageList {
 		switch msgStruct.SessionType {
 		case constant.SingleChatType:
-			fallthrough
-		case constant.CustomerServiceChatType:
-			fallthrough
-		case constant.EncryptedChatType:
 			if msgStruct.SendID == c.loginUserID {
 				sourceID = msgStruct.RecvID
 			} else {

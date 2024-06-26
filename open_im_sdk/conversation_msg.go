@@ -15,9 +15,7 @@
 package open_im_sdk
 
 import (
-	"bytes"
-	"open_im_sdk/open_im_sdk_callback"
-	"open_im_sdk/pkg/ccontext"
+	"github.com/openimsdk/openim-sdk-core/v3/open_im_sdk_callback"
 )
 
 func GetAllConversationList(callback open_im_sdk_callback.Base, operationID string) {
@@ -29,24 +27,11 @@ func GetConversationListSplit(callback open_im_sdk_callback.Base, operationID st
 }
 
 func GetOneConversation(callback open_im_sdk_callback.Base, operationID string, sessionType int32, sourceID string) {
-	call(callback, operationID, UserForSDK.Conversation().GetOneNormalConversation, sessionType, sourceID)
+	call(callback, operationID, UserForSDK.Conversation().GetOneConversation, sessionType, sourceID)
 }
 
-// GetOnePrivateConversation 获取私聊会话
-// sourceID  string 用户id
-func GetOnePrivateConversation(callback open_im_sdk_callback.Base, operationID string, sourceID string) {
-	call(callback, operationID, UserForSDK.Conversation().GetOnePrivateConversation, sourceID)
-}
 func GetMultipleConversation(callback open_im_sdk_callback.Base, operationID string, conversationIDList string) {
 	call(callback, operationID, UserForSDK.Conversation().GetMultipleConversation, conversationIDList)
-}
-
-// funcation SetConversationRecvMessageOpt(callback open_im_sdk_callback.Base, operationID string, conversationIDList string, opt int) {
-// 	call(callback, operationID, UserForSDK.Conversation().SetConversationRecvMessageOpt, conversationIDList, opt)
-// }
-
-func SetGlobalRecvMessageOpt(callback open_im_sdk_callback.Base, operationID string, opt int) {
-	call(callback, operationID, UserForSDK.Conversation().SetGlobalRecvMessageOpt, opt)
 }
 
 func SetConversationMsgDestructTime(callback open_im_sdk_callback.Base, operationID string, conversationID string, msgDestructTime int64) {
@@ -56,16 +41,16 @@ func SetConversationMsgDestructTime(callback open_im_sdk_callback.Base, operatio
 func SetConversationIsMsgDestruct(callback open_im_sdk_callback.Base, operationID string, conversationID string, isMsgDestruct bool) {
 	call(callback, operationID, UserForSDK.Conversation().SetConversationIsMsgDestruct, conversationID, isMsgDestruct)
 }
-
+func SetConversationEx(callback open_im_sdk_callback.Base, operationID string, conversationID string, ex string) {
+	call(callback, operationID, UserForSDK.Conversation().SetOneConversationEx, conversationID, ex)
+}
 func HideConversation(callback open_im_sdk_callback.Base, operationID string, conversationID string) {
 	call(callback, operationID, UserForSDK.Conversation().HideConversation, conversationID)
 }
+
+// deprecated
 func GetConversationRecvMessageOpt(callback open_im_sdk_callback.Base, operationID string, conversationIDList string) {
 	call(callback, operationID, UserForSDK.Conversation().GetConversationRecvMessageOpt, conversationIDList)
-}
-
-func DeleteAllConversationFromLocal(callback open_im_sdk_callback.Base, operationID string) {
-	call(callback, operationID, UserForSDK.Conversation().DeleteAllConversationFromLocal)
 }
 
 func SetConversationDraft(callback open_im_sdk_callback.Base, operationID string, conversationID string, draftText string) {
@@ -95,12 +80,6 @@ func SetConversationRecvMessageOpt(callback open_im_sdk_callback.Base, operation
 func GetTotalUnreadMsgCount(callback open_im_sdk_callback.Base, operationID string) {
 	call(callback, operationID, UserForSDK.Conversation().GetTotalUnreadMsgCount)
 }
-
-// GetTotalEncryptUnreadMsgCount 获取加密会话未读数量
-func GetTotalEncryptUnreadMsgCount(callback open_im_sdk_callback.Base, operationID string) {
-	call(callback, operationID, UserForSDK.Conversation().GetTotalEncryptUnreadMsgCount)
-}
-
 func GetAtAllTag(operationID string) string {
 	return syncCall(operationID, UserForSDK.Conversation().GetAtAllTag)
 
@@ -143,13 +122,11 @@ func CreateSoundMessageFromFullPath(operationID string, soundPath string, durati
 func CreateFileMessageFromFullPath(operationID string, fileFullPath, fileName string) string {
 	return syncCall(operationID, UserForSDK.Conversation().CreateFileMessageFromFullPath, fileFullPath, fileName)
 }
-
-// CreateImageMessage 创建图片消息
 func CreateImageMessage(operationID string, imagePath string) string {
 	return syncCall(operationID, UserForSDK.Conversation().CreateImageMessage, imagePath)
 }
-func CreateImageMessageByURL(operationID string, sourcePicture, bigPicture, snapshotPicture string) string {
-	return syncCall(operationID, UserForSDK.Conversation().CreateImageMessageByURL, sourcePicture, bigPicture, snapshotPicture)
+func CreateImageMessageByURL(operationID string, sourcePath string, sourcePicture, bigPicture, snapshotPicture string) string {
+	return syncCall(operationID, UserForSDK.Conversation().CreateImageMessageByURL, sourcePath, sourcePicture, bigPicture, snapshotPicture)
 }
 
 func CreateSoundMessageByURL(operationID string, soundBaseInfo string) string {
@@ -179,65 +156,19 @@ func CreateFaceMessage(operationID string, index int, data string) string {
 func CreateForwardMessage(operationID string, m string) string {
 	return syncCall(operationID, UserForSDK.Conversation().CreateForwardMessage, m)
 }
-
-// GetConversationIDBySessionType 根据sourced和会话类型获取会话ID
 func GetConversationIDBySessionType(operationID string, sourceID string, sessionType int) string {
-	ctx := ccontext.WithOperationID(UserForSDK.BaseCtx(), operationID)
-	return UserForSDK.Conversation().GetConversationIDBySessionType(ctx, sourceID, sessionType) //syncCall(operationID, UserForSDK.Conversation().GetConversationIDBySessionType, sourceID, sessionType)
+	return syncCall(operationID, UserForSDK.Conversation().GetConversationIDBySessionType, sourceID, sessionType)
 }
-
-// SendMessage 发送消息
-// par callback 会调
-// par operationID string 链路id
-// par message     string 消息内容
-// par recvID      string 接受者id
-// par groupID     string 群ID
-// par sessionType number 会话类型
-// par offlinePushInfo string 消息通知指定
-func SendMessage(callback open_im_sdk_callback.SendMsgCallBack, operationID, message, recvID, groupID string, sessionType int32, offlinePushInfo string) {
-	messageCall(callback,
-		operationID,
-		UserForSDK.Conversation().SendMessage,
-		message,
-		recvID,
-		groupID,
-		sessionType,
-		offlinePushInfo)
+func SendMessage(callback open_im_sdk_callback.SendMsgCallBack, operationID, message, recvID, groupID, offlinePushInfo string, isOnlineOnly bool) {
+	messageCall(callback, operationID, UserForSDK.Conversation().SendMessage, message, recvID, groupID, offlinePushInfo, isOnlineOnly)
 }
-
-// SendMessageNotOss 发送消息不走sdk
-// par callback 会调
-// par operationID string 链路id
-// par message     string 消息内容
-// par recvID      string 接受者id
-// par groupID     string 群ID
-// par sessionType number 会话类型
-// par offlinePushInfo string 消息通知指定
-func SendMessageNotOss(callback open_im_sdk_callback.SendMsgCallBack, operationID string, message, recvID, groupID string, sessionType int32, offlinePushInfo string) {
-	messageCall(callback, operationID, UserForSDK.Conversation().SendMessageNotOss, message, recvID, groupID, sessionType, offlinePushInfo)
-}
-
-// SendMessageByBuffer 根据buffer发送消息
-// par callback 会调
-// par operationID string 链路id
-// par message     string 消息内容
-// par recvID      string 接受者id
-// par groupID     string 群ID
-// par sessionType number 会话类型
-// par offlinePushInfo string 消息通知指定
-// par buffer1      bytes  文件
-// par buffer2      bytes  文件
-func SendMessageByBuffer(callback open_im_sdk_callback.SendMsgCallBack, operationID string, message, recvID, groupID string, sessionType int32, offlinePushInfo string, buffer1, buffer2 *bytes.Buffer) {
-	messageCall(callback, operationID, UserForSDK.Conversation().SendMessageByBuffer, message, recvID, groupID, sessionType, offlinePushInfo, buffer1, buffer2)
+func SendMessageNotOss(callback open_im_sdk_callback.SendMsgCallBack, operationID string, message, recvID, groupID string, offlinePushInfo string, isOnlineOnly bool) {
+	messageCall(callback, operationID, UserForSDK.Conversation().SendMessageNotOss, message, recvID, groupID, offlinePushInfo, isOnlineOnly)
 }
 
 func FindMessageList(callback open_im_sdk_callback.Base, operationID string, findMessageOptions string) {
 	call(callback, operationID, UserForSDK.Conversation().FindMessageList, findMessageOptions)
 }
-
-//funcation GetHistoryMessageList(callback open_im_sdk_callback.Base, operationID string, getMessageOptions string) {
-//	call(callback, operationID, UserForSDK.Conversation().GetHistoryMessageList, getMessageOptions)
-//}
 
 func GetAdvancedHistoryMessageList(callback open_im_sdk_callback.Base, operationID string, getMessageOptions string) {
 	call(callback, operationID, UserForSDK.Conversation().GetAdvancedHistoryMessageList, getMessageOptions)
@@ -246,10 +177,6 @@ func GetAdvancedHistoryMessageList(callback open_im_sdk_callback.Base, operation
 func GetAdvancedHistoryMessageListReverse(callback open_im_sdk_callback.Base, operationID string, getMessageOptions string) {
 	call(callback, operationID, UserForSDK.Conversation().GetAdvancedHistoryMessageListReverse, getMessageOptions)
 }
-
-//funcation GetHistoryMessageListReverse(callback open_im_sdk_callback.Base, operationID string, getMessageOptions string) {
-//	call(callback, operationID, UserForSDK.Conversation().GetHistoryMessageListReverse, getMessageOptions)
-//}
 
 func RevokeMessage(callback open_im_sdk_callback.Base, operationID string, conversationID, clientMsgID string) {
 	call(callback, operationID, UserForSDK.Conversation().RevokeMessage, conversationID, clientMsgID)
@@ -276,17 +203,12 @@ func DeleteMessage(callback open_im_sdk_callback.Base, operationID string, conve
 	call(callback, operationID, UserForSDK.Conversation().DeleteMessage, conversationID, clientMsgID)
 }
 
-// DeleteSelfAndOtherMessage 删除自己的消息同时同步删除其他的人的
-func DeleteSelfAndOtherMessage(callback open_im_sdk_callback.Base, operationID string, conversationID string, clientMsgID string) {
-	call(callback, operationID, UserForSDK.Conversation().DeleteSelfAndOtherMessage, conversationID, clientMsgID)
-}
-
-func DeleteConversationFromLocal(callback open_im_sdk_callback.Base, operationID string, conversationID string) {
-	call(callback, operationID, UserForSDK.Conversation().DeleteAllConversationFromLocal)
+func HideAllConversations(callback open_im_sdk_callback.Base, operationID string) {
+	call(callback, operationID, UserForSDK.Conversation().HideAllConversations)
 }
 
 func DeleteAllMsgFromLocalAndSvr(callback open_im_sdk_callback.Base, operationID string) {
-	call(callback, operationID, UserForSDK.Conversation().DeleteAllMessage)
+	call(callback, operationID, UserForSDK.Conversation().DeleteAllMsgFromLocalAndSvr)
 }
 
 func DeleteAllMsgFromLocal(callback open_im_sdk_callback.Base, operationID string) {
@@ -301,10 +223,6 @@ func DeleteConversationAndDeleteAllMsg(callback open_im_sdk_callback.Base, opera
 	call(callback, operationID, UserForSDK.Conversation().DeleteConversationAndDeleteAllMsg, conversationID)
 }
 
-// ClearConversationAllMsg 清除双方的会话
-func ClearConversationAllMsg(callback open_im_sdk_callback.Base, operationID string, conversationID string) {
-	call(callback, operationID, UserForSDK.Conversation().ClearConversationAllMsg, conversationID)
-}
 func InsertSingleMessageToLocalStorage(callback open_im_sdk_callback.Base, operationID string, message string, recvID string, sendID string) {
 	call(callback, operationID, UserForSDK.Conversation().InsertSingleMessageToLocalStorage, message, recvID, sendID)
 }
@@ -313,24 +231,21 @@ func InsertGroupMessageToLocalStorage(callback open_im_sdk_callback.Base, operat
 	call(callback, operationID, UserForSDK.Conversation().InsertGroupMessageToLocalStorage, message, groupID, sendID)
 }
 
-// SearchLocalMessages 搜索本地消息
 func SearchLocalMessages(callback open_im_sdk_callback.Base, operationID string, searchParam string) {
 	call(callback, operationID, UserForSDK.Conversation().SearchLocalMessages, searchParam)
 }
-
-// SetMessageLocalEx 设置本地消息的ex字段属性
 func SetMessageLocalEx(callback open_im_sdk_callback.Base, operationID string, conversationID, clientMsgID, localEx string) {
 	call(callback, operationID, UserForSDK.Conversation().SetMessageLocalEx, conversationID, clientMsgID, localEx)
 }
 
-// SyncConversationMsg 根据会话同步消息
-func SyncConversationMsg(callback open_im_sdk_callback.Base, operationID string, conversationID string) {
-	call(callback, operationID, UserForSDK.MsgSyncer().SyncConversationMsg, conversationID)
+func SearchConversation(callback open_im_sdk_callback.Base, operationID string, searchParam string) {
+	call(callback, operationID, UserForSDK.Conversation().SearchConversation, searchParam)
 }
 
-func GetPrivacyConversation(callback open_im_sdk_callback.Base, operationID string) {
-	call(callback, operationID, UserForSDK.Conversation().GetPrivacyConversation, 0, 0)
+func ChangeInputStates(callback open_im_sdk_callback.Base, operationID string, conversationID string, focus bool) {
+	call(callback, operationID, UserForSDK.Conversation().ChangeInputStates, conversationID, focus)
 }
-func GetPrivacyConversationForPage(callback open_im_sdk_callback.Base, operationID string, pageSize, pageNum int) {
-	call(callback, operationID, UserForSDK.Conversation().GetPrivacyConversation, pageSize, pageNum)
+
+func GetInputStates(callback open_im_sdk_callback.Base, operationID string, conversationID string, userID string) {
+	call(callback, operationID, UserForSDK.Conversation().GetInputStates, conversationID, userID)
 }

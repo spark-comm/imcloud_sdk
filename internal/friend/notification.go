@@ -1,111 +1,135 @@
+// Copyright © 2023 OpenIM SDK. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package friend
 
 import (
-	"context"
-	"errors"
 	"fmt"
-	"github.com/imCloud/api/common/notice"
-	"github.com/imCloud/im/pkg/common/log"
-	"github.com/imCloud/im/pkg/proto/sdkws"
-	"open_im_sdk/pkg/constant"
-	"open_im_sdk/pkg/utils"
+	"github.com/OpenIMSDK/protocol/sdkws"
+	"github.com/OpenIMSDK/tools/log"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/constant"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/utils"
+	"golang.org/x/net/context"
 )
 
+func (f *Friend) DoNotification(ctx context.Context, msg *sdkws.MsgData) {
+	go func() {
+		if err := f.doNotification(ctx, msg); err != nil {
+			log.ZError(ctx, "doNotification error", err, "msg", msg)
+		}
+	}()
+}
+
 func (f *Friend) doNotification(ctx context.Context, msg *sdkws.MsgData) error {
-	if f.friendListener == nil {
-		return errors.New("f.friendListener == nil")
-	}
-	if msg.SendTime < f.loginTime || f.loginTime == 0 {
-		return errors.New("ignore notification")
-	}
 	switch msg.ContentType {
 	case constant.FriendApplicationNotification:
-		//好友请求通知
-		tips := notice.FriendApplicationTips{}
+		tips := sdkws.FriendApplicationTips{}
 		if err := utils.UnmarshalNotificationElem(msg.Content, &tips); err != nil {
 			return err
 		}
-		log.ZInfo(ctx, "收到好友请求通知，开始同步数据,tips data:%+v", tips)
-		return f.syncApplication(ctx, tips.FromToUserID)
+		return f.SyncBothFriendRequest(ctx,
+			tips.FromToUserID.FromUserID, tips.FromToUserID.ToUserID)
 	case constant.FriendApplicationApprovedNotification:
-		//发起的好友请求被同意
 		var tips sdkws.FriendApplicationApprovedTips
-		if err := utils.UnmarshalNotificationElem(msg.Content, &tips); err != nil {
+		err := utils.UnmarshalNotificationElem(msg.Content, &tips)
+		if err != nil {
 			return err
 		}
-		if err := f.syncApplicationByNotification(ctx, tips.FromToUserID); err != nil {
+
+		if tips.FromToUserID.FromUserID == f.loginUserID {
+			err = f.SyncFriends(ctx, []string{tips.FromToUserID.ToUserID})
+		} else if tips.FromToUserID.ToUserID == f.loginUserID {
+			err = f.SyncFriends(ctx, []string{tips.FromToUserID.FromUserID})
+		}
+		if err != nil {
 			return err
 		}
-		return f.syncFriendByNotification(ctx, tips.FromToUserID.ToUserID)
+		return f.SyncBothFriendRequest(ctx, tips.FromToUserID.FromUserID, tips.FromToUserID.ToUserID)
 	case constant.FriendApplicationRejectedNotification:
-		//发起的好友请求被拒绝
 		var tips sdkws.FriendApplicationRejectedTips
 		if err := utils.UnmarshalNotificationElem(msg.Content, &tips); err != nil {
 			return err
 		}
-		return f.syncApplicationByNotification(ctx, tips.FromToUserID)
+		return f.SyncBothFriendRequest(ctx, tips.FromToUserID.FromUserID, tips.FromToUserID.ToUserID)
 	case constant.FriendAddedNotification:
-		//新增好友通知
 		var tips sdkws.FriendAddedTips
 		if err := utils.UnmarshalNotificationElem(msg.Content, &tips); err != nil {
 			return err
 		}
-		//如果是后台处理这里的好友请求需要重新同步，否则移动端还能处理
-		//err := f.SyncUntreatedFriendReceiveFriendApplication(ctx)
-		//if err != nil {
-		//	log.Println(fmt.Sprintf("SyncUntreatedFriendReceiveFriendApplication err:%+v", err))
-		//}
-		return f.syncFriendByNotification(ctx, tips.Friend.OwnerUserID)
+		if tips.Friend != nil && tips.Friend.FriendUser != nil {
+			if tips.Friend.FriendUser.UserID == f.loginUserID {
+				return f.SyncFriends(ctx, []string{tips.Friend.OwnerUserID})
+			} else if tips.Friend.OwnerUserID == f.loginUserID {
+				return f.SyncFriends(ctx, []string{tips.Friend.FriendUser.UserID})
+			}
+		}
 	case constant.FriendDeletedNotification:
-		//好友被删除通知
 		var tips sdkws.FriendDeletedTips
 		if err := utils.UnmarshalNotificationElem(msg.Content, &tips); err != nil {
 			return err
 		}
-		return f.SyncDelFriend(ctx, tips.FromToUserID.FromUserID)
+		if tips.FromToUserID != nil {
+			if tips.FromToUserID.FromUserID == f.loginUserID {
+				return f.deleteFriend(ctx, tips.FromToUserID.ToUserID)
+			}
+		}
 	case constant.FriendRemarkSetNotification:
-		// 好友给设置备注
 		var tips sdkws.FriendInfoChangedTips
 		if err := utils.UnmarshalNotificationElem(msg.Content, &tips); err != nil {
 			return err
 		}
-		if tips.FromToUserID.FromUserID == f.loginUserID {
-			return f.syncFriendByNotification(ctx, tips.FromToUserID.ToUserID)
+		if tips.FromToUserID != nil {
+			if tips.FromToUserID.FromUserID == f.loginUserID {
+				return f.SyncFriends(ctx, []string{tips.FromToUserID.ToUserID})
+			}
 		}
-		return nil
 	case constant.FriendInfoUpdatedNotification:
-		//好友信息变更
 		var tips sdkws.UserInfoUpdatedTips
 		if err := utils.UnmarshalNotificationElem(msg.Content, &tips); err != nil {
 			return err
 		}
-		//blChan <- true
-		return f.syncFriendByNotification(ctx, tips.UserID)
+		if tips.UserID != f.loginUserID {
+			return f.SyncFriends(ctx, []string{tips.UserID})
+		}
 	case constant.BlackAddedNotification:
-		//被好友拉黑
 		var tips sdkws.BlackAddedTips
 		if err := utils.UnmarshalNotificationElem(msg.Content, &tips); err != nil {
 			return err
 		}
 		if tips.FromToUserID.FromUserID == f.loginUserID {
-			return f.SyncBlackList(ctx)
-		} else {
-			//被对方拉黑
-			return f.SyncBlackList(ctx)
+			return f.SyncAllBlackList(ctx)
 		}
 	case constant.BlackDeletedNotification:
-		//被好友移出黑名单
 		var tips sdkws.BlackDeletedTips
 		if err := utils.UnmarshalNotificationElem(msg.Content, &tips); err != nil {
 			return err
 		}
 		if tips.FromToUserID.FromUserID == f.loginUserID {
-			return f.SyncBlackList(ctx)
-		} else {
-			//被对方拉黑
-			return f.SyncBlackList(ctx)
+			return f.SyncAllBlackList(ctx)
+		}
+	case constant.FriendsInfoUpdateNotification:
+
+		var tips sdkws.FriendsInfoUpdateTips
+
+		if err := utils.UnmarshalNotificationElem(msg.Content, &tips); err != nil {
+			return err
+		}
+		if tips.FromToUserID.ToUserID == f.loginUserID {
+			return f.SyncFriends(ctx, tips.FriendIDs)
 		}
 	default:
 		return fmt.Errorf("type failed %d", msg.ContentType)
 	}
+	return nil
 }

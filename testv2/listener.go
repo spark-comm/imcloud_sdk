@@ -14,26 +14,29 @@
 
 package testv2
 
-import "fmt"
-
 type OnConnListener struct{}
 
+func (c *OnConnListener) OnUserTokenInvalid(errMsg string) {
+	//TODO implement me
+	panic("implement me")
+}
+
 func (c *OnConnListener) OnConnecting() {
-	fmt.Println("OnConnecting")
+	// fmt.Println("OnConnecting")
 }
 
 func (c *OnConnListener) OnConnectSuccess() {
-	fmt.Println("OnConnectSuccess")
+	// fmt.Println("OnConnectSuccess")
 }
 
 func (c *OnConnListener) OnConnectFailed(errCode int32, errMsg string) {
-	fmt.Println("OnConnectFailed")
+	// fmt.Println("OnConnectFailed")
 }
 
 func (c *OnConnListener) OnKickedOffline() {
-	fmt.Println("OnKickedOffline")
+	// fmt.Println("OnKickedOffline")
 }
 
 func (c *OnConnListener) OnUserTokenExpired() {
-	fmt.Println("OnUserTokenExpired")
+	// fmt.Println("OnUserTokenExpired")
 }

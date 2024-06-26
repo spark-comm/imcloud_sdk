@@ -18,9 +18,9 @@
 package wasm_wrapper
 
 import (
-	"open_im_sdk/open_im_sdk"
-	"open_im_sdk/pkg/utils"
-	"open_im_sdk/wasm/event_listener"
+	"github.com/openimsdk/openim-sdk-core/v3/open_im_sdk"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/utils"
+	"github.com/openimsdk/openim-sdk-core/v3/wasm/event_listener"
 	"syscall/js"
 )
 
@@ -42,48 +42,48 @@ func (w *WrapperUser) SetSelfInfo(_ js.Value, args []js.Value) interface{} {
 	callback := event_listener.NewBaseCallback(utils.FirstLower(utils.GetSelfFuncName()), w.commonFunc)
 	return event_listener.NewCaller(open_im_sdk.SetSelfInfo, callback, &args).AsyncCallWithCallback()
 }
-
+func (w *WrapperUser) SetSelfInfoEx(_ js.Value, args []js.Value) interface{} {
+	callback := event_listener.NewBaseCallback(utils.FirstLower(utils.GetSelfFuncName()), w.commonFunc)
+	return event_listener.NewCaller(open_im_sdk.SetSelfInfoEx, callback, &args).AsyncCallWithCallback()
+}
 func (w *WrapperUser) GetUsersInfo(_ js.Value, args []js.Value) interface{} {
 	callback := event_listener.NewBaseCallback(utils.FirstLower(utils.GetSelfFuncName()), w.commonFunc)
 	return event_listener.NewCaller(open_im_sdk.GetUsersInfo, callback, &args).AsyncCallWithCallback()
 }
 
-func (w *WrapperUser) SearchProfile(_ js.Value, args []js.Value) interface{} {
-	callback := event_listener.NewBaseCallback(utils.FirstLower(utils.GetSelfFuncName()), w.commonFunc)
-	return event_listener.NewCaller(open_im_sdk.SearchProfile, callback, &args).AsyncCallWithCallback()
-}
-
 func (w *WrapperUser) GetUsersInfoWithCache(_ js.Value, args []js.Value) interface{} {
 	callback := event_listener.NewBaseCallback(utils.FirstLower(utils.GetSelfFuncName()), w.commonFunc)
-	return event_listener.NewCaller(open_im_sdk.GetSpecifiedFriendsInfo, callback, &args).AsyncCallWithCallback()
+	return event_listener.NewCaller(open_im_sdk.GetUsersInfoWithCache, callback, &args).AsyncCallWithCallback()
 }
 
-//
-//func (w *WrapperUser) SubscribeUsersStatus(_ js.Value, args []js.Value) interface{} {
-//	callback := event_listener.NewBaseCallback(utils.FirstLower(utils.GetSelfFuncName()), w.commonFunc)
-//	return event_listener.NewCaller(open_im_sdk.SubscribeUsersStatus, callback, &args).AsyncCallWithCallback()
-//}
+func (w *WrapperUser) SubscribeUsersStatus(_ js.Value, args []js.Value) interface{} {
+	callback := event_listener.NewBaseCallback(utils.FirstLower(utils.GetSelfFuncName()), w.commonFunc)
+	return event_listener.NewCaller(open_im_sdk.SubscribeUsersStatus, callback, &args).AsyncCallWithCallback()
+}
 
-//	func (w *WrapperUser) UnsubscribeUsersStatus(_ js.Value, args []js.Value) interface{} {
-//		callback := event_listener.NewBaseCallback(utils.FirstLower(utils.GetSelfFuncName()), w.commonFunc)
-//		return event_listener.NewCaller(open_im_sdk.UnsubscribeUsersStatus, callback, &args).AsyncCallWithCallback()
-//	}
-//
-//	func (w *WrapperUser) GetSubscribeUsersStatus(_ js.Value, args []js.Value) interface{} {
-//		callback := event_listener.NewBaseCallback(utils.FirstLower(utils.GetSelfFuncName()), w.commonFunc)
-//		return event_listener.NewCaller(open_im_sdk.GetSubscribeUsersStatus, callback, &args).AsyncCallWithCallback()
-//	}
+func (w *WrapperUser) UnsubscribeUsersStatus(_ js.Value, args []js.Value) interface{} {
+	callback := event_listener.NewBaseCallback(utils.FirstLower(utils.GetSelfFuncName()), w.commonFunc)
+	return event_listener.NewCaller(open_im_sdk.UnsubscribeUsersStatus, callback, &args).AsyncCallWithCallback()
+}
+
+func (w *WrapperUser) GetSubscribeUsersStatus(_ js.Value, args []js.Value) interface{} {
+	callback := event_listener.NewBaseCallback(utils.FirstLower(utils.GetSelfFuncName()), w.commonFunc)
+	return event_listener.NewCaller(open_im_sdk.GetSubscribeUsersStatus, callback, &args).AsyncCallWithCallback()
+}
+
 func (w *WrapperUser) GetUserStatus(_ js.Value, args []js.Value) interface{} {
 	callback := event_listener.NewBaseCallback(utils.FirstLower(utils.GetSelfFuncName()), w.commonFunc)
-	return event_listener.NewCaller(open_im_sdk.GetLoginUserStatus, callback, &args).AsyncCallWithCallback()
+	return event_listener.NewCaller(open_im_sdk.GetUserStatus, callback, &args).AsyncCallWithCallback()
 }
-
-func (w *WrapperUser) GetSearchUserInfo(_ js.Value, args []js.Value) interface{} {
+func (w *WrapperUser) AddUserCommand(_ js.Value, args []js.Value) interface{} {
 	callback := event_listener.NewBaseCallback(utils.FirstLower(utils.GetSelfFuncName()), w.commonFunc)
-	return event_listener.NewCaller(open_im_sdk.SearchUser, callback, &args).AsyncCallWithCallback()
+	return event_listener.NewCaller(open_im_sdk.AddUserCommand, callback, &args).AsyncCallWithCallback()
 }
-
-func (w *WrapperUser) SetUsersOption(_ js.Value, args []js.Value) interface{} {
+func (w *WrapperUser) DeleteUserCommand(_ js.Value, args []js.Value) interface{} {
 	callback := event_listener.NewBaseCallback(utils.FirstLower(utils.GetSelfFuncName()), w.commonFunc)
-	return event_listener.NewCaller(open_im_sdk.SetUsersOption, callback, &args).AsyncCallWithCallback()
+	return event_listener.NewCaller(open_im_sdk.DeleteUserCommand, callback, &args).AsyncCallWithCallback()
+}
+func (w *WrapperUser) GetAllUserCommands(_ js.Value, args []js.Value) interface{} {
+	callback := event_listener.NewBaseCallback(utils.FirstLower(utils.GetSelfFuncName()), w.commonFunc)
+	return event_listener.NewCaller(open_im_sdk.GetAllUserCommands, callback, &args).AsyncCallWithCallback()
 }

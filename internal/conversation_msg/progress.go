@@ -17,11 +17,11 @@ package conversation_msg
 import (
 	"context"
 	"encoding/json"
-	"fmt"
-	"github.com/imCloud/im/pkg/common/log"
-	"open_im_sdk/internal/file"
-	"open_im_sdk/pkg/db/db_interface"
-	"open_im_sdk/sdk_struct"
+	"github.com/openimsdk/openim-sdk-core/v3/internal/file"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/db/db_interface"
+	"github.com/openimsdk/openim-sdk-core/v3/sdk_struct"
+
+	"github.com/OpenIMSDK/tools/log"
 )
 
 func NewUploadFileCallback(ctx context.Context, progress func(progress int), msg *sdk_struct.MsgStruct, conversationID string, db db_interface.DataBase) file.UploadFileCallback {
@@ -45,14 +45,11 @@ type msgUploadFileCallback struct {
 
 func (c *msgUploadFileCallback) Open(size int64) {
 }
+
 func (c *msgUploadFileCallback) PartSize(partSize int64, num int) {
-	//TODO implement me
-	fmt.Println(partSize)
 }
 
 func (c *msgUploadFileCallback) HashPartProgress(index int, size int64, partHash string) {
-	//TODO implement me
-	fmt.Println(index)
 }
 
 func (c *msgUploadFileCallback) HashPartComplete(partsHash string, fileHash string) {
@@ -70,10 +67,8 @@ func (c *msgUploadFileCallback) UploadID(uploadID string) {
 }
 
 func (c *msgUploadFileCallback) UploadPartComplete(index int, partSize int64, partHash string) {
-
 }
 
-// UploadComplete 上传文件
 func (c *msgUploadFileCallback) UploadComplete(fileSize int64, streamSize int64, storageSize int64) {
 	c.msg.AttachedInfoElem.Progress.Save = storageSize
 	c.msg.AttachedInfoElem.Progress.Current = streamSize
@@ -86,9 +81,6 @@ func (c *msgUploadFileCallback) UploadComplete(fileSize int64, streamSize int64,
 		log.ZError(c.ctx, "update PutProgress message attached info failed", err)
 	}
 	value := int(float64(streamSize) / float64(fileSize) * 100)
-	if value < 1 {
-		value = 1
-	}
 	if c.value < value {
 		c.value = value
 		c.progress(value)
@@ -96,6 +88,9 @@ func (c *msgUploadFileCallback) UploadComplete(fileSize int64, streamSize int64,
 }
 
 func (c *msgUploadFileCallback) Complete(size int64, url string, typ int) {
+	if c.value != 100 {
+		c.progress(100)
+	}
 	c.msg.AttachedInfoElem.Progress = nil
 	data, err := json.Marshal(c.msg.AttachedInfoElem)
 	if err != nil {

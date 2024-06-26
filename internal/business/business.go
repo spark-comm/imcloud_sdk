@@ -16,17 +16,18 @@ package business
 
 import (
 	"context"
-	"github.com/imCloud/im/pkg/proto/sdkws"
-	"open_im_sdk/open_im_sdk_callback"
-	"open_im_sdk/pkg/db/db_interface"
-	"open_im_sdk/pkg/utils"
-	"open_im_sdk/sdk_struct"
+	"github.com/openimsdk/openim-sdk-core/v3/open_im_sdk_callback"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/db/db_interface"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/utils"
+	"github.com/openimsdk/openim-sdk-core/v3/sdk_struct"
 
-	"github.com/imCloud/im/pkg/common/log"
+	"github.com/OpenIMSDK/protocol/sdkws"
+
+	"github.com/OpenIMSDK/tools/log"
 )
 
 type Business struct {
-	listener open_im_sdk_callback.OnCustomBusinessListener
+	listener func() open_im_sdk_callback.OnCustomBusinessListener
 	db       db_interface.DataBase
 }
 
@@ -37,10 +38,6 @@ func NewBusiness(db db_interface.DataBase) *Business {
 }
 
 func (b *Business) DoNotification(ctx context.Context, msg *sdkws.MsgData) {
-	if b.listener == nil {
-		log.ZWarn(ctx, "listener is nil", nil, "msg", msg)
-		return
-	}
 	var n sdk_struct.NotificationElem
 	err := utils.JsonStringToStruct(string(msg.Content), &n)
 	if err != nil {
@@ -48,5 +45,5 @@ func (b *Business) DoNotification(ctx context.Context, msg *sdkws.MsgData) {
 		return
 
 	}
-	b.listener.OnRecvCustomBusinessMessage(n.Detail)
+	b.listener().OnRecvCustomBusinessMessage(n.Detail)
 }

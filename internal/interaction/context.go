@@ -15,8 +15,9 @@
 package interaction
 
 import (
-	"github.com/imCloud/im/pkg/common/constant"
 	"time"
+
+	"github.com/OpenIMSDK/protocol/constant"
 )
 
 type ConnContext struct {

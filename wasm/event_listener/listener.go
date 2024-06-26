@@ -18,10 +18,10 @@
 package event_listener
 
 import (
-	"open_im_sdk/internal/file"
-	"open_im_sdk/open_im_sdk_callback"
-	"open_im_sdk/pkg/utils"
-	"open_im_sdk/sdk_struct"
+	"github.com/openimsdk/openim-sdk-core/v3/internal/file"
+	"github.com/openimsdk/openim-sdk-core/v3/open_im_sdk_callback"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/utils"
+	"github.com/openimsdk/openim-sdk-core/v3/sdk_struct"
 	"syscall/js"
 )
 
@@ -54,7 +54,16 @@ func (i *ConnCallback) OnUserTokenExpired() {
 	i.CallbackWriter.SetEvent(utils.GetSelfFuncName()).SendMessage()
 }
 
-func (i *ConnCallback) OnSelfInfoUpdated(userInfo string) {
+func (i *ConnCallback) OnUserTokenInvalid(errMsg string) {
+	i.CallbackWriter.SetEvent(utils.GetSelfFuncName()).SetData(errMsg).SendMessage()
+}
+func (i *ConnCallback) OnUserCommandAdd(userInfo string) {
+	i.CallbackWriter.SetEvent(utils.GetSelfFuncName()).SetData(userInfo).SendMessage()
+}
+func (i *ConnCallback) OnUserCommandDelete(userInfo string) {
+	i.CallbackWriter.SetEvent(utils.GetSelfFuncName()).SetData(userInfo).SendMessage()
+}
+func (i *ConnCallback) OnUserCommandUpdate(userInfo string) {
 	i.CallbackWriter.SetEvent(utils.GetSelfFuncName()).SetData(userInfo).SendMessage()
 }
 
@@ -92,13 +101,9 @@ func (c ConversationCallback) OnConversationChanged(conversationList string) {
 func (c ConversationCallback) OnTotalUnreadMessageCountChanged(totalUnreadCount int32) {
 	c.CallbackWriter.SetEvent(utils.GetSelfFuncName()).SetData(totalUnreadCount).SendMessage()
 }
-func (c ConversationCallback) OnDeleteConversation(conversationList string) {
-	c.CallbackWriter.SetEvent(utils.GetSelfFuncName()).SetData(conversationList).SendMessage()
-}
 
-// 会话清除回调
-func (c ConversationCallback) OnClearConversation(conversationIds string) {
-	c.CallbackWriter.SetEvent(utils.GetSelfFuncName()).SetData(conversationIds).SendMessage()
+func (c ConversationCallback) OnConversationUserInputStatusChanged(change string) {
+	c.CallbackWriter.SetEvent(utils.GetSelfFuncName()).SetData(change).SendMessage()
 }
 
 type AdvancedMsgCallback struct {
@@ -154,6 +159,10 @@ func (a AdvancedMsgCallback) OnRecvOfflineNewMessage(message string) {
 }
 
 func (a AdvancedMsgCallback) OnMsgDeleted(message string) {
+	a.CallbackWriter.SetEvent(utils.GetSelfFuncName()).SetData(message).SendMessage()
+}
+
+func (a AdvancedMsgCallback) OnRecvOnlineOnlyMessage(message string) {
 	a.CallbackWriter.SetEvent(utils.GetSelfFuncName()).SetData(message).SendMessage()
 }
 
@@ -394,10 +403,23 @@ func (u UserCallback) OnUserStatusChanged(statusMap string) {
 	u.CallbackWriter.SetEvent(utils.GetSelfFuncName()).SetData(statusMap).SendMessage()
 }
 
+func (u UserCallback) OnUserInputStatusChanged(change string) {
+	u.CallbackWriter.SetEvent(utils.GetSelfFuncName()).SetData(change).SendMessage()
+}
+
 func NewUserCallback(callback *js.Value) *UserCallback {
 	return &UserCallback{CallbackWriter: NewEventData(callback)}
 }
 func (u UserCallback) OnSelfInfoUpdated(userInfo string) {
+	u.CallbackWriter.SetEvent(utils.GetSelfFuncName()).SetData(userInfo).SendMessage()
+}
+func (u UserCallback) OnUserCommandAdd(userInfo string) {
+	u.CallbackWriter.SetEvent(utils.GetSelfFuncName()).SetData(userInfo).SendMessage()
+}
+func (u UserCallback) OnUserCommandDelete(userInfo string) {
+	u.CallbackWriter.SetEvent(utils.GetSelfFuncName()).SetData(userInfo).SendMessage()
+}
+func (u UserCallback) OnUserCommandUpdate(userInfo string) {
 	u.CallbackWriter.SetEvent(utils.GetSelfFuncName()).SetData(userInfo).SendMessage()
 }
 

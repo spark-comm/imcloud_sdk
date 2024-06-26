@@ -15,9 +15,10 @@
 package main
 
 import (
+	"errors"
 	"flag"
-	"open_im_sdk/pkg/log"
-	"open_im_sdk/test"
+	"github.com/OpenIMSDK/tools/log"
+	"github.com/openimsdk/openim-sdk-core/v3/test"
 )
 
 func main() {
@@ -30,7 +31,8 @@ func main() {
 	intervalTime = flag.Int("t", 10, "interval time mill second")
 	flag.Parse()
 	test.InitMgr(*senderNum)
-	log.NewPrivateLog(test.LogName, test.LogLevel)
-	log.Warn("", "reliability test start, sender num: ", *senderNum, " single sender msg num: ", *singleSenderMsgNum, " send msg total num: ", *senderNum**singleSenderMsgNum)
+	log.ZInfo(ctx, "logName", test.LogName, "logLevel", uint32(test.LogLevel))
+	log.ZWarn(ctx, "reliability test start ", errors.New(""), "sender num", *senderNum, " single sender msg num", *singleSenderMsgNum, " send msg total num ", *senderNum**singleSenderMsgNum)
+
 	test.ReliabilityTest(*singleSenderMsgNum, *intervalTime, 10, *senderNum)
 }

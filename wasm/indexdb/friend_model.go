@@ -19,15 +19,13 @@ package indexdb
 
 import (
 	"context"
-	"open_im_sdk/pkg/db/pg"
-	"open_im_sdk/pkg/sdk_params_callback"
-	"open_im_sdk/wasm/exec"
+	"github.com/openimsdk/openim-sdk-core/v3/wasm/exec"
 )
 
 import (
-	"open_im_sdk/pkg/db/model_struct"
-	"open_im_sdk/pkg/utils"
-	"open_im_sdk/wasm/indexdb/temp_struct"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/db/model_struct"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/utils"
+	"github.com/openimsdk/openim-sdk-core/v3/wasm/indexdb/temp_struct"
 )
 
 type Friend struct {
@@ -43,8 +41,8 @@ func (i *Friend) InsertFriend(ctx context.Context, friend *model_struct.LocalFri
 	return err
 }
 
-func (i *Friend) DeleteFriendDB(ctx context.Context, friendUserID ...string) error {
-	_, err := exec.Exec(friendUserID[0], i.loginUserID)
+func (i *Friend) DeleteFriendDB(ctx context.Context, friendUserID string) error {
+	_, err := exec.Exec(friendUserID, i.loginUserID)
 	return err
 }
 
@@ -53,13 +51,14 @@ func (i *Friend) UpdateFriend(ctx context.Context, friend *model_struct.LocalFri
 		OwnerUserID:    friend.OwnerUserID,
 		FriendUserID:   friend.FriendUserID,
 		Remark:         friend.Remark,
-		CreateAt:       friend.CreateAt,
+		CreateTime:     friend.CreateTime,
 		AddSource:      friend.AddSource,
 		OperatorUserID: friend.OperatorUserID,
 		Nickname:       friend.Nickname,
 		FaceURL:        friend.FaceURL,
 		Ex:             friend.Ex,
 		AttachedInfo:   friend.AttachedInfo,
+		IsPinned:       friend.IsPinned,
 	}
 	_, err := exec.Exec(utils.StructToJsonString(tempLocalFriend))
 	return err
@@ -108,6 +107,13 @@ func (i *Friend) SearchFriendList(ctx context.Context, keyword string, isSearchU
 		}
 	}
 }
+func (i *Friend) UpdateColumnsFriend(ctx context.Context, friendIDs []string, args map[string]interface{}) error {
+	_, err := exec.Exec(utils.StructToJsonString(friendIDs), utils.StructToJsonString(args))
+	if err != nil {
+		return err // Return immediately if there's an error with any friendID
+	}
+	return nil
+}
 
 func (i *Friend) GetFriendInfoByFriendUserID(ctx context.Context, FriendUserID string) (*model_struct.LocalFriend, error) {
 	c, err := exec.Exec(FriendUserID, i.loginUserID)
@@ -127,8 +133,8 @@ func (i *Friend) GetFriendInfoByFriendUserID(ctx context.Context, FriendUserID s
 	}
 }
 
-func (i *Friend) GetFriendInfoList(ctx context.Context, friendUserIDList []string, filterNotPeersFriend bool) (result []*model_struct.LocalFriend, err error) {
-	gList, err := exec.Exec(utils.StructToJsonString(friendUserIDList), filterNotPeersFriend)
+func (i *Friend) GetFriendInfoList(ctx context.Context, friendUserIDList []string) (result []*model_struct.LocalFriend, err error) {
+	gList, err := exec.Exec(utils.StructToJsonString(friendUserIDList))
 	if err != nil {
 		return nil, err
 	} else {
@@ -163,36 +169,4 @@ func (i *Friend) GetPageFriendList(ctx context.Context, offset, count int) (resu
 			return nil, exec.ErrType
 		}
 	}
-}
-func (i *Friend) GetFriendInfoNotPeersList(ctx context.Context, friendUserIDList []string) ([]*model_struct.LocalFriend, error) {
-	gList, err := exec.Exec(utils.StructToJsonString(friendUserIDList))
-	if err != nil {
-		return nil, err
-	} else {
-		result := make([]*model_struct.LocalFriend, 0)
-		if v, ok := gList.(string); ok {
-			err := utils.JsonStringToStruct(v, &result)
-			if err != nil {
-				return nil, err
-			}
-			return result, err
-		} else {
-			return nil, exec.ErrType
-		}
-	}
-	return nil, nil
-}
-
-// 获取不在列表的好友数据
-func (i *Friend) GetNotInListFriendInfo(ctx context.Context, cond, user string, userIDs []string, pageSize, pageNum int) ([]sdk_params_callback.SearchNotInGroupUserResp, int64, error) {
-	return nil, 0, nil
-}
-func (i *Friend) GetFriendList(ctx context.Context, page *pg.Page) ([]*model_struct.LocalFriend, error) {
-	return nil, nil
-}
-
-// GetFriendUpdateTime 获取群信息
-func (d *Friend) GetFriendUpdateTime(ctx context.Context) (map[string]int64, error) {
-	res := make(map[string]int64)
-	return res, nil
 }

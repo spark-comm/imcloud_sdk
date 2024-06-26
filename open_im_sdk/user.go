@@ -14,21 +14,35 @@
 
 package open_im_sdk
 
-import "open_im_sdk/open_im_sdk_callback"
+import (
+	"github.com/openimsdk/openim-sdk-core/v3/open_im_sdk_callback"
+)
 
-// GetUsersInfo 获取用户信息
 func GetUsersInfo(callback open_im_sdk_callback.Base, operationID string, userIDs string) {
 	call(callback, operationID, UserForSDK.Full().GetUsersInfo, userIDs)
 }
 
-// GetUsersInfo obtains the information about multiple users.
+func GetUsersInfoWithCache(callback open_im_sdk_callback.Base, operationID string, userIDs, groupID string) {
+	call(callback, operationID, UserForSDK.Full().GetUsersInfoWithCache, userIDs, groupID)
+}
+
+// GetUsersInfoFromSrv obtains the information about multiple users.
 func GetUsersInfoFromSrv(callback open_im_sdk_callback.Base, operationID string, userIDs string) {
 	call(callback, operationID, UserForSDK.User().GetUsersInfo, userIDs)
 }
 
 // SetSelfInfo sets the user's own information.
+// Deprecated: user SetSelfInfoEx instead
 func SetSelfInfo(callback open_im_sdk_callback.Base, operationID string, userInfo string) {
 	call(callback, operationID, UserForSDK.User().SetSelfInfo, userInfo)
+}
+
+// SetSelfInfoEx sets the user's own information with Ex field.
+func SetSelfInfoEx(callback open_im_sdk_callback.Base, operationID string, userInfo string) {
+	call(callback, operationID, UserForSDK.User().SetSelfInfoEx, userInfo)
+}
+func SetGlobalRecvMessageOpt(callback open_im_sdk_callback.Base, operationID string, opt int) {
+	call(callback, operationID, UserForSDK.User().SetGlobalRecvMessageOpt, opt)
 }
 
 // GetSelfUserInfo obtains the user's own information.
@@ -41,34 +55,37 @@ func UpdateMsgSenderInfo(callback open_im_sdk_callback.Base, operationID string,
 	call(callback, operationID, UserForSDK.User().UpdateMsgSenderInfo, nickname, faceURL)
 }
 
-// SearchUser by search value and search type
-// par operationID  链路id
-// par searchValue  搜索的值
-// par searchType   类型 1:手机号，2:id,3扫码,5:邮箱
-func SearchUser(callback open_im_sdk_callback.Base, operationID string, searchValue string, searchType int) {
-	call(callback, operationID, UserForSDK.User().SearchUserInfo, searchValue, searchType)
+// SubscribeUsersStatus Presence status of subscribed users.
+func SubscribeUsersStatus(callback open_im_sdk_callback.Base, operationID string, userIDs string) {
+	call(callback, operationID, UserForSDK.User().SubscribeUsersStatus, userIDs)
 }
 
-// GetLoginUserStatus 获取用户状态
-// par operationID  链路id
-// par userID  用户id
-func GetLoginUserStatus(callback open_im_sdk_callback.Base, operationID string, userID string) {
-	call(callback, operationID, UserForSDK.User().GetUserLoginStatus, userID)
+// UnsubscribeUsersStatus Unsubscribe a user's presence.
+func UnsubscribeUsersStatus(callback open_im_sdk_callback.Base, operationID string, userIDs string) {
+	call(callback, operationID, UserForSDK.User().UnsubscribeUsersStatus, userIDs)
 }
 
-// SetUsersOption 设置用户配置项
-// par operationID  链路id
-// @par option string  配置项
-// @par value  number  值
-func SetUsersOption(callback open_im_sdk_callback.Base, operationID, option string, value int32) {
-	call(callback, operationID, UserForSDK.User().SetUsersOption, option, value)
+// GetSubscribeUsersStatus Get the online status of subscribers.
+func GetSubscribeUsersStatus(callback open_im_sdk_callback.Base, operationID string) {
+	call(callback, operationID, UserForSDK.User().GetSubscribeUsersStatus)
 }
 
-// SyncUsersOption 同步用户配置状态
-func SyncUsersOption(callback open_im_sdk_callback.Base, operationID string) {
-	call(callback, operationID, UserForSDK.User().SyncUserOperation)
+// GetUserStatus Get the online status of users.
+func GetUserStatus(callback open_im_sdk_callback.Base, operationID string, userIDs string) {
+	call(callback, operationID, UserForSDK.User().GetUserStatus, userIDs)
 }
 
-func SearchProfile(callback open_im_sdk_callback.Base, operationID string, keyWord string) {
-	call(callback, operationID, UserForSDK.User().ScreenUserProfile, keyWord)
+// AddUserCommand add to user's favorite
+func AddUserCommand(callback open_im_sdk_callback.Base, operationID string, Type int32, uuid string, value string) {
+	call(callback, operationID, UserForSDK.User().ProcessUserCommandAdd, Type, uuid, value)
+}
+
+// DeleteUserCommand delete from user's favorite
+func DeleteUserCommand(callback open_im_sdk_callback.Base, operationID string, Type int32, uuid string) {
+	call(callback, operationID, UserForSDK.User().ProcessUserCommandDelete, Type, uuid)
+}
+
+// GetAllUserCommands get user's favorite
+func GetAllUserCommands(callback open_im_sdk_callback.Base, operationID string, Type int32) {
+	call(callback, operationID, UserForSDK.User().ProcessUserCommandGetAll, Type)
 }

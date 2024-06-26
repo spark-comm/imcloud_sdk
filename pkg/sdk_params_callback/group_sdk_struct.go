@@ -15,9 +15,9 @@
 package sdk_params_callback
 
 import (
-	"open_im_sdk/pkg/constant"
-	"open_im_sdk/pkg/db/model_struct"
-	"open_im_sdk/pkg/server_api_params"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/constant"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/db/model_struct"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/server_api_params"
 )
 
 type CreateGroupBaseInfoParam struct {
@@ -109,52 +109,3 @@ const AcceptGroupApplicationCallback = constant.SuccessCallbackDefault
 
 // type RefuseGroupApplicationParam
 const RefuseGroupApplicationCallback = constant.SuccessCallbackDefault
-
-type GetKickGroupListReq struct {
-	GroupID  string `json:"groupID"`
-	IsManger bool   `json:"isManger"`
-	Name     string `json:"name"`
-	PageSize int    `json:"pageSize"`
-	PageNum  int    `json:"pageNum"`
-	UserID   string `json:"userID"`
-}
-type SearchKickGroupListInfoRes struct {
-	Total         int64            `json:"total"`
-	KickGroupList []*KickGroupList `json:"kickGroupList"`
-}
-
-type KickGroupList struct {
-	GroupId       string `gorm:"column:group_id" json:"groupID"`
-	FriendUserID  string `gorm:"column:user_id" json:"friendUserID"`
-	Nickname      string `json:"nickname"`
-	RoleLevel     int    `gorm:"column:role_level" json:"roleLevel"`
-	JoinTime      int64  `gorm:"column:join_time" json:"joinTime"`
-	FaceURL       string `gorm:"column:face_url" json:"faceURL"`
-	Code          string `json:"code"`
-	Phone         string `json:"phone"`
-	Gender        int    `json:"gender"`
-	GroupUserName string `gorm:"column:group_user_name" json:"groupUserName"`
-}
-
-type SearchNotInGroupUserReq struct {
-	GroupID  string `json:"groupID"`
-	UserID   string `json:"userID"`
-	Name     string `json:"name"`
-	PageSize int    `json:"pageSize"`
-	PageNum  int    `json:"pageNum"`
-}
-
-type SearchNotInGroupUserResp struct {
-	FriendUserID string `gorm:"column:friend_user_id" json:"friendUserID"`
-	FaceURL      string `gorm:"column:face_url" json:"faceURL"`
-	Nickname     string `json:"nickname"`
-	Code         string `json:"code"`
-	Phone        string `json:"phone"`
-	Gender       int32  `json:"gender"`
-	Remark       string `json:"remark"`
-}
-
-type SearchNotInGroupUserInfoRes struct {
-	Total   int64                      `json:"total"`
-	Friends []SearchNotInGroupUserResp `json:"friends"`
-}

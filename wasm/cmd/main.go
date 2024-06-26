@@ -19,8 +19,7 @@ package main
 
 import (
 	"fmt"
-	"open_im_sdk/pkg/log"
-	"open_im_sdk/wasm/wasm_wrapper"
+	"github.com/openimsdk/openim-sdk-core/v3/wasm/wasm_wrapper"
 	"runtime"
 	"runtime/debug"
 
@@ -30,7 +29,7 @@ import (
 func main() {
 	defer func() {
 		if r := recover(); r != nil {
-			log.Error("MAIN", "panic info is:", r, string(debug.Stack()))
+			fmt.Println("MAIN", "panic info is:", r, debug.Stack())
 		}
 	}()
 	fmt.Println("runtime env", runtime.GOARCH, runtime.GOOS)
@@ -85,7 +84,6 @@ func registerFunc() {
 	js.Global().Set("markMessagesAsReadByMsgID", js.FuncOf(wrapperConMsg.MarkMessagesAsReadByMsgID))
 	js.Global().Set("sendMessage", js.FuncOf(wrapperConMsg.SendMessage))
 	js.Global().Set("sendMessageNotOss", js.FuncOf(wrapperConMsg.SendMessageNotOss))
-	js.Global().Set("sendMessageByBuffer", js.FuncOf(wrapperConMsg.SendMessageByBuffer))
 	//js.Global().Set("setMessageReactionExtensions", js.FuncOf(wrapperConMsg.SetMessageReactionExtensions))
 	//js.Global().Set("addMessageReactionExtensions", js.FuncOf(wrapperConMsg.AddMessageReactionExtensions))
 	//js.Global().Set("deleteMessageReactionExtensions", js.FuncOf(wrapperConMsg.DeleteMessageReactionExtensions))
@@ -95,28 +93,27 @@ func registerFunc() {
 	js.Global().Set("getConversationListSplit", js.FuncOf(wrapperConMsg.GetConversationListSplit))
 	js.Global().Set("getOneConversation", js.FuncOf(wrapperConMsg.GetOneConversation))
 	js.Global().Set("deleteConversationAndDeleteAllMsg", js.FuncOf(wrapperConMsg.DeleteConversationAndDeleteAllMsg))
-	//清除自己和对方的会话
-	js.Global().Set("clearConversationAllMsg", js.FuncOf(wrapperConMsg.ClearConversationAllMsg))
 	js.Global().Set("getAdvancedHistoryMessageList", js.FuncOf(wrapperConMsg.GetAdvancedHistoryMessageList))
 	js.Global().Set("getAdvancedHistoryMessageListReverse", js.FuncOf(wrapperConMsg.GetAdvancedHistoryMessageListReverse))
 	js.Global().Set("getMultipleConversation", js.FuncOf(wrapperConMsg.GetMultipleConversation))
 	js.Global().Set("setConversationPrivateChat", js.FuncOf(wrapperConMsg.SetConversationPrivateChat))
 	js.Global().Set("setConversationRecvMessageOpt", js.FuncOf(wrapperConMsg.SetConversationRecvMessageOpt))
 	js.Global().Set("setGlobalRecvMessageOpt", js.FuncOf(wrapperConMsg.SetGlobalRecvMessageOpt))
-	js.Global().Set("deleteAllConversationFromLocal", js.FuncOf(wrapperConMsg.DeleteAllConversationFromLocal))
 	js.Global().Set("hideConversation", js.FuncOf(wrapperConMsg.HideConversation))
 	js.Global().Set("setConversationDraft", js.FuncOf(wrapperConMsg.SetConversationDraft))
+	js.Global().Set("searchConversation", js.FuncOf(wrapperConMsg.SearchConversation))
 	js.Global().Set("resetConversationGroupAtType", js.FuncOf(wrapperConMsg.ResetConversationGroupAtType))
 	js.Global().Set("pinConversation", js.FuncOf(wrapperConMsg.PinConversation))
 	js.Global().Set("getTotalUnreadMsgCount", js.FuncOf(wrapperConMsg.GetTotalUnreadMsgCount))
 	js.Global().Set("setConversationBurnDuration", js.FuncOf(wrapperConMsg.SetConversationBurnDuration))
+	js.Global().Set("setConversationEx", js.FuncOf(wrapperConMsg.SetConversationEx))
 	js.Global().Set("findMessageList", js.FuncOf(wrapperConMsg.FindMessageList))
 
 	js.Global().Set("revokeMessage", js.FuncOf(wrapperConMsg.RevokeMessage))
 	js.Global().Set("typingStatusUpdate", js.FuncOf(wrapperConMsg.TypingStatusUpdate))
 	js.Global().Set("deleteMessageFromLocalStorage", js.FuncOf(wrapperConMsg.DeleteMessageFromLocalStorage))
 	js.Global().Set("deleteMessage", js.FuncOf(wrapperConMsg.DeleteMessage))
-	js.Global().Set("deleteSelfAndOtherMessage", js.FuncOf(wrapperConMsg.DeleteSelfAndOtherMessage))
+	js.Global().Set("hideAllConversations", js.FuncOf(wrapperConMsg.HideAllConversations))
 	js.Global().Set("deleteAllMsgFromLocalAndSvr", js.FuncOf(wrapperConMsg.DeleteAllMsgFromLocalAndSvr))
 	js.Global().Set("deleteAllMsgFromLocal", js.FuncOf(wrapperConMsg.DeleteAllMsgFromLocal))
 	js.Global().Set("clearConversationAndDeleteAllMsg", js.FuncOf(wrapperConMsg.ClearConversationAndDeleteAllMsg))
@@ -124,6 +121,9 @@ func registerFunc() {
 	js.Global().Set("insertGroupMessageToLocalStorage", js.FuncOf(wrapperConMsg.InsertGroupMessageToLocalStorage))
 	js.Global().Set("searchLocalMessages", js.FuncOf(wrapperConMsg.SearchLocalMessages))
 	js.Global().Set("setMessageLocalEx", js.FuncOf(wrapperConMsg.SetMessageLocalEx))
+
+	js.Global().Set("changeInputStates", js.FuncOf(wrapperConMsg.ChangeInputStates))
+	js.Global().Set("getInputStates", js.FuncOf(wrapperConMsg.GetInputStates))
 
 	//register group funcation
 	wrapperGroup := wasm_wrapper.NewWrapperGroup(globalFuc)
@@ -135,12 +135,13 @@ func registerFunc() {
 	js.Global().Set("changeGroupMute", js.FuncOf(wrapperGroup.ChangeGroupMute))
 	js.Global().Set("changeGroupMemberMute", js.FuncOf(wrapperGroup.ChangeGroupMemberMute))
 	js.Global().Set("setGroupMemberRoleLevel", js.FuncOf(wrapperGroup.SetGroupMemberRoleLevel))
+	js.Global().Set("setGroupMemberInfo", js.FuncOf(wrapperGroup.SetGroupMemberInfo))
 	js.Global().Set("getJoinedGroupList", js.FuncOf(wrapperGroup.GetJoinedGroupList))
 	js.Global().Set("searchGroups", js.FuncOf(wrapperGroup.SearchGroups))
 	js.Global().Set("setGroupInfo", js.FuncOf(wrapperGroup.SetGroupInfo))
-	//js.Global().Set("setGroupVerification", js.FuncOf(wrapperGroup.SetGroupVerification))
-	//js.Global().Set("setGroupLookMemberInfo", js.FuncOf(wrapperGroup.SetGroupLookMemberInfo))
-	//js.Global().Set("setGroupApplyMemberFriend", js.FuncOf(wrapperGroup.SetGroupApplyMemberFriend))
+	js.Global().Set("setGroupVerification", js.FuncOf(wrapperGroup.SetGroupVerification))
+	js.Global().Set("setGroupLookMemberInfo", js.FuncOf(wrapperGroup.SetGroupLookMemberInfo))
+	js.Global().Set("setGroupApplyMemberFriend", js.FuncOf(wrapperGroup.SetGroupApplyMemberFriend))
 	js.Global().Set("getGroupMemberList", js.FuncOf(wrapperGroup.GetGroupMemberList))
 	js.Global().Set("getGroupMemberOwnerAndAdmin", js.FuncOf(wrapperGroup.GetGroupMemberOwnerAndAdmin))
 	js.Global().Set("getGroupMemberListByJoinTimeFilter", js.FuncOf(wrapperGroup.GetGroupMemberListByJoinTimeFilter))
@@ -155,23 +156,20 @@ func registerFunc() {
 	js.Global().Set("setGroupMemberNickname", js.FuncOf(wrapperGroup.SetGroupMemberNickname))
 	js.Global().Set("searchGroupMembers", js.FuncOf(wrapperGroup.SearchGroupMembers))
 	js.Global().Set("isJoinGroup", js.FuncOf(wrapperGroup.IsJoinGroup))
-	js.Global().Set("searchGroupInfo", js.FuncOf(wrapperGroup.SearchGroupInfo))
-	js.Global().Set("searchNotInGroupFriendList", js.FuncOf(wrapperGroup.SearchNotInGroupFriendList))
-	js.Global().Set("setGroupSwitchInfo", js.FuncOf(wrapperGroup.SetGroupSwitchInfo))
-	js.Global().Set("setGroupChatBackground", js.FuncOf(wrapperGroup.SetGroupChatBackground))
 
 	wrapperUser := wasm_wrapper.NewWrapperUser(globalFuc)
 	js.Global().Set("getSelfUserInfo", js.FuncOf(wrapperUser.GetSelfUserInfo))
 	js.Global().Set("setSelfInfo", js.FuncOf(wrapperUser.SetSelfInfo))
+	js.Global().Set("setSelfInfoEx", js.FuncOf(wrapperUser.SetSelfInfoEx))
 	js.Global().Set("getUsersInfo", js.FuncOf(wrapperUser.GetUsersInfo))
 	js.Global().Set("getUsersInfoWithCache", js.FuncOf(wrapperUser.GetUsersInfoWithCache))
-	js.Global().Set("searchProfile", js.FuncOf(wrapperUser.SearchProfile))
-	js.Global().Set("getSearchUserInfo", js.FuncOf(wrapperUser.GetSearchUserInfo))
-	//js.Global().Set("subscribeUsersStatus", js.FuncOf(wrapperUser.SubscribeUsersStatus))
-	//js.Global().Set("unsubscribeUsersStatus", js.FuncOf(wrapperUser.UnsubscribeUsersStatus))
-	//js.Global().Set("getSubscribeUsersStatus", js.FuncOf(wrapperUser.GetSubscribeUsersStatus))
+	js.Global().Set("subscribeUsersStatus", js.FuncOf(wrapperUser.SubscribeUsersStatus))
+	js.Global().Set("unsubscribeUsersStatus", js.FuncOf(wrapperUser.UnsubscribeUsersStatus))
+	js.Global().Set("getSubscribeUsersStatus", js.FuncOf(wrapperUser.GetSubscribeUsersStatus))
 	js.Global().Set("getUserStatus", js.FuncOf(wrapperUser.GetUserStatus))
-	js.Global().Set("setUsersOption", js.FuncOf(wrapperUser.SetUsersOption))
+	js.Global().Set("addUserCommand", js.FuncOf(wrapperUser.AddUserCommand))
+	js.Global().Set("deleteUserCommand", js.FuncOf(wrapperUser.DeleteUserCommand))
+	js.Global().Set("getAllUserCommands", js.FuncOf(wrapperUser.GetAllUserCommands))
 
 	wrapperFriend := wasm_wrapper.NewWrapperFriend(globalFuc)
 	js.Global().Set("getSpecifiedFriendsInfo", js.FuncOf(wrapperFriend.GetSpecifiedFriendsInfo))
@@ -180,6 +178,7 @@ func registerFunc() {
 	js.Global().Set("checkFriend", js.FuncOf(wrapperFriend.CheckFriend))
 	js.Global().Set("addFriend", js.FuncOf(wrapperFriend.AddFriend))
 	js.Global().Set("setFriendRemark", js.FuncOf(wrapperFriend.SetFriendRemark))
+	js.Global().Set("pinFriends", js.FuncOf(wrapperFriend.PinFriends))
 	js.Global().Set("deleteFriend", js.FuncOf(wrapperFriend.DeleteFriend))
 	js.Global().Set("getFriendApplicationListAsRecipient", js.FuncOf(wrapperFriend.GetFriendApplicationListAsRecipient))
 	js.Global().Set("getFriendApplicationListAsApplicant", js.FuncOf(wrapperFriend.GetFriendApplicationListAsApplicant))
@@ -188,14 +187,7 @@ func registerFunc() {
 	js.Global().Set("getBlackList", js.FuncOf(wrapperFriend.GetBlackList))
 	js.Global().Set("removeBlack", js.FuncOf(wrapperFriend.RemoveBlack))
 	js.Global().Set("addBlack", js.FuncOf(wrapperFriend.AddBlack))
-
-	//wrapperSignaling := wasm_wrapper.NewWrapperSignaling(globalFuc)
-	//js.Global().Set("signalingInviteInGroup", js.FuncOf(wrapperSignaling.SignalingInviteInGroup))
-	//js.Global().Set("signalingInvite", js.FuncOf(wrapperSignaling.SignalingInvite))
-	//js.Global().Set("signalingAccept", js.FuncOf(wrapperSignaling.SignalingAccept))
-	//js.Global().Set("signalingReject", js.FuncOf(wrapperSignaling.SignalingReject))
-	//js.Global().Set("signalingCancel", js.FuncOf(wrapperSignaling.SignalingCancel))
-	//js.Global().Set("signalingHungUp", js.FuncOf(wrapperSignaling.SignalingHungUp))
+	js.Global().Set("setFriendsEx", js.FuncOf(wrapperFriend.SetFriendsEx))
 
 	wrapperThird := wasm_wrapper.NewWrapperThird(globalFuc)
 	js.Global().Set("updateFcmToken", js.FuncOf(wrapperThird.UpdateFcmToken))

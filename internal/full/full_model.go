@@ -16,10 +16,14 @@ package full
 
 import (
 	"context"
-	"open_im_sdk/pkg/db/model_struct"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/db/model_struct"
 )
 
 func (u *Full) GetGroupInfoByGroupID(ctx context.Context, groupID string) (*model_struct.LocalGroup, error) {
 	g2, err := u.group.GetGroupInfoFromLocal2Svr(ctx, groupID)
 	return g2, err
+}
+
+func (u *Full) GetGroupsInfo(ctx context.Context, groupIDs ...string) (map[string]*model_struct.LocalGroup, error) {
+	return u.group.GetGroupsInfoFromLocal2Svr(ctx, groupIDs...)
 }

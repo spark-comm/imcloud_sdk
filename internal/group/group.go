@@ -16,28 +16,25 @@ package group
 
 import (
 	"context"
-	"github.com/imCloud/im/pkg/common/log"
-	"open_im_sdk/internal/util"
-	"open_im_sdk/open_im_sdk_callback"
-	"open_im_sdk/pkg/common"
-	"open_im_sdk/pkg/constant"
-	"open_im_sdk/pkg/db/db_interface"
-	"open_im_sdk/pkg/db/model_struct"
-	"open_im_sdk/pkg/delayqueue"
-	"open_im_sdk/pkg/sdkerrs"
-	"open_im_sdk/pkg/syncer"
-	"open_im_sdk/pkg/utils"
+	"github.com/OpenIMSDK/tools/log"
+	utils2 "github.com/OpenIMSDK/tools/utils"
+	"github.com/openimsdk/openim-sdk-core/v3/open_im_sdk_callback"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/common"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/constant"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/db/db_interface"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/db/model_struct"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/sdkerrs"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/server_api"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/syncer"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/utils"
 )
 
 func NewGroup(loginUserID string, db db_interface.DataBase,
-	conversationCh, groupCh chan common.Cmd2Value) *Group {
+	conversationCh chan common.Cmd2Value) *Group {
 	g := &Group{
 		loginUserID:    loginUserID,
 		db:             db,
-		groupCh:        groupCh,
-		syncGroup:      make(map[string]bool),
 		conversationCh: conversationCh,
-		syncGroupQueue: delayqueue.New[int](),
 	}
 	g.initSyncer()
 	return g
@@ -45,42 +42,22 @@ func NewGroup(loginUserID string, db db_interface.DataBase,
 
 // //utils.GetCurrentTimestampByMill()
 type Group struct {
-	listener                open_im_sdk_callback.OnGroupListener
+	listener                func() open_im_sdk_callback.OnGroupListener
 	loginUserID             string
 	db                      db_interface.DataBase
 	groupSyncer             *syncer.Syncer[*model_struct.LocalGroup, string]
 	groupMemberSyncer       *syncer.Syncer[*model_struct.LocalGroupMember, [2]string]
 	groupRequestSyncer      *syncer.Syncer[*model_struct.LocalGroupRequest, [2]string]
 	groupAdminRequestSyncer *syncer.Syncer[*model_struct.LocalAdminGroupRequest, [2]string]
-	loginTime               int64
 	joinedSuperGroupCh      chan common.Cmd2Value
 	heartbeatCmdCh          chan common.Cmd2Value
-	groupCh                 chan common.Cmd2Value
-	conversationCh          chan common.Cmd2Value
-	syncGroup               map[string]bool
-	// 同步群组信息延迟队列
-	syncGroupQueue     *delayqueue.DelayQueue[int]
+
+	conversationCh chan common.Cmd2Value
+	//	memberSyncMutex sync.RWMutex
+
 	listenerForService open_im_sdk_callback.OnListenerForService
 }
 
-// Work 群工作
-func (g *Group) Work(c2v common.Cmd2Value) {
-	switch c2v.Cmd {
-	case constant.CmdGroupMemberChange:
-		g.handelGroupMemberInfo(c2v)
-	case constant.CmdSyncGroup:
-		//延迟同步群信息
-		g.delaySyncJoinGroup(c2v.Ctx)
-	case constant.CmdSyncGroupMembers:
-		//同步群成员
-		g.SyncAllGroupMember(c2v.Ctx, c2v.Value.(string))
-	}
-}
-
-// GetCh 获取通道
-func (g *Group) GetCh() chan common.Cmd2Value {
-	return g.groupCh
-}
 func (g *Group) initSyncer() {
 	g.groupSyncer = syncer.New(func(ctx context.Context, value *model_struct.LocalGroup) error {
 		return g.db.InsertGroup(ctx, value)
@@ -90,33 +67,34 @@ func (g *Group) initSyncer() {
 		}
 		return g.db.DeleteGroup(ctx, value.GroupID)
 	}, func(ctx context.Context, server, local *model_struct.LocalGroup) error {
-		log.ZInfo(ctx, "groupSyncer trigger update funcation", "groupID", server.GroupID, "server", server, "local", local)
+		log.ZInfo(ctx, "groupSyncer trigger update function", "groupID", server.GroupID, "server", server, "local", local)
 		return g.db.UpdateGroup(ctx, server)
 	}, func(value *model_struct.LocalGroup) string {
 		return value.GroupID
 	}, nil, func(ctx context.Context, state int, server, local *model_struct.LocalGroup) error {
-		if g.listener == nil {
-			return nil
-		}
 		switch state {
 		case syncer.Insert:
-			g.listener.OnJoinedGroupAdded(utils.StructToJsonString(server))
-			_ = common.TriggerCmdUpdateConversation(ctx, common.UpdateConNode{Action: constant.UpdateConFaceUrlAndNickName, Args: common.SourceIDAndSessionType{SourceID: server.GroupID,
-				SessionType: constant.SuperGroupChatType, FaceURL: server.FaceURL, Nickname: server.GroupName}}, g.conversationCh)
+			//when a user kicked to the group and invited to the group again, group info maybe updated,so conversation
+			//info need to be updated
+			g.listener().OnJoinedGroupAdded(utils.StructToJsonString(server))
+			_ = common.TriggerCmdUpdateConversation(ctx, common.UpdateConNode{Action: constant.UpdateConFaceUrlAndNickName,
+				Args: common.SourceIDAndSessionType{SourceID: server.GroupID, SessionType: constant.SuperGroupChatType,
+					FaceURL: server.FaceURL, Nickname: server.GroupName}}, g.conversationCh)
 		case syncer.Delete:
-			g.listener.OnJoinedGroupDeleted(utils.StructToJsonString(local))
+			g.listener().OnJoinedGroupDeleted(utils.StructToJsonString(local))
 		case syncer.Update:
-			log.ZInfo(ctx, "groupSyncer trigger update", "groupID", server.GroupID, "data", server, "isDismissed", server.Status == constant.GroupStatusDismissed)
+			log.ZInfo(ctx, "groupSyncer trigger update", "groupID",
+				server.GroupID, "data", server, "isDismissed", server.Status == constant.GroupStatusDismissed)
 			if server.Status == constant.GroupStatusDismissed {
 				if err := g.db.DeleteGroupAllMembers(ctx, server.GroupID); err != nil {
 					log.ZError(ctx, "delete group all members failed", err)
 				}
-				g.listener.OnGroupDismissed(utils.StructToJsonString(server))
+				g.listener().OnGroupDismissed(utils.StructToJsonString(server))
 			} else {
-				g.listener.OnGroupInfoChanged(utils.StructToJsonString(server))
+				g.listener().OnGroupInfoChanged(utils.StructToJsonString(server))
 				if server.GroupName != local.GroupName || local.FaceURL != server.FaceURL {
-					_ = common.TriggerCmdUpdateConversation(ctx, common.UpdateConNode{Action: constant.UpdateConFaceUrlAndNickName, Args: common.SourceIDAndSessionType{SourceID: server.GroupID,
-						SessionType: constant.SuperGroupChatType, FaceURL: server.FaceURL, Nickname: server.GroupName}}, g.conversationCh)
+					_ = common.TriggerCmdUpdateConversation(ctx, common.UpdateConNode{Action: constant.UpdateConFaceUrlAndNickName,
+						Args: common.SourceIDAndSessionType{SourceID: server.GroupID, SessionType: constant.SuperGroupChatType, FaceURL: server.FaceURL, Nickname: server.GroupName}}, g.conversationCh)
 				}
 			}
 		}
@@ -133,30 +111,23 @@ func (g *Group) initSyncer() {
 	}, func(value *model_struct.LocalGroupMember) [2]string {
 		return [...]string{value.GroupID, value.UserID}
 	}, nil, func(ctx context.Context, state int, server, local *model_struct.LocalGroupMember) error {
-		if g.listener == nil {
-			return nil
-		}
 		switch state {
 		case syncer.Insert:
-			//log.ZError(ctx, fmt.Sprintf("触发自己信息同步%s", utils.StructToJsonString(server)), nil)
-			//if server.UserID == g.loginUserID {
-			//	//如果是自己则更新会话的背景
-			//	sessionType := g.getConversationIDBySessionType(server.GroupID, constant.WorkingGroup)
-			//	_ = common.TriggerCmdUpdateConversationBackgroundURL(ctx, sessionType, server.BackgroundURL, g.conversationCh)
-			//}
-			g.listener.OnGroupMemberAdded(utils.StructToJsonString(server))
+			g.listener().OnGroupMemberAdded(utils.StructToJsonString(server))
+			//when a user kicked and invited to the group again, group member info will be updated
+			_ = common.TriggerCmdUpdateMessage(ctx,
+				common.UpdateMessageNode{Action: constant.UpdateMsgFaceUrlAndNickName,
+					Args: common.UpdateMessageInfo{SessionType: constant.SuperGroupChatType, UserID: server.UserID, FaceURL: server.FaceURL,
+						Nickname: server.Nickname, GroupID: server.GroupID}}, g.conversationCh)
 		case syncer.Delete:
-			g.listener.OnGroupMemberDeleted(utils.StructToJsonString(local))
+			g.listener().OnGroupMemberDeleted(utils.StructToJsonString(local))
 		case syncer.Update:
-			g.listener.OnGroupMemberInfoChanged(utils.StructToJsonString(server))
-			if server.Nickname != local.Nickname || server.FaceURL != local.FaceURL || server.GroupUserName != local.GroupUserName {
-				nickname := server.Nickname
-				if server.GroupUserName != "" {
-					nickname = server.GroupUserName
-				}
-				// 更新本地消息
-				_ = common.TriggerCmdUpdateMessage(ctx, common.UpdateMessageNode{Action: constant.UpdateMsgFaceUrlAndNickName, Args: common.UpdateMessageInfo{UserID: server.UserID, FaceURL: server.FaceURL,
-					Nickname: nickname, GroupID: server.GroupID}}, g.conversationCh)
+			g.listener().OnGroupMemberInfoChanged(utils.StructToJsonString(server))
+			if server.Nickname != local.Nickname || server.FaceURL != local.FaceURL {
+				_ = common.TriggerCmdUpdateMessage(ctx,
+					common.UpdateMessageNode{Action: constant.UpdateMsgFaceUrlAndNickName,
+						Args: common.UpdateMessageInfo{SessionType: constant.SuperGroupChatType, UserID: server.UserID, FaceURL: server.FaceURL,
+							Nickname: server.Nickname, GroupID: server.GroupID}}, g.conversationCh)
 			}
 		}
 		return nil
@@ -173,15 +144,15 @@ func (g *Group) initSyncer() {
 	}, nil, func(ctx context.Context, state int, server, local *model_struct.LocalGroupRequest) error {
 		switch state {
 		case syncer.Insert:
-			g.listener.OnGroupApplicationAdded(utils.StructToJsonString(server))
+			g.listener().OnGroupApplicationAdded(utils.StructToJsonString(server))
 		case syncer.Update:
 			switch server.HandleResult {
 			case constant.FriendResponseAgree:
-				g.listener.OnGroupApplicationAccepted(utils.StructToJsonString(server))
+				g.listener().OnGroupApplicationAccepted(utils.StructToJsonString(server))
 			case constant.FriendResponseRefuse:
-				g.listener.OnGroupApplicationRejected(utils.StructToJsonString(server))
+				g.listener().OnGroupApplicationRejected(utils.StructToJsonString(server))
 			default:
-				g.listener.OnGroupApplicationAdded(utils.StructToJsonString(server))
+				g.listener().OnGroupApplicationAdded(utils.StructToJsonString(server))
 			}
 		}
 		return nil
@@ -198,15 +169,15 @@ func (g *Group) initSyncer() {
 	}, nil, func(ctx context.Context, state int, server, local *model_struct.LocalAdminGroupRequest) error {
 		switch state {
 		case syncer.Insert:
-			g.listener.OnGroupApplicationAdded(utils.StructToJsonString(server))
+			g.listener().OnGroupApplicationAdded(utils.StructToJsonString(server))
 		case syncer.Update:
 			switch server.HandleResult {
 			case constant.FriendResponseAgree:
-				g.listener.OnGroupApplicationAccepted(utils.StructToJsonString(server))
+				g.listener().OnGroupApplicationAccepted(utils.StructToJsonString(server))
 			case constant.FriendResponseRefuse:
-				g.listener.OnGroupApplicationRejected(utils.StructToJsonString(server))
+				g.listener().OnGroupApplicationRejected(utils.StructToJsonString(server))
 			default:
-				g.listener.OnGroupApplicationAdded(utils.StructToJsonString(server))
+				g.listener().OnGroupApplicationAdded(utils.StructToJsonString(server))
 			}
 		}
 		return nil
@@ -214,19 +185,8 @@ func (g *Group) initSyncer() {
 
 }
 
-func (g *Group) SetGroupListener(callback open_im_sdk_callback.OnGroupListener) {
-	if callback == nil {
-		return
-	}
-	g.listener = callback
-}
-
-func (g *Group) LoginTime() int64 {
-	return g.loginTime
-}
-
-func (g *Group) SetLoginTime(loginTime int64) {
-	g.loginTime = loginTime
+func (g *Group) SetGroupListener(listener func() open_im_sdk_callback.OnGroupListener) {
+	g.listener = listener
 }
 
 func (g *Group) SetListenerForService(listener open_im_sdk_callback.OnListenerForService) {
@@ -245,10 +205,9 @@ func (g *Group) GetGroupOwnerIDAndAdminIDList(ctx context.Context, groupID strin
 	return localGroup.OwnerUserID, adminIDList, nil
 }
 
-// GetGroupInfoFromLocal2Svr 从服务端获取群信息
 func (g *Group) GetGroupInfoFromLocal2Svr(ctx context.Context, groupID string) (*model_struct.LocalGroup, error) {
 	localGroup, err := g.db.GetGroupInfoByGroupID(ctx, groupID)
-	if err == nil && localGroup.GroupID != "" {
+	if err == nil {
 		return localGroup, nil
 	}
 	svrGroup, err := g.getGroupsInfoFromSvr(ctx, []string{groupID})
@@ -258,66 +217,45 @@ func (g *Group) GetGroupInfoFromLocal2Svr(ctx context.Context, groupID string) (
 	if len(svrGroup) == 0 {
 		return nil, sdkerrs.ErrGroupIDNotFound.Wrap("server not this group")
 	}
-	if err := g.groupSyncer.Sync(ctx, util.Batch(ServerGroupToLocalGroup, svrGroup), []*model_struct.LocalGroup{localGroup}, nil); err != nil {
-		log.ZDebug(ctx, "sync group info err:%v", err)
-	}
-	return ServerGroupToLocalGroup(svrGroup[0]), nil
+	return svrGroup[0], nil
 }
 
-// GetGroupInfoAndSelfGroupMemberInfoFromLocal2Svr 从本地和服务端获取群信息和当前用户在群中的信息
-func (g *Group) GetGroupInfoAndSelfGroupMemberInfoFromLocal2Svr(ctx context.Context, groupID string) (*model_struct.LocalGroup, *model_struct.LocalGroupMember, error) {
-	localGroup, err := g.db.GetGroupInfoByGroupID(ctx, groupID)
-	var localHaveGroup bool
-	if err == nil && localGroup.GroupID != "" {
-		localHaveGroup = true
+func (g *Group) GetGroupsInfoFromLocal2Svr(ctx context.Context, groupIDs ...string) (map[string]*model_struct.LocalGroup, error) {
+	groupMap := make(map[string]*model_struct.LocalGroup)
+	if len(groupIDs) == 0 {
+		return groupMap, nil
 	}
-	localSelfGroupMember, err := g.db.GetGroupMemberInfoByGroupIDUserID(ctx, groupID, g.loginUserID)
+	groups, err := g.db.GetGroups(ctx, groupIDs)
 	if err != nil {
-		log.ZError(ctx, "GetGroupInfoAndSelfGroupMemberInfoFromLocal2Svr->GetGroupMemberInfoByGroupIDUserID failed", err)
+		return nil, err
 	}
-	if localHaveGroup {
-		return localGroup, localSelfGroupMember, nil
+	var groupIDsNeedSync []string
+	localGroupIDs := utils2.Slice(groups, func(group *model_struct.LocalGroup) string {
+		return group.GroupID
+	})
+	for _, groupID := range groupIDs {
+		if !utils2.Contain(groupID, localGroupIDs...) {
+			groupIDsNeedSync = append(groupIDsNeedSync, groupID)
+		}
 	}
-	//不存在从服务端获取
-	groupInfos, err := g.FindFullGroupInfo(ctx, groupID)
-	if err != nil {
-		return nil, localSelfGroupMember, err
+
+	if len(groupIDsNeedSync) > 0 {
+		svrGroups, err := g.getGroupsInfoFromSvr(ctx, groupIDsNeedSync)
+		if err != nil {
+			return nil, err
+		}
+		for _, svrGroup := range svrGroups {
+			groups = append(groups, svrGroup)
+		}
 	}
-	if len(groupInfos) > 0 {
-		localGroup = ServerBaseGroupToLocalGroup(groupInfos[0])
+	for _, group := range groups {
+		groupMap[group.GroupID] = group
 	}
-	return localGroup, localSelfGroupMember, nil
-	//if localHaveGroup {
-	//	return localGroup, localSelfGroupMember, nil
-	//}
-	//svrGroup, err := g.getGroupsInfoFromSvr(ctx, []string{groupID})
-	//if err != nil {
-	//	return nil, localSelfGroupMember, err
-	//}
-	//if len(svrGroup) == 0 {
-	//	return nil, localSelfGroupMember, sdkerrs.ErrGroupIDNotFound.Wrap("server not this group")
-	//}
-	//if err := g.groupSyncer.Sync(ctx, util.Batch(ServerGroupToLocalGroup, svrGroup), []*model_struct.LocalGroup{localGroup}, nil); err != nil {
-	//	log.ZDebug(ctx, "sync group info err:%v", err)
-	//}
-	//return ServerGroupToLocalGroup(svrGroup[0]), localSelfGroupMember, nil
+	return groupMap, nil
 }
 
-// GetGroupInfoAndSelfGroupMemberInfoFromLocal 从本地获取群信息和当前用户在群中的信息
-func (g *Group) GetGroupInfoAndSelfGroupMemberInfoFromLocal(ctx context.Context, groupID string) (*model_struct.LocalGroup, *model_struct.LocalGroupMember, error) {
-	localGroup, err := g.db.GetGroupInfoByGroupID(ctx, groupID)
-	var localHaveGroup bool
-	if err == nil && localGroup.GroupID != "" {
-		localHaveGroup = true
-	}
-	localSelfGroupMember, err := g.db.GetGroupMemberInfoByGroupIDUserID(ctx, groupID, g.loginUserID)
-	if err != nil {
-		log.ZError(ctx, "GetGroupInfoAndSelfGroupMemberInfoFromLocal2Svr->GetGroupMemberInfoByGroupIDUserID failed", err)
-	}
-	if localHaveGroup {
-		return localGroup, localSelfGroupMember, nil
-	}
-	return localGroup, localSelfGroupMember, nil
+func (g *Group) getGroupsInfoFromSvr(ctx context.Context, groupIDs []string) ([]*model_struct.LocalGroup, error) {
+	return server_api.GetGroupsInfo(ctx, groupIDs...)
 }
 
 func (g *Group) GetJoinedDiffusionGroupIDListFromSvr(ctx context.Context) ([]string, error) {
@@ -334,38 +272,29 @@ func (g *Group) GetJoinedDiffusionGroupIDListFromSvr(ctx context.Context) ([]str
 	return groupIDs, nil
 }
 
-// GetGroupMemberFromLocal2Svr 从本地和服务端获取群成员数据
-func (g *Group) GetGroupMemberFromLocal2Svr(ctx context.Context, groupID string, userIDList []string) ([]*model_struct.LocalGroupMember, error) {
-	//log.ZInfo(ctx, "获取群成员GetGroupMemberFromLocal2Svr", "groupID", groupID, "userIDList", userIDList)
-	if groupID == "" {
-		var res []*model_struct.LocalGroupMember
-		return res, nil
-	}
-	localGroupMembers, err := g.db.GetGroupSomeMemberInfo(ctx, groupID, userIDList)
-	if err == nil && len(localGroupMembers) > 0 {
-		return localGroupMembers, nil
-	}
-	svrGroupMembers, err := g.GetDesignatedGroupMembers(ctx, groupID, userIDList...)
+func (g *Group) DeleteGroupAndMemberInfo(ctx context.Context) {
+	memberGroupIDs, err := g.db.GetGroupMemberAllGroupIDs(ctx)
 	if err != nil {
-		return nil, err
+		log.ZError(ctx, "GetGroupMemberAllGroupIDs failed", err)
+		return
 	}
-	if len(svrGroupMembers) == 0 {
-		return nil, sdkerrs.ErrGroupMemberNotFound.Wrap("group member not found")
-	}
-	if err := g.groupMemberSyncer.Sync(ctx, util.Batch(ServerGroupMemberToLocalGroupMember, svrGroupMembers), localGroupMembers, nil); err != nil {
-		log.ZDebug(ctx, "sync group member info err:%v", err)
-	}
-	return util.Batch(ServerGroupMemberToLocalGroupMember, svrGroupMembers), nil
-}
-
-// handelGroupMemberInfo 处理群成员信息变更
-func (g *Group) handelGroupMemberInfo(c2v common.Cmd2Value) {
-	info := c2v.Value.(common.UpdateGroupMemberInfo)
-	agrs := make(map[string]interface{})
-	agrs["face_url"] = info.FaceUrl
-	agrs["nickname"] = info.Nickname
-	ctx := context.Background()
-	if err := g.db.UpdateGroupMemberInfo(ctx, info.UserId, agrs); err != nil {
-		log.ZError(ctx, "update group member info err", err)
+	if len(memberGroupIDs) > 0 {
+		groups, err := g.db.GetJoinedGroupListDB(ctx)
+		if err != nil {
+			log.ZError(ctx, "GetJoinedGroupListDB failed", err)
+			return
+		}
+		memberGroupIDMap := make(map[string]struct{})
+		for _, groupID := range memberGroupIDs {
+			memberGroupIDMap[groupID] = struct{}{}
+		}
+		for _, info := range groups {
+			delete(memberGroupIDMap, info.GroupID)
+		}
+		for groupID := range memberGroupIDMap {
+			if err := g.db.DeleteGroupAllMembers(ctx, groupID); err != nil {
+				log.ZError(ctx, "DeleteGroupAllMembers failed", err, "groupID", groupID)
+			}
+		}
 	}
 }

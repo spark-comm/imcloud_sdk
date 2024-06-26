@@ -19,7 +19,7 @@ package indexdb
 
 import (
 	"context"
-	"open_im_sdk/wasm/exec"
+	"github.com/openimsdk/openim-sdk-core/v3/wasm/exec"
 )
 
 //1,使用wasm原生的方式，tinygo应用于go的嵌入式领域，支持的功能有限，支持go语言的子集,甚至json序列化都无法支持
@@ -43,6 +43,7 @@ type IndexDB struct {
 	LocalGroupRequest
 	LocalCacheMessage
 	LocalStrangers
+	LocalUserCommand
 	*FriendRequest
 	*Black
 	*Friend
@@ -97,20 +98,4 @@ func (i IndexDB) SetChatLogFailedStatus(ctx context.Context) {
 	//	}
 	//
 	//}
-}
-
-func (d *IndexDB) DeleteExpireUpload(ctx context.Context) error {
-	//d.mRWMutex.Lock()
-	//defer d.mRWMutex.Unlock()
-	//var uploads []*model_struct.LocalUpload
-	//err := d.conn.WithContext(ctx).Where("expire_time <= ?", time.Now().UnixMilli()).Find(&uploads).Error
-	//if err != nil {
-	//	return Wrap(err)
-	//}
-	//for _, upload := range uploads {
-	//	if err := d.deleteUpload(ctx, upload.PartHash); err != nil {
-	//		return err
-	//	}
-	//}
-	return nil
 }

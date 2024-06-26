@@ -20,9 +20,8 @@ package db
 import (
 	"context"
 	"errors"
-	"open_im_sdk/pkg/db/model_struct"
-	"open_im_sdk/pkg/db/pg"
-	"open_im_sdk/pkg/utils"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/db/model_struct"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/utils"
 )
 
 func (d *DataBase) InsertAdminGroupRequest(ctx context.Context, groupRequest *model_struct.LocalAdminGroupRequest) error {
@@ -34,7 +33,7 @@ func (d *DataBase) InsertAdminGroupRequest(ctx context.Context, groupRequest *mo
 func (d *DataBase) DeleteAdminGroupRequest(ctx context.Context, groupID, userID string) error {
 	d.groupMtx.Lock()
 	defer d.groupMtx.Unlock()
-	return utils.Wrap(d.conn.WithContext(ctx).Where("group_id=? and user_id=?", groupID, userID).Unscoped().Delete(&model_struct.LocalAdminGroupRequest{}).Error, "DeleteAdminGroupRequest failed")
+	return utils.Wrap(d.conn.WithContext(ctx).Where("group_id=? and user_id=?", groupID, userID).Delete(&model_struct.LocalAdminGroupRequest{}).Error, "DeleteAdminGroupRequest failed")
 }
 
 func (d *DataBase) UpdateAdminGroupRequest(ctx context.Context, groupRequest *model_struct.LocalAdminGroupRequest) error {
@@ -51,32 +50,7 @@ func (d *DataBase) GetAdminGroupApplication(ctx context.Context) ([]*model_struc
 	d.groupMtx.Lock()
 	defer d.groupMtx.Unlock()
 	var groupRequestList []model_struct.LocalAdminGroupRequest
-	err := utils.Wrap(d.conn.WithContext(ctx).
-		Where("handle_result = 0"). //只获取待处理的群
-		Order("create_time DESC").Find(&groupRequestList).Error, "")
-	if err != nil {
-		return nil, utils.Wrap(err, "")
-	}
-	var transfer []*model_struct.LocalAdminGroupRequest
-	var groupMap = make(map[string]struct{})
-	for _, v := range groupRequestList {
-		v1 := v
-		if _, ok := groupMap[v.GroupID]; ok {
-			continue
-		}
-		groupMap[v.GroupID] = struct{}{}
-		transfer = append(transfer, &v1)
-	}
-	return transfer, nil
-}
-
-func (d *DataBase) GetPageGroupApplicationListAsRecipient(ctx context.Context, groupId string, page *pg.Page) ([]*model_struct.LocalAdminGroupRequest, error) {
-	d.groupMtx.Lock()
-	defer d.groupMtx.Unlock()
-	var groupRequestList []model_struct.LocalAdminGroupRequest
-	err := utils.Wrap(d.conn.WithContext(ctx).Where("group_id = ?", groupId).
-		Where("handle_result = 0"). //待处理
-		Scopes(pg.Operation(page)).Order("handle_result asc,req_time DESC").Find(&groupRequestList).Error, "")
+	err := utils.Wrap(d.conn.WithContext(ctx).Order("create_time DESC").Find(&groupRequestList).Error, "")
 	if err != nil {
 		return nil, utils.Wrap(err, "")
 	}

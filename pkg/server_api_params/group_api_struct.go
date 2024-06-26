@@ -14,7 +14,7 @@
 
 package server_api_params
 
-import "github.com/imCloud/im/pkg/proto/sdkws"
+import "github.com/OpenIMSDK/protocol/sdkws"
 
 type CommResp struct {
 	ErrCode int32  `json:"errCode"`

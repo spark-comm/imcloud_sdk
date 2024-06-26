@@ -29,7 +29,7 @@ const (
 	CmdForceSyncLoginUerInfo      = "012"
 	CmdReLogin                    = "013"
 	CmdUnInit                     = "014"
-	CmdAcceptFriend               = "015" //好友请求被同意
+	CmdAcceptFriend               = "015"
 	CmdRefuseFriend               = "016"
 	CmdAddFriend                  = "017"
 
@@ -39,17 +39,11 @@ const (
 	CmdReconnect = "020"
 	CmdInit      = "021"
 
-	CmdGroupMemberChange = "021"
-	CmdSyncGroup         = "022"
-	CmdSyncGroupMembers  = "023"
-	// CmdNewMsgCheckCompleteness 收到新消息检查完整性
-	CmdNewMsgCheckCompleteness = "NewMsgCheckCompleteness"
-	CmdPushSeq                 = "maxSeq"
-	CmdSysncMsG                = "CmdSysncMsG"
-	CmdPushMsg                 = "pushMsg"
-	CmdConnSuccesss            = "connSuccess"
-	CmdWakeUp                  = "wakeUp"
-	CmdLogOut                  = "loginOut"
+	CmdMaxSeq       = "maxSeq"
+	CmdPushMsg      = "pushMsg"
+	CmdConnSuccesss = "connSuccess"
+	CmdWakeUp       = "wakeUp"
+	CmdLogOut       = "loginOut"
 )
 
 const (
@@ -72,7 +66,7 @@ const (
 	CustomMsgOnlineOnly             = 120
 	ReactionMessageModifier         = 121
 	ReactionMessageDeleter          = 122
-	RedMsg                          = 123
+
 	//////////////////////////////////////////
 	NotificationBegin       = 1000
 	FriendNotificationBegin = 1200
@@ -86,13 +80,19 @@ const (
 	BlackAddedNotification                = 1207 //add_black
 	BlackDeletedNotification              = 1208 //remove_black
 	FriendInfoUpdatedNotification         = 1209
+	FriendsInfoUpdateNotification         = 1210
 	FriendNotificationEnd                 = 1299
 	ConversationChangeNotification        = 1300
 
-	UserNotificationBegin       = 1301
-	UserInfoUpdatedNotification = 1303 //SetSelfInfoTip             = 204
-	UserNotificationEnd         = 1399
-	OANotification              = 1400
+	UserNotificationBegin         = 1301
+	UserInfoUpdatedNotification   = 1303 //SetSelfInfoTip             = 204
+	UserStatusChangeNotification  = 1304
+	UserCommandAddNotification    = 1305
+	UserCommandDeleteNotification = 1306
+	UserCommandUpdateNotification = 1307
+
+	UserNotificationEnd = 1399
+	OANotification      = 1400
 
 	GroupNotificationBegin = 1500
 
@@ -114,6 +114,8 @@ const (
 	GroupMemberInfoSetNotification           = 1516
 	GroupMemberSetToAdminNotification        = 1517
 	GroupMemberSetToOrdinaryUserNotification = 1518
+	GroupInfoSetAnnouncementNotification     = 1519
+	GroupInfoSetNameNotification             = 1520
 	GroupNotificationEnd                     = 1599
 
 	SignalingNotificationBegin = 1600
@@ -130,11 +132,6 @@ const (
 	ConversationPrivateChatNotification = 1701
 	ConversationUnreadNotification      = 1702
 
-	MomentStartNotification       = 1800
-	MomentLikeChatNotification    = 1801
-	MomentCommentChatNotification = 1802
-	MomentEndNotification         = 1849
-
 	WorkMomentNotificationBegin = 1900
 	WorkMomentNotification      = 1901
 
@@ -146,7 +143,7 @@ const (
 
 	HasReadReceiptNotification      = 2150
 	GroupHasReadReceiptNotification = 2155
-	ClearConversationNotification   = 2103
+	ClearConversationNotification   = 2101
 	DeleteMsgsNotification          = 2102
 
 	HasReadReceipt = 2200
@@ -161,12 +158,11 @@ const (
 
 	/////////////////////////////////////
 	//SessionType
-	SingleChatType          = 1 //单聊
-	GroupChatType           = 2 //群聊
-	SuperGroupChatType      = 3 //超级群聊
-	NotificationChatType    = 4 // 通知消息
-	CustomerServiceChatType = 5 //客服会话
-	EncryptedChatType       = 6 //加密会话
+	SingleChatType       = 1
+	GroupChatType        = 2
+	SuperGroupChatType   = 3
+	NotificationChatType = 4
+
 	//MsgStatus
 	MsgStatusDefault = 0
 
@@ -184,7 +180,6 @@ const (
 	IsOfflinePush              = "offlinePush"
 	IsSenderSync               = "senderSync"
 	IsNotPrivate               = "notPrivate"
-	IsCustomerService          = "CustomerService"
 	IsSenderConversationUpdate = "senderConversationUpdate"
 
 	//GroupStatus
@@ -214,12 +209,8 @@ const (
 	ckSelfInfoUpdate    string = "self-info-update"
 )
 const (
-	//BlackRelationship 黑名单关系
-	BlackRelationship = 0
-	//FriendRelationship 好友关系
+	BlackRelationship  = 0
 	FriendRelationship = 1
-	BlockedByPeer      = 1302 //被对方拉黑
-	NotPeersFriend     = 1303 //不是对方的好友
 )
 
 // const (
@@ -274,9 +265,10 @@ const (
 	SyncConversation                  = 15
 	SyncMessageListReactionExtensions = 16
 	SyncMessageListTypeKeyInfo        = 17
-	UpdateBackgroundURL               = 18
-	HasRead                           = 1
-	NotRead                           = 0
+	UpdateUserCommand                 = 18
+
+	HasRead = 1
+	NotRead = 0
 
 	IsFilter  = 1
 	NotFilter = 0
@@ -324,6 +316,9 @@ const (
 	NotReceiveMessage       = 1
 	ReceiveNotNotifyMessage = 2
 
+	Online  = 1
+	Offline = 0
+
 	//pinned
 	Pinned    = 1
 	NotPinned = 0
@@ -350,8 +345,8 @@ const (
 	GroupFilterAdminAndOrdinaryUsers = 4
 	GroupFilterOwnerAndAdmin         = 5
 
-	GroupResponseAgree  = 1 // Response to group application: agree
-	GroupResponseRefuse = 2 // Response to group application: refuse
+	GroupResponseAgree  = 1  // Response to group application: agree
+	GroupResponseRefuse = -1 // Response to group application: refuse
 
 	FriendResponseAgree   = 1  // Response to friend request: agree
 	FriendResponseRefuse  = -1 // Response to friend request: refuse
@@ -404,11 +399,10 @@ const (
 	MsgSyncModelLogin    = 1   //SyncFlag
 	SyncOrderStartLatest = 101 //PullMsgOrder
 
-	MsgSyncBegin         = 1001 //
-	MsgSyncProcessing    = 1002 //
-	MsgSyncEnd           = 1003 //
-	MsgSyncFailed        = 1004
-	BaseDataSyncComplete = 1005 //
+	MsgSyncBegin      = 1001 //
+	MsgSyncProcessing = 1002 //
+	MsgSyncEnd        = 1003 //
+	MsgSyncFailed     = 1004
 )
 
 const (
@@ -419,7 +413,7 @@ const (
 const (
 	SplitPullMsgNum              = 100
 	PullMsgNumWhenLogin          = 10000
-	PullMsgNumForReadDiffusion   = 100
+	PullMsgNumForReadDiffusion   = 50
 	NormalMsgMinNumReadDiffusion = 100
 )
 

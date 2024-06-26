@@ -16,12 +16,14 @@ package testv2
 
 import (
 	"fmt"
-	"open_im_sdk/open_im_sdk"
-	"open_im_sdk/pkg/utils"
+	"github.com/OpenIMSDK/protocol/user"
+	"github.com/OpenIMSDK/protocol/wrapperspb"
 	"testing"
 	"time"
 
-	imUserPb "github.com/imCloud/api/user/v1"
+	"github.com/openimsdk/openim-sdk-core/v3/open_im_sdk"
+
+	"github.com/OpenIMSDK/protocol/sdkws"
 )
 
 func Test_GetSelfUserInfo(t *testing.T) {
@@ -34,7 +36,7 @@ func Test_GetSelfUserInfo(t *testing.T) {
 }
 
 func Test_GetUsersInfo(t *testing.T) {
-	userInfo, err := open_im_sdk.UserForSDK.Full().GetUsersInfo(ctx, []string{"88591724615569408"})
+	userInfo, err := open_im_sdk.UserForSDK.Full().GetUsersInfo(ctx, []string{"friendUserID"})
 	if err != nil {
 		t.Error(err)
 	}
@@ -48,28 +50,67 @@ func Test_GetUsersInfo(t *testing.T) {
 		t.Log(userInfo[0].PublicInfo)
 	}
 }
-
+func Test_GetUsersInfoWithCache(t *testing.T) {
+	userInfo, err := open_im_sdk.UserForSDK.Full().GetUsersInfoWithCache(ctx, []string{"1"}, "")
+	if err != nil {
+		t.Error(err)
+	}
+	if userInfo[0].BlackInfo != nil {
+		t.Log(userInfo[0].BlackInfo)
+	}
+	if userInfo[0].FriendInfo != nil {
+		t.Log(userInfo[0].FriendInfo)
+	}
+	if userInfo[0].PublicInfo != nil {
+		t.Log(userInfo[0].PublicInfo)
+	}
+}
 func Test_SetSelfInfo(t *testing.T) {
-	go func() {
-		newNickName := "test5"
-		newFaceURL := "http://localhost:9099/api/app/object/48672487050842112/icon.png"
-		err := open_im_sdk.UserForSDK.User().SetSelfInfo(ctx, &imUserPb.UpdateProfileReq{
-			Nickname: &newNickName,
-			FaceURL:  &newFaceURL,
-		})
-		if err != nil {
-			t.Error(err)
-		}
-	}()
+	newNickName := "test"
 	//newFaceURL := "http://test.com"
+	err := open_im_sdk.UserForSDK.User().SetSelfInfo(ctx, &sdkws.UserInfo{
+		Nickname: newNickName,
+		//FaceURL:  newFaceURL,
+	})
+	newFaceURL := "http://test.com"
 
+	if err != nil {
+		t.Error(err)
+	}
 	userInfo, err := open_im_sdk.UserForSDK.User().GetSelfUserInfo(ctx)
 	if err != nil {
 		t.Error(err)
 	}
-	//if userInfo.UserID != UserID && userInfo.Nickname != newNickName && userInfo.FaceURL != newFaceURL {
-	//	t.Error("user id not match")
-	//}
+	if userInfo.UserID != UserID && userInfo.Nickname != newNickName && userInfo.FaceURL != newFaceURL {
+		t.Error("user id not match")
+	}
+	t.Log(userInfo)
+	time.Sleep(time.Second * 10)
+}
+func Test_SetSelfInfoEx(t *testing.T) {
+	newNickName := "test"
+	//newFaceURL := "http://test.com"
+	err := open_im_sdk.UserForSDK.User().SetSelfInfoEx(ctx, &sdkws.UserInfoWithEx{
+		Nickname: &wrapperspb.StringValue{
+			Value: newNickName,
+		},
+		//FaceURL:  newFaceURL,
+		Ex: &wrapperspb.StringValue{
+			Value: "ASD",
+		},
+	})
+	newFaceURL := "http://test.com"
+
+	if err != nil {
+		t.Error(err)
+	}
+	userInfo, err := open_im_sdk.UserForSDK.User().GetSelfUserInfo(ctx)
+	if err != nil {
+		t.Error(err)
+	}
+	if userInfo.UserID != UserID && userInfo.Nickname != newNickName && userInfo.FaceURL != newFaceURL {
+		t.Error("user id not match")
+	}
 	t.Log(userInfo)
 	time.Sleep(time.Second * 10)
 }
@@ -86,60 +127,100 @@ func Test_UpdateMsgSenderInfo(t *testing.T) {
 	t.Log(userInfo)
 }
 
-type SearchCallback struct {
+func Test_SetSetGlobalRecvMessageOpt(t *testing.T) {
+	err := open_im_sdk.UserForSDK.User().SetGlobalRecvMessageOpt(ctx, 1)
+	if err != nil {
+		t.Fatal(err)
+	}
 }
 
-func (m *SearchCallback) OnError(errCode int32, errMsg string) {
-	fmt.Println("错误")
-}
-func (m *SearchCallback) OnSuccess(data string) {
-	fmt.Println("成功返回", data)
-}
-func Test_SearchUserInfo(t *testing.T) {
-	userInfo, err := open_im_sdk.UserForSDK.User().SearchUserInfo(ctx, "ttvd317246", 3)
+func Test_Sub(t *testing.T) {
+	var users []string
+	users = append(users, "2926672950")
+	status, err := open_im_sdk.UserForSDK.User().SubscribeUsersStatus(ctx, users)
 	if err != nil {
 		t.Error(err)
 	}
-	t.Log(userInfo)
+	t.Log(status)
+
+	for i := 0; i < 20; i++ {
+		status, err = open_im_sdk.UserForSDK.User().SubscribeUsersStatus(ctx, users)
+		t.Log(status)
+		time.Sleep(time.Second * 3)
+	}
 }
 
-func TestGetUserLoginStatus(t *testing.T) {
-	userInfo, err := open_im_sdk.UserForSDK.User().GetUserLoginStatus(ctx,
-		"55122367982080000",
-	)
+func Test_GetSubscribeUsersStatus(t *testing.T) {
+	status, err := open_im_sdk.UserForSDK.User().GetSubscribeUsersStatus(ctx)
 	if err != nil {
-		t.Error(err)
+		return
 	}
-	t.Log(userInfo)
-}
-func Test_SetUsersOption(t *testing.T) {
-	err := open_im_sdk.UserForSDK.User().SetUsersOption(ctx, "qRCodeAdd", 1)
-	if err != nil {
-		t.Error(err)
-	}
-	lu, err := open_im_sdk.UserForSDK.User().GetSelfUserInfo(ctx)
-	if err != nil {
-		t.Error(err)
-	}
-	t.Log(lu)
+	t.Log(status)
 }
 
-func Test_SyncUserOperation(t *testing.T) {
-	err := open_im_sdk.UserForSDK.User().SyncUserOperation(ctx)
+func Test_GetUserStatus(t *testing.T) {
+	var UserIDs []string
+	UserIDs = append(UserIDs, "2926672950")
+	status, err := open_im_sdk.UserForSDK.User().GetUserStatus(ctx, "2926672950")
 	if err != nil {
-		t.Error(err)
+		return
 	}
-	lu, err := open_im_sdk.UserForSDK.User().GetSelfUserInfo(ctx)
-	if err != nil {
-		t.Error(err)
-	}
-	t.Log(lu)
+	t.Log(status)
 }
 
-func Test_GetServerUserInfo(t *testing.T) {
-	userInfo, err := open_im_sdk.UserForSDK.User().GetServerUserInfo(ctx, []string{"55122331994951680"})
+func Test_UnSub(t *testing.T) {
+	var users []string
+	users = append(users, "2926672950")
+	err := open_im_sdk.UserForSDK.User().UnsubscribeUsersStatus(ctx, users)
 	if err != nil {
 		t.Error(err)
 	}
-	t.Log(utils.StructToJsonString(userInfo))
+}
+
+func Test_UserCommandAdd(t *testing.T) {
+	// Creating a request with a pointer
+	req := &user.ProcessUserCommandAddReq{
+		UserID: "3",
+		Type:   8,
+		Uuid:   "1",
+		Value: &wrapperspb.StringValue{
+			Value: "ASD",
+		},
+		Ex: &wrapperspb.StringValue{
+			Value: "ASD",
+		},
+	}
+
+	// Passing the pointer to the function
+	err := open_im_sdk.UserForSDK.User().ProcessUserCommandAdd(ctx, req)
+	if err != nil {
+		// Handle the error
+		t.Errorf("Failed to add favorite: %v", err)
+	}
+}
+func Test_UserCommandGet(t *testing.T) {
+	// Creating a request with a pointer
+
+	// Passing the pointer to the function
+	result, err := open_im_sdk.UserForSDK.User().ProcessUserCommandGetAll(ctx)
+	if err != nil {
+		// Handle the error
+		t.Errorf("Failed to add favorite: %v", err)
+	}
+	fmt.Printf("%v\n", result)
+}
+func Test_UserCommandDelete(t *testing.T) {
+	// Creating a request with a pointer
+	req := &user.ProcessUserCommandDeleteReq{
+		UserID: "3",
+		Type:   8,
+		Uuid:   "1",
+	}
+
+	// Passing the pointer to the function
+	err := open_im_sdk.UserForSDK.User().ProcessUserCommandDelete(ctx, req)
+	if err != nil {
+		// Handle the error
+		t.Errorf("Failed to add favorite: %v", err)
+	}
 }

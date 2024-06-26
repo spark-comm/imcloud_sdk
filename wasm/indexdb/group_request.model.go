@@ -19,13 +19,12 @@ package indexdb
 
 import (
 	"context"
-	"open_im_sdk/pkg/db/pg"
-	"open_im_sdk/wasm/exec"
+	"github.com/openimsdk/openim-sdk-core/v3/wasm/exec"
 )
 
 import (
-	"open_im_sdk/pkg/db/model_struct"
-	"open_im_sdk/pkg/utils"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/db/model_struct"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/utils"
 )
 
 type LocalGroupRequest struct {
@@ -95,11 +94,4 @@ func (i *LocalGroupRequest) GetAdminGroupApplication(ctx context.Context) ([]*mo
 	} else {
 		return nil, exec.ErrType
 	}
-}
-func (i *LocalGroupRequest) GetPageGroupApplicationListAsRecipient(ctx context.Context, groupId string, page *pg.Page) ([]*model_struct.LocalAdminGroupRequest, error) {
-	// todo
-	return nil, nil
-}
-func (i *LocalGroupRequest) GetUnprocessedNum(ctx context.Context) (int64, error) {
-	return 0, nil
 }

@@ -16,18 +16,17 @@ package conversation_msg
 
 import (
 	"context"
-	"github.com/golang/protobuf/ptypes/empty"
-	"open_im_sdk/internal/util"
-	"open_im_sdk/pkg/common"
-	"open_im_sdk/pkg/constant"
-	"strings"
+	"github.com/openimsdk/openim-sdk-core/v3/internal/util"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/common"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/constant"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/sdkerrs"
 
-	"open_im_sdk/pkg/utils"
-	"open_im_sdk/sdk_struct"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/utils"
+	"github.com/openimsdk/openim-sdk-core/v3/sdk_struct"
 
-	"github.com/imCloud/im/pkg/common/log"
-	pbMsg "github.com/imCloud/im/pkg/proto/msg"
-	"github.com/imCloud/im/pkg/proto/sdkws"
+	pbMsg "github.com/OpenIMSDK/protocol/msg"
+	"github.com/OpenIMSDK/protocol/sdkws"
+	"github.com/OpenIMSDK/tools/log"
 	"github.com/jinzhu/copier"
 )
 
@@ -40,7 +39,7 @@ func (c *Conversation) clearConversationFromLocalAndSvr(ctx context.Context, con
 		return err
 	}
 	// Use conversationID to remove conversations and messages from the server first
-	err = c.clearConversationMsgFromSvr(ctx, conversationID, false)
+	err = c.clearConversationMsgFromSvr(ctx, conversationID)
 	if err != nil {
 		return err
 	}
@@ -52,26 +51,6 @@ func (c *Conversation) clearConversationFromLocalAndSvr(ctx context.Context, con
 	return nil
 }
 
-//	Delete the local and server
-//
-// Delete the local, do not change the server data
-// To delete the server, you need to change the local message status to delete
-func (c *Conversation) clearConversationSelfAndOtherFromLocalAndSvr(ctx context.Context, conversationID string, f func(ctx context.Context, conversationID string) error) error {
-	_, err := c.db.GetConversation(ctx, conversationID)
-	if err != nil {
-		return err
-	}
-	err = c.clearConversationAllMsgFromSvr(ctx, conversationID)
-	if err != nil {
-		return err
-	}
-	if err := c.clearConversationAndDeleteAllMsg(ctx, conversationID, false, f); err != nil {
-		return err
-	}
-	c.doUpdateConversation(common.Cmd2Value{Value: common.UpdateConNode{Action: constant.ConChange, Args: []string{conversationID}}})
-	c.doUpdateConversation(common.Cmd2Value{Value: common.UpdateConNode{Action: constant.TotalUnreadMessageChanged}})
-	return nil
-}
 func (c *Conversation) clearConversationAndDeleteAllMsg(ctx context.Context, conversationID string, markDelete bool, f func(ctx context.Context, conversationID string) error) error {
 	err := c.getConversationMaxSeqAndSetHasRead(ctx, conversationID)
 	if err != nil {
@@ -95,45 +74,15 @@ func (c *Conversation) clearConversationAndDeleteAllMsg(ctx context.Context, con
 
 // To delete session information, delete the server first, and then invoke the interface.
 // The client receives a callback to delete all local information.
-// delOpt 删除标记
-func (c *Conversation) clearConversationMsgFromSvr(ctx context.Context, conversationID string, isDelOther bool) error {
+func (c *Conversation) clearConversationMsgFromSvr(ctx context.Context, conversationID string) error {
 	var apiReq pbMsg.ClearConversationsMsgReq
 	apiReq.UserID = c.loginUserID
 	apiReq.ConversationIDs = []string{conversationID}
-	if isDelOther {
-		apiReq.DeleteSyncOpt = &pbMsg.DeleteSyncOpt{
-			IsSyncOther: isDelOther,
-		}
-	}
-	_, err := util.ProtoApiPost[pbMsg.ClearConversationsMsgReq, empty.Empty](
-		ctx,
-		constant.ClearConversationMsgRouter,
-		&apiReq)
-	if err != nil {
-		return err
-
-	}
-	return nil
-}
-
-// clearConversationAllMsgFromSvr 删除会话的的所有消息
-func (c *Conversation) clearConversationAllMsgFromSvr(ctx context.Context, conversationID string) error {
-	var apiReq pbMsg.ClearConversationsAllMsgReq
-	apiReq.UserID = c.loginUserID
-	apiReq.ConversationIDs = []string{conversationID}
-	_, err := util.ProtoApiPost[pbMsg.ClearConversationsAllMsgReq, empty.Empty](
-		ctx,
-		constant.ClearConversationsAllMsgRouter,
-		&apiReq)
-	if err != nil {
-		return err
-
-	}
-	return nil
+	return util.ApiPost(ctx, constant.ClearConversationMsgRouter, &apiReq, nil)
 }
 
 // Delete all messages
-func (c *Conversation) deleteAllMessage(ctx context.Context) error {
+func (c *Conversation) deleteAllMsgFromLocalAndSvr(ctx context.Context) error {
 	// Delete the server first (high error rate), then delete it.
 	err := c.deleteAllMessageFromSvr(ctx)
 	if err != nil {
@@ -151,12 +100,7 @@ func (c *Conversation) deleteAllMessage(ctx context.Context) error {
 func (c *Conversation) deleteAllMessageFromSvr(ctx context.Context) error {
 	var apiReq pbMsg.UserClearAllMsgReq
 	apiReq.UserID = c.loginUserID
-	//err := util.ApiPost(ctx, constant.ClearAllMsgRouter, &apiReq, nil)
-	_, err := util.ProtoApiPost[pbMsg.UserClearAllMsgReq, empty.Empty](
-		ctx,
-		constant.ClearAllMsgRouter,
-		&apiReq,
-	)
+	err := util.ApiPost(ctx, constant.ClearAllMsgRouter, &apiReq, nil)
 	if err != nil {
 		return err
 	}
@@ -165,7 +109,7 @@ func (c *Conversation) deleteAllMessageFromSvr(ctx context.Context) error {
 
 // Delete all messages from the local
 func (c *Conversation) deleteAllMsgFromLocal(ctx context.Context, markDelete bool) error {
-	conversations, err := c.db.GetAllConversationListDB(ctx, true)
+	conversations, err := c.db.GetAllConversationListDB(ctx)
 	if err != nil {
 		return err
 	}
@@ -192,14 +136,6 @@ func (c *Conversation) deleteMessage(ctx context.Context, conversationID string,
 	return c.deleteMessageFromLocal(ctx, conversationID, clientMsgID)
 }
 
-// Delete a message from the local and server
-func (c *Conversation) deleteSelfAndOtherMessage(ctx context.Context, conversationID string, clientMsgID string) error {
-	if err := c.deleteMessageFromSvr(ctx, conversationID, clientMsgID); err != nil {
-		return err
-	}
-	return c.deleteMessageFromLocal(ctx, conversationID, clientMsgID)
-}
-
 // The user deletes part of the message from the server
 func (c *Conversation) deleteMessageFromSvr(ctx context.Context, conversationID string, clientMsgID string) error {
 	_, err := c.db.GetMessage(ctx, conversationID, clientMsgID)
@@ -210,47 +146,19 @@ func (c *Conversation) deleteMessageFromSvr(ctx context.Context, conversationID 
 	if err != nil {
 		return err
 	}
-	_, err = util.ProtoApiPost[pbMsg.DeleteMsgsReq, empty.Empty](
-		ctx,
-		constant.DeleteMsgsRouter,
-		&pbMsg.DeleteMsgsReq{
-			UserID:         c.loginUserID,
-			Seqs:           []int64{localMessage.Seq},
-			ConversationID: conversationID,
-		},
-	)
-	if err != nil {
-		return err
+	if localMessage.Status == constant.MsgStatusSendFailed {
+		log.ZInfo(ctx, "delete msg status is send failed, do not need delete", "msg", localMessage)
+		return nil
 	}
-	return nil
-}
-
-// Users delete partial messages of themselves and others from the server
-func (c *Conversation) deleteSelfAndOtherMessageFromSvr(ctx context.Context, conversationID string, clientMsgID string) error {
-	_, err := c.db.GetMessage(ctx, conversationID, clientMsgID)
-	if err != nil {
-		return err
+	if localMessage.Seq == 0 {
+		log.ZInfo(ctx, "delete msg seq is 0, try again", "msg", localMessage)
+		return sdkerrs.ErrMsgHasNoSeq
 	}
-	localMessage, err := c.db.GetMessage(ctx, conversationID, clientMsgID)
-	if err != nil {
-		return err
-	}
-	_, err = util.ProtoApiPost[pbMsg.DeleteMsgsReq, empty.Empty](
-		ctx,
-		constant.DeleteMsgsRouter,
-		&pbMsg.DeleteMsgsReq{
-			UserID:         c.loginUserID,
-			Seqs:           []int64{localMessage.Seq},
-			ConversationID: conversationID,
-			DeleteSyncOpt: &pbMsg.DeleteSyncOpt{
-				IsSyncOther: true,
-			},
-		},
-	)
-	if err != nil {
-		return err
-	}
-	return nil
+	var apiReq pbMsg.DeleteMsgsReq
+	apiReq.UserID = c.loginUserID
+	apiReq.Seqs = []int64{localMessage.Seq}
+	apiReq.ConversationID = conversationID
+	return util.ApiPost(ctx, constant.DeleteMsgsRouter, &apiReq, nil)
 }
 
 // Delete messages from local
@@ -297,13 +205,14 @@ func (c *Conversation) deleteMessageFromLocal(ctx context.Context, conversationI
 		}
 		c.doUpdateConversation(common.Cmd2Value{Value: common.UpdateConNode{Action: constant.ConChange, Args: []string{conversationID}}})
 	}
-	c.msgListener.OnMsgDeleted(utils.StructToJsonString(s))
+	c.msgListener().OnMsgDeleted(utils.StructToJsonString(s))
 	return nil
 }
 
 func (c *Conversation) doDeleteMsgs(ctx context.Context, msg *sdkws.MsgData) {
 	tips := sdkws.DeleteMsgsTips{}
 	utils.UnmarshalNotificationElem(msg.Content, &tips)
+	log.ZDebug(ctx, "doDeleteMsgs", "seqs", tips.Seqs)
 	for _, v := range tips.Seqs {
 		msg, err := c.db.GetMessageBySeq(ctx, tips.ConversationID, v)
 		if err != nil {
@@ -319,8 +228,6 @@ func (c *Conversation) doDeleteMsgs(ctx context.Context, msg *sdkws.MsgData) {
 		if err := c.deleteMessageFromLocal(ctx, tips.ConversationID, msg.ClientMsgID); err != nil {
 			log.ZError(ctx, "deleteMessageFromLocal err", err, "conversationID", tips.ConversationID, "seq", v)
 		}
-		//新增删除消息回调
-		c.msgListener.OnMsgDeleted(utils.StructToJsonString(s))
 	}
 }
 
@@ -332,9 +239,6 @@ func (c *Conversation) doClearConversations(ctx context.Context, msg *sdkws.MsgD
 		if err := c.clearConversationAndDeleteAllMsg(ctx, v, false, c.db.ClearConversation); err != nil {
 			log.ZError(ctx, "clearConversation err", err, "conversationID", v)
 		}
-	}
-	if c.ConversationListener != nil {
-		c.ConversationListener.OnClearConversation(strings.Join(tips.ConversationIDs, ","))
 	}
 	c.doUpdateConversation(common.Cmd2Value{Value: common.UpdateConNode{Action: constant.ConChange, Args: tips.ConversationIDs}})
 	c.doUpdateConversation(common.Cmd2Value{Value: common.UpdateConNode{Action: constant.TotalUnreadMessageChanged}})

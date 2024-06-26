@@ -18,34 +18,33 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"open_im_sdk/internal/login"
-	"open_im_sdk/open_im_sdk_callback"
-	"open_im_sdk/pkg/ccontext"
-	"open_im_sdk/pkg/constant"
-	"open_im_sdk/sdk_struct"
+	"github.com/openimsdk/openim-sdk-core/v3/open_im_sdk_callback"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/ccontext"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/constant"
+	"github.com/openimsdk/openim-sdk-core/v3/sdk_struct"
 	"strings"
 
-	"github.com/imCloud/im/pkg/common/log"
-	"github.com/imCloud/im/pkg/common/mcontext"
+	"github.com/OpenIMSDK/tools/log"
+	"github.com/OpenIMSDK/tools/mcontext"
 )
 
 func GetSdkVersion() string {
 	return constant.GetSdkVersion()
 }
 
+const (
+	rotateCount  uint = 0
+	rotationTime uint = 24
+)
+
 func SetHeartbeatInterval(heartbeatInterval int) {
 	constant.HeartbeatInterval = heartbeatInterval
 }
 
-// InitSDK 初始化sdk
-// config
-// language -》en:英文:zh:简体中文；zh-Hant:繁体中文
 func InitSDK(listener open_im_sdk_callback.OnConnListener, operationID string, config string) bool {
 	if UserForSDK != nil {
-		//fmt.Println(operationID, "Initialize multiple times, use the existing ", UserForSDK, " Previous configuration ", UserForSDK.ImConfig(), " now configuration: ", config)
-		//return true
-		UserForSDK.UnInitSDK()
-		UserForSDK = nil
+		fmt.Println(operationID, "Initialize multiple times, use the existing ", UserForSDK, " Previous configuration ", UserForSDK.ImConfig(), " now configuration: ", config)
+		return true
 	}
 	var configArgs sdk_struct.IMConfig
 	if err := json.Unmarshal([]byte(config), &configArgs); err != nil {
@@ -55,7 +54,7 @@ func InitSDK(listener open_im_sdk_callback.OnConnListener, operationID string, c
 	if configArgs.PlatformID == 0 {
 		return false
 	}
-	if err := log.InitFromConfig("open-im-sdk-core", "", int(configArgs.LogLevel), configArgs.IsLogStandardOutput, false, configArgs.LogFilePath, 0); err != nil {
+	if err := log.InitFromConfig("open-im-sdk-core", "", int(configArgs.LogLevel), configArgs.IsLogStandardOutput, false, configArgs.LogFilePath, rotateCount, rotationTime); err != nil {
 		fmt.Println(operationID, "log init failed ", err.Error())
 	}
 	fmt.Println("init log success")
@@ -75,11 +74,9 @@ func InitSDK(listener open_im_sdk_callback.OnConnListener, operationID string, c
 		log.ZError(ctx, "listener or config is nil", nil)
 		return false
 	}
-	UserForSDK = new(login.LoginMgr)
+	UserForSDK = new(LoginMgr)
 	return UserForSDK.InitSDK(configArgs, listener)
 }
-
-// UnInitSDK 反初始化
 func UnInitSDK(operationID string) {
 	if UserForSDK == nil {
 		fmt.Println(operationID, "UserForSDK is nil,")
@@ -119,9 +116,20 @@ func GetLoginUserID() string {
 	return UserForSDK.GetLoginUserID()
 }
 
-// SetLanguage 设置语言
-// operationID string 操作id
-// language  string en:英文:zh:简体中文；zh-Hant:繁体中文
-func SetLanguage(callback open_im_sdk_callback.Base, operationID, language string) {
-	call(callback, operationID, UserForSDK.SetLanguage, language)
+func (u *LoginMgr) Login(ctx context.Context, userID, token string) error {
+	return u.login(ctx, userID, token)
+}
+
+func (u *LoginMgr) Logout(ctx context.Context) error {
+	return u.logout(ctx, false)
+}
+
+func (u *LoginMgr) SetAppBackgroundStatus(ctx context.Context, isBackground bool) error {
+	return u.setAppBackgroundStatus(ctx, isBackground)
+}
+func (u *LoginMgr) NetworkStatusChanged(ctx context.Context) {
+	u.longConnMgr.Close(ctx)
+}
+func (u *LoginMgr) GetLoginStatus(ctx context.Context) int {
+	return u.getLoginStatus(ctx)
 }

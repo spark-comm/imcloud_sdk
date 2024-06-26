@@ -14,7 +14,7 @@
 
 package sdkerrs
 
-import "github.com/imCloud/im/pkg/errs"
+import "github.com/OpenIMSDK/tools/errs"
 
 var (
 	ErrArgs           = errs.NewCodeError(ArgsError, "ArgsError")
@@ -35,12 +35,15 @@ var (
 	ErrMsgBinaryTypeNotSupport  = errs.NewCodeError(MsgBinaryTypeNotSupportError, "MsgTypeNotSupportError")
 	ErrMsgRepeated              = errs.NewCodeError(MsgRepeatError, "only failed message can be repeatedly send")
 	ErrMsgContentTypeNotSupport = errs.NewCodeError(MsgContentTypeNotSupportError, "contentType not support currently") // msg 	// msg
+	ErrMsgHasNoSeq              = errs.NewCodeError(MsgHasNoSeqError, "msg has no seq")                                 // msg 	// msg
 
 	//会话相关
-	ErrNotSupportOpt = errs.NewCodeError(NotSupportOptError, "super group not support this opt")
+	ErrNotSupportOpt  = errs.NewCodeError(NotSupportOptError, "super group not support this opt")
+	ErrNotSupportType = errs.NewCodeError(NotSupportTypeError, "only support super group type type")
+	ErrUnreadCount    = errs.NewCodeError(UnreadCountError, "unread count has zero")
 	//群组相关
-	ErrGroupMemberNotFound = errs.NewCodeError(ErrGroupMemberNotFoundError, "ErrGroupMemberNotFound")
-	ErrGroupType           = errs.NewCodeError(GroupTypeErr, "group type error")
+
+	ErrGroupType = errs.NewCodeError(GroupTypeErr, "group type error")
 
 	ErrLoginOut    = errs.NewCodeError(LoginOutError, "LoginOutError")
 	ErrLoginRepeat = errs.NewCodeError(LoginRepeatError, "LoginRepeatError")

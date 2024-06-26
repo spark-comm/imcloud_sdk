@@ -19,10 +19,10 @@ package indexdb
 
 import (
 	"context"
-	"open_im_sdk/pkg/db/model_struct"
-	"open_im_sdk/pkg/utils"
-	"open_im_sdk/wasm/exec"
-	"open_im_sdk/wasm/indexdb/temp_struct"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/db/model_struct"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/utils"
+	"github.com/openimsdk/openim-sdk-core/v3/wasm/exec"
+	"github.com/openimsdk/openim-sdk-core/v3/wasm/indexdb/temp_struct"
 )
 
 type LocalChatLogs struct {
@@ -53,29 +53,6 @@ func (i *LocalChatLogs) GetMessage(ctx context.Context, conversationID, clientMs
 	}
 }
 
-// GetSendingMessageList gets the list of messages that are being sent
-func (i *LocalChatLogs) GetSendingMessageList(ctx context.Context) (result []*model_struct.LocalChatLog, err error) {
-	msgList, err := exec.Exec()
-	if err != nil {
-		return nil, err
-	} else {
-		if v, ok := msgList.(string); ok {
-			var temp []model_struct.LocalChatLog
-			err := utils.JsonStringToStruct(v, &temp)
-			if err != nil {
-				return nil, err
-			}
-			for _, v := range temp {
-				v1 := v
-				result = append(result, &v1)
-			}
-			return result, err
-		} else {
-			return nil, exec.ErrType
-		}
-	}
-}
-
 // UpdateMessage updates the message in the database
 func (i *LocalChatLogs) UpdateMessage(ctx context.Context, conversationID string, c *model_struct.LocalChatLog) error {
 	if c.ClientMsgID == "" {
@@ -96,7 +73,7 @@ func (i *LocalChatLogs) UpdateMessage(ctx context.Context, conversationID string
 		Status:               c.Status,
 		Seq:                  c.Seq,
 		SendTime:             c.SendTime,
-		CreateAt:             c.CreateTime,
+		CreateTime:           c.CreateTime,
 		AttachedInfo:         c.AttachedInfo,
 		Ex:                   c.Ex,
 		IsReact:              c.IsReact,
@@ -609,7 +586,7 @@ func (i *LocalChatLogs) UpdateMessageBySeq(ctx context.Context, conversationID s
 		Status:               c.Status,
 		Seq:                  c.Seq,
 		SendTime:             c.SendTime,
-		CreateAt:             c.CreateTime,
+		CreateTime:           c.CreateTime,
 		AttachedInfo:         c.AttachedInfo,
 		Ex:                   c.Ex,
 		IsReact:              c.IsReact,
@@ -753,10 +730,6 @@ func (i *LocalChatLogs) GetConversationPeerNormalMsgSeq(ctx context.Context, con
 
 // GetConversationAbnormalMsgSeq gets the maximum abnormal seq of the session
 func (i *LocalChatLogs) GetConversationAbnormalMsgSeq(ctx context.Context, groupID string) (int64, error) {
-	//TODO implement me
-	panic("implement me")
-}
-func (d *LocalChatLogs) GetConversationMessageSeq(ctx context.Context, conversationID string) (result []int64, err error) {
 	//TODO implement me
 	panic("implement me")
 }

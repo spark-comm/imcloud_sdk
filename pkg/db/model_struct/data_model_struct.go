@@ -14,6 +14,33 @@
 
 package model_struct
 
+// message FriendInfo{
+// string OwnerUserID = 1;
+// string Remark = 2;
+// int64 CreateTime = 3;
+// UserInfo FriendUser = 4;
+// int32 AddSource = 5;
+// string OperatorUserID = 6;
+// string Ex = 7;
+// }
+// open_im_sdk.FriendInfo(FriendUser) != imdb.Friend(FriendUserID)
+//
+//		table = ` CREATE TABLE IF NOT EXISTS friends(
+//	    owner_user_id CHAR (64) NOT NULL,
+//	    friend_user_id CHAR (64) NOT NULL ,
+//	    name varchar(64) DEFAULT NULL ,
+//		 face_url varchar(100) DEFAULT NULL ,
+//	    remark varchar(255) DEFAULT NULL,
+//	    gender int DEFAULT NULL ,
+//	  	 phone_number varchar(32) DEFAULT NULL ,
+//		 birth INTEGER DEFAULT NULL ,
+//		 email varchar(64) DEFAULT NULL ,
+//		 create_time INTEGER DEFAULT NULL ,
+//		 add_source int DEFAULT NULL ,
+//		 operator_user_id CHAR(64) DEFAULT NULL,
+//	 	 ex varchar(1024) DEFAULT NULL,
+//	 	 PRIMARY KEY (owner_user_id,friend_user_id)
+//		)`
 type LocalFriend struct {
 	OwnerUserID    string `json:"ownerUserID" gorm:"column:owner_user_id;primary_key;type:varchar(64);comment:所属用户"`
 	FriendUserID   string `json:"friendUserID" gorm:"column:friend_user_id;primary_key;type:varchar(64);comment:好友id"`
@@ -37,8 +64,20 @@ type LocalFriend struct {
 	IsComplete     int32  `gorm:"column:is_complete;default:1;comment:同步完成" json:"isComplete"`
 	IsDestroyMsg   int32  `gorm:"column:is_destroy_msg;not null;tinyint;default:0;comment:阅后即焚开关0-关闭 1-开启" json:"isDestroyMsg" `
 	UpdatedTime    int64  `json:"updatedTime" gorm:"column:updated_time;default:0"`
+	IsPinned       bool   `gorm:"column:is_pinned;" json:"isPinned"`
 }
 
+// message FriendRequest{
+// string  FromUserID = 1;
+// string ToUserID = 2;
+// int32 HandleResult = 3;
+// string ReqMsg = 4;
+// int64 CreateTime = 5;
+// string HandlerUserID = 6;
+// string HandleMsg = 7;
+// int64 HandleTime = 8;
+// string Ex = 9;
+// }
 // open_im_sdk.FriendRequest == imdb.FriendRequest
 type LocalFriendRequest struct {
 	FromUserID    string `gorm:"column:from_user_id;primary_key;type:varchar(64);comment:来源用户ID" json:"fromUserID"`
@@ -66,9 +105,33 @@ type LocalFriendRequest struct {
 	AttachedInfo  string `gorm:"column:attached_info;type:varchar(1024)" json:"attachedInfo"`
 }
 
-const (
-	FinishMemberSync = 2
-)
+//message GroupInfo{
+//  string GroupID = 1;
+//  string GroupName = 2;
+//  string NotificationCmd = 3;
+//  string Introduction = 4;
+//  string FaceUrl = 5;
+//  string OwnerUserID = 6;
+//  uint32 MemberCount = 8;
+//  int64 CreateTime = 7;
+//  string Ex = 9;
+//  int32 Status = 10;
+//  string CreatorUserID = 11;
+//  int32 GroupType = 12;
+//}
+//  open_im_sdk.GroupInfo (OwnerUserID ,  MemberCount )> imdb.Group
+//    	group_id char(64) NOT NULL,
+//		name varchar(64) DEFAULT NULL ,
+//    	introduction varchar(255) DEFAULT NULL,
+//    	notification varchar(255) DEFAULT NULL,
+//    	face_url varchar(100) DEFAULT NULL,
+//    	group_type int DEFAULT NULL,
+//    	status int DEFAULT NULL,
+//    	creator_user_id char(64) DEFAULT NULL,
+//    	create_time INTEGER DEFAULT NULL,
+//    	ex varchar(1024) DEFAULT NULL,
+//    	PRIMARY KEY (group_id)
+//	)`
 
 type LocalGroup struct {
 	GroupID                string `json:"groupID" gorm:"column:group_id;primary_key;type:varchar(64)"`
@@ -99,6 +162,27 @@ type LocalGroup struct {
 	MemberIsComplete       int32  `gorm:"column:member_is_complete;default:0;comment:成员同步完成" json:"member_is_complete"`
 	UpdatedAt              int64  `json:"updatedAt" gorm:"column:updated_at;default:0"`
 }
+
+//message GroupMemberFullInfo {
+//string GroupID = 1 ;
+//string UserID = 2 ;
+//int32 roleLevel = 3;
+//int64 JoinTime = 4;
+//string NickName = 5;
+//string FaceUrl = 6;
+//int32 JoinSource = 8;
+//string OperatorUserID = 9;
+//string Ex = 10;
+//int32 AppMangerLevel = 7; //if >0
+//}  open_im_sdk.GroupMemberFullInfo(AppMangerLevel) > imdb.GroupMember
+//  group_id char(64) NOT NULL,
+//   user_id char(64) NOT NULL,
+//   nickname varchar(64) DEFAULT NULL,
+//   user_group_face_url varchar(64) DEFAULT NULL,
+//   role_level int DEFAULT NULL,
+//   join_time INTEGER DEFAULT NULL,
+//   join_source int DEFAULT NULL,
+//   operator_user_id char(64) NOT NULL,
 
 type LocalGroupMember struct {
 	GroupID        string `gorm:"column:group_id;primary_key;type:varchar(64);comment:群id" json:"groupID"`
@@ -293,8 +377,7 @@ type LocalChatLog struct {
 }
 
 type LocalErrChatLog struct {
-	//Seq              int64  `gorm:"column:seq;primary_key" json:"seq"`
-	Seq              int64  `gorm:"column:seq" json:"seq"`
+	Seq              int64  `gorm:"column:seq;primary_key" json:"seq"`
 	ClientMsgID      string `gorm:"column:client_msg_id;type:char(64)" json:"clientMsgID"`
 	ServerMsgID      string `gorm:"column:server_msg_id;type:char(64)" json:"serverMsgID"`
 	SendID           string `gorm:"column:send_id;type:char(64)" json:"sendID"`
@@ -378,7 +461,6 @@ type LocalConversation struct {
 	HasReadSeq            int64  `gorm:"column:has_read_seq" json:"hasReadSeq"`
 	MsgDestructTime       int64  `gorm:"column:msg_destruct_time;default:604800" json:"msgDestructTime"`
 	IsMsgDestruct         bool   `gorm:"column:is_msg_destruct;default:false" json:"isMsgDestruct"`
-	BackgroundURL         string `json:"backgroundURL" gorm:"column:background_url;type:varchar(255)"`
 }
 type LocalConversationUnreadMessage struct {
 	ConversationID string `gorm:"column:conversation_id;primary_key;type:char(128)" json:"conversationID"`
@@ -449,7 +531,7 @@ func (NotificationSeqs) TableName() string {
 type LocalUpload struct {
 	PartHash   string `gorm:"column:part_hash;primary_key" json:"partHash"`
 	UploadID   string `gorm:"column:upload_id;type:varchar(1000)" json:"uploadID"`
-	UploadInfo string `gorm:"column:info;type:varchar(2000)" json:"info"`
+	UploadInfo string `gorm:"column:upload_info;type:varchar(2000)" json:"uploadInfo"`
 	ExpireTime int64  `gorm:"column:expire_time" json:"expireTime"`
 	CreateTime int64  `gorm:"column:create_time" json:"createTime"`
 }
@@ -473,47 +555,25 @@ func (LocalStranger) TableName() string {
 	return "local_stranger"
 }
 
-// LocalMoments ， 朋友圈表
-type LocalMoments struct {
-	CreatedAt int64   `json:"createdAt" gorm:"column:created_at;not null;default:0;comment:创建时间"` // autoCreateTime;
-	UpdatedAt int64   `json:"updatedAt" gorm:"column:updated_at;not null;default:0;comment:更新时间"` // autoUpdateTime;
-	DeletedAt int64   `json:"deletedAt" gorm:"column:deleted_at;not null;default:0;comment:删除时间"`
-	MomentId  string  `json:"momentId" gorm:"primaryKey;column:moment_id;size:19;not null;default:'';comment:朋友圈id"`
-	UserId    string  `json:"userId" gorm:"column:user_id;index;size:19;not null;default:'';comment:用户ID"`
-	UserName  string  `json:"userName" gorm:"column:user_name;size:100;not null;default:'';comment:'用户名称'"`
-	Avatar    string  `json:"avatar" gorm:"column:avatar;size:100;not null;default:'';comment:用户头像文件"`
-	Content   string  `json:"content" gorm:"column:content;size:500;not null;default:'';comment:朋友圈内容"`
-	Images    string  `json:"images" gorm:"column:images;size:2000;not null;default:'';comment:图片"`
-	VideoUrl  string  `json:"videoUrl" gorm:"column:video_url;size:300;not null;default:'';size:300;comment:视频链接"`
-	VideoImg  string  `json:"videoImg" gorm:"column:video_img;size:300;not null;default:'';comment:图片链接"`
-	Location  string  `json:"location" gorm:"column:location;size:200;not null;default:'';comment:定位信息"`
-	Longitude float64 `json:"longitude" gorm:"column:longitude;not null;default:0;comment:位置经度"`
-	Latitude  float64 `json:"latitude" gorm:"column:latitude;not null;default:0;comment:位置纬度"`
-	Likes     int64   `json:"likes" gorm:"column:likes;not null;default:0;comment:点赞数量"`
-	IsLike    int32   `json:"int32" gorm:"column:is_like;not null;default:2;comment:是否点赞 1:是 2:否"` // 是否点赞 1:是 2:否
+type LocalSendingMessages struct {
+	ConversationID string `gorm:"column:conversation_id;primary_key;type:char(128)" json:"conversationID"`
+	ClientMsgID    string `gorm:"column:client_msg_id;primary_key;type:char(64)" json:"clientMsgID"`
+	Ex             string `gorm:"column:ex;type:varchar(1024)" json:"ex"`
 }
 
-func (LocalMoments) TableName() string {
-	return "local_moments"
+func (LocalSendingMessages) TableName() string {
+	return "local_sending_messages"
 }
 
-// LocalMomentsComments ， 圈子评论
-type LocalMomentsComments struct {
-	CreatedAt      int64  `json:"createdAt" gorm:"column:created_at;not null;default:0;comment:创建时间"` // autoCreateTime;
-	UpdatedAt      int64  `json:"updatedAt" gorm:"column:updated_at;not null;default:0;comment:更新时间"` // autoUpdateTime;
-	DeletedAt      int64  `json:"deletedAt" gorm:"column:deleted_at;not null;default:0;comment:删除时间"`
-	CommentId      string `json:"commentId" gorm:"primaryKey;column:comment_id;size:19;not null;default:'';comment:评论id"`
-	MomentId       string `json:"momentId" gorm:"column:moment_id;index;size:19;not null;default:'';comment:圈子id"`
-	UserId         string `json:"userId" gorm:"column:user_id;index;size:19;not null;default:'';comment:评论者id"`
-	Type           int    `json:"type" gorm:"column:type; default:1;comment:评论的 1:评论；2回复"`
-	Avatar         string `json:"avatar" gorm:"column:avatar;size:225;comment:评论用户头像"`
-	NickName       string `json:"nickname" gorm:"column:nickname;size:100;comment:评论者的昵称"`
-	SourceUserId   string `json:"sourceUserId" gorm:"column:source_user_id;size:225;comment:来源评论用户id"`
-	SourceAvatar   string `json:"sourceAvatar" gorm:"column:source_avatar;size:225;comment:来源评论用户头像"`
-	SourceNickName string `json:"sourceNickName" gorm:"column:source_nickname;size:100;comment:来源评论者的昵称"`
-	Content        string `json:"content" gorm:"column:content;size:300;charset:utf8mb4;comment:评论内容"`
+type LocalUserCommand struct {
+	UserID     string `gorm:"column:user_id;type:char(128);primary_key" json:"userID"`
+	Type       int32  `gorm:"column:type;primary_key" json:"type"`
+	Uuid       string `gorm:"column:uuid;type:varchar(255);primary_key" json:"uuid"`
+	CreateTime int64  `gorm:"column:create_time" json:"createTime"`
+	Value      string `gorm:"column:value;type:varchar(255)" json:"value"`
+	Ex         string `gorm:"column:ex;type:varchar(1024)" json:"ex"`
 }
 
-func (LocalMomentsComments) TableName() string {
-	return "local_moments_comments"
+func (LocalUserCommand) TableName() string {
+	return "local_user_command"
 }

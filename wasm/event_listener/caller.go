@@ -19,10 +19,11 @@ package event_listener
 
 import (
 	"bytes"
+	"context"
 	"errors"
-	"open_im_sdk/pkg/log"
-	"open_im_sdk/pkg/utils"
-	"open_im_sdk/wasm/exec"
+	"github.com/OpenIMSDK/tools/log"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/utils"
+	"github.com/openimsdk/openim-sdk-core/v3/wasm/exec"
 	"reflect"
 	"strconv"
 	"strings"
@@ -63,6 +64,7 @@ func (r *ReflectCall) asyncCallWithCallback() {
 			r.ErrHandle(rc)
 		}
 	}()
+	ctx := context.Background()
 	var funcName reflect.Value
 	var typeFuncName reflect.Type
 	var hasCallback bool
@@ -79,15 +81,13 @@ func (r *ReflectCall) asyncCallWithCallback() {
 		r.callback.SetOperationID(r.arguments[0].String())
 		values = append(values, reflect.ValueOf(r.callback))
 	} else {
-		log.Error("AsyncCallWithCallback", "not set callback")
+		log.ZDebug(ctx, "AsyncCallWithCallback not set callback")
 		panic(ErrNotSetCallback)
 	}
 	funcFieldsNum := typeFuncName.NumIn()
 	if funcFieldsNum-len(r.arguments) > 1 {
-		log.Error("sdfasdfasd", "传入参数小于方法需要参数", funcName)
 		r.arguments = append(r.arguments, js.Value{})
 	}
-	//log.Error("sdfasdfasd", "进行方法调用", len(r.arguments), funcName, funcFieldsNum)
 	for i := 0; i < len(r.arguments); i++ {
 		if hasCallback {
 			temp++
@@ -95,18 +95,17 @@ func (r *ReflectCall) asyncCallWithCallback() {
 			temp = i
 		}
 		//log.NewDebug(r.callback.GetOperationID(), "type is ", typeFuncName.In(temp).Kind(), r.arguments[i].IsNaN())
-		//log.NewDebug(r.callback.GetOperationID(), "type is ", "当前temp", temp, typeFuncName.In(i).Kind(), r.arguments[i].IsNaN())
 		switch typeFuncName.In(temp).Kind() {
 		case reflect.String:
 			convertValue := r.arguments[i].String()
 			if !strings.HasPrefix(convertValue, "<number: ") {
 				values = append(values, reflect.ValueOf(convertValue))
 			} else {
-				log.Error("AsyncCallWithCallback", "input args type err index:", utils.IntToString(i))
+				log.ZError(ctx, "AsyncCallWithCallback", nil, "input args type err index:",
+					utils.IntToString(i))
 				panic("input args type err index:" + utils.IntToString(i))
 			}
 		case reflect.Int:
-			log.NewDebug("", "type is ", r.arguments[i].Int())
 			values = append(values, reflect.ValueOf(r.arguments[i].Int()))
 		case reflect.Int32:
 			values = append(values, reflect.ValueOf(int32(r.arguments[i].Int())))
@@ -117,12 +116,13 @@ func (r *ReflectCall) asyncCallWithCallback() {
 		case reflect.Ptr:
 			values = append(values, reflect.ValueOf(bytes.NewBuffer(exec.ExtractArrayBuffer(r.arguments[i]))))
 		default:
-			log.Error("AsyncCallWithCallback", "input args type not support:", strconv.Itoa(int(typeFuncName.In(temp).Kind())))
+			log.ZError(ctx, "AsyncCallWithCallback", nil,
+				"input args type not support:", strconv.Itoa(int(typeFuncName.In(temp).Kind())))
 			panic("input args type not support:" + strconv.Itoa(int(typeFuncName.In(temp).Kind())))
 		}
 	}
-	//log.Error("sssss", "参数处理完成即将调用方法", funcName)
 	funcName.Call(values)
+
 }
 func (r *ReflectCall) AsyncCallWithOutCallback() interface{} {
 	if r.callback == nil {
@@ -136,6 +136,7 @@ func (r *ReflectCall) asyncCallWithOutCallback() {
 			r.ErrHandle(rc)
 		}
 	}()
+	ctx := context.Background()
 	var funcName reflect.Value
 	var typeFuncName reflect.Type
 	if r.funcName == nil {
@@ -148,11 +149,11 @@ func (r *ReflectCall) asyncCallWithOutCallback() {
 	if r.callback == nil {
 		r.callback = NewBaseCallback(utils.FirstLower(utils.GetSelfFuncName()), nil)
 	}
-	log.Error("test", "asyncCallWithOutCallback", len(r.arguments))
+	log.ZError(ctx, "test", nil, "asyncCallWithOutCallback", len(r.arguments))
 	r.callback.SetOperationID(r.arguments[0].String())
 	//strings.SplitAfter()
 	for i := 0; i < len(r.arguments); i++ {
-		//log.NewDebug(r.callback.GetOperationID(), "type is ", "当前id", i, typeFuncName.In(i).Kind(), r.arguments[i].IsNaN())
+		//log.NewDebug(r.callback.GetOperationID(), "type is ", typeFuncName.In(temp).Kind(), r.arguments[i].IsNaN())
 		switch typeFuncName.In(i).Kind() {
 		case reflect.String:
 			convertValue := r.arguments[i].String()
@@ -162,12 +163,13 @@ func (r *ReflectCall) asyncCallWithOutCallback() {
 				panic("input args type err index:" + utils.IntToString(i))
 			}
 		case reflect.Int:
-			log.NewDebug("", "type is ", r.arguments[i].Int())
 			values = append(values, reflect.ValueOf(r.arguments[i].Int()))
 		case reflect.Int32:
 			values = append(values, reflect.ValueOf(int32(r.arguments[i].Int())))
 		case reflect.Bool:
 			values = append(values, reflect.ValueOf(r.arguments[i].Bool()))
+		case reflect.Float64:
+			values = append(values, reflect.ValueOf(r.arguments[i].Float()))
 		default:
 			panic("input args type not support:" + strconv.Itoa(int(typeFuncName.In(i).Kind())))
 		}
@@ -239,7 +241,6 @@ func (r *ReflectCall) SyncCall() (result []interface{}) {
 				panic("input args type err index:" + utils.IntToString(i))
 			}
 		case reflect.Int:
-			log.NewDebug("", "type is ", r.arguments[i].Int())
 			values = append(values, reflect.ValueOf(r.arguments[i].Int()))
 		case reflect.Int32:
 			values = append(values, reflect.ValueOf(int32(r.arguments[i].Int())))
@@ -269,18 +270,19 @@ func (r *ReflectCall) SyncCall() (result []interface{}) {
 
 }
 func (r *ReflectCall) ErrHandle(recover interface{}) []string {
+	ctx := context.Background()
 	var temp string
 	switch x := recover.(type) {
 	case string:
-		log.Error("STRINGERR", x)
+		log.ZError(ctx, "STRINGERR", nil, "r", x)
 		temp = utils.Wrap(errors.New(x), "").Error()
 	case error:
 		//buf := make([]byte, 1<<20)
 		//runtime.Stack(buf, true)
-		log.Error("ERR", x.Error())
+		log.ZError(ctx, "ERR", x, "r", x.Error())
 		temp = x.Error()
 	default:
-		log.Error("unknown panic")
+		log.ZError(ctx, "unknown panic", nil, "r", x)
 		temp = utils.Wrap(errors.New("unknown panic"), "").Error()
 	}
 	if r.callback != nil {

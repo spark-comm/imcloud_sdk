@@ -14,7 +14,7 @@
 
 package server_api_params
 
-import "github.com/imCloud/im/pkg/proto/sdkws"
+import "github.com/OpenIMSDK/protocol/sdkws"
 
 type ParamsCommFriend struct {
 	OperationID string `json:"operationID" binding:"required"`
@@ -35,7 +35,7 @@ type ImportFriendReq struct {
 	FromUserID       string   `json:"fromUserID" binding:"required"`
 }
 type UserIDResult struct {
-	UserID string `json:"userID"`
+	UserID string `json:"userID""`
 	Result int32  `json:"result"`
 }
 type ImportFriendResp struct {

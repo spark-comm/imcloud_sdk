@@ -14,9 +14,7 @@
 
 package open_im_sdk
 
-import (
-	"open_im_sdk/open_im_sdk_callback"
-)
+import "github.com/openimsdk/openim-sdk-core/v3/open_im_sdk_callback"
 
 //funcation CreateGroup(callback open_im_sdk_callback.Base, operationID string, groupBaseInfo string, memberList string) {
 //	call(callback, operationID, UserForSDK.Group().CreateGroup, groupBaseInfo, memberList)
@@ -26,8 +24,8 @@ func CreateGroup(callback open_im_sdk_callback.Base, operationID string, groupRe
 	call(callback, operationID, UserForSDK.Group().CreateGroup, groupReqInfo)
 }
 
-func JoinGroup(callback open_im_sdk_callback.Base, operationID string, groupID string, reqMsg string, joinSource int32) {
-	call(callback, operationID, UserForSDK.Group().JoinGroup, groupID, reqMsg, joinSource)
+func JoinGroup(callback open_im_sdk_callback.Base, operationID string, groupID string, reqMsg string, joinSource int32, ex string) {
+	call(callback, operationID, UserForSDK.Group().JoinGroup, groupID, reqMsg, joinSource, ex)
 }
 
 func QuitGroup(callback open_im_sdk_callback.Base, operationID string, groupID string) {
@@ -70,21 +68,17 @@ func SetGroupInfo(callback open_im_sdk_callback.Base, operationID string, groupI
 	call(callback, operationID, UserForSDK.Group().SetGroupInfo, groupInfo)
 }
 
-func SetGroupSwitchInfo(callback open_im_sdk_callback.Base, operationID string, groupID string, field string, ups int32) {
-	call(callback, operationID, UserForSDK.Group().SetGroupSwitchInfo, groupID, field, ups)
+func SetGroupVerification(callback open_im_sdk_callback.Base, operationID string, groupID string, verification int32) {
+	call(callback, operationID, UserForSDK.Group().SetGroupVerification, groupID, verification)
 }
 
-//func SetGroupVerification(callback open_im_sdk_callback.Base, operationID string, groupID string, verification int32) {
-//	call(callback, operationID, UserForSDK.Group().SetGroupVerification, groupID, verification)
-//}
-//
-//func SetGroupLookMemberInfo(callback open_im_sdk_callback.Base, operationID string, groupID string, rule int32) {
-//	call(callback, operationID, UserForSDK.Group().SetGroupLookMemberInfo, groupID, rule)
-//}
-//
-//func SetGroupApplyMemberFriend(callback open_im_sdk_callback.Base, operationID string, groupID string, rule int32) {
-//	call(callback, operationID, UserForSDK.Group().SetGroupApplyMemberFriend, groupID, rule)
-//}
+func SetGroupLookMemberInfo(callback open_im_sdk_callback.Base, operationID string, groupID string, rule int32) {
+	call(callback, operationID, UserForSDK.Group().SetGroupLookMemberInfo, groupID, rule)
+}
+
+func SetGroupApplyMemberFriend(callback open_im_sdk_callback.Base, operationID string, groupID string, rule int32) {
+	call(callback, operationID, UserForSDK.Group().SetGroupApplyMemberFriend, groupID, rule)
+}
 
 func GetGroupMemberList(callback open_im_sdk_callback.Base, operationID string, groupID string, filter int32, offset int32, count int32) {
 	call(callback, operationID, UserForSDK.Group().GetGroupMemberList, groupID, filter, offset, count)
@@ -118,14 +112,6 @@ func GetGroupApplicationListAsRecipient(callback open_im_sdk_callback.Base, oper
 	call(callback, operationID, UserForSDK.Group().GetGroupApplicationListAsRecipient)
 }
 
-// GetPageGroupApplicationListAsRecipient 分页获取指定群的加群请求
-// groupId string  群id
-// no      number  页码
-// size    size    每页长度
-func GetPageGroupApplicationListAsRecipient(callback open_im_sdk_callback.Base, operationID string, groupId string, no, size int64) {
-	call(callback, operationID, UserForSDK.Group().GetPageGroupApplicationListAsRecipient, groupId, no, size)
-}
-
 func GetGroupApplicationListAsApplicant(callback open_im_sdk_callback.Base, operationID string) {
 	call(callback, operationID, UserForSDK.Group().GetGroupApplicationListAsApplicant)
 }
@@ -142,49 +128,10 @@ func SetGroupMemberNickname(callback open_im_sdk_callback.Base, operationID stri
 	call(callback, operationID, UserForSDK.Group().SetGroupMemberNickname, groupID, userID, groupMemberNickname)
 }
 
-// SetGroupChatBackground 设置聊天背景
-// groupID   string 群id
-// backgroundUrl string 聊天背景地址
-func SetGroupChatBackground(callback open_im_sdk_callback.Base, operationID string, groupID string, backgroundUrl string) {
-	call(callback, operationID, UserForSDK.Group().SetBackgroundUrl, groupID, backgroundUrl)
-}
 func SearchGroupMembers(callback open_im_sdk_callback.Base, operationID string, searchParam string) {
 	call(callback, operationID, UserForSDK.Group().SearchGroupMembers, searchParam)
 }
 
 func IsJoinGroup(callback open_im_sdk_callback.Base, operationID string, groupID string) {
 	call(callback, operationID, UserForSDK.Group().IsJoinGroup, groupID)
-}
-
-// GetKickGroupMemberList 获取可踢用户列表
-func GetKickGroupMemberList(callback open_im_sdk_callback.Base, operationID, searchParam string) {
-	call(callback, operationID, UserForSDK.Group().KickGroupMemberList, searchParam)
-}
-
-// SearchNotInGroupFriendList 获取可邀请入群好友列表
-func SearchNotInGroupFriendList(callback open_im_sdk_callback.Base, operationID, searchParam string) {
-	call(callback, operationID, UserForSDK.Group().GetNotInGroupFriendInfoList, searchParam)
-}
-
-func GetUserOwnerJoinRequestNum(callback open_im_sdk_callback.Base, operationID string) {
-	call(callback, operationID, UserForSDK.Group().GetUserOwnerJoinRequestNum)
-}
-
-func GetAppointGroupRequestInfo(callback open_im_sdk_callback.Base, operationID, groupID string, offset, count int) {
-	call(callback, operationID, UserForSDK.Group().GetAppointGroupRequestInfo, groupID, offset, count)
-}
-
-func SearchGroupInfo(callback open_im_sdk_callback.Base, operationID, keyWord string, pageSize, pageNum int64) {
-	call(callback, operationID, UserForSDK.Group().SearchGroupInfo, keyWord, pageSize, pageNum)
-}
-
-// SearchGroupByCode 根据code搜索群信息
-// operationID string  操作id
-// code        string  群code
-func SearchGroupByCode(callback open_im_sdk_callback.Base, operationID, code string) {
-	call(callback, operationID, UserForSDK.Group().SearchGroupByCode, code)
-}
-
-func GetGroupAllMember(callback open_im_sdk_callback.Base, operationID, group string) {
-	call(callback, operationID, UserForSDK.Group().GetGroupAllMember, group)
 }

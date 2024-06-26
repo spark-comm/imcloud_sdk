@@ -16,14 +16,16 @@ package test
 
 import (
 	"encoding/json"
-	"github.com/imCloud/im/pkg/proto/sdkws"
-	"open_im_sdk/pkg/constant"
-	"open_im_sdk/pkg/log"
-	"open_im_sdk/pkg/network"
-	"open_im_sdk/pkg/server_api_params"
-	"open_im_sdk/pkg/utils"
+	"errors"
+	"github.com/OpenIMSDK/tools/log"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/constant"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/network"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/server_api_params"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/utils"
 	"sync"
 	"time"
+
+	"github.com/OpenIMSDK/protocol/sdkws"
 )
 
 var (
@@ -38,10 +40,12 @@ func InviteListToGroup(userIDList []string, groupID string) {
 	for {
 		resp, err := network.Post2Api(INVITEUSERTOGROUP, inviteReq, AdminToken)
 		if err != nil {
-			log.Warn(inviteReq.OperationID, " INVITE USER TO GROUP failed", inviteReq, "err: ", err)
+			log.ZWarn(ctx, "INVITE USER TO GROUP failed", err, "inviteReq", inviteReq)
+
 			continue
 		} else {
-			log.Info(inviteReq.OperationID, " invite resp : ", string(resp))
+			log.ZInfo(ctx, "InviteResponse", "operationID", inviteReq.OperationID, "response", string(resp))
+
 			return
 		}
 	}
@@ -55,10 +59,12 @@ func InviteToGroup(userID string, groupID string) {
 	for {
 		resp, err := network.Post2Api(INVITEUSERTOGROUP, inviteReq, AdminToken)
 		if err != nil {
-			log.Warn(inviteReq.OperationID, " INVITE USER TO GROUP failed", inviteReq, "err: ", err)
+			log.ZWarn(ctx, "INVITE USER TO GROUP failed", err, "inviteReq", inviteReq)
+
 			continue
 		} else {
-			log.Info(inviteReq.OperationID, " invite resp : ", string(resp))
+			log.ZInfo(ctx, "invite resp", "operationID", inviteReq.OperationID, "response", string(resp))
+
 			return
 		}
 	}
@@ -67,7 +73,7 @@ func InviteToGroup(userID string, groupID string) {
 func CreateWorkGroup(number int) string {
 	t1 := time.Now()
 	RegisterWorkGroupAccounts(number)
-	log.Info("", "RegisterAccounts  cost time: ", time.Since(t1), "Online client number ", number)
+	log.ZInfo(ctx, "RegisterAccounts", "costTime", time.Since(t1), "onlineClientNumber", number)
 
 	groupID := ""
 	var req server_api_params.CreateGroupReq
@@ -84,7 +90,7 @@ func CreateWorkGroup(number int) string {
 		req.OperationID = utils.OperationIDGenerator()
 		resp, err := network.Post2Api(CREATEGROUP, req, AdminToken)
 		if err != nil {
-			log.Warn(req.OperationID, "CREATE GROUP failed", string(resp), "err: ", err)
+			log.ZWarn(ctx, "CREATE GROUP failed", err, "resp", resp)
 			continue
 		} else {
 			type CreateGroupResp struct {
@@ -95,11 +101,13 @@ func CreateWorkGroup(number int) string {
 			var result CreateGroupResp
 			err := json.Unmarshal(resp, &result)
 			if err != nil {
-				log.Error(req.OperationID, "Unmarshal failed ", err.Error(), string(resp))
+				log.ZError(ctx, "Unmarshal failed", err, "resp", string(resp))
+
 			}
-			log.Info(req.OperationID, "Unmarshal  ", string(resp), result)
+			log.ZInfo(ctx, "Unmarshal", "operationID", req.OperationID, "response", string(resp), "result", result)
 			groupID = result.GroupInfo.GroupID
-			log.Info(req.OperationID, "create groupID:", groupID)
+			log.ZInfo(ctx, "create groupID", "operationID", req.OperationID, "groupID", groupID)
+
 			break
 		}
 	}
@@ -109,12 +117,14 @@ func CreateWorkGroup(number int) string {
 	remain := len(allUserID) % split
 	for idx = 0; idx < len(allUserID)/split; idx++ {
 		sub := allUserID[idx*split : (idx+1)*split]
-		log.Warn(req.OperationID, "invite to groupID:", groupID)
+		log.ZWarn(ctx, "Invite to groupID", errors.New(""), "groupID", groupID)
+
 		InviteListToGroup(sub, groupID)
 	}
 	if remain > 0 {
 		sub := allUserID[idx*split:]
-		log.Warn(req.OperationID, "invite to groupID:", groupID)
+		log.ZWarn(ctx, "Invite to groupID", errors.New(""), "operationID", req.OperationID, "groupID", groupID)
+
 		InviteListToGroup(sub, groupID)
 	}
 
@@ -137,13 +147,13 @@ func RegisterWorkGroupAccounts(number int) {
 		go func(t int) {
 			userID := GenUid(t, "workgroup")
 			register(userID)
-			log.Info("register ", userID)
+			log.ZInfo(ctx, "UserRegistered", "userID", userID)
 			wg.Done()
 		}(i)
 	}
 	wg.Wait()
 
-	log.Info("", "RegisterAccounts finish ", number)
+	log.ZInfo(ctx, "RegistrationFinished", "totalUsers", number)
 }
 
 func RegisterWorkGroupPressAccounts(number int) {
@@ -153,7 +163,7 @@ func RegisterWorkGroupPressAccounts(number int) {
 		go func(t int) {
 			userID := GenUid(t, "press_workgroup")
 			register(userID)
-			log.Info("register ", userID)
+			log.ZInfo(ctx, "UserRegistered", "userID", userID)
 			wg.Done()
 		}(i)
 	}
@@ -163,5 +173,5 @@ func RegisterWorkGroupPressAccounts(number int) {
 	register(userID1)
 	userID2 := GenUid(7654321, "workgroup")
 	register(userID2)
-	log.Info("", "RegisterAccounts finish ", number)
+	log.ZInfo(ctx, "RegistrationFinished", "totalUsers", number+2)
 }

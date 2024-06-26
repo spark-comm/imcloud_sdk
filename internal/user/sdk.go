@@ -16,25 +16,36 @@ package user
 
 import (
 	"context"
-	"open_im_sdk/pkg/constant"
-	"open_im_sdk/pkg/db/model_struct"
+	usermodel "github.com/miliao_apis/api/common/model/user/v2"
+	userPb "github.com/miliao_apis/api/im_cloud/user/v2"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/constant"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/db/model_struct"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/server_api"
 
-	imUserPb "github.com/imCloud/api/user/v1"
+	"github.com/OpenIMSDK/protocol/sdkws"
 )
 
-// GetUsersInfo 获取用户信息直接查服务器
 func (u *User) GetUsersInfo(ctx context.Context, userIDs []string) ([]*model_struct.LocalUser, error) {
 	return u.GetUsersInfoFromSvr(ctx, userIDs)
 }
 
-// GetSelfUserInfo 获取登录用户信息
 func (u *User) GetSelfUserInfo(ctx context.Context) (*model_struct.LocalUser, error) {
 	return u.getSelfUserInfo(ctx)
 }
 
-// SetSelfInfo 修改自己的信息
-func (u *User) SetSelfInfo(ctx context.Context, userInfo *imUserPb.UpdateProfileReq) error {
+// Deprecated: user SetSelfInfoEx instead
+func (u *User) SetSelfInfo(ctx context.Context, userInfo *userPb.UpdateProfileReq) error {
 	return u.updateSelfUserInfo(ctx, userInfo)
+}
+func (u *User) SetSelfInfoEx(ctx context.Context, userInfo *sdkws.UserInfoWithEx) error {
+	return u.updateSelfUserInfoEx(ctx, userInfo)
+}
+func (u *User) SetGlobalRecvMessageOpt(ctx context.Context, opt int) error {
+	if err := server_api.SetUsersOption(ctx, u.loginUserID, userPb.UserOption_globalRecvMsgOpt.String(), int32(opt)); err != nil {
+		return err
+	}
+	u.SyncLoginUserInfo(ctx)
+	return nil
 }
 
 func (u *User) UpdateMsgSenderInfo(ctx context.Context, nickname, faceURL string) (err error) {
@@ -51,26 +62,29 @@ func (u *User) UpdateMsgSenderInfo(ctx context.Context, nickname, faceURL string
 	return nil
 }
 
-// SearchUserInfo 1-手机 2-用户ID 3-扫码 5-邮箱
-func (u *User) SearchUserInfo(ctx context.Context, searchValue string, searchType int) (*model_struct.LocalUser, error) {
-	return u.searchUser(ctx, searchValue, searchType)
+func (u *User) SubscribeUsersStatus(ctx context.Context, userIDs []string) ([]*usermodel.OnlineStatus, error) {
+	//userStatus, err := u.subscribeUsersStatus(ctx, userIDs)
+	//if err != nil {
+	//	return nil, err
+	//}
+	//u.OnlineStatusCache.DeleteAll()
+	//u.OnlineStatusCache.StoreAll(func(value *userPb.OnlineStatus) string {
+	//	return value.UserID
+	//}, userStatus)
+	//return userStatus, nil
+	return nil, nil
 }
 
-func (u *User) GetUserLoginStatus(ctx context.Context, userIDs string) (*imUserPb.GetUserLoginStatusReps, error) {
-	return u.getUserLoginStatus(ctx, userIDs)
+func (u *User) UnsubscribeUsersStatus(ctx context.Context, userIDs []string) error {
+	u.OnlineStatusCache.DeleteAll()
+	return u.unsubscribeUsersStatus(ctx, userIDs)
 }
 
-// SetUsersOption 设置用户配置项
-// @par option string  配置项
-// @par value  number  值
-func (u *User) SetUsersOption(ctx context.Context, option string, value int32) error {
-	return u.setUsersOption(ctx, option, value)
+func (u *User) GetSubscribeUsersStatus(ctx context.Context) ([]*usermodel.OnlineStatus, error) {
+	//return u.getSubscribeUsersStatus(ctx)
+	return nil, nil
 }
 
-func (u *User) SyncUserOperation(ctx context.Context) error {
-	return u.syncUserOperation(ctx)
-}
-
-func (u *User) ScreenUserProfile(ctx context.Context, keyWord string) ([]*imUserPb.ScreenUserInfo, error) {
-	return u.screenUserProfile(ctx, keyWord)
+func (u *User) GetUserStatus(ctx context.Context, userID string) (*usermodel.OnlineStatus, error) {
+	return u.getUserStatus(ctx, userID)
 }

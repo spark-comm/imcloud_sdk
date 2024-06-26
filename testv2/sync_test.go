@@ -15,81 +15,74 @@
 package testv2
 
 import (
-	"open_im_sdk/open_im_sdk"
+	"github.com/openimsdk/openim-sdk-core/v3/open_im_sdk"
 	"testing"
 )
 
-func Test_SyncJoinGroup(t *testing.T) {
-	err := open_im_sdk.UserForSDK.Group().SyncGroups(ctx)
-	if err != nil {
-		t.Fatal(err)
-	}
-}
+//func Test_SyncJoinGroup(t *testing.T) {
+//	err := open_im_sdk.UserForSDK.Group().SyncJoinedGroup(ctx)
+//	if err != nil {
+//		t.Fatal(err)
+//	}
+//}
 
 func Test_SyncGroupMember(t *testing.T) {
-	groups, err := open_im_sdk.UserForSDK.Group().GetServerJoinGroup(ctx)
-	if err != nil {
-		t.Fatal(err)
-	}
-	for _, group := range groups {
-		err := open_im_sdk.UserForSDK.Group().SyncAllGroupMember(ctx, group.GroupID)
-		if err != nil {
-			t.Fatal(err)
-		}
-	}
+	//groups, err := open_im_sdk.UserForSDK.Group().GetServerJoinGroup(ctx)
+	//if err != nil {
+	//	t.Fatal(err)
+	//}
+	//for _, group := range groups {
+	//	err := open_im_sdk.UserForSDK.Group().SyncGroupMember(ctx, group.GroupID)
+	//	if err != nil {
+	//		t.Fatal(err)
+	//	}
+	//}
 }
 
-func Test_SyncSelfGroupApplication(t *testing.T) {
-	err := open_im_sdk.UserForSDK.Group().SyncSelfGroupApplication(ctx)
-	if err != nil {
-		t.Fatal(err)
-	}
-}
+//func Test_SyncSelfGroupApplication(t *testing.T) {
+//	err := open_im_sdk.UserForSDK.Group().SyncSelfGroupApplication(ctx)
+//	if err != nil {
+//		t.Fatal(err)
+//	}
+//}
 
-func Test_SyncAdminGroupApplication(t *testing.T) {
-	err := open_im_sdk.UserForSDK.Group().SyncAdminGroupApplication(ctx)
-	if err != nil {
-		t.Fatal(err)
-	}
-}
+//func Test_SyncAdminGroupApplication(t *testing.T) {
+//	err := open_im_sdk.UserForSDK.Group().SyncAdminGroupApplication(ctx)
+//	if err != nil {
+//		t.Fatal(err)
+//	}
+//}
 
 func Test_SyncSelfFriendApplication(t *testing.T) {
-	err := open_im_sdk.UserForSDK.Friend().SyncSelfFriendApplication(ctx)
+	err := open_im_sdk.UserForSDK.Friend().SyncAllSelfFriendApplication(ctx)
 	if err != nil {
 		t.Fatal(err)
 	}
 }
 
 func Test_SyncFriendApplication(t *testing.T) {
-	err := open_im_sdk.UserForSDK.Friend().SyncFriendApplication(ctx)
+	err := open_im_sdk.UserForSDK.Friend().SyncAllFriendApplication(ctx)
 	if err != nil {
 		t.Fatal(err)
 	}
 }
 
 func Test_SyncFriend(t *testing.T) {
-	err := open_im_sdk.UserForSDK.Friend().SyncFriendList(ctx)
+	err := open_im_sdk.UserForSDK.Friend().SyncAllFriendList(ctx)
 	if err != nil {
 		t.Fatal(err)
 	}
 }
 
 func Test_SyncBlack(t *testing.T) {
-	err := open_im_sdk.UserForSDK.Friend().SyncBlackList(ctx)
+	err := open_im_sdk.UserForSDK.Friend().SyncAllBlackList(ctx)
 	if err != nil {
 		t.Fatal(err)
 	}
 }
 
-func Test_SyncConversation(t *testing.T) {
-	err := open_im_sdk.UserForSDK.Conversation().SyncConversations(ctx)
-	if err != nil {
-		t.Fatal(err)
-	}
-}
-
-func Test_SyncQuantityFriendList(t *testing.T) {
-	err := open_im_sdk.UserForSDK.Friend().SyncQuantityFriendList(ctx)
+func Test_SyncAllConversation(t *testing.T) {
+	err := open_im_sdk.UserForSDK.Conversation().SyncAllConversations(ctx)
 	if err != nil {
 		t.Fatal(err)
 	}

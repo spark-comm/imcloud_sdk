@@ -16,9 +16,11 @@ package ccontext
 
 import (
 	"context"
-	"github.com/imCloud/im/pkg/common/mcontext"
-	"open_im_sdk/open_im_sdk_callback"
-	"open_im_sdk/sdk_struct"
+
+	"github.com/openimsdk/openim-sdk-core/v3/open_im_sdk_callback"
+	"github.com/openimsdk/openim-sdk-core/v3/sdk_struct"
+
+	"github.com/OpenIMSDK/tools/mcontext"
 )
 
 const (
@@ -62,6 +64,18 @@ func WithOperationID(ctx context.Context, operationID string) context.Context {
 }
 func WithSendMessageCallback(ctx context.Context, callback open_im_sdk_callback.SendMsgCallBack) context.Context {
 	return context.WithValue(ctx, Callback, callback)
+}
+
+func WithApiErrCode(ctx context.Context, cb ApiErrCodeCallback) context.Context {
+	return context.WithValue(ctx, apiErrCode{}, cb)
+}
+
+func GetApiErrCodeCallback(ctx context.Context) ApiErrCodeCallback {
+	fn, _ := ctx.Value(apiErrCode{}).(ApiErrCodeCallback)
+	if fn == nil {
+		return &emptyApiErrCodeCallback{}
+	}
+	return fn
 }
 
 type GlobalConfigKey struct{}
@@ -109,3 +123,13 @@ func (i *info) IsExternalExtensions() bool {
 func (i *info) Language() string {
 	return i.conf.Language
 }
+
+type apiErrCode struct{}
+
+type ApiErrCodeCallback interface {
+	OnError(ctx context.Context, err error)
+}
+
+type emptyApiErrCodeCallback struct{}
+
+func (e *emptyApiErrCodeCallback) OnError(ctx context.Context, err error) {}

@@ -19,10 +19,9 @@ package indexdb
 
 import (
 	"context"
-	"open_im_sdk/pkg/db/model_struct"
-	"open_im_sdk/pkg/sdk_params_callback"
-	"open_im_sdk/pkg/utils"
-	"open_im_sdk/wasm/exec"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/db/model_struct"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/utils"
+	"github.com/openimsdk/openim-sdk-core/v3/wasm/exec"
 )
 
 type LocalGroupMember struct {
@@ -333,28 +332,4 @@ func (i *LocalGroupMember) GetUserJoinedGroupIDs(ctx context.Context, userID str
 		return result, nil
 	}
 	return nil, exec.ErrType
-}
-func (i *LocalGroupMember) DeleteGroupMembers(ctx context.Context, groupID string, userID ...string) error {
-	_, err := exec.Exec(groupID, userID)
-	return err
-}
-func (i *LocalGroupMember) UpdateGroupMemberInfo(ctx context.Context, userID string, args map[string]interface{}) error {
-	_, err := exec.Exec(userID, args)
-	return err
-}
-
-// SearchKickMemberList 获取可踢用户列表
-func (i *LocalGroupMember) SearchKickMemberList(ctx context.Context, params sdk_params_callback.GetKickGroupListReq) ([]*sdk_params_callback.KickGroupList, int64, error) {
-	// todo
-	return nil, 0, nil
-}
-
-// 获取指定群群id的加群申请
-func (i *LocalGroupMember) GetOwnerOrAdminGroupReqInfo(ctx context.Context, groupID string, offset, count int) ([]model_struct.LocalGroupRequest, error) {
-	// todo
-	return nil, nil
-}
-func (d *LocalGroupMember) GetUserInAllGroupMemberList(ctx context.Context, userId string) ([]model_struct.LocalGroupMember, error) {
-	res := []model_struct.LocalGroupMember{}
-	return res, nil
 }

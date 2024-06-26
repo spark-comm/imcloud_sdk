@@ -15,12 +15,14 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
-	"open_im_sdk/pkg/log"
-	"open_im_sdk/pkg/network"
-	"open_im_sdk/pkg/server_api_params"
-	"open_im_sdk/pkg/utils"
-	"open_im_sdk/test"
+	"errors"
+	"github.com/OpenIMSDK/tools/log"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/network"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/server_api_params"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/utils"
+	"github.com/openimsdk/openim-sdk-core/v3/test"
 	"time"
 )
 
@@ -29,19 +31,20 @@ var (
 	//WSADDR  = "ws://43.155.69.205:10001"
 	//APIADDR = "https://chat-api-dev.opencord.so"
 	//WSADDR  = "wss://chat-ws-dev.opencord.so"
-	APIADDR = "http://125.124.195.201:10002"
-	WSADDR  = "ws://125.124.195.201:10001"
+	APIADDR = "http://14.29.168.56:10002"
+	WSADDR  = "ws://14.29.168.56:10001"
 	//APIADDR      = "http://113.108.8.93:10002"
 	//WSADDR       = "ws://113.108.8.93:10001"
 	REGISTERADDR = APIADDR + "/user_register"
 	ACCOUNTCHECK = APIADDR + "/manager/account_check"
 	TOKENADDR    = APIADDR + "/auth/user_token"
-	SECRET       = "tuoyun"
+	SECRET       = "openIM123"
 	//SECRET       = "4zbF9Y6Fs1QJ0hsmpC3B676txZcCnjcZ"
 	SENDINTERVAL = 20
 )
+var ctx context.Context
 
-const PlatformID = 1
+const PlatformID = 3
 
 type ResToken struct {
 	Data struct {
@@ -62,16 +65,17 @@ func ggetToken(uid string) string {
 	req.OperationID = utils.OperationIDGenerator()
 	r, err := network.Post2Api(url, req, "a")
 	if err != nil {
-		log.Error(req.OperationID, "Post2Api failed ", err.Error(), url, req)
+		log.ZError(ctx, "Post2Api failed ", errors.New("Post2Api failed "), "operationID", req.OperationID, "url", url, "req", req)
 		return ""
 	}
 	var stcResp ResToken
 	err = json.Unmarshal(r, &stcResp)
 	if stcResp.ErrCode != 0 {
-		log.Error(req.OperationID, "ErrCode failed ", stcResp.ErrCode, stcResp.ErrMsg, url, req)
+		log.ZError(ctx, "ErrCode failed ", errors.New("ErrCode failed "), "operationID", req.OperationID,
+			"errorCode", stcResp.ErrCode, "errMsg", stcResp.ErrMsg, "url", url, "req", req)
 		return ""
 	}
-	log.Info(req.OperationID, "get token: ", stcResp.Data.Token)
+	log.ZInfo(ctx, "get token: ", "operationID", req.OperationID, "token", stcResp.Data.Token)
 	return stcResp.Data.Token
 }
 
@@ -89,7 +93,7 @@ func gRunGetToken(strMyUid string) string {
 	return token
 }
 func main() {
-	uid := "7789"
+	uid := "1"
 	//Gordon
 	//uid:="1554321956297519104"
 	//Gordon2

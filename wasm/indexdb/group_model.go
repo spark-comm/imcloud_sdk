@@ -19,9 +19,9 @@ package indexdb
 
 import (
 	"context"
-	"open_im_sdk/pkg/db/model_struct"
-	"open_im_sdk/pkg/utils"
-	"open_im_sdk/wasm/exec"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/db/model_struct"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/utils"
+	"github.com/openimsdk/openim-sdk-core/v3/wasm/exec"
 )
 
 type LocalGroups struct{}
@@ -139,24 +139,6 @@ func (i *LocalGroups) SubtractMemberCount(ctx context.Context, groupID string) e
 	_, err := exec.Exec(groupID)
 	return err
 }
-
-func (i *LocalGroups) GetGroupInfoByGroupIDs(ctx context.Context, groupID ...string) ([]*model_struct.LocalGroup, error) {
-	c, err := exec.Exec(utils.StructToJsonString(groupID))
-	if err != nil {
-		return nil, err
-	} else {
-		if v, ok := c.(string); ok {
-			result := []*model_struct.LocalGroup{}
-			err := utils.JsonStringToStruct(v, &result)
-			if err != nil {
-				return nil, err
-			}
-			return result, err
-		} else {
-			return nil, exec.ErrType
-		}
-	}
-}
 func (i *LocalGroups) GetGroupMemberAllGroupIDs(ctx context.Context) (result []string, err error) {
 	groupIDList, err := exec.Exec()
 	if err != nil {
@@ -172,24 +154,4 @@ func (i *LocalGroups) GetGroupMemberAllGroupIDs(ctx context.Context) (result []s
 			return nil, exec.ErrType
 		}
 	}
-}
-
-func (i *LocalGroups) GetOwnerGroupMemberInfo(ctx context.Context, userID string) ([]*model_struct.LocalGroupMember, error) {
-	return nil, nil
-}
-
-func (i *LocalGroups) GetOneSendGroupApplication(ctx context.Context, groupID string) ([]*model_struct.LocalGroupRequest, error) {
-	return []*model_struct.LocalGroupRequest{}, nil
-}
-
-// GetGroupMemberUpdateTime 获取群成员信息
-func (d *LocalGroups) GetGroupMemberUpdateTime(ctx context.Context, groupID string) (map[string]int64, error) {
-	res := make(map[string]int64)
-	return res, nil
-}
-
-// GetGroupUpdateTime 获取群信息
-func (d *LocalGroups) GetGroupUpdateTime(ctx context.Context) (map[string]int64, error) {
-	res := make(map[string]int64)
-	return res, nil
 }

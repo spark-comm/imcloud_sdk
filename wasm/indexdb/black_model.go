@@ -19,11 +19,10 @@ package indexdb
 
 import (
 	"context"
-	"open_im_sdk/pkg/db/model_struct"
-	"open_im_sdk/pkg/db/pg"
-	"open_im_sdk/pkg/utils"
-	"open_im_sdk/wasm/exec"
-	"open_im_sdk/wasm/indexdb/temp_struct"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/db/model_struct"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/utils"
+	"github.com/openimsdk/openim-sdk-core/v3/wasm/exec"
+	"github.com/openimsdk/openim-sdk-core/v3/wasm/indexdb/temp_struct"
 )
 
 type Black struct {
@@ -128,62 +127,18 @@ func (i Black) UpdateBlack(ctx context.Context, black *model_struct.LocalBlack) 
 	tempLocalBlack := temp_struct.LocalBlack{
 		Nickname:       black.Nickname,
 		FaceURL:        black.FaceURL,
-		CreateAt:       black.CreateAt,
+		CreateTime:     black.CreateTime,
 		AddSource:      black.AddSource,
 		OperatorUserID: black.OperatorUserID,
 		Ex:             black.Ex,
 		AttachedInfo:   black.AttachedInfo,
 	}
-	_, err := exec.Exec(black.OwnerUserID, black.BlackUserID, utils.StructToJsonString(tempLocalBlack))
+	_, err := exec.Exec(black.OwnerUserID, black.BlockUserID, utils.StructToJsonString(tempLocalBlack))
 	return err
 }
 
 // DeleteBlack removes a blocked user from the database
-func (i Black) DeleteBlack(ctx context.Context, ownerUserID, blockUserID string) error {
-	_, err := exec.Exec(ownerUserID, blockUserID)
+func (i Black) DeleteBlack(ctx context.Context, blockUserID string) error {
+	_, err := exec.Exec(blockUserID, i.loginUserID)
 	return err
-}
-func (i Black) GetBlackList(ctx context.Context, page *pg.Page) ([]*model_struct.LocalBlack, error) {
-	result := make([]*model_struct.LocalBlack, 0)
-	gList, err := exec.Exec(page.Size, page.NO)
-	if err != nil {
-		return nil, err
-	} else {
-		if v, ok := gList.(string); ok {
-			var temp = []*model_struct.LocalBlack{}
-			err := utils.JsonStringToStruct(v, &temp)
-			if err != nil {
-				return nil, err
-			}
-			for _, v := range temp {
-				v1 := v
-				result = append(result, v1)
-			}
-			return result, err
-		} else {
-			return nil, exec.ErrType
-		}
-	}
-}
-func (i Black) GetBlackListAllDB(ctx context.Context) ([]*model_struct.LocalBlack, error) {
-	result := make([]*model_struct.LocalBlack, 0)
-	gList, err := exec.Exec()
-	if err != nil {
-		return nil, err
-	} else {
-		if v, ok := gList.(string); ok {
-			var temp = []*model_struct.LocalBlack{}
-			err := utils.JsonStringToStruct(v, &temp)
-			if err != nil {
-				return nil, err
-			}
-			for _, v := range temp {
-				v1 := v
-				result = append(result, v1)
-			}
-			return result, err
-		} else {
-			return nil, exec.ErrType
-		}
-	}
 }

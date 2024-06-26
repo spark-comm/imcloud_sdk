@@ -15,9 +15,9 @@
 package conversation_msg
 
 import (
-	"open_im_sdk/pkg/db/model_struct"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/db/model_struct"
 
-	pbConversation "github.com/imCloud/im/pkg/proto/conversation"
+	pbConversation "github.com/OpenIMSDK/protocol/conversation"
 )
 
 func ServerConversationToLocal(conversation *pbConversation.Conversation) *model_struct.LocalConversation {
@@ -32,7 +32,7 @@ func ServerConversationToLocal(conversation *pbConversation.Conversation) *model
 		BurnDuration:     conversation.BurnDuration,
 		IsPrivateChat:    conversation.IsPrivateChat,
 		AttachedInfo:     conversation.AttachedInfo,
-		BackgroundURL:    conversation.Ex,
+		Ex:               conversation.Ex,
 		MsgDestructTime:  conversation.MsgDestructTime,
 		IsMsgDestruct:    conversation.IsMsgDestruct,
 	}

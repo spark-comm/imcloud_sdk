@@ -20,11 +20,13 @@ package db
 import (
 	"context"
 	"errors"
-	"open_im_sdk/pkg/constant"
-	"open_im_sdk/pkg/db/model_struct"
-	"open_im_sdk/pkg/utils"
+	"fmt"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/constant"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/db/model_struct"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/utils"
 
-	"github.com/imCloud/im/pkg/common/log"
+	"github.com/OpenIMSDK/tools/errs"
+	"github.com/OpenIMSDK/tools/log"
 	"gorm.io/gorm"
 )
 
@@ -34,35 +36,11 @@ func (d *DataBase) GetConversationByUserID(ctx context.Context, userID string) (
 	return &conversation, err
 }
 
-func (d *DataBase) GetPrivacyConversationForPage(ctx context.Context, isLimit bool, pageSize, pageNum int) ([]*model_struct.LocalConversation, error) {
+func (d *DataBase) GetAllConversationListDB(ctx context.Context) ([]*model_struct.LocalConversation, error) {
 	d.mRWMutex.Lock()
 	defer d.mRWMutex.Unlock()
 	var conversationList []*model_struct.LocalConversation
-	tx := d.conn.WithContext(ctx).Scopes(func(db *gorm.DB) *gorm.DB {
-		db.Where("latest_msg_send_time > ?", 0)
-		db.Where("conversation_type = ?", constant.EncryptedChatType)
-		return db
-	}).Order("case when is_pinned=1 then 0 else 1 end,max(latest_msg_send_time,draft_text_time) DESC")
-	if isLimit {
-		tx = tx.Offset(pageSize * (pageNum - 1)).Limit(pageNum)
-	}
-	err := tx.Find(&conversationList).Error
-	if err != nil {
-		return []*model_struct.LocalConversation{}, err
-	}
-	return conversationList, nil
-}
-
-func (d *DataBase) GetAllConversationListDB(ctx context.Context, includeEncrypted bool) ([]*model_struct.LocalConversation, error) {
-	d.mRWMutex.Lock()
-	defer d.mRWMutex.Unlock()
-	var conversationList []*model_struct.LocalConversation
-	err := utils.Wrap(d.conn.WithContext(ctx).Where("latest_msg_send_time > ?", 0).Scopes(func(db *gorm.DB) *gorm.DB {
-		if !includeEncrypted {
-			db = db.Where("conversation_type != ?", constant.EncryptedChatType) //去除私密会话
-		}
-		return db
-	}).Order("case when is_pinned=1 then 0 else 1 end,max(latest_msg_send_time,draft_text_time) DESC").Find(&conversationList).Error,
+	err := utils.Wrap(d.conn.WithContext(ctx).Where("latest_msg_send_time > ?", 0).Order("case when is_pinned=1 then 0 else 1 end,max(latest_msg_send_time,draft_text_time) DESC").Find(&conversationList).Error,
 		"GetAllConversationList failed")
 	if err != nil {
 		return nil, err
@@ -112,9 +90,7 @@ func (d *DataBase) GetConversationListSplitDB(ctx context.Context, offset, count
 	d.mRWMutex.Lock()
 	defer d.mRWMutex.Unlock()
 	var conversationList []model_struct.LocalConversation
-	err := utils.Wrap(d.conn.WithContext(ctx).Where("latest_msg_send_time > ?", 0).
-		Where("conversation_type != ?", constant.EncryptedChatType). //去除私密会话
-		Order("case when is_pinned=1 then 0 else 1 end,max(latest_msg_send_time,draft_text_time) DESC").Offset(offset).Limit(count).Find(&conversationList).Error,
+	err := utils.Wrap(d.conn.WithContext(ctx).Where("latest_msg_send_time > ?", 0).Order("case when is_pinned=1 then 0 else 1 end,max(latest_msg_send_time,draft_text_time) DESC").Offset(offset).Limit(count).Find(&conversationList).Error,
 		"GetFriendList failed")
 	var transfer []*model_struct.LocalConversation
 	for _, v := range conversationList {
@@ -124,7 +100,7 @@ func (d *DataBase) GetConversationListSplitDB(ctx context.Context, offset, count
 	return transfer, err
 }
 func (d *DataBase) BatchInsertConversationList(ctx context.Context, conversationList []*model_struct.LocalConversation) error {
-	if conversationList == nil || len(conversationList) == 0 {
+	if conversationList == nil {
 		return nil
 	}
 	d.mRWMutex.Lock()
@@ -306,7 +282,7 @@ func (d *DataBase) UpdateColumnsConversation(ctx context.Context, conversationID
 	defer d.mRWMutex.Unlock()
 	t := d.conn.WithContext(ctx).Model(model_struct.LocalConversation{ConversationID: conversationID}).Updates(args)
 	if t.RowsAffected == 0 {
-		return utils.Wrap(errors.New("RowsAffected == 0"), "no update")
+		return utils.Wrap(errs.ErrRecordNotFound, "no update")
 	}
 	return utils.Wrap(t.Error, "UpdateColumnsConversation failed")
 }
@@ -332,18 +308,11 @@ func (d *DataBase) IncrConversationUnreadCount(ctx context.Context, conversation
 	}
 	return utils.Wrap(t.Error, "IncrConversationUnreadCount failed")
 }
-func (d *DataBase) GetTotalUnreadMsgCountDB(ctx context.Context, conversationType ...int32) (totalUnreadCount int32, err error) {
+func (d *DataBase) GetTotalUnreadMsgCountDB(ctx context.Context) (totalUnreadCount int32, err error) {
 	d.mRWMutex.Lock()
 	defer d.mRWMutex.Unlock()
 	var result []int64
-	tx := d.conn.WithContext(ctx).Model(&model_struct.LocalConversation{})
-	if len(conversationType) > 0 {
-		tx.Where("conversation_type in ?", conversationType)
-	} else {
-		// 不传的时候，排除掉加密会话
-		tx.Where("conversation_type != ?", constant.EncryptedChatType)
-	}
-	err = tx.Where("recv_msg_opt < ?", constant.ReceiveNotNotifyMessage).Pluck("unread_count", &result).Error
+	err = d.conn.WithContext(ctx).Model(&model_struct.LocalConversation{}).Where("recv_msg_opt < ? and latest_msg_send_time > ?", constant.ReceiveNotNotifyMessage, 0).Pluck("unread_count", &result).Error
 	if err != nil {
 		return totalUnreadCount, utils.Wrap(errors.New("GetTotalUnreadMsgCount err"), "GetTotalUnreadMsgCount err")
 	}
@@ -397,4 +366,18 @@ func (d *DataBase) DecrConversationUnreadCount(ctx context.Context, conversation
 	}
 	tx.Commit()
 	return nil
+}
+func (d *DataBase) SearchConversations(ctx context.Context, searchParam string) ([]*model_struct.LocalConversation, error) {
+	// Define the search condition based on the searchParam
+	condition := fmt.Sprintf("show_name like %q ", "%"+searchParam+"%")
+
+	var conversationList []model_struct.LocalConversation
+	err := d.conn.WithContext(ctx).Where(condition).Order("latest_msg_send_time DESC").Find(&conversationList).Error
+	var transfer []*model_struct.LocalConversation
+	for _, v := range conversationList {
+		v1 := v // Create a copy to avoid referencing the loop variable
+		transfer = append(transfer, &v1)
+	}
+
+	return transfer, utils.Wrap(err, "SearchConversation failed ")
 }

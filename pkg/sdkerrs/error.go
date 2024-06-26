@@ -14,10 +14,10 @@
 
 package sdkerrs
 
-import "github.com/imCloud/im/pkg/errs"
+import "github.com/OpenIMSDK/tools/errs"
 
-func New(code int, msg string, dtl, reson string) errs.CodeError {
-	return errs.NewCodeError(code, msg).WithDetail(dtl).WithReson(reson)
+func New(code int, msg string, dtl string) errs.CodeError {
+	return errs.NewCodeError(code, msg).WithDetail(dtl)
 }
 
 var Warp = errs.Wrap

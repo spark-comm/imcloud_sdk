@@ -15,7 +15,7 @@
 package server_api_params
 
 import (
-	"github.com/imCloud/im/pkg/proto/sdkws"
+	"github.com/OpenIMSDK/protocol/sdkws"
 )
 
 type GetUsersInfoReq struct {
@@ -51,15 +51,4 @@ type GetSelfUserInfoResp struct {
 	CommResp
 	UserInfo *sdkws.UserInfo        `json:"-"`
 	Data     map[string]interface{} `json:"data"`
-}
-
-type SetOptionReqReq struct {
-	UserID string `json:"userId,omitempty"` // 用户 id
-	Option string `json:"option,omitempty"` // 配置项类型
-	Value  int32  `json:"value,omitempty"`  // 值
-}
-
-type GetUserOperation struct {
-	UserID           string   `json:"userID"`
-	OperationKeyWord []string `json:"operationKeyWord"`
 }

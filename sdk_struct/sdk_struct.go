@@ -15,7 +15,7 @@
 package sdk_struct
 
 import (
-	"github.com/imCloud/im/pkg/proto/sdkws"
+	"github.com/OpenIMSDK/protocol/sdkws"
 )
 
 ////////////////////////// message/////////////////////////
@@ -41,6 +41,7 @@ type MessageRevoked struct {
 	SessionType                 int32  `json:"sessionType"`
 	Seq                         int64  `json:"seq"`
 	Ex                          string `json:"ex"`
+	IsAdminRevoke               bool   `json:"isAdminRevoke"`
 }
 type MessageReaction struct {
 	ClientMsgID  string `json:"clientMsgID"`
@@ -195,18 +196,11 @@ type AdvancedTextElem struct {
 	Text              string           `json:"text,omitempty"`
 	MessageEntityList []*MessageEntity `json:"messageEntityList,omitempty"`
 }
+
 type TypingElem struct {
 	MsgTips string `json:"msgTips,omitempty"`
 }
-type RedPacketElem struct {
-	Amount     string `protobuf:"bytes,1,opt,name=amount,proto3" json:"amount,omitempty"`
-	BusinessID string `protobuf:"bytes,2,opt,name=businessID,proto3" json:"businessID,omitempty"`
-	Content    string `protobuf:"bytes,3,opt,name=content,proto3" json:"content,omitempty"`
-	GroupID    string `protobuf:"bytes,4,opt,name=groupID,proto3" json:"groupID,omitempty"`
-	IsOver     bool   `protobuf:"varint,5,opt,name=isOver,proto3" json:"isOver,omitempty"`
-	Number     string `protobuf:"bytes,6,opt,name=number,proto3" json:"number,omitempty"`
-	RedID      string `protobuf:"bytes,7,opt,name=redID,proto3" json:"redID,omitempty"`
-}
+
 type MsgStruct struct {
 	ClientMsgID          string                 `json:"clientMsgID,omitempty"`
 	ServerMsgID          string                 `json:"serverMsgID,omitempty"`
@@ -247,7 +241,6 @@ type MsgStruct struct {
 	AdvancedTextElem     *AdvancedTextElem      `json:"advancedTextElem,omitempty"`
 	TypingElem           *TypingElem            `json:"typingElem,omitempty"`
 	AttachedInfoElem     *AttachedInfoElem      `json:"attachedInfoElem,omitempty"`
-	RedPacketElem        *RedPacketElem         `json:"redPacketElem,omitempty"`
 }
 
 type AtInfo struct {
@@ -255,14 +248,13 @@ type AtInfo struct {
 	GroupNickname string `json:"groupNickname,omitempty"`
 }
 type AttachedInfoElem struct {
-	GroupHasReadInfo          GroupHasReadInfo `json:"groupHasReadInfo,omitempty"`
-	IsPrivateChat             bool             `json:"isPrivateChat"`
-	BurnDuration              int32            `json:"burnDuration"`
-	HasReadTime               int64            `json:"hasReadTime"`
-	NotSenderNotificationPush bool             `json:"notSenderNotificationPush"`
-	MessageEntityList         []*MessageEntity `json:"messageEntityList,omitempty"`
-	IsEncryption              bool             `json:"isEncryption"`
-	InEncryptStatus           bool             `json:"inEncryptStatus"`
+	GroupHasReadInfo  GroupHasReadInfo `json:"groupHasReadInfo,omitempty"`
+	IsPrivateChat     bool             `json:"isPrivateChat"`
+	BurnDuration      int32            `json:"burnDuration"`
+	HasReadTime       int64            `json:"hasReadTime"`
+	MessageEntityList []*MessageEntity `json:"messageEntityList,omitempty"`
+	IsEncryption      bool             `json:"isEncryption"`
+	InEncryptStatus   bool             `json:"inEncryptStatus"`
 	//MessageReactionElem       []*ReactionElem  `json:"messageReactionElem,omitempty"`
 	Progress *UploadProgress `json:"uploadProgress,omitempty"`
 }
@@ -316,6 +308,7 @@ func (n NewMsgList) Swap(i, j int) {
 }
 
 type IMConfig struct {
+	SystemType           string `json:"systemType"`
 	PlatformID           int32  `json:"platformID"`
 	ApiAddr              string `json:"apiAddr"`
 	WsAddr               string `json:"wsAddr"`
@@ -332,11 +325,6 @@ type CmdNewMsgComeToConversation struct {
 	SyncFlag int
 }
 
-// CmdNewMsgToConversation 同步会话数据
-type CmdNewMsgToConversation struct {
-	Seqs           []int64
-	ConversationID string
-}
 type CmdPushMsgToMsgSync struct {
 	Msgs []*sdkws.PushMessages
 }
@@ -376,9 +364,4 @@ type MsgDeleteNotificationElem struct {
 	GroupID     string   `json:"groupID"`
 	IsAllDelete bool     `json:"isAllDelete"`
 	SeqList     []string `json:"seqList"`
-}
-
-type ConverstionSeqsVal struct {
-	ConversationID string  `json:"conversationID"`
-	Seqs           []int64 `json:"seqs"`
 }

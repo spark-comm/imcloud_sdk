@@ -16,7 +16,7 @@ package main
 
 import (
 	"fmt"
-	"open_im_sdk/test"
+	"github.com/openimsdk/openim-sdk-core/v3/test"
 	"time"
 )
 
@@ -26,7 +26,7 @@ func main() {
 	REGISTERADDR := APIADDR + "/user_register"
 	ACCOUNTCHECK := APIADDR + "/manager/account_check"
 	TOKENADDR := APIADDR + "/auth/user_token"
-	SECRET := "tuoyun"
+	SECRET := "openIM123"
 	SENDINTERVAL := 20
 	test.REGISTERADDR = REGISTERADDR
 	test.TOKENADDR = TOKENADDR
@@ -34,12 +34,13 @@ func main() {
 	test.SENDINTERVAL = SENDINTERVAL
 	test.WSADDR = WSADDR
 	test.ACCOUNTCHECK = ACCOUNTCHECK
-	strMyUidx := "2712330015"
+	strMyUidx := "5284951719"
 
 	tokenx := test.RunGetToken(strMyUidx)
 	fmt.Println(tokenx)
 	test.InOutDoTest(strMyUidx, tokenx, WSADDR, APIADDR)
-	time.Sleep(time.Second * 2)
+	time.Sleep(time.Second * 10)
+	// test.DoTestGetUsersInfo()
 	// test.DoTestSetMsgDestructTime("sg_1012596513")
 	// test.DoTestRevoke()
 	// test.DotestDeleteFriend("8303492153")

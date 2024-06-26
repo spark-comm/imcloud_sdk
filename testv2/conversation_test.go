@@ -16,35 +16,12 @@ package testv2
 
 import (
 	"context"
-	"fmt"
-	"github.com/imCloud/im/pkg/proto/sdkws"
-	"open_im_sdk/open_im_sdk"
-	"open_im_sdk/pkg/constant"
-	"open_im_sdk/pkg/log"
-	"open_im_sdk/pkg/sdk_params_callback"
-	"open_im_sdk/pkg/utils"
-	"open_im_sdk/sdk_struct"
-	"strings"
-	"sync"
+	"github.com/openimsdk/openim-sdk-core/v3/open_im_sdk"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/sdk_params_callback"
+	"github.com/openimsdk/openim-sdk-core/v3/sdk_struct"
 	"testing"
-	"time"
 )
 
-type SendCallback struct {
-	clientMsgID string
-}
-
-func (b *SendCallback) OnError(errCode int32, errMsg string) {
-	log.Info("", "!!!!!!!OnError ")
-}
-
-func (b *SendCallback) OnSuccess(data string) {
-	log.Info("", "!!!!!!!OnSuccess ")
-}
-
-func (s *SendCallback) OnProgress(progress int) {
-	log.Info("", "上传进度", progress)
-}
 func Test_GetAllConversationList(t *testing.T) {
 	conversations, err := open_im_sdk.UserForSDK.Conversation().GetAllConversationList(ctx)
 	if err != nil {
@@ -55,29 +32,13 @@ func Test_GetAllConversationList(t *testing.T) {
 	}
 }
 
-func Test_GetConversationMaxSeq(t *testing.T) {
-	seq, err := open_im_sdk.UserForSDK.MsgSyncer().GetConversationMaxSeq(ctx, "cs_55122331994951680_55122332112392192")
-	if err != nil {
-		t.Fatal(err)
-	}
-	t.Log(seq)
-}
-
-func Test_SyncConversationMsg(t *testing.T) {
-	err := open_im_sdk.UserForSDK.MsgSyncer().SyncConversationMsg(ctx, "si_55223677259616256_55224026938740736")
-	if err != nil {
-		t.Fatal(err)
-	}
-	time.Sleep(time.Second * 30)
-}
-
 func Test_GetConversationListSplit(t *testing.T) {
-	conversations, err := open_im_sdk.UserForSDK.Conversation().GetConversationListSplit(ctx, 0, 30)
+	conversations, err := open_im_sdk.UserForSDK.Conversation().GetConversationListSplit(ctx, 0, 20)
 	if err != nil {
 		t.Fatal(err)
 	}
 	for _, conversation := range conversations {
-		t.Log(fmt.Sprintf("%s", utils.StructToJsonString(conversation)))
+		t.Log(conversation)
 	}
 }
 
@@ -88,14 +49,6 @@ func Test_GetConversationListSplit(t *testing.T) {
 //	}
 //}
 
-func Test_SetSetGlobalRecvMessageOpt(t *testing.T) {
-	err := open_im_sdk.UserForSDK.Conversation().SetGlobalRecvMessageOpt(ctx, 1)
-	if err != nil {
-		t.Fatal(err)
-	}
-}
-
-// 隐藏会话
 func Test_HideConversation(t *testing.T) {
 	err := open_im_sdk.UserForSDK.Conversation().HideConversation(ctx, "asdasd")
 	if err != nil {
@@ -114,8 +67,7 @@ func Test_GetConversationRecvMessageOpt(t *testing.T) {
 }
 
 func Test_GetGlobalRecvMessageOpt(t *testing.T) {
-	opt, err := open_im_sdk.UserForSDK.Conversation().
-		GetOneNormalConversation(ctx, constant.CustomerServiceChatType, "55122332229832704")
+	opt, err := open_im_sdk.UserForSDK.Conversation().GetOneConversation(ctx, 2, "1772958501")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -132,21 +84,14 @@ func Test_GetGetMultipleConversation(t *testing.T) {
 	}
 }
 
-func Test_DeleteConversation(t *testing.T) {
-	err := open_im_sdk.UserForSDK.Conversation().DeleteConversationAndDeleteAllMsg(ctx, "sg_113024237047808")
-	if err != nil {
-		if !strings.Contains(err.Error(), "no update") {
-			t.Fatal(err)
-		}
-	}
-}
-
-func Test_DeleteAllConversationFromLocal(t *testing.T) {
-	err := open_im_sdk.UserForSDK.Conversation().DeleteAllConversationFromLocal(ctx)
-	if err != nil {
-		t.Fatal(err)
-	}
-}
+// funcation Test_DeleteConversation(t *testing.T) {
+//	err := open_im_sdk.UserForSDK.Conversation().DeleteConversation(ctx, "group_17729585012")
+//	if err != nil {
+//		if !strings.Contains(err.Error(), "no update") {
+//			t.Fatal(err)
+//		}
+//	}
+// }
 
 func Test_SetConversationDraft(t *testing.T) {
 	err := open_im_sdk.UserForSDK.Conversation().SetConversationDraft(ctx, "group_17729585012", "draft")
@@ -156,8 +101,7 @@ func Test_SetConversationDraft(t *testing.T) {
 }
 
 func Test_ResetConversationGroupAtType(t *testing.T) {
-	err := open_im_sdk.UserForSDK.Conversation().ResetConversationGroupAtType(ctx,
-		"sg_27951173210112")
+	err := open_im_sdk.UserForSDK.Conversation().ResetConversationGroupAtType(ctx, "group_17729585012")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -199,56 +143,19 @@ func Test_GetTotalUnreadMsgCount(t *testing.T) {
 	t.Log(count)
 }
 
-// 测试加密会话未读数量
-func Test_GetTotalEncryptUnreadMsgCount(t *testing.T) {
-	count, err := open_im_sdk.UserForSDK.Conversation().GetTotalEncryptUnreadMsgCount(ctx)
-	if err != nil {
-		t.Fatal(err)
-	}
-	t.Log(count)
-}
-
 func Test_SendMessage(t *testing.T) {
 	ctx = context.WithValue(ctx, "callback", TestSendMsg{})
-	msg, _ := open_im_sdk.UserForSDK.Conversation().CreateTextMessage(ctx, "加密会话消息1")
-	log.Info("发出的消息是", msg.ClientMsgID)
-	_, err := open_im_sdk.UserForSDK.Conversation().SendMessage(ctx, msg, "14749549822218240", "", constant.SingleChatType, nil)
+	msg, _ := open_im_sdk.UserForSDK.Conversation().CreateTextMessage(ctx, "textMsg")
+	_, err := open_im_sdk.UserForSDK.Conversation().SendMessage(ctx, msg, "3411008330", "", nil, false)
 	if err != nil {
 		t.Fatal(err)
 	}
 }
-func Test_SendMessage1(t *testing.T) {
-	ids := []string{"55122332112392192", "55122332229832704", "55122332330496000", "55122332447936512", "55122332565377024", "55122332682817536", "55122332783480832", "55122332884144128", "55122332984807424", "55122333085470720", "55122333186134016", "55122333286797312"}
-	var wg sync.WaitGroup
-	for _, id := range ids {
-		wg.Add(1)
-		go func(userId string) {
-			defer wg.Done()
-			for i := 0; i < 2000; i++ {
-				ctx = context.WithValue(ctx, "callback", TestSendMsg{})
-				msg, _ := open_im_sdk.UserForSDK.Conversation().CreateTextMessage(ctx, fmt.Sprintf("textMsg_%d", i))
-				open_im_sdk.UserForSDK.Conversation().SendMessage(ctx, msg, userId, "", constant.SingleChatType, nil)
-				//if err != nil {
-				//	t.Fatal(err)
-				//}
-			}
-		}(id)
-	}
-	wg.Wait()
-}
+
 func Test_SendMessageNotOss(t *testing.T) {
 	ctx = context.WithValue(ctx, "callback", TestSendMsg{})
 	msg, _ := open_im_sdk.UserForSDK.Conversation().CreateTextMessage(ctx, "textMsg")
-	_, err := open_im_sdk.UserForSDK.Conversation().SendMessageNotOss(ctx, msg, "70146959163265024", "", constant.SingleChatType, nil)
-	if err != nil {
-		t.Fatal(err)
-	}
-}
-
-func Test_SendMessageByBuffer(t *testing.T) {
-	ctx = context.WithValue(ctx, "callback", TestSendMsg{})
-	msg, _ := open_im_sdk.UserForSDK.Conversation().CreateTextMessage(ctx, "textMsg")
-	_, err := open_im_sdk.UserForSDK.Conversation().SendMessageByBuffer(ctx, msg, "3411008330", "", constant.SingleChatType, &sdkws.OfflinePushInfo{}, nil, nil)
+	_, err := open_im_sdk.UserForSDK.Conversation().SendMessageNotOss(ctx, msg, "3411008330", "", nil, false)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -265,23 +172,8 @@ func Test_FindMessageList(t *testing.T) {
 	}
 }
 
-func Test_GetHistoryMessageList(t *testing.T) {
-	msgs, err := open_im_sdk.UserForSDK.Conversation().GetHistoryMessageList(ctx, sdk_params_callback.GetHistoryMessageListParams{})
-	if err != nil {
-		t.Fatal(err)
-	}
-	for _, v := range msgs {
-		t.Log(v)
-	}
-}
-
 func Test_GetAdvancedHistoryMessageList(t *testing.T) {
-	msgs, err := open_im_sdk.UserForSDK.Conversation().GetAdvancedHistoryMessageList(ctx, sdk_params_callback.GetAdvancedHistoryMessageListParams{
-		LastMinSeq:     0,
-		UserID:         `55122332112392192`,
-		Count:          20,
-		ConversationID: `si_55122332112392192_55224026938740736`,
-	})
+	msgs, err := open_im_sdk.UserForSDK.Conversation().GetAdvancedHistoryMessageList(ctx, sdk_params_callback.GetAdvancedHistoryMessageListParams{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -315,18 +207,7 @@ func Test_InsertGroupMessageToLocalStorage(t *testing.T) {
 }
 
 func Test_SearchLocalMessages(t *testing.T) {
-	msgs, err := open_im_sdk.UserForSDK.Conversation().SearchLocalMessages(ctx,
-		&sdk_params_callback.SearchLocalMessagesParams{
-			ConversationID:       `si_55223677259616256_55224175421296640`,
-			KeywordList:          []string{"1"},
-			KeywordListMatchType: 0,
-			SenderUserIDList:     []string{},
-			MessageTypeList:      []int{101, 114},
-			SearchTimePosition:   0,
-			SearchTimePeriod:     0,
-			PageIndex:            1,
-			Count:                50,
-		})
+	msgs, err := open_im_sdk.UserForSDK.Conversation().SearchLocalMessages(ctx, &sdk_params_callback.SearchLocalMessagesParams{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -336,31 +217,24 @@ func Test_SearchLocalMessages(t *testing.T) {
 }
 
 // // delete
-//
-//	funcation Test_DeleteMessageFromLocalStorage(t *testing.T) {
-//		err := open_im_sdk.UserForSDK.Conversation().DeleteMessageFromLocalStorage(ctx, &sdk_struct.MsgStruct{SessionType: 1, ContentType: 1203,
-//			ClientMsgID: "ef02943b05b02d02f92b0e92516099a3", Seq: 31, SendID: "kernaltestuid8", RecvID: "kernaltestuid9"})
-//		if err != nil {
-//			t.Fatal(err)
-//		}
+// funcation Test_DeleteMessageFromLocalStorage(t *testing.T) {
+//	err := open_im_sdk.UserForSDK.Conversation().DeleteMessageFromLocalStorage(ctx, &sdk_struct.MsgStruct{SessionType: 1, ContentType: 1203,
+//		ClientMsgID: "ef02943b05b02d02f92b0e92516099a3", Seq: 31, SendID: "kernaltestuid8", RecvID: "kernaltestuid9"})
+//	if err != nil {
+//		t.Fatal(err)
 //	}
+// }
 //
-//	funcation Test_DeleteMessage(t *testing.T) {
-//		err := open_im_sdk.UserForSDK.Conversation().DeleteMessage(ctx, &sdk_struct.MsgStruct{SessionType: 1, ContentType: 1203,
-//			ClientMsgID: "ef02943b05b02d02f92b0e92516099a3", Seq: 31, SendID: "kernaltestuid8", RecvID: "kernaltestuid9"})
-//		if err != nil {
-//			t.Fatal(err)
-//		}
+// funcation Test_DeleteMessage(t *testing.T) {
+//	err := open_im_sdk.UserForSDK.Conversation().DeleteMessage(ctx, &sdk_struct.MsgStruct{SessionType: 1, ContentType: 1203,
+//		ClientMsgID: "ef02943b05b02d02f92b0e92516099a3", Seq: 31, SendID: "kernaltestuid8", RecvID: "kernaltestuid9"})
+//	if err != nil {
+//		t.Fatal(err)
 //	}
-func Test_DeleteSelfAndOtherMessage(t *testing.T) {
-	cnvId := "si_14743920172863488_14749549822218240"
-	err := open_im_sdk.UserForSDK.Conversation().DeleteSelfAndOtherMessage(ctx, cnvId, "0b56aa441f24e55c6fda9b8ae77b9bb3")
-	if err != nil {
-		t.Fatal(err)
-	}
-}
-func Test_DeleteAllMessage(t *testing.T) {
-	err := open_im_sdk.UserForSDK.Conversation().DeleteAllMessage(ctx)
+// }
+
+func Test_DeleteAllMsgFromLocalAndSvr(t *testing.T) {
+	err := open_im_sdk.UserForSDK.Conversation().DeleteAllMsgFromLocalAndSvr(ctx)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -374,97 +248,61 @@ func Test_DeleteAllMessageFromLocalStorage(t *testing.T) {
 }
 
 func Test_ClearConversationAndDeleteAllMsg(t *testing.T) {
-	err := open_im_sdk.UserForSDK.Conversation().ClearConversationAndDeleteAllMsg(ctx, "si_133374647734272_14743920172863488")
+	err := open_im_sdk.UserForSDK.Conversation().ClearConversationAndDeleteAllMsg(ctx, "si_3271407977_7152307910")
 	if err != nil {
 		t.Fatal(err)
 	}
 }
 
-func Test_RevokeMessage(t *testing.T) {
-	conId := open_im_sdk.GetConversationIDBySessionType("ssss", "2664338510843904", 3)
-	err := open_im_sdk.UserForSDK.Conversation().RevokeMessage(ctx, conId, "bf70f6d012eb3254c03595cc2c2e0dc2")
-	if err != nil {
-		t.Fatal(err)
-	}
-	time.Sleep(time.Second * 10)
-}
+// func Test_RevokeMessage(t *testing.T) {
+// 	err := open_im_sdk.UserForSDK.Conversation().RevokeMessage(ctx, &sdk_struct.MsgStruct{SessionType: 1, ContentType: 101,
+// 		ClientMsgID: "380e2eb1709875340d769880982ebb21", Seq: 57, SendID: "9169012630", RecvID: "2456093263"})
+// 	if err != nil {
+// 		t.Fatal(err)
+// 	}
+// 	time.Sleep(time.Second * 10)
+// }
 
-func Test_RevokeOneMessage(t *testing.T) {
-	err := open_im_sdk.UserForSDK.Conversation().RevokeOneMessage(ctx, "sg_2664338510843904", 76)
-	if err != nil {
-		t.Fatal(err)
-	}
-	time.Sleep(time.Second * 10)
-}
-
-// 标记会话已读
 func Test_MarkConversationMessageAsRead(t *testing.T) {
-	err := open_im_sdk.UserForSDK.Conversation().MarkConversationMessageAsRead(ctx, "ec_55122519589392384_55122519694249984")
+	err := open_im_sdk.UserForSDK.Conversation().MarkConversationMessageAsRead(ctx, "si_2688118337_7249315132")
 	if err != nil {
 		t.Fatal(err)
 	}
-	time.Sleep(time.Minute * 5)
 }
 
 func Test_MarkMsgsAsRead(t *testing.T) {
-	conId := open_im_sdk.GetConversationIDBySessionType("ssss", "50122626445611008", 1)
-	err := open_im_sdk.UserForSDK.Conversation().MarkMessagesAsReadByMsgID(ctx, conId, []string{"e664dbd03600e798ea1c2351d6989b10"})
+	err := open_im_sdk.UserForSDK.Conversation().MarkMessagesAsReadByMsgID(ctx, "si_2688118337_7249315132",
+		[]string{"fb56ed151b675e0837ed3af79dbf66b1",
+			"635715c539be2e7812a0fc802f0cdc54", "1aba3fae3dc3f61c17e8eb09519cf8e1"})
 	if err != nil {
 		t.Fatal(err)
 	}
-}
-
-func Test_MarkMessagesAsReadByMsgID(t *testing.T) {
-	conId := "si_50122626445611008_50891326056566784" //open_im_sdk.GetConversationIDBySessionType("ssss", "50891326056566784", 1)
-	open_im_sdk.MarkMessagesAsReadByMsgID(&SendCallback{}, utils.OperationIDGenerator(), conId, "[\"873e51d049f3aa28fc02bd0f6e0a47bc\",\"d81411a19c13f6783145db74e8e7f229\",\"9c6a75550045cab4cc7128b4de370222\",\"3f6bf3105ef5d8292ab952da54b36505\",\"ef6f904dc5c7fb9a996ee12d9b80c572\",\"db8e2564a911e25a89decced4f7da564\",\"e720dc443fcbed03566467932fbd6496\",\"9fec40158070b27dbf1734a977536571\"]")
-	time.Sleep(time.Second * 15)
 }
 
 func Test_SendImgMsg(t *testing.T) {
 	ctx = context.WithValue(ctx, "callback", TestSendMsg{})
-	msg, err := open_im_sdk.UserForSDK.Conversation().CreateImageMessageFromFullPath(ctx, "/Users/likun/Pictures/821684461074_.pic.jpg")
+	msg, err := open_im_sdk.UserForSDK.Conversation().CreateImageMessage(ctx, "C:\\Users\\Admin\\Desktop\\test.png")
 	if err != nil {
 		t.Fatal(err)
 	}
-	res, err := open_im_sdk.UserForSDK.Conversation().SendMessage(ctx, msg, "55122367646535680", "", constant.SendSignalMsg, nil)
-	if err != nil {
-		t.Fatal(err)
-	}
-	t.Logf("send smg => %+v\n", res)
-}
-
-func Test_SendFileMsg(t *testing.T) {
-	ctx = context.WithValue(ctx, "callback", TestSendMsg{})
-	msg, err := open_im_sdk.UserForSDK.Conversation().CreateFileMessageFromFullPath(ctx, "/Users/tang/workspace/go/imCloud-sdk-core/README.md", "README.md")
-	if err != nil {
-		t.Fatal(err)
-	}
-	res, err := open_im_sdk.UserForSDK.Conversation().SendMessage(ctx, msg, "1873636612902912", "", constant.SendSignalMsg, nil)
+	res, err := open_im_sdk.UserForSDK.Conversation().SendMessage(ctx, msg, "1919501984", "", nil, false)
 	if err != nil {
 		t.Fatal(err)
 	}
 	t.Logf("send smg => %+v\n", res)
 }
-
-func Test_GetConversationIDBySessionType(t *testing.T) {
-	conId := open_im_sdk.GetConversationIDBySessionType("ssss", "1463426512456", 1) //open_im_sdk.UserForSDK.Conversation().GetConversationIDBySessionType(context.Background(), "12312", 1)
-	t.Logf("send conId => %s\n", conId)
-}
-
-func Test_GetPrivacyConversation(t *testing.T) {
-	conversation, err := open_im_sdk.UserForSDK.Conversation().GetPrivacyConversation(ctx, 0, 0)
+func Test_SetConversationEx(t *testing.T) {
+	err := open_im_sdk.UserForSDK.Conversation().SetOneConversationEx(ctx, "si_1_2", "abc")
 	if err != nil {
-		fmt.Println(err)
-		return
+		t.Fatal(err)
 	}
-	log.Info(fmt.Sprintf("%v", conversation))
 }
-
-func Test_ClearConversationSelfAndOtherAllMsg(t *testing.T) {
-	err := open_im_sdk.UserForSDK.Conversation().ClearConversationAllMsg(ctx, "sg_908575283089408")
+func Test_SearchConversation(t *testing.T) {
+	result, err := open_im_sdk.UserForSDK.Conversation().SearchConversation(ctx, "a")
 	if err != nil {
-		fmt.Println(err)
-		return
+		t.Fatal(err)
 	}
-	log.Info("aa", "清除会话成功")
+	for _, v := range result {
+		t.Log(v)
+	}
 }

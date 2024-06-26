@@ -18,10 +18,10 @@
 package wasm_wrapper
 
 import (
-	"open_im_sdk/open_im_sdk"
-	"open_im_sdk/open_im_sdk_callback"
-	"open_im_sdk/pkg/utils"
-	"open_im_sdk/wasm/event_listener"
+	"github.com/openimsdk/openim-sdk-core/v3/open_im_sdk"
+	"github.com/openimsdk/openim-sdk-core/v3/open_im_sdk_callback"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/utils"
+	"github.com/openimsdk/openim-sdk-core/v3/wasm/event_listener"
 	"syscall/js"
 )
 
@@ -39,7 +39,7 @@ func (w *WrapperThird) UpdateFcmToken(_ js.Value, args []js.Value) interface{} {
 }
 func (w *WrapperThird) UploadFile(_ js.Value, args []js.Value) interface{} {
 	callback := event_listener.NewUploadFileCallback(utils.FirstLower(utils.GetSelfFuncName()), w.commonFunc).SetUuid(&args)
-	return event_listener.NewCaller(open_im_sdk.UploadFile, callback, &args).AsyncCallWithCallback()
+	return event_listener.NewCaller(UploadFile, callback, &args).AsyncCallWithCallback()
 }
 
 var _ open_im_sdk_callback.Base = (*TempBase)(nil)

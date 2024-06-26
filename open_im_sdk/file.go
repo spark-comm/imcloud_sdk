@@ -15,15 +15,10 @@
 package open_im_sdk
 
 import (
-	"open_im_sdk/internal/file"
-	"open_im_sdk/open_im_sdk_callback"
+	"github.com/openimsdk/openim-sdk-core/v3/internal/file"
+	"github.com/openimsdk/openim-sdk-core/v3/open_im_sdk_callback"
 )
 
 func UploadFile(callback open_im_sdk_callback.Base, operationID string, req string, progress open_im_sdk_callback.UploadFileCallback) {
 	call(callback, operationID, UserForSDK.File().UploadFile, req, file.UploadFileCallback(progress))
-}
-
-// UploadFileFullPath 根据全路径上传文件
-func UploadFileFullPath(callback open_im_sdk_callback.Base, operationID string, req string, progress open_im_sdk_callback.UploadFileCallback) {
-	call(callback, operationID, UserForSDK.File().UploadFileFullPath, req, file.UploadFileCallback(progress))
 }

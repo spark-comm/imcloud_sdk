@@ -18,9 +18,8 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"encoding/json"
-	"open_im_sdk/pkg/constant"
-	"open_im_sdk/sdk_struct"
-	"open_im_sdk/ws_wrapper/utils"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/constant"
+	"github.com/openimsdk/openim-sdk-core/v3/sdk_struct"
 	"sort"
 
 	"github.com/golang/protobuf/jsonpb"
@@ -316,34 +315,19 @@ func StructToMap(user interface{}) map[string]interface{} {
 	return m
 }
 
-// GetConversationIDBySessionType 获取会话id
-func GetConversationIDBySessionType(sessionType int, ids ...string) string {
-	sort.Strings(ids)
-	if len(ids) > 2 || len(ids) < 1 {
-		return ""
-	}
-	switch sessionType {
-	case constant.SingleChatType:
-		return "si_" + strings.Join(ids, "_") // single chat
-	case constant.GroupChatType:
-		return "g_" + ids[0] // group chat
-	case constant.SuperGroupChatType:
-		return "sg_" + ids[0] // super group chat
-	case constant.NotificationChatType:
-		return "sn_" + ids[0] // server notification chat
-	case constant.CustomerServiceChatType:
-		return "cs_" + strings.Join(ids, "_")
-	case constant.EncryptedChatType:
-		return "ec_" + strings.Join(ids, "_")
-	}
-	return ""
-}
-
-// IsEncrypted 是否加密会话
-func IsEncrypted(conversationID string) bool {
-	return strings.HasPrefix(conversationID, "ec_")
-}
-
+//	funcation GetConversationIDBySessionType(sourceID string, sessionType int) string {
+//		switch sessionType {
+//		case constant.SingleChatType:
+//			return "single_" + sourceID
+//		case constant.GroupChatType:
+//			return "group_" + sourceID
+//		case constant.SuperGroupChatType:
+//			return "super_group_" + sourceID
+//		case constant.NotificationChatType:
+//			return "notification_" + sourceID
+//		}
+//		return ""
+//	}
 func GetConversationIDByMsg(msg *sdk_struct.MsgStruct) string {
 	switch msg.SessionType {
 	case constant.SingleChatType:
@@ -356,16 +340,12 @@ func GetConversationIDByMsg(msg *sdk_struct.MsgStruct) string {
 		return "sg_" + msg.GroupID // super group chat
 	case constant.NotificationChatType:
 		return "sn_" + msg.SendID + "_" + msg.RecvID // server notification chat
-	case constant.CustomerServiceChatType:
-		l := []string{msg.SendID, msg.RecvID}
-		sort.Strings(l)
-		return "cs_" + strings.Join(l, "_")
-	case constant.EncryptedChatType:
-		l := []string{msg.SendID, msg.RecvID}
-		sort.Strings(l)
-		return "ec_" + strings.Join(l, "_")
 	}
 	return ""
+}
+
+func GetConversationIDByGroupID(groupID string) string {
+	return "sg_" + groupID
 }
 
 func GetConversationTableName(conversationID string) string {
@@ -377,17 +357,30 @@ func GetTableName(conversationID string) string {
 func GetErrTableName(conversationID string) string {
 	return constant.SuperGroupErrChatLogsTableNamePre + conversationID
 }
-func RemoveRepeatedStringInList(slc []string) []string {
-	var result []string
-	tempMap := map[string]byte{}
+
+type Comparable interface {
+	~int | ~string | ~float64 | ~int32
+}
+
+func RemoveRepeatedElementsInList[T Comparable](slc []T) []T {
+	var result []T
+	tempMap := map[T]struct{}{}
 	for _, e := range slc {
-		l := len(tempMap)
-		tempMap[e] = 0
-		if len(tempMap) != l {
+		if _, found := tempMap[e]; !found {
+			tempMap[e] = struct{}{}
 			result = append(result, e)
 		}
 	}
+
 	return result
+}
+func RemoveOneInList[T comparable](slice []T, val T) []T {
+	for i, v := range slice {
+		if v == val {
+			return append(slice[:i], slice[i+1:]...)
+		}
+	}
+	return slice
 }
 
 /*
@@ -489,8 +482,6 @@ func DifferenceSubset(mainSlice, subSlice []int64) []int64 {
 	}
 	return n
 }
-
-// DifferenceSubsetString 字符串差异对比
 func DifferenceSubsetString(mainSlice, subSlice []string) []string {
 	m := make(map[string]bool)
 	n := make([]string, 0)
@@ -552,73 +543,13 @@ func Uint32ListConvert(list []uint32) []int64 {
 
 func UnmarshalNotificationElem(bytes []byte, t interface{}) error {
 	var n sdk_struct.NotificationElem
-	err := utils.JsonStringToStruct(string(bytes), &n)
+	err := JsonStringToStruct(string(bytes), &n)
 	if err != nil {
 		return err
 	}
-	err = utils.JsonStringToStruct(n.Detail, t)
+	err = JsonStringToStruct(n.Detail, t)
 	if err != nil {
 		return err
 	}
 	return nil
-}
-
-// InSlice 判断字符串是否在 slice 中。
-func InSlice(items []string, item string) bool {
-	for _, eachItem := range items {
-		if eachItem == item {
-			return true
-		}
-	}
-	return false
-}
-
-// InSliceInt64 判断数字是否在 slice 中。
-func InSliceInt64(items []int64, item int64) bool {
-	for _, eachItem := range items {
-		if eachItem == item {
-			return true
-		}
-	}
-	return false
-}
-
-type FixNotConnectedType interface {
-	int
-	int64
-	int32
-	int16
-	int8
-	uint
-	uint32
-	uint64
-	uint16
-	uint8
-}
-
-// FixNotConnected 补齐不连续的元素并返回补齐后的切片和缺失的元素切片。
-func FixNotConnected(slice []int64) ([]int64, []int64) {
-	var fixedSlice []int64
-	var missing []int64
-	for i := 1; i < len(slice); i++ {
-		if slice[i]-slice[i-1] != 1 {
-			// 补齐为连续的元素
-			for j := slice[i-1] + 1; j < slice[i]; j++ {
-				fixedSlice = append(fixedSlice, j)
-				if !InSliceInt64(slice, j) {
-					// 记录缺失的元素
-					missing = append(missing, j)
-				}
-			}
-		}
-		fixedSlice = append(fixedSlice, slice[i])
-	}
-	// 处理最后一个元素
-	//if slice[len(slice)-1] != slice[len(slice)-2]+1 {
-	//	missing = append(missing, slice[len(slice)-1]+1)
-	//	for j := slice[len(slice)-1] + 1; j <= slice[len(slice)-1]; j++ {
-	//		fixedSlice = append(fixedSlice, j)
-	//	}
-	//}
-	return fixedSlice, missing
 }

@@ -19,14 +19,16 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/OpenIMSDK/protocol/constant"
+	"github.com/openimsdk/openim-sdk-core/v3/open_im_sdk"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/ccontext"
 	"io"
 	"math/rand"
 	"net/http"
-	"open_im_sdk/open_im_sdk"
-	"open_im_sdk/pkg/ccontext"
+	"strconv"
 	"time"
 
-	"github.com/imCloud/im/pkg/common/log"
+	"github.com/OpenIMSDK/tools/log"
 )
 
 var (
@@ -38,6 +40,7 @@ func init() {
 	rand.Seed(time.Now().UnixNano())
 	listner := &OnConnListener{}
 	config := getConf(APIADDR, WSADDR)
+	config.DataDir = "./"
 	configData, err := json.Marshal(config)
 	if err != nil {
 		panic(err)
@@ -47,33 +50,32 @@ func init() {
 		panic("init sdk failed")
 	}
 	ctx = open_im_sdk.UserForSDK.Context()
-	ctx = ccontext.WithOperationID(ctx, "initOperationID")
-	//token, err := GetUserToken(ctx, UserID)
-	//if err != nil {
-	//	panic(err)
-	//}
+	ctx = ccontext.WithOperationID(ctx, "initOperationID_"+strconv.Itoa(int(time.Now().UnixMilli())))
+	token, err := GetUserToken(ctx, UserID)
+	if err != nil {
+		panic(err)
+	}
 	if err := open_im_sdk.UserForSDK.Login(ctx, UserID, token); err != nil {
 		panic(err)
 	}
-	open_im_sdk.UserForSDK.SetListenerForService(&onListenerForService{ctx: ctx})
 	open_im_sdk.UserForSDK.SetConversationListener(&onConversationListener{ctx: ctx})
 	open_im_sdk.UserForSDK.SetGroupListener(&onGroupListener{ctx: ctx})
 	open_im_sdk.UserForSDK.SetAdvancedMsgListener(&onAdvancedMsgListener{ctx: ctx})
 	open_im_sdk.UserForSDK.SetFriendListener(&onFriendListener{ctx: ctx})
-	time.Sleep(time.Second * 10)
+	open_im_sdk.UserForSDK.SetUserListener(&onUserListener{ctx: ctx})
+	time.Sleep(time.Second * 2)
 }
 
 func GetUserToken(ctx context.Context, userID string) (string, error) {
 	jsonReqData, err := json.Marshal(map[string]any{
-		"phone":      userID,
-		"platformID": "Windows",
-		"password":   "12345678",
-		//"secret": "111111",
+		"userID":     userID,
+		"platformID": constant.LinuxPlatformID,
+		"secret":     "openIM123",
 	})
 	if err != nil {
 		return "", err
 	}
-	path := APIADDR + "/api/app/v1/auth/login"
+	path := APIADDR + "/auth/user_token"
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, path, bytes.NewReader(jsonReqData))
 	if err != nil {
 		return "", err
@@ -90,11 +92,11 @@ func GetUserToken(ctx context.Context, userID string) (string, error) {
 		return "", err
 	}
 	type Result struct {
-		Code   int    `json:"code"`
-		Msg    string `json:"msg"`
-		Reason string `json:"reason"`
-		Data   struct {
-			AccessToken       string `json:"access_token"`
+		ErrCode int    `json:"errCode"`
+		ErrMsg  string `json:"errMsg"`
+		ErrDlt  string `json:"errDlt"`
+		Data    struct {
+			Token             string `json:"token"`
 			ExpireTimeSeconds int    `json:"expireTimeSeconds"`
 		} `json:"data"`
 	}
@@ -102,10 +104,10 @@ func GetUserToken(ctx context.Context, userID string) (string, error) {
 	if err := json.Unmarshal(body, &result); err != nil {
 		return "", err
 	}
-	if result.Code != 200 {
-		return "", fmt.Errorf("errCode:%d, errMsg:%s, errDlt:%s", result.Code, result.Msg, result.Reason)
+	if result.ErrCode != 0 {
+		return "", fmt.Errorf("errCode:%d, errMsg:%s, errDlt:%s", result.ErrCode, result.ErrMsg, result.ErrDlt)
 	}
-	return result.Data.AccessToken, nil
+	return result.Data.Token, nil
 }
 
 type onListenerForService struct {
@@ -159,11 +161,9 @@ func (o *onConversationListener) OnConversationChanged(conversationList string) 
 func (o *onConversationListener) OnTotalUnreadMessageCountChanged(totalUnreadCount int32) {
 	log.ZInfo(o.ctx, "OnTotalUnreadMessageCountChanged", "totalUnreadCount", totalUnreadCount)
 }
-func (c *onConversationListener) OnDeleteConversation(str string) {
 
-}
-func (c *onConversationListener) OnClearConversation(conversationIds string) {
-
+func (o *onConversationListener) OnConversationUserInputStatusChanged(change string) {
+	log.ZInfo(o.ctx, "OnConversationUserInputStatusChanged", "change", change)
 }
 
 type onGroupListener struct {
@@ -216,6 +216,10 @@ func (o *onGroupListener) OnGroupApplicationRejected(groupApplication string) {
 
 type onAdvancedMsgListener struct {
 	ctx context.Context
+}
+
+func (o *onAdvancedMsgListener) OnRecvOnlineOnlyMessage(message string) {
+	log.ZDebug(o.ctx, "OnRecvOnlineOnlyMessage", "message", message)
 }
 
 func (o *onAdvancedMsgListener) OnRecvOfflineNewMessage(message string) {
@@ -309,4 +313,24 @@ func (o *onFriendListener) OnBlackAdded(blackInfo string) {
 
 func (o *onFriendListener) OnBlackDeleted(blackInfo string) {
 	log.ZDebug(context.Background(), "OnBlackDeleted", "blackInfo", blackInfo)
+}
+
+type onUserListener struct {
+	ctx context.Context
+}
+
+func (o *onUserListener) OnSelfInfoUpdated(userInfo string) {
+	log.ZDebug(context.Background(), "OnSelfInfoUpdated", "userInfo", userInfo)
+}
+func (o *onUserListener) OnUserCommandAdd(userInfo string) {
+	log.ZDebug(context.Background(), "OnUserCommandAdd", "blackInfo", userInfo)
+}
+func (o *onUserListener) OnUserCommandDelete(userInfo string) {
+	log.ZDebug(context.Background(), "OnUserCommandDelete", "blackInfo", userInfo)
+}
+func (o *onUserListener) OnUserCommandUpdate(userInfo string) {
+	log.ZDebug(context.Background(), "OnUserCommandUpdate", "blackInfo", userInfo)
+}
+func (o *onUserListener) OnUserStatusChanged(statusMap string) {
+	log.ZDebug(context.Background(), "OnUserStatusChanged", "OnUserStatusChanged", statusMap)
 }

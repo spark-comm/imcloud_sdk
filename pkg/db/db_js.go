@@ -1,14 +1,24 @@
-//go:build js && wasm
-// +build js,wasm
+// Copyright © 2023 OpenIM SDK. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 package db
 
 import (
 	"context"
 	"errors"
-	"open_im_sdk/pkg/db/model_struct"
-	"open_im_sdk/wasm/exec"
-	"open_im_sdk/wasm/indexdb"
+	"github.com/openimsdk/openim-sdk-core/v3/wasm/exec"
+	"github.com/openimsdk/openim-sdk-core/v3/wasm/indexdb"
 )
 
 var ErrType = errors.New("from javascript data type err")
@@ -29,42 +39,16 @@ type IndexDB struct {
 	*indexdb.LocalGroupRequest
 	*indexdb.LocalChatLogReactionExtensions
 	*indexdb.NotificationSeqs
-	*indexdb.LocalMoments
+	*indexdb.LocalUpload
+	*indexdb.LocalStrangers
+	*indexdb.LocalSendingMessages
+	*indexdb.LocalUserCommand
 	loginUserID string
 }
 
-func (i IndexDB) GetUpload(ctx context.Context, partHash string) (*model_struct.LocalUpload, error) {
-	//TODO implement me
-	//panic("implement me")
-	return nil, nil
-}
-
-func (i IndexDB) InsertUpload(ctx context.Context, upload *model_struct.LocalUpload) error {
-	//TODO implement me
-	//panic("implement me")
-	return nil
-}
-
-func (i IndexDB) DeleteUpload(ctx context.Context, partHash string) error {
-	//TODO implement me
-	//panic("implement me")
-	return nil
-}
-
-func (i IndexDB) UpdateUpload(ctx context.Context, upload *model_struct.LocalUpload) error {
-	//TODO implement me
-	//panic("implement me")
-	return nil
-}
-
-func (i IndexDB) DeleteExpireUpload(ctx context.Context) error {
-	//TODO implement me
-	//panic("implement me")
-	return nil
-}
-
 func (i IndexDB) Close(ctx context.Context) error {
-	return nil
+	_, err := exec.Exec()
+	return err
 }
 
 func (i IndexDB) InitDB(ctx context.Context, userID string, dataDir string) error {
@@ -72,7 +56,7 @@ func (i IndexDB) InitDB(ctx context.Context, userID string, dataDir string) erro
 	return err
 }
 
-func NewDataBase(ctx context.Context, loginUserID string, dbDir string) (*IndexDB, error) {
+func NewDataBase(ctx context.Context, loginUserID string, dbDir string, logLevel int) (*IndexDB, error) {
 	i := &IndexDB{
 		LocalUsers:                      indexdb.NewLocalUsers(),
 		LocalConversations:              indexdb.NewLocalConversations(),
@@ -89,7 +73,10 @@ func NewDataBase(ctx context.Context, loginUserID string, dbDir string) (*IndexD
 		LocalGroupRequest:               indexdb.NewLocalGroupRequest(),
 		LocalChatLogReactionExtensions:  indexdb.NewLocalChatLogReactionExtensions(),
 		NotificationSeqs:                indexdb.NewNotificationSeqs(),
-		LocalMoments:                    indexdb.NewLocalMoments(),
+		LocalUpload:                     indexdb.NewLocalUpload(),
+		LocalStrangers:                  indexdb.NewLocalStrangers(),
+		LocalSendingMessages:            indexdb.NewLocalSendingMessages(),
+		LocalUserCommand:                indexdb.NewLocalUserCommand(),
 		loginUserID:                     loginUserID,
 	}
 	err := i.InitDB(ctx, loginUserID, dbDir)

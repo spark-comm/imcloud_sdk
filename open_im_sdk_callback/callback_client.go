@@ -22,12 +22,14 @@ type SendMsgCallBack interface {
 	Base
 	OnProgress(progress int)
 }
+
 type OnConnListener interface {
 	OnConnecting()
 	OnConnectSuccess()
 	OnConnectFailed(errCode int32, errMsg string)
 	OnKickedOffline()
 	OnUserTokenExpired()
+	OnUserTokenInvalid(errMsg string)
 }
 
 type OnGroupListener interface {
@@ -62,9 +64,9 @@ type OnConversationListener interface {
 	OnNewConversation(conversationList string)
 	OnConversationChanged(conversationList string)
 	OnTotalUnreadMessageCountChanged(totalUnreadCount int32)
-	OnDeleteConversation(conversationList string)
-	OnClearConversation(conversationIds string)
+	OnConversationUserInputStatusChanged(change string)
 }
+
 type OnAdvancedMsgListener interface {
 	OnRecvNewMessage(message string)
 	OnRecvC2CReadReceipt(msgReceiptList string)
@@ -76,6 +78,7 @@ type OnAdvancedMsgListener interface {
 	OnRecvMessageExtensionsAdded(msgID string, reactionExtensionList string)
 	OnRecvOfflineNewMessage(message string)
 	OnMsgDeleted(message string)
+	OnRecvOnlineOnlyMessage(message string)
 }
 
 type OnBatchMsgListener interface {
@@ -85,6 +88,10 @@ type OnBatchMsgListener interface {
 
 type OnUserListener interface {
 	OnSelfInfoUpdated(userInfo string)
+	OnUserStatusChanged(userOnlineStatus string)
+	OnUserCommandAdd(userCommand string)
+	OnUserCommandDelete(userCommand string)
+	OnUserCommandUpdate(userCommand string)
 }
 
 type OnCustomBusinessListener interface {
@@ -140,8 +147,6 @@ type UploadFileCallback interface {
 	Complete(size int64, url string, typ int)                           // 上传完成
 }
 
-// OnMomentsListener ， 暂未实现
-type OnMomentsListener interface {
-	OnMomentsLiked(MomentsLikedCallback string)
-	OnMomentsComment(MomentCommentCallback string)
+type UploadLogProgress interface {
+	OnProgress(current int64, size int64)
 }

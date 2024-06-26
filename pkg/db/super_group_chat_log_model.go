@@ -21,11 +21,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"open_im_sdk/pkg/constant"
-	"open_im_sdk/pkg/db/model_struct"
-	"open_im_sdk/pkg/log"
-	"open_im_sdk/pkg/utils"
-	"open_im_sdk/sdk_struct"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/constant"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/db/model_struct"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/utils"
+	"github.com/openimsdk/openim-sdk-core/v3/sdk_struct"
 
 	"gorm.io/gorm"
 )
@@ -141,7 +140,6 @@ func (d *DataBase) SuperGroupSearchMessageByContentTypeAndKeyword(ctx context.Co
 	}
 	condition = fmt.Sprintf("send_time between %d and %d AND status <=%d  And content_type IN ? ", startTime, endTime, constant.MsgStatusSendFailed)
 	condition += subCondition
-	log.Info("key owrd", condition)
 	err = utils.Wrap(d.conn.WithContext(ctx).Table(utils.GetConversationTableName(groupID)).Where(condition, contentType).Order("send_time DESC").Find(&messageList).Error, "SearchMessage failed")
 	for _, v := range messageList {
 		v1 := v

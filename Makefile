@@ -1,13 +1,22 @@
-# Copyright 2023 KubeCub. All rights reserved.
+# ==============================================================================
+# define the default goal
+#
+
+ROOT_PACKAGE=github.com/OpenIMSDK/Open-IM-SDK-Core
+
+# Copyright 2023 OpenIM. All rights reserved.
 # Use of this source code is governed by a MIT style
 # license that can be found in the LICENSE file.
 
 ###################################=> common commands <=#############################################
 # ========================== Capture Environment ===============================
 # get the repo root and output path
-ROOT_PACKAGE=github.com/kubecub/OpenIMSDK/Open-IM-SDK-Core
+ROOT_PACKAGE=github.com/OpenIM/chat
 OUT_DIR=$(REPO_ROOT)/_output
 # ==============================================================================
+
+# define the default goal
+#
 
 SHELL := /bin/bash
 DIRS=$(shell ls)
@@ -21,7 +30,6 @@ COMMON_SELF_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
 ifeq ($(origin ROOT_DIR),undefined)
 ROOT_DIR := $(abspath $(shell cd $(COMMON_SELF_DIR)/. && pwd -P))
 endif
-
 # OUTPUT_DIR: The directory where the build output is stored.
 ifeq ($(origin OUTPUT_DIR),undefined)
 OUTPUT_DIR := $(ROOT_DIR)/_output
@@ -55,14 +63,13 @@ ifeq (, $(shell git status --porcelain 2>/dev/null))
 endif
 GIT_COMMIT:=$(shell git rev-parse HEAD)
 
-# Image URL to use all building/pushing image targets
-IMG ?= openim/openkf:test
+IMG ?= openim_chat:latest
 
 BUILDFILE = "./main.go"
 BUILDAPP = "$(OUTPUT_DIR)/"
 
 # Define the directory you want to copyright
-CODE_DIRS := $(ROOT_DIR)/.github $(ROOT_DIR)/ $(ROOT_DIR)/scripts $(ROOT_DIR)/build $(ROOT_DIR)/web $(ROOT_DIR)/kf_plugins
+CODE_DIRS := $(ROOT_DIR)/ #$(ROOT_DIR)/pkg $(ROOT_DIR)/core $(ROOT_DIR)/integrationtest $(ROOT_DIR)/lib $(ROOT_DIR)/mock $(ROOT_DIR)/db $(ROOT_DIR)/openapi
 FINDS := find $(CODE_DIRS)
 
 ifndef V
@@ -70,7 +77,10 @@ MAKEFLAGS += --no-print-directory
 endif
 
 # The OS must be linux when building docker images
-PLATFORMS ?= linux_s390x linux_mips64 linux_mips64le darwin_amd64 windows_amd64 linux_amd64 linux_arm64 linux_ppc64le
+# !WARNING: linux_mips64 linux_mips64le
+PLATFORMS ?= linux_s390x darwin_amd64 windows_amd64 linux_amd64 linux_arm64 linux_ppc64le
+# The OS can be linux/windows/darwin when building binaries
+# PLATFORMS ?= darwin_amd64 windows_amd64 linux_amd64 linux_arm64
 
 # Set a specific PLATFORM
 ifeq ($(origin PLATFORM), undefined)
@@ -112,7 +122,7 @@ SPACE +=
 # ==============================================================================
 # Build definition
 
-GO_SUPPORTED_VERSIONS ?= 1.18|1.19|1.20
+GO_SUPPORTED_VERSIONS ?= 1.18|1.19|1.20|1.21
 GO_LDFLAGS += -X $(VERSION_PACKAGE).GitVersion=$(VERSION) \
 	-X $(VERSION_PACKAGE).GitCommit=$(GIT_COMMIT) \
 	-X $(VERSION_PACKAGE).GitTreeState=$(GIT_TREE_STATE) \
@@ -123,7 +133,6 @@ ifneq ($(DLV),)
 endif
 GO_BUILD_FLAGS += -ldflags "$(GO_LDFLAGS)"
 
-# The use of make for Windows is not recommended
 ifeq ($(GOOS),windows)
 	GO_OUT_EXT := .exe
 endif
@@ -147,58 +156,50 @@ ifeq (${BINS},)
   $(error Could not determine BINS, set ROOT_DIR or run in source dir)
 endif
 
-EXCLUDE_TESTS=github.com/OpenIMSDK/OpenKF/test
+EXCLUDE_TESTS=github.com/OpenIMSDK/openim-sdk-core/test
 
 # ==============================================================================
 # Build
+
 ## all: Build all the necessary targets.
 .PHONY: all
 all: copyright-verify build # tidy lint cover
 
-## build: Build binaries by default.
-.PHONY: build
-build: go.build.verify $(addprefix go.build., $(addprefix $(PLATFORM)., $(BINS)))
+# Define available OS and ARCH
+OSES = linux
+ARCHS = amd64 arm64
 
-.PHONY: build.%
-build.%:
-	@echo "$(shell go version)"
-	@echo "===========> Building binary $(BUILDAPP) *[Git Info]: $(VERSION)-$(GIT_COMMIT)"
-	@export CGO_ENABLED=0 && GOOS=linux go build -o $(BUILDAPP)/$*/ -ldflags '-s -w' $*/example/$(BUILDFILE)
-
-.PHONY: go.build.verify
-go.build.verify:
-ifneq ($(shell $(GO) version | grep -q -E '\bgo($(GO_SUPPORTED_VERSIONS))\b' && echo 0 || echo 1), 0)
-	$(error unsupported go version. Please make install one of the following supported version: '$(GO_SUPPORTED_VERSIONS)')
+ifeq ($(ARCH),arm64)
+    export CC=aarch64-linux-gnu-gcc
+    export CXX=aarch64-linux-gnu-g++
 endif
 
-## go.build: Build the binary file of the specified platform.
-.PHONY: go.build.%
-go.build.%:
-	$(eval COMMAND := $(word 2,$(subst ., ,$*)))
-	$(eval PLATFORM := $(word 1,$(subst ., ,$*)))
-	$(eval OS := $(word 1,$(subst _, ,$(PLATFORM))))
-	$(eval ARCH := $(word 2,$(subst _, ,$(PLATFORM))))
-	@echo "=====> COMMAND=$(COMMAND)"
-	@echo "=====> PLATFORM=$(PLATFORM)"
-	@echo "=====> BIN_DIR=$(BIN_DIR)"
-	@echo "===========> Building binary $(COMMAND) $(VERSION) for $(OS)_$(ARCH)"
-	@mkdir -p $(BIN_DIR)/platforms/$(OS)/$(ARCH)
-	@CGO_ENABLED=0 GOOS=$(OS) GOARCH=$(ARCH) $(GO) build $(GO_BUILD_FLAGS) -o $(BIN_DIR)/platforms/$(OS)/$(ARCH)/$(COMMAND)$(GO_OUT_EXT) $(ROOT_PACKAGE)/cmd/$(COMMAND)
+# Set default OS and ARCH (e.g., current platform)
+OS ?= $(shell go env GOOS)
+ARCH ?= $(shell go env GOARCH)
+BIN_DIR ?= ./_output/bin
+TARGET ?= ./cmd/main.go
 
-## build-multiarch: Build binaries for multiple platforms.
-.PHONY: build-multiarch
-build-multiarch: go.build.verify $(foreach p,$(PLATFORMS),$(addprefix go.build., $(addprefix $(p)., $(BINS))))
-
-# ==============================================================================
-# Targets
-
-## all: Build all the necessary targets.
-.PHONY: all
-all: copyright-verify build # tidy lint cover
-
-## build: Build binaries by default.
+## build: Build for current platform by default
 .PHONY: build
-build: go.build.verify $(addprefix go.build., $(addprefix $(PLATFORM)., $(BINS)))
+build:
+	@echo "===========> Building for $(OS)/$(ARCH)"
+	@CGO_ENABLED=1 GOOS=$(OS) GOARCH=$(ARCH) go build -o $(BIN_DIR)/openim-sdk-core-$(OS)-$(ARCH) $(TARGET)
+
+# sudo apt-get install gcc-aarch64-linux-gnu
+## build-multiple: Build for all supported platforms
+.PHONY: build-multiple
+build-multiple:
+	@for os in $(OSES); do \
+		for arch in $(ARCHS); do \
+			$(MAKE) build OS=$$os ARCH=$$arch; \
+		done \
+	done
+
+
+.PHONY: build-wasm
+build-wasm:
+	GOOS=js GOARCH=wasm go build -trimpath -ldflags "-s -w" -o ${BIN_DIR}/openIM.wasm wasm/cmd/main.go
 
 ## install: Install the binary to the BIN_DIR
 .PHONY: install
@@ -217,8 +218,7 @@ reset_remote_branch:
 ios:
 	go get golang.org/x/mobile
 	rm -rf build/ open_im_sdk/t_friend_sdk.go open_im_sdk/t_group_sdk.go  open_im_sdk/ws_wrapper/
-	go get golang.org/x/exp
-	GOARCH=arm64 gomobile bind -v -trimpath -ldflags "-s -w" -o build/OpenIMCore.xcframework -target=ios -iosversion=12.3  ./open_im_sdk/ ./open_im_sdk_callback/
+	GOARCH=arm64 gomobile bind -v -trimpath -ldflags "-s -w" -o build/OpenIMCore.xcframework -target=ios ./open_im_sdk/ ./open_im_sdk_callback/
 
 ## android: Build the Android library
 # Note: to build an AAR on Windows, gomobile, Android Studio, and the NDK must be installed.
@@ -227,10 +227,23 @@ ios:
 .PHONY: android
 android:
 	go get golang.org/x/mobile/bind
-	GOARCH=amd64 gomobile bind  -v -trimpath -ldflags="-s -w" -o ./open_im_sdk.aar -target=android -androidapi 24 ./open_im_sdk/ ./open_im_sdk_callback/
+	GOARCH=amd64 gomobile bind -v -trimpath -ldflags="-s -w" -o ./open_im_sdk.aar -target=android ./open_im_sdk/ ./open_im_sdk_callback/
 
-# ==============================================================================
 # Targets
+.PHONY: release
+release: release.verify release.ensure-tag
+	@scripts/release.sh
+
+.PHONY: install.gsemver
+release.verify: install.git-chglog install.github-release install.coscmd
+
+.PHONY: release.tag
+release.tag: install.gsemver release.ensure-tag
+	@git push origin `git describe --tags --abbrev=0`
+
+.PHONY: release.ensure-tag
+release.ensure-tag: install.gsemver
+	@scripts/ensure_tag.sh
 
 ## tidy: tidy go.mod
 .PHONY: tidy
@@ -258,9 +271,9 @@ generate:
 
 ## lint: Run go lint against code.
 .PHONY: lint
-lint:
+lint: tools.verify.golangci-lint
 	@echo "===========> Run golangci to lint source codes"
-	@golangci-lint run -c $(ROOT_DIR)/.golangci.yml $(ROOT_DIR)/...
+	@$(TOOLS_DIR)/golangci-lint run -c $(ROOT_DIR)/.golangci.yml $(ROOT_DIR)/...
 
 ## test: Run unit test
 .PHONY: test
@@ -274,7 +287,7 @@ cover: test
 
 ## docker-build: Build docker image with the manager.
 .PHONY: docker-build
-docker-build: test
+docker-build:
 	docker build -t ${IMG} .
 
 ## docker-push: Push docker image with the manager.
@@ -298,38 +311,8 @@ copyright-verify: tools.verify.addlicense copyright-add
 .PHONY: copyright-add
 copyright-add: tools.verify.addlicense
 	@echo "===========> Adding $(LICENSE_TEMPLATE) the boilerplate headers for all files"
-	@$(TOOLS_DIR)/addlicense -y $(shell date +"%Y") -v -c "KubeCub open source community." -f $(LICENSE_TEMPLATE) $(CODE_DIRS)
+	@$(TOOLS_DIR)/addlicense -y $(shell date +"%Y") -v -c "OpenIM open source community." -f $(LICENSE_TEMPLATE) $(CODE_DIRS)
 	@echo "===========> End the copyright is added..."
-
-## swagger: Generate swagger document.
-.PHONY: swagger
-swagger: tools.verify.swagger
-	@echo "===========> Generating swagger API docs"
-	@$(TOOLS_DIR)/swagger generate spec --scan-models -w $(ROOT_DIR)/cmd/gendocs -o $(ROOT_DIR)/docs/swagger.yaml
-
-## serve-swagger: Serve swagger spec and docs.
-.PHONY: swagger.serve
-serve-swagger: tools.verify.swagger
-	@$(TOOLS_DIR)/swagger serve -F=redoc --no-open --port 36666 $(ROOT_DIR)/docs/swagger.yaml
-
-## release: release the project
-.PHONY: release
-release: release.verify release.ensure-tag
-	@scripts/release.sh
-
-## release.verify: Check if a tool is installed and install it
-.PHONY: release.verify
-release.verify: tools.verify.git-chglog tools.verify.github-release tools.verify.coscmd tools.verify.coscli
-
-## release.tag: release the project
-.PHONY: release.tag
-release.tag: tools.verify.gsemver release.ensure-tag
-	@git push origin `git describe --tags --abbrev=0`
-
-## release.ensure-tag: ensure tag
-.PHONY: release.ensure-tag
-release.ensure-tag: tools.verify.gsemver
-	@scripts/ensure_tag.sh
 
 ## clean: Clean all builds.
 .PHONY: clean
@@ -390,19 +373,16 @@ install.conversion-gen:
 install.ginkgo:
 	@$(GO) install github.com/onsi/ginkgo/ginkgo@v1.16.2
 
-# git hook
 .PHONY: install.go-gitlint
+# wget -P _output/tools/ https://openim-1306374445.cos.ap-guangzhou.myqcloud.com/openim/tools/go-gitlint
+# go install github.com/antham/go-gitlint/cmd/gitlint@latest
 install.go-gitlint:
-	@$(GO) install github.com/llorllale/go-gitlint@latest
+	@wget -q https://openim-1306374445.cos.ap-guangzhou.myqcloud.com/openim/tools/go-gitlint -O ${TOOLS_DIR}/go-gitlint
+	@chmod +x ${TOOLS_DIR}/go-gitlint
 
 .PHONY: install.go-junit-report
 install.go-junit-report:
 	@$(GO) install github.com/jstemmer/go-junit-report@latest
-
-## install.gotests: Install gotests, used to generate go tests
-.PHONY: install.swagger
-install.swagger:
-	@$(GO) install github.com/go-swagger/go-swagger/cmd/swagger@latest
 
 # ==============================================================================
 # Tools that might be used include go gvm, cos
@@ -423,11 +403,6 @@ install.kubeconform:
 install.gsemver:
 	@$(GO) install github.com/arnaud-deprez/gsemver@latest
 
-## install.hugo: Install hugo, used to generate website
-.PHONY: install.hugo
-install.hugo:
-	@$(GO) install github.com/gohugoio/hugo@latest
-
 ## install.git-chglog: Install git-chglog, used to generate changelog
 .PHONY: install.git-chglog
 install.git-chglog:
@@ -438,15 +413,10 @@ install.git-chglog:
 install.github-release:
 	@$(GO) install github.com/github-release/github-release@latest
 
-## install.goreleaser: Install goreleaser, used to release go program
-.PHONY: install.goreleaser
-install.goreleaser:
-	@$(GO) install github.com/goreleaser/goreleaser@latest
-
 ## install.coscli: Install coscli, used to upload files to cos
-# example: ./coscli  cp/sync -r /root/workspaces/OpenIMSDK/OpenKF/ cos://OpenIMSDK-1306374445/code/ -e cos.ap-hongkong.myqcloud.com
-# https://cloud.tencent.com/document/product/436/71763 
-# OpenIMSDK/*
+# example: ./coscli  cp/sync -r /root/workspaces/kubecub/chat/ cos://kubecub-1306374445/code/ -e cos.ap-hongkong.myqcloud.com
+# https://cloud.tencent.com/document/product/436/71763
+# kubecub/*
 # - code/
 # - docs/
 # - images/
@@ -466,19 +436,6 @@ install.coscmd:
 install.delve:
 	@$(GO) install github.com/go-delve/delve/cmd/dlv@latest
 
-## install.swag: Install swag, used to generate swagger
-# go1.17+
-# go-swagger is more powerful than swag
-# http://localhost:8080/swagger/index.html
-.PHONY: install.swag
-install.swag:
-	@$(GO) install github.com/swaggo/swag/cmd/swag@latest
-
-## install.go-swagger: Install go-swagger, used to generate swagger
-.PHONY: install.go-swagger
-install.go-swagger:
-	@$(GO) install github.com/go-swagger/go-swagger/cmd/swagger@latest
-
 ## install.air: Install air, used to hot reload go program
 .PHONY: install.air
 install.air:
@@ -487,9 +444,9 @@ install.air:
 ## install.gvm: Install gvm, gvm is a Go version manager, built on top of the official go tool.
 .PHONY: install.gvm
 install.gvm:
-	@echo "===========> Installing gvm,The default installation path is ~/.gvm/script/gvm"
+	@echo "===========> Installing gvm,The default installation path is ~/.gvm/scripts/gvm"
 	@bash < <(curl -s -S -L https://raw.gitee.com/moovweb/gvm/master/binscripts/gvm-installer)
-	@$(shell source /root/.gvm/script/gvm)
+	@$(shell source /root/.gvm/scripts/gvm)
 
 ## install.golines: Install golines, used to format long lines
 .PHONY: install.golines
@@ -519,7 +476,7 @@ install.protoc-gen-go:
 ## install.cfssl: Install cfssl, used to generate certificates
 .PHONY: install.cfssl
 install.cfssl:
-	@$(ROOT_DIR)/script/install/install.sh iam::install::install_cfssl
+	@$(ROOT_DIR)/scripts/install/install.sh OpenIM::install::install_cfssl
 
 ## install.depth: Install depth, used to check dependency tree
 .PHONY: install.depth
@@ -545,3 +502,14 @@ install.richgo:
 .PHONY: install.rts
 install.rts:
 	@$(GO) install github.com/galeone/rts/cmd/rts@latest
+
+
+## install.gomobile: Install gomobile
+.PHONY: install.gomobile
+install.gomobile:
+	@$(GO) install golang.org/x/mobile/cmd/gomobile@latest
+
+## install.gobind: Install gobind
+.PHONY: install.gobind
+install.gobind:
+	@$(GO) install golang.org/x/mobile/cmd/gobind@latest

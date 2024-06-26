@@ -16,19 +16,21 @@ package conversation_msg
 
 import (
 	"context"
-	"github.com/imCloud/im/pkg/common/log"
-	"open_im_sdk/pkg/constant"
-	"open_im_sdk/pkg/db/model_struct"
-	sdk "open_im_sdk/pkg/sdk_params_callback"
-	"open_im_sdk/pkg/utils"
+	"errors"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/constant"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/db/model_struct"
+	sdk "github.com/openimsdk/openim-sdk-core/v3/pkg/sdk_params_callback"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/utils"
 
-	"github.com/imCloud/im/pkg/proto/sdkws"
-	utils2 "github.com/imCloud/im/pkg/utils"
+	"github.com/OpenIMSDK/tools/log"
+
+	"github.com/OpenIMSDK/protocol/sdkws"
+	utils2 "github.com/OpenIMSDK/tools/utils"
 )
 
 // 检测其内部连续性，如果不连续，则向前补齐,获取这一组消息的最大最小seq，以及需要补齐的seq列表长度
-func (c *Conversation) messageBlocksInternalContinuityCheck(ctx context.Context, conversationID string, notStartTime, isReverse bool, count,
-	sessionType int, startTime int64, list *[]*model_struct.LocalChatLog, messageListCallback *sdk.GetAdvancedHistoryMessageListCallback) (max, min int64, length int) {
+func (c *Conversation) messageBlocksInternalContinuityCheck(ctx context.Context, conversationID string, notStartTime, isReverse bool, count int,
+	startTime int64, list *[]*model_struct.LocalChatLog, messageListCallback *sdk.GetAdvancedHistoryMessageListCallback) (max, min int64, length int) {
 	var lostSeqListLength int
 	maxSeq, minSeq, haveSeqList := c.getMaxAndMinHaveSeqList(*list)
 	log.ZDebug(ctx, "getMaxAndMinHaveSeqList is:", "maxSeq", maxSeq, "minSeq", minSeq, "haveSeqList", haveSeqList)
@@ -49,7 +51,7 @@ func (c *Conversation) messageBlocksInternalContinuityCheck(ctx context.Context,
 			} else {
 				pullSeqList = lostSeqList[lostSeqListLength-constant.PullMsgNumForReadDiffusion : lostSeqListLength]
 			}
-			c.pullMessageAndReGetHistoryMessages(ctx, conversationID, pullSeqList, notStartTime, isReverse, count, sessionType, startTime, list, messageListCallback)
+			c.pullMessageAndReGetHistoryMessages(ctx, conversationID, pullSeqList, notStartTime, isReverse, count, startTime, list, messageListCallback)
 		}
 
 	}
@@ -58,13 +60,13 @@ func (c *Conversation) messageBlocksInternalContinuityCheck(ctx context.Context,
 
 // 检测消息块之间的连续性，如果不连续，则向前补齐,返回块之间是否连续，bool
 func (c *Conversation) messageBlocksBetweenContinuityCheck(ctx context.Context, lastMinSeq, maxSeq int64, conversationID string,
-	notStartTime, isReverse bool, count, sessionType int, startTime int64, list *[]*model_struct.LocalChatLog, messageListCallback *sdk.GetAdvancedHistoryMessageListCallback) bool {
+	notStartTime, isReverse bool, count int, startTime int64, list *[]*model_struct.LocalChatLog, messageListCallback *sdk.GetAdvancedHistoryMessageListCallback) bool {
 	if lastMinSeq != 0 {
 		log.ZDebug(ctx, "get lost LastMinSeq is :", "lastMinSeq", lastMinSeq, "thisMaxSeq", maxSeq)
 		if maxSeq != 0 {
 			if maxSeq+1 != lastMinSeq {
 				startSeq := int64(lastMinSeq) - constant.PullMsgNumForReadDiffusion
-				if startSeq <= int64(maxSeq) {
+				if startSeq <= maxSeq {
 					startSeq = int64(maxSeq) + 1
 				}
 				successiveSeqList := func(max, min int64) (seqList []int64) {
@@ -75,7 +77,7 @@ func (c *Conversation) messageBlocksBetweenContinuityCheck(ctx context.Context, 
 				}(lastMinSeq-1, startSeq)
 				log.ZDebug(ctx, "get lost successiveSeqList is :", "successiveSeqList", successiveSeqList, "length:", len(successiveSeqList))
 				if len(successiveSeqList) > 0 {
-					c.pullMessageAndReGetHistoryMessages(ctx, conversationID, successiveSeqList, notStartTime, isReverse, count, sessionType, startTime, list, messageListCallback)
+					c.pullMessageAndReGetHistoryMessages(ctx, conversationID, successiveSeqList, notStartTime, isReverse, count, startTime, list, messageListCallback)
 				}
 			} else {
 				return true
@@ -94,7 +96,7 @@ func (c *Conversation) messageBlocksBetweenContinuityCheck(ctx context.Context, 
 
 // 根据最小seq向前补齐消息，由服务器告诉拉取消息结果是否到底，如果网络，则向前补齐,获取这一组消息的最大最小seq，以及需要补齐的seq列表长度
 func (c *Conversation) messageBlocksEndContinuityCheck(ctx context.Context, minSeq int64, conversationID string, notStartTime,
-	isReverse bool, count, sessionType int, startTime int64, list *[]*model_struct.LocalChatLog, messageListCallback *sdk.GetAdvancedHistoryMessageListCallback) {
+	isReverse bool, count int, startTime int64, list *[]*model_struct.LocalChatLog, messageListCallback *sdk.GetAdvancedHistoryMessageListCallback) {
 	if minSeq != 0 {
 		seqList := func(seq int64) (seqList []int64) {
 			startSeq := seq - constant.PullMsgNumForReadDiffusion
@@ -110,13 +112,13 @@ func (c *Conversation) messageBlocksEndContinuityCheck(ctx context.Context, minS
 		log.ZDebug(ctx, "pull seqList is ", "seqList", seqList, "len", len(seqList))
 
 		if len(seqList) > 0 {
-			c.pullMessageAndReGetHistoryMessages(ctx, conversationID, seqList, notStartTime, isReverse, count, sessionType, startTime, list, messageListCallback)
+			c.pullMessageAndReGetHistoryMessages(ctx, conversationID, seqList, notStartTime, isReverse, count, startTime, list, messageListCallback)
 		}
 
 	} else {
 		//local don't have messages,本地无消息，但是服务器最大消息不为0
 		seqList := []int64{0, 0}
-		c.pullMessageAndReGetHistoryMessages(ctx, conversationID, seqList, notStartTime, isReverse, count, sessionType, startTime, list, messageListCallback)
+		c.pullMessageAndReGetHistoryMessages(ctx, conversationID, seqList, notStartTime, isReverse, count, startTime, list, messageListCallback)
 
 	}
 
@@ -144,20 +146,23 @@ func (c *Conversation) getMaxAndMinHaveSeqList(messages []*model_struct.LocalCha
 // 1、保证单次拉取消息量低于sdk单次从服务器拉取量
 // 2、块中连续性检测
 // 3、块之间连续性检测
-func (c *Conversation) pullMessageAndReGetHistoryMessages(ctx context.Context, conversationID string, seqList []int64, notStartTime,
-	isReverse bool, count, sessionType int, startTime int64, list *[]*model_struct.LocalChatLog, messageListCallback *sdk.GetAdvancedHistoryMessageListCallback) {
+func (c *Conversation) pullMessageAndReGetHistoryMessages(ctx context.Context, conversationID string, seqList []int64,
+	notStartTime, isReverse bool, count int, startTime int64, list *[]*model_struct.LocalChatLog,
+	messageListCallback *sdk.GetAdvancedHistoryMessageListCallback) {
 	existedSeqList, err := c.db.GetAlreadyExistSeqList(ctx, conversationID, seqList)
 	if err != nil {
-		// log.Error(operationID, "SuperGroupGetAlreadyExistSeqList err", err.Error(), sourceID, seqList)
+		log.ZError(ctx, "GetAlreadyExistSeqList err", err, "conversationID", conversationID,
+			"seqList", seqList)
 		return
 	}
 	if len(existedSeqList) == len(seqList) {
-		// log.Debug(operationID, "do not pull message")
+		log.ZDebug(ctx, "do not pull message", "seqList", seqList, "existedSeqList", existedSeqList)
 		return
 	}
 	newSeqList := utils.DifferenceSubset(seqList, existedSeqList)
 	if len(newSeqList) == 0 {
-		// log.Debug(operationID, "do not pull message")
+		log.ZDebug(ctx, "do not pull message", "seqList", seqList, "existedSeqList", existedSeqList,
+			"newSeqList", newSeqList)
 		return
 	}
 	var pullMsgResp sdkws.PullMessageBySeqsResp
@@ -169,7 +174,7 @@ func (c *Conversation) pullMessageAndReGetHistoryMessages(ctx context.Context, c
 	seqRange.End = newSeqList[len(newSeqList)-1]
 	seqRange.Num = int64(len(newSeqList))
 	pullMsgReq.SeqRanges = append(pullMsgReq.SeqRanges, &seqRange)
-	log.ZDebug(ctx, "read diffusion group pull message,  ", "req", pullMsgReq)
+	log.ZDebug(ctx, "conversation pull message,  ", "req", pullMsgReq)
 	if notStartTime && !c.LongConnMgr.IsConnected() {
 		return
 	}
@@ -179,6 +184,11 @@ func (c *Conversation) pullMessageAndReGetHistoryMessages(ctx context.Context, c
 		log.ZDebug(ctx, "pullmsg SendReqWaitResp failed", err, "req")
 	} else {
 		log.ZDebug(ctx, "syncMsgFromServerSplit pull msg", "resp", pullMsgResp)
+		if pullMsgResp.Msgs == nil {
+			log.ZWarn(ctx, "syncMsgFromServerSplit pull msg is null", errors.New("pull message is null"),
+				"req", pullMsgReq)
+			return
+		}
 		if v, ok := pullMsgResp.Msgs[conversationID]; ok {
 			c.pullMessageIntoTable(ctx, pullMsgResp.Msgs, conversationID)
 			messageListCallback.IsEnd = v.IsEnd
@@ -286,13 +296,12 @@ func (c *Conversation) pullMessageIntoTable(ctx context.Context, pullMsgData map
 // 如果本地的为0，可以理解为初始化的时候，数据还未同步，或者异常情况，如果服务器最大seq-服务器最小seq>=0说明还未到底部，否则到底部
 
 func (c *Conversation) faceURLAndNicknameHandle(ctx context.Context, self, others []*model_struct.LocalChatLog, conversationID string) []*model_struct.LocalChatLog {
-	lc, _ := c.db.GetConversation(ctx, conversationID)
+	lc, err := c.db.GetConversation(ctx, conversationID)
+	if err != nil {
+		return append(self, others...)
+	}
 	switch lc.ConversationType {
 	case constant.SingleChatType:
-		fallthrough
-	case constant.CustomerServiceChatType:
-		fallthrough
-	case constant.EncryptedChatType:
 		c.singleHandle(ctx, self, others, lc)
 	case constant.SuperGroupChatType:
 		c.groupHandle(ctx, self, others, lc)
@@ -307,9 +316,11 @@ func (c *Conversation) singleHandle(ctx context.Context, self, others []*model_s
 			chatLog.SenderNickname = userInfo.Nickname
 		}
 	}
-	for _, chatLog := range others {
-		chatLog.SenderFaceURL = lc.FaceURL
-		chatLog.SenderNickname = lc.ShowName
+	if lc.FaceURL != "" && lc.ShowName != "" {
+		for _, chatLog := range others {
+			chatLog.SenderFaceURL = lc.FaceURL
+			chatLog.SenderNickname = lc.ShowName
+		}
 	}
 
 }
@@ -327,8 +338,10 @@ func (c *Conversation) groupHandle(ctx context.Context, self, others []*model_st
 	})
 	for _, chatLog := range allMessage {
 		if g, ok := groupMap[chatLog.SendID]; ok {
-			chatLog.SenderFaceURL = g.FaceURL
-			chatLog.SenderNickname = g.Nickname
+			if g.FaceURL != "" && g.Nickname != "" {
+				chatLog.SenderFaceURL = g.FaceURL
+				chatLog.SenderNickname = g.Nickname
+			}
 		}
 	}
 }

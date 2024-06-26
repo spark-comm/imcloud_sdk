@@ -19,10 +19,10 @@ package indexdb
 
 import (
 	"context"
-	"open_im_sdk/pkg/db/model_struct"
-	"open_im_sdk/pkg/utils"
-	"open_im_sdk/wasm/exec"
-	"open_im_sdk/wasm/indexdb/temp_struct"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/db/model_struct"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/utils"
+	"github.com/openimsdk/openim-sdk-core/v3/wasm/exec"
+	"github.com/openimsdk/openim-sdk-core/v3/wasm/indexdb/temp_struct"
 )
 
 type LocalConversations struct {
@@ -32,7 +32,7 @@ func NewLocalConversations() *LocalConversations {
 	return &LocalConversations{}
 }
 
-func (i *LocalConversations) GetAllConversationListDB(ctx context.Context, includeEncrypted bool) (result []*model_struct.LocalConversation, err error) {
+func (i *LocalConversations) GetAllConversationListDB(ctx context.Context) (result []*model_struct.LocalConversation, err error) {
 	cList, err := exec.Exec()
 	if err != nil {
 		return nil, err
@@ -293,7 +293,7 @@ func (i *LocalConversations) DecrConversationUnreadCount(ctx context.Context, co
 	_, err := exec.Exec(conversationID, count)
 	return err
 }
-func (i *LocalConversations) GetTotalUnreadMsgCountDB(ctx context.Context, conversationType ...int32) (totalUnreadCount int32, err error) {
+func (i *LocalConversations) GetTotalUnreadMsgCountDB(ctx context.Context) (totalUnreadCount int32, err error) {
 	count, err := exec.Exec()
 	if err != nil {
 		return 0, err
@@ -369,6 +369,24 @@ func (i *LocalConversations) GetAllConversationIDList(ctx context.Context) ([]st
 		}
 	}
 }
+func (i *LocalConversations) SearchConversations(ctx context.Context, searchParam string) ([]*model_struct.LocalConversation, error) {
+
+	var result []*model_struct.LocalConversation
+	// Perform the search operation. Replace the below line with the actual search logic.
+	searchResult, err := exec.Exec(searchParam)
+	if err != nil {
+		return nil, utils.Wrap(err, "SearchConversations failed")
+	}
+
+	// Convert searchResult to []*model_struct.LocalConversation
+	// Assuming searchResult is in a format that can be converted to the required type
+	err = utils.JsonStringToStruct(searchResult.(string), &result)
+	if err != nil {
+		return nil, utils.Wrap(err, "Failed to parse search results")
+	}
+
+	return result, nil
+}
 
 func (i *LocalConversations) UpdateOrCreateConversations(ctx context.Context, conversationList []*model_struct.LocalConversation) error {
 	//conversationIDs, err := Exec(ctx)
@@ -409,26 +427,4 @@ func (i *LocalConversations) UpdateOrCreateConversations(ctx context.Context, co
 	//		return ErrType
 	//	}
 	//}
-}
-
-func (i *LocalConversations) GetPrivacyConversationForPage(ctx context.Context, isLimit bool, pageSize, pageNum int) (result []*model_struct.LocalConversation, err error) {
-	var conversationList []*model_struct.LocalConversation
-	cList, err := exec.Exec(isLimit, pageSize, pageNum)
-	if err != nil {
-		return nil, err
-	} else {
-		if v, ok := cList.(string); ok {
-			err := utils.JsonStringToStruct(v, &conversationList)
-			if err != nil {
-				return nil, err
-			}
-			for _, v := range conversationList {
-				v1 := v
-				result = append(result, v1)
-			}
-			return result, err
-		} else {
-			return nil, exec.ErrType
-		}
-	}
 }

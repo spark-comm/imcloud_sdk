@@ -16,38 +16,32 @@ package db_interface
 
 import (
 	"context"
-	"open_im_sdk/pkg/db/model_struct"
-	"open_im_sdk/pkg/db/pg"
-	"open_im_sdk/pkg/sdk_params_callback"
-	"open_im_sdk/sdk_struct"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/db/model_struct"
+	"github.com/openimsdk/openim-sdk-core/v3/sdk_struct"
 )
 
-type GroupDatabase interface {
+type GroupModel interface {
 	InsertGroup(ctx context.Context, groupInfo *model_struct.LocalGroup) error
 	DeleteGroup(ctx context.Context, groupID string) error
 	UpdateGroup(ctx context.Context, groupInfo *model_struct.LocalGroup) error
 	GetJoinedGroupListDB(ctx context.Context) ([]*model_struct.LocalGroup, error)
+	GetGroups(ctx context.Context, groupIDs []string) ([]*model_struct.LocalGroup, error)
 	GetGroupInfoByGroupID(ctx context.Context, groupID string) (*model_struct.LocalGroup, error)
-	//GetGroupInfoByGroupIDs 根据id获取群信息
-	GetGroupInfoByGroupIDs(ctx context.Context, groupID ...string) ([]*model_struct.LocalGroup, error)
 	GetAllGroupInfoByGroupIDOrGroupName(ctx context.Context, keyword string, isSearchGroupID bool, isSearchGroupName bool) ([]*model_struct.LocalGroup, error)
 	AddMemberCount(ctx context.Context, groupID string) error
 	SubtractMemberCount(ctx context.Context, groupID string) error
 	GetJoinedWorkingGroupIDList(ctx context.Context) ([]string, error)
 	GetJoinedWorkingGroupList(ctx context.Context) ([]*model_struct.LocalGroup, error)
+	GetUserJoinedGroupIDs(ctx context.Context, userID string) ([]string, error)
 
 	InsertAdminGroupRequest(ctx context.Context, groupRequest *model_struct.LocalAdminGroupRequest) error
 	DeleteAdminGroupRequest(ctx context.Context, groupID, userID string) error
 	UpdateAdminGroupRequest(ctx context.Context, groupRequest *model_struct.LocalAdminGroupRequest) error
 	GetAdminGroupApplication(ctx context.Context) ([]*model_struct.LocalAdminGroupRequest, error)
-	// GetPageGroupApplicationListAsRecipient 分页获取待处理的请求
-	GetPageGroupApplicationListAsRecipient(ctx context.Context, groupId string, page *pg.Page) ([]*model_struct.LocalAdminGroupRequest, error)
 	InsertGroupRequest(ctx context.Context, groupRequest *model_struct.LocalGroupRequest) error
 	DeleteGroupRequest(ctx context.Context, groupID, userID string) error
 	UpdateGroupRequest(ctx context.Context, groupRequest *model_struct.LocalGroupRequest) error
 	GetSendGroupApplication(ctx context.Context) ([]*model_struct.LocalGroupRequest, error)
-	GetOneSendGroupApplication(ctx context.Context, groupID string) ([]*model_struct.LocalGroupRequest, error)
-	GetJoinedSuperGroupList(ctx context.Context) ([]*model_struct.LocalGroup, error)
 	InsertSuperGroup(ctx context.Context, groupInfo *model_struct.LocalGroup) error
 	DeleteAllSuperGroup(ctx context.Context) error
 	GetSuperGroupInfoByGroupID(ctx context.Context, groupID string) (*model_struct.LocalGroup, error)
@@ -55,7 +49,6 @@ type GroupDatabase interface {
 	DeleteSuperGroup(ctx context.Context, groupID string) error
 	GetGroupMemberInfoByGroupIDUserID(ctx context.Context, groupID, userID string) (*model_struct.LocalGroupMember, error)
 	GetAllGroupMemberList(ctx context.Context) ([]model_struct.LocalGroupMember, error)
-	GetUserInAllGroupMemberList(ctx context.Context, userId string) ([]model_struct.LocalGroupMember, error)
 	GetAllGroupMemberUserIDList(ctx context.Context) ([]model_struct.LocalGroupMember, error)
 	GetGroupMemberCount(ctx context.Context, groupID string) (int32, error)
 	GetGroupSomeMemberInfo(ctx context.Context, groupID string, userIDList []string) ([]*model_struct.LocalGroupMember, error)
@@ -71,24 +64,14 @@ type GroupDatabase interface {
 	InsertGroupMember(ctx context.Context, groupMember *model_struct.LocalGroupMember) error
 	BatchInsertGroupMember(ctx context.Context, groupMemberList []*model_struct.LocalGroupMember) error
 	DeleteGroupMember(ctx context.Context, groupID, userID string) error
-	DeleteGroupMembers(ctx context.Context, groupID string, userID ...string) error
 	DeleteGroupAllMembers(ctx context.Context, groupID string) error
 	UpdateGroupMember(ctx context.Context, groupMember *model_struct.LocalGroupMember) error
-	UpdateGroupMemberInfo(ctx context.Context, userID string, args map[string]interface{}) error
 	UpdateGroupMemberField(ctx context.Context, groupID, userID string, args map[string]interface{}) error
 	GetGroupMemberInfoIfOwnerOrAdmin(ctx context.Context) ([]*model_struct.LocalGroupMember, error)
 	SearchGroupMembersDB(ctx context.Context, keyword string, groupID string, isSearchMemberNickname, isSearchUserID bool, offset, count int) (result []*model_struct.LocalGroupMember, err error)
-	//SearchKickMemberList 获取可踢用户列表
-	SearchKickMemberList(ctx context.Context, params sdk_params_callback.GetKickGroupListReq) ([]*sdk_params_callback.KickGroupList, int64, error)
-	//获取指定群群id的加群申请
-	GetOwnerOrAdminGroupReqInfo(ctx context.Context, groupID string, offset, count int) ([]model_struct.LocalGroupRequest, error)
-	//获取自己在的群中自己的信息
-	GetOwnerGroupMemberInfo(ctx context.Context, userID string) ([]*model_struct.LocalGroupMember, error)
-	GetGroupMemberUpdateTime(ctx context.Context, groupID string) (map[string]int64, error)
-	GetGroupUpdateTime(ctx context.Context) (map[string]int64, error)
 }
 
-type MessageDatabase interface {
+type MessageModel interface {
 	BatchInsertMessageList(ctx context.Context, conversationID string, MessageList []*model_struct.LocalChatLog) error
 	//BatchInsertMessageListController(ctx context.Context, MessageList []*model_struct.LocalChatLog) error
 	InsertMessage(ctx context.Context, conversationID string, Message *model_struct.LocalChatLog) error
@@ -122,7 +105,6 @@ type MessageDatabase interface {
 	//GetMessageListController(ctx context.Context, sourceID string, sessionType, count int, startTime int64, isReverse bool) (result []*model_struct.LocalChatLog, err error)
 	GetMessageListNoTime(ctx context.Context, conversationID string, count int, isReverse bool) (result []*model_struct.LocalChatLog, err error)
 	//GetMessageListNoTimeController(ctx context.Context, sourceID string, sessionType, count int, isReverse bool) (result []*model_struct.LocalChatLog, err error)
-	GetSendingMessageList(ctx context.Context) (result []*model_struct.LocalChatLog, err error)
 	MarkConversationMessageAsReadDB(ctx context.Context, conversationID string, msgIDs []string) (rowsAffected int64, err error)
 	MarkConversationMessageAsReadBySeqs(ctx context.Context, conversationID string, seqs []int64) (rowsAffected int64, err error)
 	GetUnreadMessage(ctx context.Context, conversationID string) (result []*model_struct.LocalChatLog, err error)
@@ -131,7 +113,7 @@ type MessageDatabase interface {
 	GetMessagesBySeqs(ctx context.Context, conversationID string, seqs []int64) (result []*model_struct.LocalChatLog, err error)
 	GetConversationNormalMsgSeq(ctx context.Context, conversationID string) (int64, error)
 	GetConversationPeerNormalMsgSeq(ctx context.Context, conversationID string) (int64, error)
-	GetConversationMessageSeq(ctx context.Context, conversationID string) (result []int64, err error)
+
 	GetTestMessage(ctx context.Context, seq uint32) (*model_struct.LocalChatLog, error)
 	UpdateMsgSenderNickname(ctx context.Context, sendID, nickname string, sType int) error
 	UpdateMsgSenderFaceURL(ctx context.Context, sendID, faceURL string, sType int) error
@@ -193,9 +175,9 @@ type MessageDatabase interface {
 	GetNotificationAllSeqs(ctx context.Context) ([]*model_struct.NotificationSeqs, error)
 }
 
-type ConversationDatabase interface {
+type ConversationModel interface {
 	GetConversationByUserID(ctx context.Context, userID string) (*model_struct.LocalConversation, error)
-	GetAllConversationListDB(ctx context.Context, includeEncrypted bool) ([]*model_struct.LocalConversation, error)
+	GetAllConversationListDB(ctx context.Context) ([]*model_struct.LocalConversation, error)
 	GetHiddenConversationList(ctx context.Context) ([]*model_struct.LocalConversation, error)
 	GetAllConversations(ctx context.Context) ([]*model_struct.LocalConversation, error)
 	GetAllSingleConversationIDList(ctx context.Context) (result []string, err error)
@@ -220,63 +202,55 @@ type ConversationDatabase interface {
 	UpdateAllConversation(ctx context.Context, conversation *model_struct.LocalConversation) error
 	IncrConversationUnreadCount(ctx context.Context, conversationID string) error
 	DecrConversationUnreadCount(ctx context.Context, conversationID string, count int64) (err error)
-	GetTotalUnreadMsgCountDB(ctx context.Context, conversationType ...int32) (totalUnreadCount int32, err error)
+	GetTotalUnreadMsgCountDB(ctx context.Context) (totalUnreadCount int32, err error)
 	SetMultipleConversationRecvMsgOpt(ctx context.Context, conversationIDList []string, opt int) (err error)
 	GetMultipleConversationDB(ctx context.Context, conversationIDList []string) (result []*model_struct.LocalConversation, err error)
 	SearchAllMessageByContentType(ctx context.Context, conversationID string, contentType int) ([]*model_struct.LocalChatLog, error)
 	SuperGroupSearchAllMessageByContentType(ctx context.Context, superGroupID string, contentType int32) ([]*model_struct.LocalChatLog, error)
-	GetPrivacyConversationForPage(ctx context.Context, isLimit bool, pageSize, pageNum int) ([]*model_struct.LocalConversation, error)
+	SearchConversations(ctx context.Context, searchParam string) ([]*model_struct.LocalConversation, error)
 }
 
-type UserDatabase interface {
+type UserModel interface {
 	GetLoginUser(ctx context.Context, userID string) (*model_struct.LocalUser, error)
 	UpdateLoginUser(ctx context.Context, user *model_struct.LocalUser) error
 	UpdateLoginUserByMap(ctx context.Context, user *model_struct.LocalUser, args map[string]interface{}) error
 	InsertLoginUser(ctx context.Context, user *model_struct.LocalUser) error
+	GetStrangerInfo(ctx context.Context, userIDs []string) ([]*model_struct.LocalStranger, error)
+	SetStrangerInfo(ctx context.Context, localStrangerList []*model_struct.LocalStranger) error
+	ProcessUserCommandAdd(ctx context.Context, command *model_struct.LocalUserCommand) error
+	ProcessUserCommandUpdate(ctx context.Context, command *model_struct.LocalUserCommand) error
+	ProcessUserCommandDelete(ctx context.Context, command *model_struct.LocalUserCommand) error
+	ProcessUserCommandGetAll(ctx context.Context) ([]*model_struct.LocalUserCommand, error)
 }
 
-type FriendDatabase interface {
+type FriendModel interface {
 	InsertFriend(ctx context.Context, friend *model_struct.LocalFriend) error
-	DeleteFriendDB(ctx context.Context, friendUserID ...string) error
+	DeleteFriendDB(ctx context.Context, friendUserID string) error
 	UpdateFriend(ctx context.Context, friend *model_struct.LocalFriend) error
 	GetAllFriendList(ctx context.Context) ([]*model_struct.LocalFriend, error)
 	GetPageFriendList(ctx context.Context, offset, count int) ([]*model_struct.LocalFriend, error)
-	//GetFriendList 分页获取好友数据
-	GetFriendList(ctx context.Context, page *pg.Page) ([]*model_struct.LocalFriend, error)
 	SearchFriendList(ctx context.Context, keyword string, isSearchUserID, isSearchNickname, isSearchRemark bool) ([]*model_struct.LocalFriend, error)
 	GetFriendInfoByFriendUserID(ctx context.Context, FriendUserID string) (*model_struct.LocalFriend, error)
-	GetFriendInfoList(ctx context.Context, friendUserIDList []string, filterNotPeersFriend bool) ([]*model_struct.LocalFriend, error)
-	// GetFriendInfoNotPeersList 不包含关系连条件的好友列表
-	GetFriendInfoNotPeersList(ctx context.Context, friendUserIDList []string) ([]*model_struct.LocalFriend, error)
+	GetFriendInfoList(ctx context.Context, friendUserIDList []string) ([]*model_struct.LocalFriend, error)
 	InsertFriendRequest(ctx context.Context, friendRequest *model_struct.LocalFriendRequest) error
 	DeleteFriendRequestBothUserID(ctx context.Context, fromUserID, toUserID string) error
 	UpdateFriendRequest(ctx context.Context, friendRequest *model_struct.LocalFriendRequest) error
 	GetRecvFriendApplication(ctx context.Context) ([]*model_struct.LocalFriendRequest, error)
 	GetSendFriendApplication(ctx context.Context) ([]*model_struct.LocalFriendRequest, error)
-	//GetRecvFriendApplicationList 分页获取我收到的好友请求
-	GetRecvFriendApplicationList(ctx context.Context, page *pg.Page) ([]*model_struct.LocalFriendRequest, error)
-	// GetSendFriendApplicationList 分页获取我发送的好友请求
-	GetSendFriendApplicationList(ctx context.Context, page *pg.Page) ([]*model_struct.LocalFriendRequest, error)
 	GetFriendApplicationByBothID(ctx context.Context, fromUserID, toUserID string) (*model_struct.LocalFriendRequest, error)
+	GetBothFriendReq(ctx context.Context, fromUserID, toUserID string) ([]*model_struct.LocalFriendRequest, error)
+	UpdateColumnsFriend(ctx context.Context, friendIDs []string, args map[string]interface{}) error
+
 	GetBlackListDB(ctx context.Context) ([]*model_struct.LocalBlack, error)
-	GetBlackListAllDB(ctx context.Context) ([]*model_struct.LocalBlack, error)
-	//GetBlackList 分页获取黑明单数据
-	GetBlackList(ctx context.Context, page *pg.Page) ([]*model_struct.LocalBlack, error)
 	GetBlackListUserID(ctx context.Context) (blackListUid []string, err error)
 	GetBlackInfoByBlockUserID(ctx context.Context, blockUserID string) (*model_struct.LocalBlack, error)
 	GetBlackInfoList(ctx context.Context, blockUserIDList []string) ([]*model_struct.LocalBlack, error)
 	InsertBlack(ctx context.Context, black *model_struct.LocalBlack) error
 	UpdateBlack(ctx context.Context, black *model_struct.LocalBlack) error
-	DeleteBlack(ctx context.Context, ownerUserID, blockUserID string) error
-	//GetUnprocessedNum 获取未处理的好友申请数
-	GetUnprocessedNum(ctx context.Context) (int64, error)
-	//获取不在列表的好友数据
-	GetNotInListFriendInfo(ctx context.Context, cond, user string, userIDs []string, pageSize, pageNum int) ([]sdk_params_callback.SearchNotInGroupUserResp, int64, error)
-	// 获取更新时间
-	GetFriendUpdateTime(ctx context.Context) (map[string]int64, error)
+	DeleteBlack(ctx context.Context, blockUserID string) error
 }
 
-type ReactionDatabase interface {
+type ReactionModel interface {
 	GetMessageReactionExtension(ctx context.Context, msgID string) (result *model_struct.LocalChatLogReactionExtensions, err error)
 	InsertMessageReactionExtension(ctx context.Context, messageReactionExtension *model_struct.LocalChatLogReactionExtensions) error
 	UpdateMessageReactionExtension(ctx context.Context, c *model_struct.LocalChatLogReactionExtensions) error
@@ -286,44 +260,28 @@ type ReactionDatabase interface {
 	DeleteMessageReactionExtension(ctx context.Context, msgID string) error
 }
 
-type S3Database interface {
+type S3Model interface {
 	GetUpload(ctx context.Context, partHash string) (*model_struct.LocalUpload, error)
 	InsertUpload(ctx context.Context, upload *model_struct.LocalUpload) error
 	DeleteUpload(ctx context.Context, partHash string) error
 	UpdateUpload(ctx context.Context, upload *model_struct.LocalUpload) error
 	DeleteExpireUpload(ctx context.Context) error
 }
-
-// MomentsDatabase ， 朋友圈
-type MomentsDatabase interface {
-	InsertMoments(ctx context.Context, moments *model_struct.LocalMoments) error
-	InsertBatchMoments(ctx context.Context, moments []*model_struct.LocalMoments) error
-	DeleteMoments(ctx context.Context, momentId string) error
-	UpdateMoments(ctx context.Context, momentId string, moments interface{}) error
-	GetMoments(ctx context.Context, momentId string) (*model_struct.LocalMoments, error)
-	GetMomentTimestamps(ctx context.Context, t int) (int64, error) // 获取最后/最前同步同步时间戳（created_at） 0 最后 1 最前
-	GetMomentsList(ctx context.Context, page, size int, isSelf bool, userId string) ([]*model_struct.LocalMoments, error)
-}
-
-// MomentsCommentsDatabase ， 朋友圈评论
-type MomentsCommentsDatabase interface {
-	InsertMomentsComments(ctx context.Context, moments *model_struct.LocalMomentsComments) error
-	InsertBatchMomentsComments(ctx context.Context, comments []*model_struct.LocalMomentsComments) error
-	DeleteMomentsComments(ctx context.Context, commentId string) error
-	UpdateMomentsComments(ctx context.Context, moments *model_struct.LocalMomentsComments) error
-	GetMomentsComments(ctx context.Context, momentId string) ([]*model_struct.LocalMomentsComments, error)
+type SendingMessagesModel interface {
+	InsertSendingMessage(ctx context.Context, message *model_struct.LocalSendingMessages) error
+	DeleteSendingMessage(ctx context.Context, conversationID, clientMsgID string) error
+	GetAllSendingMessages(ctx context.Context) (friendRequests []*model_struct.LocalSendingMessages, err error)
 }
 
 type DataBase interface {
 	Close(ctx context.Context) error
 	InitDB(ctx context.Context, userID string, dataDir string) error
-	GroupDatabase
-	MessageDatabase
-	ConversationDatabase
-	UserDatabase
-	FriendDatabase
-	ReactionDatabase
-	S3Database
-	MomentsDatabase
-	MomentsCommentsDatabase
+	GroupModel
+	MessageModel
+	ConversationModel
+	UserModel
+	FriendModel
+	ReactionModel
+	S3Model
+	SendingMessagesModel
 }

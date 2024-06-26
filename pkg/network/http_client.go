@@ -18,12 +18,11 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"net"
 
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/utils"
 	"io/ioutil"
 	"net/http"
-	"open_im_sdk/pkg/utils"
 	"time"
 )
 
@@ -75,7 +74,7 @@ func postLogic(url string, data interface{}, token string) (content []byte, err 
 	}
 	req.Close = true
 	req.Header.Add("content-type", "application/json")
-	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
+	req.Header.Add("token", token)
 	req.Header.Add("OperationID", utils.OperationIDGenerator())
 	tp := &http.Transport{
 		DialContext: (&net.Dialer{

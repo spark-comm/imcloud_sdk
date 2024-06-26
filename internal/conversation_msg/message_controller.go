@@ -16,29 +16,43 @@ package conversation_msg
 
 import (
 	"context"
-	"github.com/imCloud/im/pkg/common/log"
-	"github.com/imCloud/im/pkg/proto/sdkws"
-	"open_im_sdk/internal/util"
-	"open_im_sdk/pkg/constant"
-	"open_im_sdk/pkg/db/db_interface"
-	"open_im_sdk/pkg/db/model_struct"
-	"open_im_sdk/pkg/utils"
+	"encoding/json"
+	"github.com/openimsdk/openim-sdk-core/v3/internal/util"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/common"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/constant"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/db/db_interface"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/db/model_struct"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/utils"
+	"github.com/openimsdk/openim-sdk-core/v3/sdk_struct"
+
+	"github.com/OpenIMSDK/protocol/sdkws"
+	"github.com/OpenIMSDK/tools/log"
 )
 
 type MessageController struct {
 	db db_interface.DataBase
+	ch chan common.Cmd2Value
 }
 
-func NewMessageController(db db_interface.DataBase) *MessageController {
-	return &MessageController{db: db}
+func NewMessageController(db db_interface.DataBase, ch chan common.Cmd2Value) *MessageController {
+	return &MessageController{db: db, ch: ch}
 }
-
-// BatchUpdateMessageList 批量更新消息
 func (m *MessageController) BatchUpdateMessageList(ctx context.Context, updateMsg map[string][]*model_struct.LocalChatLog) error {
 	if updateMsg == nil {
 		return nil
 	}
 	for conversationID, messages := range updateMsg {
+		conversation, err := m.db.GetConversation(ctx, conversationID)
+		if err != nil {
+			log.ZError(ctx, "GetConversation err", err, "conversationID", conversationID)
+			continue
+		}
+		latestMsg := &sdk_struct.MsgStruct{}
+		if err := json.Unmarshal([]byte(conversation.LatestMsg), latestMsg); err != nil {
+			log.ZError(ctx, "Unmarshal err", err, "conversationID",
+				conversationID, "latestMsg", conversation.LatestMsg)
+			continue
+		}
 		for _, v := range messages {
 			v1 := new(model_struct.LocalChatLog)
 			v1.ClientMsgID = v.ClientMsgID
@@ -47,9 +61,19 @@ func (m *MessageController) BatchUpdateMessageList(ctx context.Context, updateMs
 			v1.RecvID = v.RecvID
 			v1.SessionType = v.SessionType
 			v1.ServerMsgID = v.ServerMsgID
+			v1.SendTime = v.SendTime
 			err := m.db.UpdateMessage(ctx, conversationID, v1)
 			if err != nil {
 				return utils.Wrap(err, "BatchUpdateMessageList failed")
+			}
+			if latestMsg.ClientMsgID == v.ClientMsgID {
+				latestMsg.ServerMsgID = v.ServerMsgID
+				latestMsg.Seq = v.Seq
+				latestMsg.SendTime = v.SendTime
+				conversation.LatestMsg = utils.StructToJsonString(latestMsg)
+				_ = common.TriggerCmdUpdateConversation(ctx, common.UpdateConNode{ConID: conversation.ConversationID,
+					Action: constant.AddConOrUpLatMsg, Args: *conversation}, m.ch)
+
 			}
 		}
 
@@ -57,7 +81,6 @@ func (m *MessageController) BatchUpdateMessageList(ctx context.Context, updateMs
 	return nil
 }
 
-// BatchInsertMessageList 批量插入消息
 func (m *MessageController) BatchInsertMessageList(ctx context.Context, insertMsg map[string][]*model_struct.LocalChatLog) error {
 	if insertMsg == nil {
 		return nil
@@ -81,24 +104,9 @@ func (m *MessageController) BatchInsertMessageList(ctx context.Context, insertMs
 	return nil
 }
 
-// PullMessageBySeqs 根据seq拉取消息
 func (c *Conversation) PullMessageBySeqs(ctx context.Context, seqs []*sdkws.SeqRange) (*sdkws.PullMessageBySeqsResp, error) {
-	//return util.CallApi[sdkws.PullMessageBySeqsResp](ctx,
-	//	constant.PullUserMsgBySeqRouter, sdkws.PullMessageBySeqsReq{UserID: c.loginUserID, SeqRanges: seqs})
-	resp := &sdkws.PullMessageBySeqsResp{}
-	err := util.CallPostApi[*sdkws.PullMessageBySeqsReq, *sdkws.PullMessageBySeqsResp](
-		ctx,
-		constant.PullUserMsgBySeqRouter,
-		&sdkws.PullMessageBySeqsReq{UserID: c.loginUserID, SeqRanges: seqs},
-		resp,
-	)
-	if err != nil {
-		return nil, err
-	}
-	return resp, nil
+	return util.CallApi[sdkws.PullMessageBySeqsResp](ctx, constant.PullUserMsgBySeqRouter, sdkws.PullMessageBySeqsReq{UserID: c.loginUserID, SeqRanges: seqs})
 }
-
-// SearchMessageByContentTypeAndKeyword 根据内容和关键字搜索消息
 func (m *MessageController) SearchMessageByContentTypeAndKeyword(ctx context.Context, contentType []int, keywordList []string,
 	keywordListMatchType int, startTime, endTime int64) (result []*model_struct.LocalChatLog, err error) {
 	var list []*model_struct.LocalChatLog

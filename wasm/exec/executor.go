@@ -18,9 +18,11 @@
 package exec
 
 import (
+	"context"
 	"errors"
-	"open_im_sdk/pkg/log"
-	"open_im_sdk/pkg/utils"
+	"github.com/OpenIMSDK/tools/errs"
+	"github.com/OpenIMSDK/tools/log"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/utils"
 	"runtime"
 	"syscall/js"
 	"time"
@@ -42,6 +44,7 @@ var ErrTimoutFromJavaScript = errors.New("invoke javascript timeout，maybe shou
 var jsErr = js.Global().Get("Error")
 
 func Exec(args ...interface{}) (output interface{}, err error) {
+	ctx := context.Background()
 	defer func() {
 		if r := recover(); r != nil {
 			switch x := r.(type) {
@@ -74,7 +77,8 @@ func Exec(args ...interface{}) (output interface{}, err error) {
 				}
 			}
 		}()
-		log.Debug("js then function", "=> (main go context) "+funcName+" with response ", args[0].String())
+		log.ZDebug(ctx, "js then function", "=> (main go context) "+funcName+" "+
+			"with response ", args[0].String())
 		thenChannel <- args
 		return nil
 	})
@@ -92,7 +96,7 @@ func Exec(args ...interface{}) (output interface{}, err error) {
 				}
 			}
 		}()
-		log.Debug("js catch function", "=> (main go context) "+funcName+" with respone ", args[0].String())
+		log.ZDebug(ctx, "js catch function", "=> (main go context) "+funcName+" with respone ", args[0].String())
 		catchChannel <- args
 		return nil
 	})
@@ -129,7 +133,7 @@ func Exec(args ...interface{}) (output interface{}, err error) {
 	}
 	if data.ErrCode != 0 {
 		if data.ErrCode == JSNOTFOUND {
-			return nil, errors.New("ErrRecordNotFound")
+			return nil, errs.ErrRecordNotFound
 		}
 		return "", errors.New(data.ErrMsg)
 	}

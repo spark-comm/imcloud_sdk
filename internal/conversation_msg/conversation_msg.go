@@ -18,46 +18,44 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"github.com/imCloud/im/pkg/proto/sdkws"
-	"open_im_sdk/internal/business"
-	"open_im_sdk/internal/cache"
-	"open_im_sdk/internal/file"
-	"open_im_sdk/internal/friend"
-	"open_im_sdk/internal/full"
-	"open_im_sdk/internal/group"
-	"open_im_sdk/internal/interaction"
-	"open_im_sdk/internal/moments"
-	"open_im_sdk/internal/user"
-	"open_im_sdk/open_im_sdk_callback"
-	"open_im_sdk/pkg/ccontext"
-	"open_im_sdk/pkg/common"
-	"open_im_sdk/pkg/constant"
-	"open_im_sdk/pkg/db/db_interface"
-	"open_im_sdk/pkg/db/model_struct"
-	sdk "open_im_sdk/pkg/sdk_params_callback"
-	"open_im_sdk/pkg/syncer"
-	"sync"
+	"github.com/OpenIMSDK/tools/log"
+	utils2 "github.com/OpenIMSDK/tools/utils"
+	"github.com/openimsdk/openim-sdk-core/v3/internal/business"
+	"github.com/openimsdk/openim-sdk-core/v3/internal/cache"
+	"github.com/openimsdk/openim-sdk-core/v3/internal/file"
+	"github.com/openimsdk/openim-sdk-core/v3/internal/friend"
+	"github.com/openimsdk/openim-sdk-core/v3/internal/full"
+	"github.com/openimsdk/openim-sdk-core/v3/internal/group"
+	"github.com/openimsdk/openim-sdk-core/v3/internal/interaction"
+	"github.com/openimsdk/openim-sdk-core/v3/internal/user"
+	"github.com/openimsdk/openim-sdk-core/v3/open_im_sdk_callback"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/ccontext"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/common"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/constant"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/db/db_interface"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/db/model_struct"
+	sdk "github.com/openimsdk/openim-sdk-core/v3/pkg/sdk_params_callback"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/sdkerrs"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/syncer"
 
-	"github.com/imCloud/im/pkg/common/log"
-
-	"open_im_sdk/pkg/utils"
-	"open_im_sdk/sdk_struct"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/utils"
+	"github.com/openimsdk/openim-sdk-core/v3/sdk_struct"
 	"sort"
 	"time"
 
 	"github.com/jinzhu/copier"
 )
 
-var SearchContentType = []int{constant.Text, constant.AtText, constant.File, constant.Quote}
+var SearchContentType = []int{constant.Text, constant.AtText, constant.File}
 
 type Conversation struct {
 	*interaction.LongConnMgr
 	conversationSyncer   *syncer.Syncer[*model_struct.LocalConversation, string]
 	db                   db_interface.DataBase
-	ConversationListener open_im_sdk_callback.OnConversationListener
-	msgListener          open_im_sdk_callback.OnAdvancedMsgListener
-	msgKvListener        open_im_sdk_callback.OnMessageKvInfoListener
-	batchMsgListener     open_im_sdk_callback.OnBatchMsgListener
+	ConversationListener func() open_im_sdk_callback.OnConversationListener
+	msgListener          func() open_im_sdk_callback.OnAdvancedMsgListener
+	msgKvListener        func() open_im_sdk_callback.OnMessageKvInfoListener
+	batchMsgListener     func() open_im_sdk_callback.OnBatchMsgListener
 	recvCH               chan common.Cmd2Value
 	loginUserID          string
 	platformID           int32
@@ -68,55 +66,31 @@ type Conversation struct {
 	file                 *file.File
 	business             *business.Business
 	messageController    *MessageController
-	cache                *cache.Cache
+	cache                *cache.Cache[string, *model_struct.LocalConversation]
 	full                 *full.Full
 	maxSeqRecorder       MaxSeqRecorder
 	IsExternalExtensions bool
-	listenerForService   open_im_sdk_callback.OnListenerForService
-	markAsReadLock       sync.Mutex
-	loginTime            int64
-	ctxInfo              ccontext.ContextInfo
-	baseInfoSync         chan struct{}
-	moment               *moments.Moments
-	lastSentTime         time.Time
-	minInterval          time.Duration
-	msgSyncCh            chan common.Cmd2Value
+
+	startTime time.Time
+
+	typing *typing
 }
 
-func (c *Conversation) SetListenerForService(listener open_im_sdk_callback.OnListenerForService) {
-	c.listenerForService = listener
-}
-
-func (c *Conversation) MsgListener() open_im_sdk_callback.OnAdvancedMsgListener {
-	return c.msgListener
-}
-
-func (c *Conversation) SetMsgListener(msgListener open_im_sdk_callback.OnAdvancedMsgListener) {
+func (c *Conversation) SetMsgListener(msgListener func() open_im_sdk_callback.OnAdvancedMsgListener) {
 	c.msgListener = msgListener
 }
 
-func (c *Conversation) SetMsgKvListener(msgKvListener open_im_sdk_callback.OnMessageKvInfoListener) {
+func (c *Conversation) SetMsgKvListener(msgKvListener func() open_im_sdk_callback.OnMessageKvInfoListener) {
 	c.msgKvListener = msgKvListener
 }
 
-func (c *Conversation) SetBatchMsgListener(batchMsgListener open_im_sdk_callback.OnBatchMsgListener) {
+func (c *Conversation) SetBatchMsgListener(batchMsgListener func() open_im_sdk_callback.OnBatchMsgListener) {
 	c.batchMsgListener = batchMsgListener
 }
 
-func (c *Conversation) SetLoginTime() {
-	c.loginTime = utils.GetCurrentTimestampByMill()
-}
-
-func (c *Conversation) LoginTime() int64 {
-	return c.loginTime
-}
-
 func NewConversation(ctx context.Context, longConnMgr *interaction.LongConnMgr, db db_interface.DataBase,
-	ch chan common.Cmd2Value,
-	msgSyncCh chan common.Cmd2Value, // channel sync message
-	friend *friend.Friend, group *group.Group, user *user.User,
-	conversationListener open_im_sdk_callback.OnConversationListener,
-	msgListener open_im_sdk_callback.OnAdvancedMsgListener, business *business.Business, cache *cache.Cache, full *full.Full, file *file.File) *Conversation {
+	ch chan common.Cmd2Value, friend *friend.Friend, group *group.Group, user *user.User, business *business.Business,
+	full *full.Full, file *file.File) *Conversation {
 	info := ccontext.Info(ctx)
 	n := &Conversation{db: db,
 		LongConnMgr:          longConnMgr,
@@ -130,19 +104,13 @@ func NewConversation(ctx context.Context, longConnMgr *interaction.LongConnMgr, 
 		full:                 full,
 		business:             business,
 		file:                 file,
-		messageController:    NewMessageController(db),
+		messageController:    NewMessageController(db, ch),
 		IsExternalExtensions: info.IsExternalExtensions(),
 		maxSeqRecorder:       NewMaxSeqRecorder(),
-		ctxInfo:              info,
-		baseInfoSync:         make(chan struct{}),
-		lastSentTime:         time.Now(),
-		minInterval:          300 * time.Millisecond,
-		msgSyncCh:            msgSyncCh,
 	}
-	n.SetMsgListener(msgListener)
-	n.SetConversationListener(conversationListener)
+	n.typing = newTyping(n)
 	n.initSyncer()
-	n.cache = cache
+	n.cache = cache.NewCache[string, *model_struct.LocalConversation]()
 	return n
 }
 
@@ -162,7 +130,7 @@ func (c *Conversation) initSyncer() {
 					"update_unread_count_time": serverConversation.UpdateUnreadCountTime,
 					"attached_info":            serverConversation.AttachedInfo, "ex": serverConversation.Ex, "msg_destruct_time": serverConversation.MsgDestructTime,
 					"is_msg_destruct": serverConversation.IsMsgDestruct,
-					"max_seq":         serverConversation.MaxSeq, "min_seq": serverConversation.MinSeq, "has_read_seq": serverConversation.HasReadSeq, "background_url": serverConversation.BackgroundURL})
+					"max_seq":         serverConversation.MaxSeq, "min_seq": serverConversation.MinSeq, "has_read_seq": serverConversation.HasReadSeq})
 		},
 		func(value *model_struct.LocalConversation) string {
 			return value.ConversationID
@@ -179,9 +147,8 @@ func (c *Conversation) initSyncer() {
 				server.Ex != local.Ex ||
 				server.MaxSeq != local.MaxSeq ||
 				server.MinSeq != local.MinSeq ||
-				server.HasReadSeq != local.HasReadSeq ||
 				server.MsgDestructTime != local.MsgDestructTime ||
-				server.IsMsgDestruct != local.IsMsgDestruct || server.LatestMsgSendTime != local.LatestMsgSendTime {
+				server.IsMsgDestruct != local.IsMsgDestruct {
 				log.ZDebug(context.Background(), "not same", "conversationID", server.ConversationID, "server", server.RecvMsgOpt, "local", local.RecvMsgOpt)
 				return false
 			}
@@ -193,6 +160,11 @@ func (c *Conversation) initSyncer() {
 
 func (c *Conversation) GetCh() chan common.Cmd2Value {
 	return c.recvCH
+}
+
+type onlineMsgKey struct {
+	ClientMsgID string
+	ServerMsgID string
 }
 
 func (c *Conversation) doMsgNew(c2v common.Cmd2Value) {
@@ -213,16 +185,15 @@ func (c *Conversation) doMsgNew(c2v common.Cmd2Value) {
 	phNewConversationSet := make(map[string]*model_struct.LocalConversation)
 	log.ZDebug(ctx, "message come here conversation ch", "conversation length", len(allMsg))
 	b := time.Now()
+	onlineMap := make(map[onlineMsgKey]struct{})
 	for conversationID, msgs := range allMsg {
 		log.ZDebug(ctx, "parse message in one conversation", "conversationID",
 			conversationID, "message length", len(msgs.Msgs))
-		var insertMessage []*model_struct.LocalChatLog
+		var insertMessage, selfInsertMessage, othersInsertMessage []*model_struct.LocalChatLog
 		var updateMessage []*model_struct.LocalChatLog
-		seqs := make([]int64, 0)
 		for _, v := range msgs.Msgs {
 			log.ZDebug(ctx, "parse message ", "conversationID", conversationID, "msg", v)
 			isHistory = utils.GetSwitchFromOptions(v.Options, constant.IsHistory)
-			//是否未读
 			isUnreadCount = utils.GetSwitchFromOptions(v.Options, constant.IsUnreadCount)
 			isConversationUpdate = utils.GetSwitchFromOptions(v.Options, constant.IsConversationUpdate)
 			isNotPrivate = utils.GetSwitchFromOptions(v.Options, constant.IsNotPrivate)
@@ -235,7 +206,7 @@ func (c *Conversation) doMsgNew(c2v common.Cmd2Value) {
 			msg.AttachedInfoElem = &attachedInfo
 
 			msg.Status = constant.MsgStatusSendSuccess
-			msg.IsRead = false
+			// msg.IsRead = false
 			//De-analyze data
 			err := c.msgHandleByContentType(msg)
 			if err != nil {
@@ -258,12 +229,17 @@ func (c *Conversation) doMsgNew(c2v common.Cmd2Value) {
 				log.ZError(ctx, "conversationID is empty", errors.New("conversationID is empty"), "msg", msg)
 				continue
 			}
+			if !isHistory {
+				onlineMap[onlineMsgKey{ClientMsgID: v.ClientMsgID, ServerMsgID: v.ServerMsgID}] = struct{}{}
+				newMessages = append(newMessages, msg)
+
+			}
 			log.ZDebug(ctx, "decode message", "msg", msg)
-			var newLc *model_struct.LocalConversation
-			if v.SendID == c.loginUserID {
+			if v.SendID == c.loginUserID { //seq
+				// Messages sent by myself  //if  sent through  this terminal
 				m, err := c.db.GetMessage(ctx, conversationID, msg.ClientMsgID)
 				if err == nil {
-					log.ZDebug(ctx, "have message", "msg", msg)
+					log.ZInfo(ctx, "have message", "msg", msg)
 					if m.Seq == 0 {
 						if !isConversationUpdate {
 							msg.Status = constant.MsgStatusFiltered
@@ -273,7 +249,7 @@ func (c *Conversation) doMsgNew(c2v common.Cmd2Value) {
 						exceptionMsg = append(exceptionMsg, c.msgStructToLocalErrChatLog(msg))
 					}
 				} else {
-					log.ZDebug(ctx, "sync message", "msg", msg)
+					log.ZInfo(ctx, "sync message", "msg", msg)
 					lc := model_struct.LocalConversation{
 						ConversationType:  v.SessionType,
 						LatestMsg:         utils.StructToJsonString(msg),
@@ -282,10 +258,6 @@ func (c *Conversation) doMsgNew(c2v common.Cmd2Value) {
 					}
 					switch v.SessionType {
 					case constant.SingleChatType:
-						fallthrough
-					case constant.CustomerServiceChatType:
-						fallthrough
-					case constant.EncryptedChatType:
 						lc.UserID = v.RecvID
 					case constant.GroupChatType, constant.SuperGroupChatType:
 						lc.GroupID = v.GroupID
@@ -298,14 +270,11 @@ func (c *Conversation) doMsgNew(c2v common.Cmd2Value) {
 						newMessages = append(newMessages, msg)
 					}
 					if isHistory {
-						insertMessage = append(insertMessage, c.msgStructToLocalChatLog(msg))
+						selfInsertMessage = append(selfInsertMessage, c.msgStructToLocalChatLog(msg))
 					}
-					newLc = &lc
 				}
 			} else { //Sent by others
-				if _, err := c.db.GetMessage(ctx, conversationID, msg.ClientMsgID); err != nil {
-					//根据消息创建新的会话
-					//Deduplication operation
+				if _, err := c.db.GetMessage(ctx, conversationID, msg.ClientMsgID); err != nil { //Deduplication operation
 					lc := model_struct.LocalConversation{
 						ConversationType:  v.SessionType,
 						LatestMsg:         utils.StructToJsonString(msg),
@@ -314,16 +283,11 @@ func (c *Conversation) doMsgNew(c2v common.Cmd2Value) {
 					}
 					switch v.SessionType {
 					case constant.SingleChatType:
-						fallthrough
-					case constant.CustomerServiceChatType:
-						fallthrough
-					case constant.EncryptedChatType:
 						lc.UserID = v.SendID
 						lc.ShowName = msg.SenderNickname
 						lc.FaceURL = msg.SenderFaceURL
 					case constant.GroupChatType, constant.SuperGroupChatType:
 						lc.GroupID = v.GroupID
-						c.ProcessingGroupMessage(ctx, v, &lc)
 					case constant.NotificationChatType:
 						lc.UserID = v.SendID
 					}
@@ -340,36 +304,22 @@ func (c *Conversation) doMsgNew(c2v common.Cmd2Value) {
 						newMessages = append(newMessages, msg)
 					}
 					if isHistory {
-						insertMessage = append(insertMessage, c.msgStructToLocalChatLog(msg))
+						othersInsertMessage = append(othersInsertMessage, c.msgStructToLocalChatLog(msg))
 					}
-					switch msg.ContentType {
-					case constant.Typing:
-						newMessages = append(newMessages, msg)
-					default:
-					}
-					newLc = &lc
+
 				} else {
 					exceptionMsg = append(exceptionMsg, c.msgStructToLocalErrChatLog(msg))
 					log.ZWarn(ctx, "Deduplication operation ", nil, "msg", *c.msgStructToLocalErrChatLog(msg))
 					msg.Status = constant.MsgStatusFiltered
 					msg.ClientMsgID = msg.ClientMsgID + utils.Int64ToString(utils.GetCurrentTimestampByNano())
-					insertMessage = append(insertMessage, c.msgStructToLocalChatLog(msg))
+					othersInsertMessage = append(othersInsertMessage, c.msgStructToLocalChatLog(msg))
 				}
 			}
-			if newLc != nil {
-				//newConversationSet[newLc.ConversationID] = newLc
-				log.ZDebug(ctx, "InsertConversation", nil, "conversation", *newLc)
-			}
-			seqs = append(seqs, msg.Seq)
 		}
-		insertMsg[conversationID] = insertMessage
+		insertMsg[conversationID] = append(insertMessage, c.faceURLAndNicknameHandle(ctx, selfInsertMessage, othersInsertMessage, conversationID)...)
 		updateMsg[conversationID] = updateMessage
-		if err := common.TriggerCmdNewMsgToConversation(ctx, conversationID, seqs, c.recvCH); err != nil {
-			log.ZError(ctx, "TriggerCmdNewMsgToConversation", err, "conversationID", conversationID)
-		}
 	}
-
-	list, err := c.db.GetAllConversationListDB(ctx, true)
+	list, err := c.db.GetAllConversationListDB(ctx)
 	if err != nil {
 		log.ZError(ctx, "GetAllConversationListDB", err)
 	}
@@ -377,7 +327,7 @@ func (c *Conversation) doMsgNew(c2v common.Cmd2Value) {
 	listToMap(list, m)
 	log.ZDebug(ctx, "listToMap: ", "local conversation", list, "generated c map", conversationSet)
 	c.diff(ctx, m, conversationSet, conversationChangedSet, newConversationSet)
-	log.ZDebug(ctx, "trigger map is :", "newConversations", newConversationSet, "changedConversations", conversationChangedSet)
+	log.ZInfo(ctx, "trigger map is :", "newConversations", newConversationSet, "changedConversations", conversationChangedSet)
 
 	//seq sync message update
 	if err := c.messageController.BatchUpdateMessageList(ctx, updateMsg); err != nil {
@@ -398,6 +348,9 @@ func (c *Conversation) doMsgNew(c2v common.Cmd2Value) {
 			if nc.IsPrivateChat {
 				nc.BurnDuration = v.BurnDuration
 			}
+			if v.UnreadCount != 0 {
+				nc.UnreadCount = v.UnreadCount
+			}
 			nc.IsNotInGroup = v.IsNotInGroup
 			nc.AttachedInfo = v.AttachedInfo
 			nc.Ex = v.Ex
@@ -411,28 +364,20 @@ func (c *Conversation) doMsgNew(c2v common.Cmd2Value) {
 			phNewConversationSet[k] = v
 		}
 	}
-	//Changed conversation storage
-	updateCvn := append(mapConversationToList(conversationChangedSet), mapConversationToList(phConversationChangedSet)...)
-	if err := c.db.BatchUpdateConversationList(ctx, c.conversationSaveBefore(ctx, updateCvn)); err != nil {
+
+	if err := c.db.BatchUpdateConversationList(ctx, append(mapConversationToList(conversationChangedSet), mapConversationToList(phConversationChangedSet)...)); err != nil {
 		log.ZError(ctx, "insert changed conversation err :", err)
 	}
-
 	//New conversation storage
-	if err = c.db.BatchInsertConversationList(ctx, c.conversationSaveBefore(ctx, mapConversationToList(phNewConversationSet))); err != nil {
+
+	if err := c.db.BatchInsertConversationList(ctx, mapConversationToList(phNewConversationSet)); err != nil {
 		log.ZError(ctx, "insert new conversation err:", err)
 	}
-	// c.doMsgReadState(ctx, msgReadList)
-
-	// c.DoGroupMsgReadState(ctx, groupMsgReadList)
-	if c.batchMsgListener != nil {
+	if c.batchMsgListener() != nil {
 		c.batchNewMessages(ctx, newMessages)
 	} else {
-		c.newMessage(newMessages)
+		c.newMessage(ctx, newMessages, conversationChangedSet, newConversationSet, onlineMap)
 	}
-	// c.revokeMessage(ctx, newMsgRevokeList)
-	// c.doReactionMsgModifier(ctx, reactionMsgModifierList)
-	// c.doReactionMsgDeleter(ctx, reactionMsgDeleterList)
-	//log.Info(operationID, "trigger map is :", newConversationSet, conversationChangedSet)
 	if len(newConversationSet) > 0 {
 		c.doUpdateConversation(common.Cmd2Value{Value: common.UpdateConNode{Action: constant.NewConDirect, Args: utils.StructToJsonString(mapConversationToList(newConversationSet))}})
 	}
@@ -443,49 +388,17 @@ func (c *Conversation) doMsgNew(c2v common.Cmd2Value) {
 	if isTriggerUnReadCount {
 		c.doUpdateConversation(common.Cmd2Value{Value: common.UpdateConNode{Action: constant.TotalUnreadMessageChanged, Args: ""}})
 	}
+
+	for _, msgs := range allMsg {
+		for _, msg := range msgs.Msgs {
+			if msg.ContentType == constant.Typing {
+				c.typing.onNewMsg(ctx, msg)
+			}
+		}
+	}
 	log.ZDebug(ctx, "insert msg", "cost time", time.Since(b), "len", len(allMsg))
 }
 
-// 会话保存前操作
-func (c *Conversation) conversationSaveBefore(ctx context.Context, data []*model_struct.LocalConversation) []*model_struct.LocalConversation {
-	//处理会话头像为空的问题
-	newCvnData := make([]*model_struct.LocalConversation, len(data))
-	for i, v := range data {
-		//d := model_struct.LocalConversation{}
-		//err := copier.Copy(&d, v)
-		//if err != nil {
-		//	log.ZError(ctx, "addFaceURLAndNameBackgroundURL err :", err)
-		//}
-		if v.ShowName == "" {
-			err := c.addFaceURLAndNameBackgroundURL(ctx, v)
-			if err != nil {
-				log.ZError(ctx, "addFaceURLAndNameBackgroundURL err :", err)
-			}
-		}
-		newCvnData[i] = v
-	}
-	return newCvnData
-}
-
-// ProcessingGroupMessage 处理创建群的消息
-func (c *Conversation) ProcessingGroupMessage(ctx context.Context, v *sdkws.MsgData, lc *model_struct.LocalConversation) {
-	if v.ContentType == constant.GroupCreatedNotification {
-		content := v.Content
-		notificationElem := sdkws.NotificationElem{}
-		if err := json.Unmarshal(content, &notificationElem); err != nil {
-			log.ZDebug(ctx, "Unmarshal NotificationElem err", err)
-		}
-		tips := sdkws.GroupCreatedTips{}
-		if err := json.Unmarshal([]byte(notificationElem.Detail), &tips); err != nil {
-			log.ZDebug(ctx, "Unmarshal NotificationElem err", err)
-		}
-		lc.ShowName = tips.Group.GroupName
-		lc.FaceURL = tips.Group.FaceURL
-		//c.group.SyncJoinedGroup(ctx)
-		//c.group.SyncGroupMember(ctx, tips.Group.GroupID)
-	}
-	//log.ZInfo(ctx, fmt.Sprintf("新增群会话:%v", lc))
-}
 func listToMap(list []*model_struct.LocalConversation, m map[string]*model_struct.LocalConversation) {
 	for _, v := range list {
 		m[v.ConversationID] = v
@@ -501,6 +414,7 @@ func removeElementInList(a sdk_struct.NewMsgList, e *sdk_struct.MsgStruct) (b sd
 	return b
 }
 func (c *Conversation) diff(ctx context.Context, local, generated, cc, nc map[string]*model_struct.LocalConversation) {
+	var newConversations []*model_struct.LocalConversation
 	for _, v := range generated {
 		if localC, ok := local[v.ConversationID]; ok {
 
@@ -515,11 +429,16 @@ func (c *Conversation) diff(ctx context.Context, local, generated, cc, nc map[st
 			}
 
 		} else {
-			c.addFaceURLAndNameBackgroundURL(ctx, v)
+			newConversations = append(newConversations, v)
+		}
+	}
+	if err := c.batchAddFaceURLAndName(ctx, newConversations...); err != nil {
+		log.ZError(ctx, "batchAddFaceURLAndName err", err, "conversations", newConversations)
+	} else {
+		for _, v := range newConversations {
 			nc[v.ConversationID] = v
 		}
 	}
-
 }
 func (c *Conversation) genConversationGroupAtType(lc *model_struct.LocalConversation, s *sdk_struct.MsgStruct) {
 	if s.ContentType == constant.AtText {
@@ -735,33 +654,47 @@ func isContainRevokedList(target string, List []*sdk_struct.MessageRevoked) (boo
 	return false, nil
 }
 
-func (c *Conversation) newMessage(newMessagesList sdk_struct.NewMsgList) {
+func (c *Conversation) newMessage(ctx context.Context, newMessagesList sdk_struct.NewMsgList, cc, nc map[string]*model_struct.LocalConversation, onlineMsg map[onlineMsgKey]struct{}) {
 	sort.Sort(newMessagesList)
-	for _, w := range newMessagesList {
-		// log.Info("internal", "newMessage: ", w.ClientMsgID)
-		if c.msgListener != nil {
-			// log.Info("internal", "msgListener,OnRecvNewMessage")
-			c.msgListener.OnRecvNewMessage(utils.StructToJsonString(w))
-		} else {
-			// log.Error("internal", "set msgListener is err ")
+	if c.GetBackground() {
+		u, err := c.user.GetSelfUserInfo(ctx)
+		if err != nil {
+			log.ZWarn(ctx, "GetSelfUserInfo err", err)
+			return
 		}
-		if c.listenerForService != nil {
-			// log.Info("internal", "msgListener,OnRecvNewMessage")
-			c.listenerForService.OnRecvNewMessage(utils.StructToJsonString(w))
+		if u.GlobalRecvMsgOpt != constant.ReceiveMessage {
+			return
+		}
+		for _, w := range newMessagesList {
+			conversationID := utils.GetConversationIDByMsg(w)
+			if v, ok := cc[conversationID]; ok && v.RecvMsgOpt == constant.ReceiveMessage {
+				c.msgListener().OnRecvOfflineNewMessage(utils.StructToJsonString(w))
+			}
+			if v, ok := nc[conversationID]; ok && v.RecvMsgOpt == constant.ReceiveMessage {
+				c.msgListener().OnRecvOfflineNewMessage(utils.StructToJsonString(w))
+			}
+		}
+	} else {
+		for _, w := range newMessagesList {
+			if w.ContentType == constant.Typing {
+				continue
+			}
+			if _, ok := onlineMsg[onlineMsgKey{ClientMsgID: w.ClientMsgID, ServerMsgID: w.ServerMsgID}]; ok {
+				c.msgListener().OnRecvOnlineOnlyMessage(utils.StructToJsonString(w))
+			} else {
+				c.msgListener().OnRecvNewMessage(utils.StructToJsonString(w))
+			}
 		}
 	}
 }
+
 func (c *Conversation) batchNewMessages(ctx context.Context, newMessagesList sdk_struct.NewMsgList) {
 	sort.Sort(newMessagesList)
-	if c.batchMsgListener != nil {
-		if len(newMessagesList) > 0 {
-			c.batchMsgListener.OnRecvNewMessages(utils.StructToJsonString(newMessagesList))
-			//if c.IsBackground {
-			//	c.batchMsgListener.OnRecvOfflineNewMessages(utils.StructToJsonString(newMessagesList))
-			//}
-		}
-	} else {
-		log.ZWarn(ctx, "not set batchMsgListener", nil)
+	if len(newMessagesList) > 0 {
+		c.batchMsgListener().OnRecvNewMessages(utils.StructToJsonString(newMessagesList))
+		//if c.IsBackground {
+		//	c.batchMsgListener.OnRecvOfflineNewMessages(utils.StructToJsonString(newMessagesList))
+		//}
 	}
 
 }
@@ -780,6 +713,22 @@ func (c *Conversation) doMsgReadState(ctx context.Context, msgReadList []*sdk_st
 		}
 		var msgIdListStatusOK []string
 		for _, v := range msgIdList {
+			//m, err := c.db.GetMessage(ctx, v)
+			//if err != nil {
+			//	log.Error("internal", "GetMessage err:", err, "ClientMsgID", v)
+			//	continue
+			//}
+			//attachInfo := sdk_struct.AttachedInfoElem{}
+			//_ = utils.JsonStringToStruct(m.AttachedInfo, &attachInfo)
+			//attachInfo.HasReadTime = rd.SendTime
+			//m.AttachedInfo = utils.StructToJsonString(attachInfo)
+			//m.IsRead = true
+			//err = c.db.UpdateMessage(ctx, m)
+			//if err != nil {
+			//	log.Error("internal", "setMessageHasReadByMsgID err:", err, "ClientMsgID", v)
+			//	continue
+			//}
+
 			msgIdListStatusOK = append(msgIdListStatusOK, v)
 		}
 		if len(msgIdListStatusOK) > 0 {
@@ -807,7 +756,7 @@ func (c *Conversation) doMsgReadState(ctx context.Context, msgReadList []*sdk_st
 	if len(messageReceiptResp) > 0 {
 
 		// log.Info("internal", "OnRecvC2CReadReceipt: ", utils.StructToJsonString(messageReceiptResp))
-		c.msgListener.OnRecvC2CReadReceipt(utils.StructToJsonString(messageReceiptResp))
+		c.msgListener().OnRecvC2CReadReceipt(utils.StructToJsonString(messageReceiptResp))
 	}
 }
 
@@ -854,6 +803,7 @@ func (c *Conversation) msgHandleByContentType(msg *sdk_struct.MsgStruct) (err er
 	case constant.AdvancedText:
 		t := sdk_struct.AdvancedTextElem{}
 		err = utils.JsonStringToStruct(msg.Content, &t)
+		msg.AdvancedTextElem = &t
 	case constant.AtText:
 		t := sdk_struct.AtTextElem{}
 		err = utils.JsonStringToStruct(msg.Content, &t)
@@ -895,21 +845,15 @@ func (c *Conversation) msgHandleByContentType(msg *sdk_struct.MsgStruct) (err er
 		t := sdk_struct.CardElem{}
 		err = utils.JsonStringToStruct(msg.Content, &t)
 		msg.CardElem = &t
-	case constant.RedMsg:
-		t := sdk_struct.RedPacketElem{}
-		err = json.Unmarshal([]byte(msg.Content), &t)
-		msg.RedPacketElem = &t
 	default:
 		t := sdk_struct.NotificationElem{}
 		err = utils.JsonStringToStruct(msg.Content, &t)
 		msg.NotificationElem = &t
 	}
-	//msg.Content = ""
+	msg.Content = ""
 
 	return utils.Wrap(err, "")
 }
-
-// 更新会话
 func (c *Conversation) updateConversation(lc *model_struct.LocalConversation, cs map[string]*model_struct.LocalConversation) {
 	if oldC, ok := cs[lc.ConversationID]; !ok {
 		cs[lc.ConversationID] = lc
@@ -924,6 +868,47 @@ func (c *Conversation) updateConversation(lc *model_struct.LocalConversation, cs
 			cs[lc.ConversationID] = oldC
 		}
 	}
+	//if oldC, ok := cc[lc.ConversationID]; !ok {
+	//	oc, err := c.db.GetConversation(lc.ConversationID)
+	//	if err == nil && oc.ConversationID != "" {//如果会话已经存在
+	//		if lc.LatestMsgSendTime > oc.LatestMsgSendTime {
+	//			oc.UnreadCount = oc.UnreadCount + lc.UnreadCount
+	//			oc.LatestMsg = lc.LatestMsg
+	//			oc.LatestMsgSendTime = lc.LatestMsgSendTime
+	//			cc[lc.ConversationID] = *oc
+	//		} else {
+	//			oc.UnreadCount = oc.UnreadCount + lc.UnreadCount
+	//			cc[lc.ConversationID] = *oc
+	//		}
+	//	} else {
+	//		if oldC, ok := nc[lc.ConversationID]; !ok {
+	//			c.addFaceURLAndName(lc)
+	//			nc[lc.ConversationID] = *lc
+	//		} else {
+	//			if lc.LatestMsgSendTime > oldC.LatestMsgSendTime {
+	//				oldC.UnreadCount = oldC.UnreadCount + lc.UnreadCount
+	//				oldC.LatestMsg = lc.LatestMsg
+	//				oldC.LatestMsgSendTime = lc.LatestMsgSendTime
+	//				nc[lc.ConversationID] = oldC
+	//			} else {
+	//				oldC.UnreadCount = oldC.UnreadCount + lc.UnreadCount
+	//				nc[lc.ConversationID] = oldC
+	//			}
+	//		}
+	//	}
+	//} else {
+	//	if lc.LatestMsgSendTime > oldC.LatestMsgSendTime {
+	//		oldC.UnreadCount = oldC.UnreadCount + lc.UnreadCount
+	//		oldC.LatestMsg = lc.LatestMsg
+	//		oldC.LatestMsgSendTime = lc.LatestMsgSendTime
+	//		cc[lc.ConversationID] = oldC
+	//	} else {
+	//		oldC.UnreadCount = oldC.UnreadCount + lc.UnreadCount
+	//		cc[lc.ConversationID] = oldC
+	//	}
+	//
+	//}
+
 }
 func mapConversationToList(m map[string]*model_struct.LocalConversation) (cs []*model_struct.LocalConversation) {
 	for _, v := range m {
@@ -931,72 +916,149 @@ func mapConversationToList(m map[string]*model_struct.LocalConversation) (cs []*
 	}
 	return cs
 }
-
-// addFaceURLAndNameBackgroundURL 添加头像昵称和聊天背景
-func (c *Conversation) addFaceURLAndNameBackgroundURL(ctx context.Context, lc *model_struct.LocalConversation) error {
+func (c *Conversation) addFaceURLAndName(ctx context.Context, lc *model_struct.LocalConversation) error {
 	switch lc.ConversationType {
-	case constant.SingleChatType, constant.NotificationChatType, constant.CustomerServiceChatType, constant.EncryptedChatType:
-		faceUrl, name, backgroundURL, err := c.cache.GetUserNameFaceURLAndBackgroundUrl(ctx, lc.UserID)
+	case constant.SingleChatType, constant.NotificationChatType:
+		faceUrl, name, err := c.getUserNameAndFaceURL(ctx, lc.UserID)
 		if err != nil {
 			return err
 		}
 		lc.FaceURL = faceUrl
 		lc.ShowName = name
-		lc.BackgroundURL = backgroundURL
+
 	case constant.GroupChatType, constant.SuperGroupChatType:
-		g, gm, err := c.full.GetGroupInfoAndSelfGroupMemberInfoFromLocal2Svr(ctx, lc.GroupID, lc.ConversationType)
+		g, err := c.full.GetGroupInfoFromLocal2Svr(ctx, lc.GroupID, lc.ConversationType)
 		if err != nil {
 			return err
 		}
 		lc.ShowName = g.GroupName
 		lc.FaceURL = g.FaceURL
-		if gm != nil {
-			lc.BackgroundURL = gm.BackgroundURL
-		}
 	}
 	return nil
 }
 
-// IsGroupConversation 是否是群会话
-func (c *Conversation) IsGroupConversation(lc *model_struct.LocalConversation) bool {
-	return lc.ConversationType == constant.GroupChatType || lc.ConversationType == constant.SuperGroupChatType
+func (c *Conversation) batchAddFaceURLAndName(ctx context.Context, conversations ...*model_struct.LocalConversation) error {
+	if len(conversations) == 0 {
+		return nil
+	}
+	var userIDs, groupIDs []string
+	for _, conversation := range conversations {
+		if conversation.ConversationType == constant.SingleChatType ||
+			conversation.ConversationType == constant.NotificationChatType {
+			userIDs = append(userIDs, conversation.UserID)
+		} else if conversation.ConversationType == constant.SuperGroupChatType {
+			groupIDs = append(groupIDs, conversation.GroupID)
+		}
+	}
+	users, err := c.batchGetUserNameAndFaceURL(ctx, userIDs...)
+	if err != nil {
+		return err
+	}
+	groups, err := c.full.GetGroupsInfo(ctx, groupIDs...)
+	if err != nil {
+		return err
+	}
+	for _, conversation := range conversations {
+		if conversation.ConversationType == constant.SingleChatType ||
+			conversation.ConversationType == constant.NotificationChatType {
+			if v, ok := users[conversation.UserID]; ok {
+				conversation.FaceURL = v.FaceURL
+				conversation.ShowName = v.Nickname
+			} else {
+				log.ZWarn(ctx, "user info not found", errors.New("user not found"),
+					"userID", conversation.UserID)
+			}
+		} else if conversation.ConversationType == constant.SuperGroupChatType {
+			if v, ok := groups[conversation.GroupID]; ok {
+				conversation.FaceURL = v.FaceURL
+				conversation.ShowName = v.GroupName
+			} else {
+				log.ZWarn(ctx, "group info not found", errors.New("group not found"),
+					"groupID", conversation.GroupID)
+			}
+
+		}
+	}
+	return nil
+}
+func (c *Conversation) batchGetUserNameAndFaceURL(ctx context.Context, userIDs ...string) (map[string]*user.BasicInfo,
+	error) {
+	m := make(map[string]*user.BasicInfo)
+	var notCachedUserIDs []string
+	var notInFriend []string
+
+	friendList, err := c.friend.Db().GetFriendInfoList(ctx, userIDs)
+	if err != nil {
+		log.ZWarn(ctx, "BatchGetUserNameAndFaceURL", err, "userIDs", userIDs)
+		notInFriend = userIDs
+	} else {
+		notInFriend = utils2.SliceSub(userIDs, utils2.Slice(friendList, func(e *model_struct.LocalFriend) string {
+			return e.FriendUserID
+		}))
+	}
+	for _, localFriend := range friendList {
+		userInfo := &user.BasicInfo{FaceURL: localFriend.FaceURL}
+		if localFriend.Remark != "" {
+			userInfo.Nickname = localFriend.Remark
+		} else {
+			userInfo.Nickname = localFriend.Nickname
+		}
+		m[localFriend.FriendUserID] = userInfo
+	}
+
+	for _, userID := range notInFriend {
+		if value, ok := c.user.UserBasicCache.Load(userID); ok {
+			m[userID] = value
+		} else {
+			notCachedUserIDs = append(notCachedUserIDs, userID)
+		}
+	}
+
+	if len(notCachedUserIDs) > 0 {
+		users, err := c.user.GetServerUserInfo(ctx, notCachedUserIDs)
+		if err != nil {
+			return nil, err
+		}
+		for _, u := range users {
+			userInfo := &user.BasicInfo{FaceURL: u.FaceURL, Nickname: u.Nickname}
+			m[u.UserID] = userInfo
+			c.user.UserBasicCache.Store(u.UserID, userInfo)
+		}
+	}
+	return m, nil
+}
+func (c *Conversation) getUserNameAndFaceURL(ctx context.Context, userID string) (faceURL, name string, err error) {
+	//find in cache
+	if value, ok := c.user.UserBasicCache.Load(userID); ok {
+		return value.FaceURL, value.Nickname, nil
+	}
+	//get from local db
+	friendInfo, err := c.friend.Db().GetFriendInfoByFriendUserID(ctx, userID)
+	if err == nil {
+		faceURL = friendInfo.FaceURL
+		if friendInfo.Remark != "" {
+			name = friendInfo.Remark
+		} else {
+			name = friendInfo.Nickname
+		}
+		return faceURL, name, nil
+	}
+	//get from server db
+	users, err := c.user.GetServerUserInfo(ctx, []string{userID})
+	if err != nil {
+		return "", "", err
+	}
+	if len(users) == 0 {
+		return "", "", sdkerrs.ErrUserIDNotFound.Wrap(userID)
+	}
+	c.user.UserBasicCache.Store(userID, &user.BasicInfo{FaceURL: users[0].FaceURL, Nickname: users[0].Nickname})
+	return users[0].FaceURL, users[0].Nickname, nil
 }
 
-// CompleteTheMessage 根据会话和当前的sql补齐历史消息防止漏消息
-func (c *Conversation) CompleteTheMessage(ctx context.Context, conversationId string, nowSeq int64, missingSeq ...int64) {
-	historySeq := make([]int64, 0)
-	for i := 0; i < 50 && nowSeq > 0; i++ {
-		nowSeq -= 1
-		if nowSeq > 0 {
-			historySeq = append(historySeq, nowSeq)
-		}
-	}
-	needSysncSeq := make([]int64, 0)
-	if len(historySeq) > 0 {
-		messages, err := c.db.GetMessagesBySeqs(ctx, conversationId, historySeq)
-		if err != nil {
-			log.ZDebug(ctx, "CompleteTheMessage GetMessagesBySeqs error", err, "conversationId", conversationId, "historySeq", historySeq)
-			needSysncSeq = historySeq
-		} else {
-			historyMsgSeqs := make([]int64, 0)
-			for _, message := range messages {
-				historyMsgSeqs = append(historyMsgSeqs, message.Seq)
-			}
-			//获取需要同步的不在本地数据库的消息
-			needSysncSeq = utils.DifferenceSubset(historySeq, historyMsgSeqs)
-		}
-		if len(missingSeq) > 0 {
-			needSysncSeq = append(needSysncSeq, missingSeq...)
-		}
-	} else if len(missingSeq) > 0 {
-		needSysncSeq = missingSeq
-	}
-	//是否需要同步
-	if len(needSysncSeq) > 0 {
-		sort.Slice(needSysncSeq, func(i, j int) bool { return needSysncSeq[i] < needSysncSeq[j] })
-		//发送同步通知
-		if err := common.TriggerCmdSysncMsgSeq(ctx, conversationId, needSysncSeq, c.msgSyncCh); err != nil {
-			log.ZError(ctx, "CompleteTheMessage TriggerCmdSysncMsgSeq error", err, "conversationId", conversationId, "missingSeq", missingSeq)
-		}
-	}
+func (c *Conversation) GetInputStates(ctx context.Context, conversationID string, userID string) ([]int32, error) {
+	return c.typing.GetInputStates(conversationID, userID), nil
+}
+
+func (c *Conversation) ChangeInputStates(ctx context.Context, conversationID string, focus bool) error {
+	return c.typing.ChangeInputStates(ctx, conversationID, focus)
 }

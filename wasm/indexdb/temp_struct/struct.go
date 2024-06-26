@@ -32,7 +32,7 @@ type LocalChatLog struct {
 	Status               int32  ` json:"status,omitempty"`
 	Seq                  int64  ` json:"seq,omitempty"`
 	SendTime             int64  ` json:"sendTime,omitempty"`
-	CreateAt             int64  ` json:"createAt,omitempty"`
+	CreateTime           int64  ` json:"createTime,omitempty"`
 	AttachedInfo         string ` json:"attachedInfo,omitempty"`
 	Ex                   string ` json:"ex,omitempty"`
 	IsReact              bool   ` json:"isReact,omitempty"`
@@ -79,7 +79,7 @@ type LocalSuperGroup struct {
 	Notification           string `json:"notification,omitempty"`
 	Introduction           string `json:"introduction,omitempty"`
 	FaceURL                string `json:"faceURL,omitempty"`
-	CreateAt               uint32 `json:"createAt,omitempty"`
+	CreateTime             uint32 `json:"createTime,omitempty"`
 	Status                 int32  `json:"status,omitempty"`
 	CreatorUserID          string `json:"creatorUserID,omitempty"`
 	GroupType              int32  `json:"groupType,omitempty"`
@@ -100,7 +100,7 @@ type LocalGroup struct {
 	Notification           string `json:"notification,omitempty"`
 	Introduction           string `json:"introduction,omitempty"`
 	FaceURL                string `json:"faceURL,omitempty"`
-	CreateAt               uint32 `json:"createAt,omitempty"`
+	CreateTime             uint32 `json:"createTime,omitempty"`
 	Status                 int32  `json:"status,omitempty"`
 	CreatorUserID          string `json:"creatorUserID,omitempty"`
 	GroupType              int32  `json:"groupType,omitempty"`
@@ -124,7 +124,7 @@ type LocalFriendRequest struct {
 	ToFaceURL     string `json:"toFaceURL,omitempty"`
 	HandleResult  int32  `json:"handleResult,omitempty"`
 	ReqMsg        string `json:"reqMsg,omitempty"`
-	CreateAt      int64  `json:"createAt,omitempty"`
+	CreateTime    int64  `json:"createTime,omitempty"`
 	HandlerUserID string `json:"handlerUserID,omitempty"`
 	HandleMsg     string `json:"handleMsg,omitempty"`
 	HandleTime    int64  `json:"handleTime,omitempty"`
@@ -134,10 +134,10 @@ type LocalFriendRequest struct {
 
 type LocalBlack struct {
 	OwnerUserID    string `json:"ownerUserID,omitempty"`
-	BlackUserID    string `json:"blackUserID,omitempty"`
+	BlockUserID    string `json:"blockUserID,omitempty"`
 	Nickname       string `json:"nickname,omitempty"`
 	FaceURL        string `json:"faceURL,omitempty"`
-	CreateAt       int64  `json:"createAt,omitempty"`
+	CreateTime     int64  `json:"createTime,omitempty"`
 	AddSource      int32  `json:"addSource,omitempty"`
 	OperatorUserID string `json:"operatorUserID,omitempty"`
 	Ex             string `json:"ex,omitempty"`
@@ -148,31 +148,31 @@ type LocalFriend struct {
 	OwnerUserID    string `json:"ownerUserID,omitempty"`
 	FriendUserID   string `json:"friendUserID,omitempty"`
 	Remark         string `json:"remark,omitempty"`
-	CreateAt       int64  `json:"createAt,omitempty"`
+	CreateTime     int64  `json:"createTime,omitempty"`
 	AddSource      int32  `json:"addSource,omitempty"`
 	OperatorUserID string `json:"operatorUserID,omitempty"`
 	Nickname       string `json:"nickname,omitempty"`
 	FaceURL        string `json:"faceURL,omitempty"`
 	Ex             string `json:"ex,omitempty"`
 	AttachedInfo   string `json:"attachedInfo,omitempty"`
+	IsPinned       bool   `json:"isPinned,omitempty"`
 }
 
 type LocalUser struct {
 	UserID           string `json:"userID,omitempty"`
 	Nickname         string `json:"nickname,omitempty"`
 	FaceURL          string `json:"faceURL,omitempty"`
-	CreateAt         int64  `json:"createAt,omitempty"`
+	CreateTime       int64  `json:"createTime,omitempty"`
 	AppMangerLevel   int32  `json:"-"`
 	Ex               string `json:"ex,omitempty"`
 	AttachedInfo     string `json:"attachedInfo,omitempty"`
 	GlobalRecvMsgOpt int32  `json:"globalRecvMsgOpt,omitempty"`
-	Message          string `json:"message"`
-	Code             string `json:"code"`
-	Phone            string `json:"phone"`
-	Email            string `json:"email"`
-	Birth            int64  `json:"birth"`
-	Gender           int32  `json:"gender"`
-	ShareCode        string `json:"shareCode"`
-	LastLogin        int64  `json:"lastLogin"`
-	Options          string `json:"options"`
+}
+
+type LocalUserCommand struct {
+	UserID     string `json:"userID,omitempty"`
+	Type       int32  `json:"type,omitempty"`
+	CreateTime int64  `json:"createTime,omitempty"`
+	Uuid       string `json:"uuid,omitempty"`
+	Value      string `json:"value,omitempty"`
 }

@@ -26,8 +26,8 @@ import (
 	"time"
 
 	"github.com/OpenIMSDK/protocol/constant"
-	"github.com/openimsdk/openim-sdk-core/open_im_sdk"
-	"github.com/openimsdk/openim-sdk-core/pkg/ccontext"
+	"github.com/brian-god/imcloud_sdk/open_im_sdk"
+	"github.com/brian-god/imcloud_sdk/pkg/ccontext"
 
 	"github.com/OpenIMSDK/tools/log"
 )

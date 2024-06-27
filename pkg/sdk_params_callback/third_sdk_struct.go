@@ -15,7 +15,7 @@
 package sdk_params_callback
 
 import (
-	"github.com/openimsdk/openim-sdk-core/pkg/constant"
+	"github.com/brian-god/imcloud_sdk/pkg/constant"
 )
 
 const UpdateFcmTokenCallback = constant.SuccessCallbackDefault

@@ -15,8 +15,8 @@
 package open_im_sdk
 
 import (
-	"github.com/openimsdk/openim-sdk-core/internal/third"
-	"github.com/openimsdk/openim-sdk-core/open_im_sdk_callback"
+	"github.com/brian-god/imcloud_sdk/internal/third"
+	"github.com/brian-god/imcloud_sdk/open_im_sdk_callback"
 )
 
 func UpdateFcmToken(callback open_im_sdk_callback.Base, operationID, fcmToken string, expireTime int64) {

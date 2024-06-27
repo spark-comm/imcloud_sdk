@@ -21,11 +21,11 @@ import (
 	"reflect"
 	"time"
 
+	"github.com/brian-god/imcloud_sdk/pkg/ccontext"
+	"github.com/brian-god/imcloud_sdk/pkg/network"
+	"github.com/brian-god/imcloud_sdk/pkg/sdkerrs"
 	"github.com/golang/protobuf/proto"
 	v2 "github.com/miliao_apis/api/common/net/v2"
-	"github.com/openimsdk/openim-sdk-core/pkg/ccontext"
-	"github.com/openimsdk/openim-sdk-core/pkg/network"
-	"github.com/openimsdk/openim-sdk-core/pkg/sdkerrs"
 	"golang.org/x/net/context"
 )
 

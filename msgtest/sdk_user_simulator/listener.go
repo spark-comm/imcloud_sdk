@@ -1,9 +1,9 @@
 package sdk_user_simulator
 
 import (
-	"github.com/openimsdk/openim-sdk-core/pkg/constant"
-	"github.com/openimsdk/openim-sdk-core/pkg/utils"
-	"github.com/openimsdk/openim-sdk-core/sdk_struct"
+	"github.com/brian-god/imcloud_sdk/pkg/constant"
+	"github.com/brian-god/imcloud_sdk/pkg/utils"
+	"github.com/brian-god/imcloud_sdk/sdk_struct"
 )
 
 type conversationCallBack struct {

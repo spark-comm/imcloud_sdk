@@ -18,13 +18,13 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/openimsdk/openim-sdk-core/internal/friend"
-	"github.com/openimsdk/openim-sdk-core/internal/group"
-	"github.com/openimsdk/openim-sdk-core/internal/user"
-	"github.com/openimsdk/openim-sdk-core/pkg/common"
-	"github.com/openimsdk/openim-sdk-core/pkg/constant"
-	"github.com/openimsdk/openim-sdk-core/pkg/db/db_interface"
-	"github.com/openimsdk/openim-sdk-core/pkg/db/model_struct"
+	"github.com/brian-god/imcloud_sdk/internal/friend"
+	"github.com/brian-god/imcloud_sdk/internal/group"
+	"github.com/brian-god/imcloud_sdk/internal/user"
+	"github.com/brian-god/imcloud_sdk/pkg/common"
+	"github.com/brian-god/imcloud_sdk/pkg/constant"
+	"github.com/brian-god/imcloud_sdk/pkg/db/db_interface"
+	"github.com/brian-god/imcloud_sdk/pkg/db/model_struct"
 )
 
 type Full struct {

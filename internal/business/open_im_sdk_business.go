@@ -15,7 +15,7 @@
 package business
 
 import (
-	"github.com/openimsdk/openim-sdk-core/open_im_sdk_callback"
+	"github.com/brian-god/imcloud_sdk/open_im_sdk_callback"
 )
 
 func (w *Business) SetListener(listener func() open_im_sdk_callback.OnCustomBusinessListener) {

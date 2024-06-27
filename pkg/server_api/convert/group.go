@@ -1,9 +1,9 @@
 package convert
 
 import (
+	"github.com/brian-god/imcloud_sdk/pkg/db/model_struct"
+	"github.com/brian-god/imcloud_sdk/pkg/utils"
 	groupmodel "github.com/miliao_apis/api/common/model/group/v2"
-	"github.com/openimsdk/openim-sdk-core/pkg/db/model_struct"
-	"github.com/openimsdk/openim-sdk-core/pkg/utils"
 )
 
 const (

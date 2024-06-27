@@ -27,7 +27,7 @@ import (
 	"time"
 
 	"github.com/OpenIMSDK/tools/log"
-	"github.com/openimsdk/openim-sdk-core/pkg/utils"
+	"github.com/brian-god/imcloud_sdk/pkg/utils"
 )
 
 func GetFileContentAsStringLines(filePath string) ([]string, error) {

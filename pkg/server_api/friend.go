@@ -2,15 +2,15 @@ package server_api
 
 import (
 	"github.com/OpenIMSDK/tools/log"
+	"github.com/brian-god/imcloud_sdk/internal/util"
+	"github.com/brian-god/imcloud_sdk/pkg/constant"
+	"github.com/brian-god/imcloud_sdk/pkg/db/model_struct"
+	"github.com/brian-god/imcloud_sdk/pkg/sdkerrs"
+	"github.com/brian-god/imcloud_sdk/pkg/server_api/convert"
 	"github.com/golang/protobuf/ptypes/empty"
 	friendmodel "github.com/miliao_apis/api/common/model/friend/v2"
 	netmodel "github.com/miliao_apis/api/common/net/v2"
 	friendPb "github.com/miliao_apis/api/im_cloud/friend/v2"
-	"github.com/openimsdk/openim-sdk-core/internal/util"
-	"github.com/openimsdk/openim-sdk-core/pkg/constant"
-	"github.com/openimsdk/openim-sdk-core/pkg/db/model_struct"
-	"github.com/openimsdk/openim-sdk-core/pkg/sdkerrs"
-	"github.com/openimsdk/openim-sdk-core/pkg/server_api/convert"
 	"golang.org/x/net/context"
 )
 

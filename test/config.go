@@ -17,7 +17,7 @@ package test
 import (
 	"sync"
 
-	"github.com/openimsdk/openim-sdk-core/pkg/constant"
+	"github.com/brian-god/imcloud_sdk/pkg/constant"
 )
 
 var LogLevel uint32 = 5

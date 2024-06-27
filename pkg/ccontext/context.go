@@ -17,8 +17,8 @@ package ccontext
 import (
 	"context"
 
-	"github.com/openimsdk/openim-sdk-core/open_im_sdk_callback"
-	"github.com/openimsdk/openim-sdk-core/sdk_struct"
+	"github.com/brian-god/imcloud_sdk/open_im_sdk_callback"
+	"github.com/brian-god/imcloud_sdk/sdk_struct"
 
 	"github.com/OpenIMSDK/tools/mcontext"
 )

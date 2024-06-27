@@ -17,8 +17,8 @@ package db_interface
 import (
 	"context"
 
-	"github.com/openimsdk/openim-sdk-core/pkg/db/model_struct"
-	"github.com/openimsdk/openim-sdk-core/sdk_struct"
+	"github.com/brian-god/imcloud_sdk/pkg/db/model_struct"
+	"github.com/brian-god/imcloud_sdk/sdk_struct"
 )
 
 type GroupModel interface {

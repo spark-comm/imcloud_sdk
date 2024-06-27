@@ -17,7 +17,7 @@ package testv2
 import (
 	"testing"
 
-	"github.com/openimsdk/openim-sdk-core/open_im_sdk"
+	"github.com/brian-god/imcloud_sdk/open_im_sdk"
 )
 
 //func Test_SyncJoinGroup(t *testing.T) {

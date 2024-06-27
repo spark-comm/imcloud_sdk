@@ -18,7 +18,7 @@ import (
 	"bytes"
 	"encoding/gob"
 
-	"github.com/openimsdk/openim-sdk-core/pkg/utils"
+	"github.com/brian-god/imcloud_sdk/pkg/utils"
 )
 
 type Encoder interface {

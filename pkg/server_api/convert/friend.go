@@ -1,9 +1,9 @@
 package convert
 
 import (
+	"github.com/brian-god/imcloud_sdk/pkg/db/model_struct"
+	"github.com/brian-god/imcloud_sdk/pkg/utils"
 	friendmodel "github.com/miliao_apis/api/common/model/friend/v2"
-	"github.com/openimsdk/openim-sdk-core/pkg/db/model_struct"
-	"github.com/openimsdk/openim-sdk-core/pkg/utils"
 )
 
 // ServerFriendRequestToLocalFriendRequest 服务器好友请求转换为本地好友请求

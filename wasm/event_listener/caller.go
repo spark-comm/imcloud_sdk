@@ -27,8 +27,8 @@ import (
 	"syscall/js"
 
 	"github.com/OpenIMSDK/tools/log"
-	"github.com/openimsdk/openim-sdk-core/pkg/utils"
-	"github.com/openimsdk/openim-sdk-core/wasm/exec"
+	"github.com/brian-god/imcloud_sdk/pkg/utils"
+	"github.com/brian-god/imcloud_sdk/wasm/exec"
 )
 
 type Caller interface {

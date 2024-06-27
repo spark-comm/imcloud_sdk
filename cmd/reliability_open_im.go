@@ -19,7 +19,7 @@ import (
 	"flag"
 
 	"github.com/OpenIMSDK/tools/log"
-	"github.com/openimsdk/openim-sdk-core/test"
+	"github.com/brian-god/imcloud_sdk/test"
 )
 
 func main() {

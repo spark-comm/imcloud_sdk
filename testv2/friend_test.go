@@ -19,8 +19,8 @@ import (
 	"time"
 
 	"github.com/OpenIMSDK/protocol/wrapperspb"
-	"github.com/openimsdk/openim-sdk-core/open_im_sdk"
-	"github.com/openimsdk/openim-sdk-core/pkg/sdk_params_callback"
+	"github.com/brian-god/imcloud_sdk/open_im_sdk"
+	"github.com/brian-god/imcloud_sdk/pkg/sdk_params_callback"
 
 	friendPb "github.com/miliao_apis/api/im_cloud/friend/v2"
 )

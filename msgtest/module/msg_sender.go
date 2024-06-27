@@ -4,15 +4,15 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/openimsdk/openim-sdk-core/internal/interaction"
-	"github.com/openimsdk/openim-sdk-core/pkg/ccontext"
+	"github.com/brian-god/imcloud_sdk/internal/interaction"
+	"github.com/brian-god/imcloud_sdk/pkg/ccontext"
 
 	"time"
 
-	"github.com/openimsdk/openim-sdk-core/pkg/common"
-	"github.com/openimsdk/openim-sdk-core/pkg/constant"
-	"github.com/openimsdk/openim-sdk-core/pkg/utils"
-	"github.com/openimsdk/openim-sdk-core/sdk_struct"
+	"github.com/brian-god/imcloud_sdk/pkg/common"
+	"github.com/brian-god/imcloud_sdk/pkg/constant"
+	"github.com/brian-god/imcloud_sdk/pkg/utils"
+	"github.com/brian-god/imcloud_sdk/sdk_struct"
 
 	"github.com/OpenIMSDK/protocol/sdkws"
 	"github.com/OpenIMSDK/tools/log"

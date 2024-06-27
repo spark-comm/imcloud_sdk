@@ -4,11 +4,11 @@ import (
 	pbConversation "github.com/OpenIMSDK/protocol/conversation"
 	"github.com/OpenIMSDK/protocol/msg"
 	"github.com/OpenIMSDK/tools/log"
+	"github.com/brian-god/imcloud_sdk/internal/util"
+	"github.com/brian-god/imcloud_sdk/pkg/constant"
+	"github.com/brian-god/imcloud_sdk/pkg/db/model_struct"
+	"github.com/brian-god/imcloud_sdk/pkg/server_api/convert"
 	"github.com/golang/protobuf/ptypes/empty"
-	"github.com/openimsdk/openim-sdk-core/internal/util"
-	"github.com/openimsdk/openim-sdk-core/pkg/constant"
-	"github.com/openimsdk/openim-sdk-core/pkg/db/model_struct"
-	"github.com/openimsdk/openim-sdk-core/pkg/server_api/convert"
 	"golang.org/x/net/context"
 )
 

@@ -14,7 +14,7 @@
 
 package open_im_sdk
 
-import "github.com/openimsdk/openim-sdk-core/open_im_sdk_callback"
+import "github.com/brian-god/imcloud_sdk/open_im_sdk_callback"
 
 func GetSpecifiedFriendsInfo(callback open_im_sdk_callback.Base, operationID string, userIDList string) {
 	call(callback, operationID, UserForSDK.Friend().GetSpecifiedFriendsInfo, userIDList)

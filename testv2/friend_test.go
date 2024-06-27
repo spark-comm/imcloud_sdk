@@ -21,7 +21,7 @@ import (
 	"testing"
 	"time"
 
-	friend2 "github.com/OpenIMSDK/protocol/friend"
+	friendPb "github.com/miliao_apis/api/im_cloud/friend/v2"
 )
 
 func Test_GetSpecifiedFriendsInfo(t *testing.T) {
@@ -36,10 +36,9 @@ func Test_GetSpecifiedFriendsInfo(t *testing.T) {
 }
 
 func Test_AddFriend(t *testing.T) {
-	err := open_im_sdk.UserForSDK.Friend().AddFriend(ctx, &friend2.ApplyToAddFriendReq{
+	err := open_im_sdk.UserForSDK.Friend().AddFriend(ctx, &friendPb.AddFriendReq{
 		ToUserID: "2",
 		ReqMsg:   "test add",
-		Ex:       "add",
 	})
 	if err != nil {
 		t.Fatal(err)

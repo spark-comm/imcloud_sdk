@@ -16,15 +16,14 @@ package conversation_msg
 
 import (
 	"context"
-	"github.com/openimsdk/openim-sdk-core/v3/internal/util"
 	"github.com/openimsdk/openim-sdk-core/v3/pkg/common"
 	"github.com/openimsdk/openim-sdk-core/v3/pkg/constant"
 	"github.com/openimsdk/openim-sdk-core/v3/pkg/sdkerrs"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/server_api"
 
 	"github.com/openimsdk/openim-sdk-core/v3/pkg/utils"
 	"github.com/openimsdk/openim-sdk-core/v3/sdk_struct"
 
-	pbMsg "github.com/OpenIMSDK/protocol/msg"
 	"github.com/OpenIMSDK/protocol/sdkws"
 	"github.com/OpenIMSDK/tools/log"
 	"github.com/jinzhu/copier"
@@ -39,7 +38,7 @@ func (c *Conversation) clearConversationFromLocalAndSvr(ctx context.Context, con
 		return err
 	}
 	// Use conversationID to remove conversations and messages from the server first
-	err = c.clearConversationMsgFromSvr(ctx, conversationID)
+	err = c.clearConversationMsgFromSvr(ctx, conversationID, false)
 	if err != nil {
 		return err
 	}
@@ -74,11 +73,8 @@ func (c *Conversation) clearConversationAndDeleteAllMsg(ctx context.Context, con
 
 // To delete session information, delete the server first, and then invoke the interface.
 // The client receives a callback to delete all local information.
-func (c *Conversation) clearConversationMsgFromSvr(ctx context.Context, conversationID string) error {
-	var apiReq pbMsg.ClearConversationsMsgReq
-	apiReq.UserID = c.loginUserID
-	apiReq.ConversationIDs = []string{conversationID}
-	return util.ApiPost(ctx, constant.ClearConversationMsgRouter, &apiReq, nil)
+func (c *Conversation) clearConversationMsgFromSvr(ctx context.Context, conversationID string, isDelOther bool) error {
+	return server_api.ClearConversationMsgFromSvr(ctx, c.loginUserID, conversationID, isDelOther)
 }
 
 // Delete all messages
@@ -98,13 +94,7 @@ func (c *Conversation) deleteAllMsgFromLocalAndSvr(ctx context.Context) error {
 
 // Delete all server messages
 func (c *Conversation) deleteAllMessageFromSvr(ctx context.Context) error {
-	var apiReq pbMsg.UserClearAllMsgReq
-	apiReq.UserID = c.loginUserID
-	err := util.ApiPost(ctx, constant.ClearAllMsgRouter, &apiReq, nil)
-	if err != nil {
-		return err
-	}
-	return nil
+	return server_api.DeleteAllMessageFromSvr(ctx, c.loginUserID)
 }
 
 // Delete all messages from the local
@@ -154,11 +144,7 @@ func (c *Conversation) deleteMessageFromSvr(ctx context.Context, conversationID 
 		log.ZInfo(ctx, "delete msg seq is 0, try again", "msg", localMessage)
 		return sdkerrs.ErrMsgHasNoSeq
 	}
-	var apiReq pbMsg.DeleteMsgsReq
-	apiReq.UserID = c.loginUserID
-	apiReq.Seqs = []int64{localMessage.Seq}
-	apiReq.ConversationID = conversationID
-	return util.ApiPost(ctx, constant.DeleteMsgsRouter, &apiReq, nil)
+	return server_api.DeleteMessageFromSvr(ctx, c.loginUserID, conversationID, localMessage.Seq)
 }
 
 // Delete messages from local

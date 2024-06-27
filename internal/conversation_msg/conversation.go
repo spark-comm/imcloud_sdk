@@ -18,12 +18,12 @@ import (
 	"context"
 	"errors"
 	_ "github.com/openimsdk/openim-sdk-core/v3/internal/common"
-	"github.com/openimsdk/openim-sdk-core/v3/internal/util"
 	"github.com/openimsdk/openim-sdk-core/v3/pkg/common"
 	"github.com/openimsdk/openim-sdk-core/v3/pkg/constant"
 	"github.com/openimsdk/openim-sdk-core/v3/pkg/db/model_struct"
 	sdk "github.com/openimsdk/openim-sdk-core/v3/pkg/sdk_params_callback"
 	"github.com/openimsdk/openim-sdk-core/v3/pkg/sdkerrs"
+	"github.com/openimsdk/openim-sdk-core/v3/pkg/server_api"
 	"github.com/openimsdk/openim-sdk-core/v3/pkg/server_api_params"
 	"github.com/openimsdk/openim-sdk-core/v3/pkg/utils"
 	"github.com/openimsdk/openim-sdk-core/v3/sdk_struct"
@@ -47,38 +47,19 @@ func (c *Conversation) setConversation(ctx context.Context, apiReq *pbConversati
 	apiReq.Conversation.UserID = localConversation.UserID
 	apiReq.Conversation.GroupID = localConversation.GroupID
 	apiReq.UserIDs = []string{c.loginUserID}
-	if err := util.ApiPost(ctx, constant.SetConversationsRouter, apiReq, nil); err != nil {
-		return err
-	}
-	return nil
+	return server_api.SetConversation(ctx, apiReq)
 }
 
 func (c *Conversation) getServerConversationList(ctx context.Context) ([]*model_struct.LocalConversation, error) {
-	resp, err := util.CallApi[pbConversation.GetAllConversationsResp](ctx, constant.GetAllConversationsRouter, pbConversation.GetAllConversationsReq{OwnerUserID: c.loginUserID})
-	if err != nil {
-		return nil, err
-	}
-	return util.Batch(ServerConversationToLocal, resp.Conversations), nil
+	return server_api.GetServerConversationList(ctx, c.loginUserID)
 }
 
 func (c *Conversation) getServerConversationsByIDs(ctx context.Context, conversations []string) ([]*model_struct.LocalConversation, error) {
-	resp, err := util.CallApi[pbConversation.GetConversationsResp](ctx, constant.GetConversationsRouter, pbConversation.GetConversationsReq{OwnerUserID: c.loginUserID, ConversationIDs: conversations})
-	if err != nil {
-		return nil, err
-	}
-	return util.Batch(ServerConversationToLocal, resp.Conversations), nil
+	return server_api.GetServerConversationsByIDs(ctx, c.loginUserID, conversations)
 }
 
 func (c *Conversation) getServerHasReadAndMaxSeqs(ctx context.Context, conversationIDs ...string) (map[string]*msg.Seqs, error) {
-	resp := &msg.GetConversationsHasReadAndMaxSeqResp{}
-	req := msg.GetConversationsHasReadAndMaxSeqReq{UserID: c.loginUserID}
-	req.ConversationIDs = conversationIDs
-	err := util.ApiPost(ctx, constant.GetConversationsHasReadAndMaxSeqRouter, &req, resp)
-	if err != nil {
-		log.ZError(ctx, "getServerHasReadAndMaxSeqs err", err)
-		return nil, err
-	}
-	return resp.Seqs, nil
+	return server_api.GetServerHasReadAndMaxSeqs(ctx, c.loginUserID, conversationIDs...)
 }
 
 func (c *Conversation) getAdvancedHistoryMessageList(ctx context.Context, req sdk.GetAdvancedHistoryMessageListParams, isReverse bool) (*sdk.GetAdvancedHistoryMessageListCallback, error) {

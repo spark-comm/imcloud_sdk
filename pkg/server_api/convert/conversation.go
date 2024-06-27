@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package conversation_msg
+package convert
 
 import (
 	"github.com/openimsdk/openim-sdk-core/v3/pkg/db/model_struct"

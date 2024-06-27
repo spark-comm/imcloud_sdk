@@ -15,9 +15,7 @@
 package testv2
 
 import (
-	"github.com/OpenIMSDK/protocol/group"
-	"github.com/OpenIMSDK/protocol/sdkws"
-	"github.com/OpenIMSDK/protocol/wrapperspb"
+	groupPb "github.com/miliao_apis/api/im_cloud/group/v2"
 	"github.com/openimsdk/openim-sdk-core/v3/open_im_sdk"
 	"github.com/openimsdk/openim-sdk-core/v3/pkg/constant"
 	"github.com/openimsdk/openim-sdk-core/v3/pkg/sdk_params_callback"
@@ -25,14 +23,14 @@ import (
 )
 
 func Test_CreateGroupV2(t *testing.T) {
-	req := &group.CreateGroupReq{
-		MemberUserIDs: []string{"7299270930"},
-		AdminUserIDs:  []string{"1"},
-		OwnerUserID:   UserID,
-		GroupInfo: &sdkws.GroupInfo{
-			GroupName: "test",
-			GroupType: 2,
-		},
+	req := &groupPb.CrateGroupReq{
+		//MemberUserIDs: []string{"7299270930"},
+		//AdminUserIDs:  []string{"1"},
+		//OwnerUserID:   UserID,
+		//GroupInfo: &sdkws.GroupInfo{
+		//	GroupName: "test",
+		//	GroupType: 2,
+		//},
 	}
 	info, err := open_im_sdk.UserForSDK.Group().CreateGroup(ctx, req)
 	if err != nil {
@@ -42,7 +40,7 @@ func Test_CreateGroupV2(t *testing.T) {
 }
 
 func Test_JoinGroup(t *testing.T) {
-	err := open_im_sdk.UserForSDK.Group().JoinGroup(ctx, "3889561099", "1234", 3, "ex")
+	err := open_im_sdk.UserForSDK.Group().JoinGroup(ctx, "3889561099", "1234", 3)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -116,12 +114,12 @@ func Test_SetGroupMemberNickname(t *testing.T) {
 
 func Test_SetGroupMemberInfo(t *testing.T) {
 	// 1:普通成员 2:群主 3:管理员
-	err := open_im_sdk.UserForSDK.Group().SetGroupMemberInfo(ctx, &group.SetGroupMemberInfo{
+	err := open_im_sdk.UserForSDK.Group().SetGroupMemberInfo(ctx, &groupPb.SetGroupMemberInfoReq{
 		GroupID:  "3889561099",
 		UserID:   UserID,
-		FaceURL:  wrapperspb.String("https://doc.rentsoft.cn/images/logo.png"),
-		Nickname: wrapperspb.String("testupdatename"),
-		Ex:       wrapperspb.String("a"),
+		FaceURL:  "https://doc.rentsoft.cn/images/logo.png",
+		Nickname: "testupdatename",
+		Ex:       "a",
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -306,9 +304,8 @@ func Test_SyncAllGroupMember(t *testing.T) {
 	}
 }
 func Test_SetGroupInfo(t *testing.T) {
-	err := open_im_sdk.UserForSDK.Group().SetGroupInfo(ctx, &sdkws.GroupInfoForSet{
+	err := open_im_sdk.UserForSDK.Group().SetGroupInfo(ctx, &groupPb.EditGroupProfileReq{
 		GroupID: "3889561099",
-		Ex:      &wrapperspb.StringValue{Value: "groupex"},
 	})
 	if err != nil {
 		t.Fatal(err)

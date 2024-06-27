@@ -39,11 +39,6 @@ const (
 	GetFriendListRouter                       = BaseRouter + "/friend/get_friend_list"
 	AddFriendResponse                         = BaseRouter + "/friend/add_friend_response"
 	SetFriendInfoRouter                       = BaseRouter + "/friend/set_friend_info"
-	SetDestroyMsgStatus                       = BaseRouter + "/friend/set_destroy_msg_status"
-	// 根据时间同步用户信息
-	SyncFriendInfoByTimeRouter = BaseRouter + "/friend/sync_friend_info_by_time"
-	// 获取未处理的好友请求
-	GetUntreatedFriendsApplyReceive = BaseRouter + "/friend/get_untreated_friend_apply_receive"
 	// 黑明单
 	AddBlackRouter     = BaseRouter + "/friend/add_black"
 	RemoveBlackRouter  = BaseRouter + "/friend/remove_black"

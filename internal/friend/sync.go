@@ -16,9 +16,10 @@ package friend
 
 import (
 	"context"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/db/model_struct"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/sdkerrs"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/server_api"
+
+	"github.com/openimsdk/openim-sdk-core/pkg/db/model_struct"
+	"github.com/openimsdk/openim-sdk-core/pkg/sdkerrs"
+	"github.com/openimsdk/openim-sdk-core/pkg/server_api"
 
 	"github.com/OpenIMSDK/tools/log"
 )

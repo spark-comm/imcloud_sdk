@@ -4,11 +4,12 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"github.com/openimsdk/openim-sdk-core/v3/msgtest/module"
-	"github.com/openimsdk/openim-sdk-core/v3/sdk_struct"
 	"sync"
 	"testing"
 	"time"
+
+	"github.com/openimsdk/openim-sdk-core/msgtest/module"
+	"github.com/openimsdk/openim-sdk-core/sdk_struct"
 
 	"github.com/OpenIMSDK/tools/log"
 )

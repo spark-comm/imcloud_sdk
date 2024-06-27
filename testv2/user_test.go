@@ -16,12 +16,13 @@ package testv2
 
 import (
 	"fmt"
-	"github.com/OpenIMSDK/protocol/user"
-	"github.com/OpenIMSDK/protocol/wrapperspb"
 	"testing"
 	"time"
 
-	"github.com/openimsdk/openim-sdk-core/v3/open_im_sdk"
+	"github.com/OpenIMSDK/protocol/user"
+	"github.com/OpenIMSDK/protocol/wrapperspb"
+
+	"github.com/openimsdk/openim-sdk-core/open_im_sdk"
 
 	"github.com/OpenIMSDK/protocol/sdkws"
 )

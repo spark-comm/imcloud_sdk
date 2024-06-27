@@ -18,11 +18,12 @@
 package wasm_wrapper
 
 import (
-	"github.com/openimsdk/openim-sdk-core/v3/open_im_sdk"
-	"github.com/openimsdk/openim-sdk-core/v3/open_im_sdk_callback"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/utils"
-	"github.com/openimsdk/openim-sdk-core/v3/wasm/event_listener"
 	"syscall/js"
+
+	"github.com/openimsdk/openim-sdk-core/open_im_sdk"
+	"github.com/openimsdk/openim-sdk-core/open_im_sdk_callback"
+	"github.com/openimsdk/openim-sdk-core/pkg/utils"
+	"github.com/openimsdk/openim-sdk-core/wasm/event_listener"
 )
 
 // ------------------------------------third---------------------------

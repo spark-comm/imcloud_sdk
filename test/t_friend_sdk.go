@@ -18,16 +18,17 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/OpenIMSDK/tools/log"
-	"github.com/openimsdk/openim-sdk-core/v3/open_im_sdk"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/ccontext"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/sdk_params_callback"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/utils"
-	"github.com/openimsdk/openim-sdk-core/v3/sdk_struct"
 	X "log"
 	"os"
 	"runtime"
 	"time"
+
+	"github.com/OpenIMSDK/tools/log"
+	"github.com/openimsdk/openim-sdk-core/open_im_sdk"
+	"github.com/openimsdk/openim-sdk-core/pkg/ccontext"
+	"github.com/openimsdk/openim-sdk-core/pkg/sdk_params_callback"
+	"github.com/openimsdk/openim-sdk-core/pkg/utils"
+	"github.com/openimsdk/openim-sdk-core/sdk_struct"
 
 	"github.com/OpenIMSDK/protocol/sdkws"
 

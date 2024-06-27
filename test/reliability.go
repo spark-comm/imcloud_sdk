@@ -17,8 +17,6 @@ package test
 import (
 	"errors"
 	"fmt"
-	"github.com/OpenIMSDK/tools/log"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/utils"
 	"io/ioutil"
 	"math/rand"
 	"os"
@@ -27,6 +25,9 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/OpenIMSDK/tools/log"
+	"github.com/openimsdk/openim-sdk-core/pkg/utils"
 )
 
 func GetFileContentAsStringLines(filePath string) ([]string, error) {

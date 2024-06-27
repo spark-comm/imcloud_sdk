@@ -17,8 +17,9 @@ package main
 import (
 	"errors"
 	"flag"
+
 	"github.com/OpenIMSDK/tools/log"
-	"github.com/openimsdk/openim-sdk-core/v3/test"
+	"github.com/openimsdk/openim-sdk-core/test"
 )
 
 func main() {

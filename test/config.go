@@ -15,8 +15,9 @@
 package test
 
 import (
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/constant"
 	"sync"
+
+	"github.com/openimsdk/openim-sdk-core/pkg/constant"
 )
 
 var LogLevel uint32 = 5

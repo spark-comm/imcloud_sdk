@@ -15,15 +15,16 @@
 package test
 
 import (
-	"github.com/openimsdk/openim-sdk-core/v3/open_im_sdk"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/constant"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/sdk_params_callback"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/server_api_params"
+	"github.com/openimsdk/openim-sdk-core/open_im_sdk"
+	"github.com/openimsdk/openim-sdk-core/pkg/constant"
+	"github.com/openimsdk/openim-sdk-core/pkg/sdk_params_callback"
+	"github.com/openimsdk/openim-sdk-core/pkg/server_api_params"
 
 	//	"encoding/json"
 	"fmt"
+
 	"github.com/OpenIMSDK/tools/log"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/utils"
+	"github.com/openimsdk/openim-sdk-core/pkg/utils"
 	//"open_im_sdk/internal/open_im_sdk"
 	//"open_im_sdk/pkg/utils"
 	//	"open_im_sdk/internal/common"

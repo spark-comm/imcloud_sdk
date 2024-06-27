@@ -17,15 +17,17 @@ package conversation_msg
 import (
 	"context"
 	"errors"
-	"github.com/OpenIMSDK/tools/log"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/constant"
 
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/sdkerrs"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/utils"
-	"github.com/openimsdk/openim-sdk-core/v3/sdk_struct"
+	"github.com/OpenIMSDK/tools/log"
+	"github.com/openimsdk/openim-sdk-core/pkg/constant"
+
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/openimsdk/openim-sdk-core/pkg/sdkerrs"
+	"github.com/openimsdk/openim-sdk-core/pkg/utils"
+	"github.com/openimsdk/openim-sdk-core/sdk_struct"
 )
 
 func (c *Conversation) CreateTextMessage(ctx context.Context, text string) (*sdk_struct.MsgStruct, error) {

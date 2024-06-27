@@ -2,10 +2,11 @@ package file
 
 import (
 	"context"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/ccontext"
-	"github.com/openimsdk/openim-sdk-core/v3/sdk_struct"
 	"path/filepath"
 	"testing"
+
+	"github.com/openimsdk/openim-sdk-core/pkg/ccontext"
+	"github.com/openimsdk/openim-sdk-core/sdk_struct"
 )
 
 func TestUpload(t *testing.T) {

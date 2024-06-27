@@ -16,14 +16,15 @@ package friend
 
 import (
 	"context"
+
 	"github.com/OpenIMSDK/tools/log"
 	friendPb "github.com/miliao_apis/api/im_cloud/friend/v2"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/constant"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/db/model_struct"
-	sdk "github.com/openimsdk/openim-sdk-core/v3/pkg/sdk_params_callback"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/sdkerrs"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/server_api"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/server_api_params"
+	"github.com/openimsdk/openim-sdk-core/pkg/constant"
+	"github.com/openimsdk/openim-sdk-core/pkg/db/model_struct"
+	sdk "github.com/openimsdk/openim-sdk-core/pkg/sdk_params_callback"
+	"github.com/openimsdk/openim-sdk-core/pkg/sdkerrs"
+	"github.com/openimsdk/openim-sdk-core/pkg/server_api"
+	"github.com/openimsdk/openim-sdk-core/pkg/server_api_params"
 )
 
 func (f *Friend) GetSpecifiedFriendsInfo(ctx context.Context, friendUserIDList []string) ([]*server_api_params.FullUserInfo, error) {

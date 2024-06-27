@@ -18,8 +18,9 @@
 package event_listener
 
 import (
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/utils"
 	"syscall/js"
+
+	"github.com/openimsdk/openim-sdk-core/pkg/utils"
 )
 
 type CallbackWriter interface {

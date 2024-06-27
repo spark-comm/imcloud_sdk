@@ -3,12 +3,13 @@ package sdk_user_simulator
 import (
 	"context"
 	"fmt"
+
 	"github.com/OpenIMSDK/tools/log"
-	"github.com/openimsdk/openim-sdk-core/v3/internal/login"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/ccontext"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/constant"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/utils"
-	"github.com/openimsdk/openim-sdk-core/v3/sdk_struct"
+	"github.com/openimsdk/openim-sdk-core/internal/login"
+	"github.com/openimsdk/openim-sdk-core/pkg/ccontext"
+	"github.com/openimsdk/openim-sdk-core/pkg/constant"
+	"github.com/openimsdk/openim-sdk-core/pkg/utils"
+	"github.com/openimsdk/openim-sdk-core/sdk_struct"
 )
 
 var (

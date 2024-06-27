@@ -20,12 +20,13 @@ package exec
 import (
 	"context"
 	"errors"
-	"github.com/OpenIMSDK/tools/errs"
-	"github.com/OpenIMSDK/tools/log"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/utils"
 	"runtime"
 	"syscall/js"
 	"time"
+
+	"github.com/OpenIMSDK/tools/errs"
+	"github.com/OpenIMSDK/tools/log"
+	"github.com/openimsdk/openim-sdk-core/pkg/utils"
 )
 
 type CallbackData struct {

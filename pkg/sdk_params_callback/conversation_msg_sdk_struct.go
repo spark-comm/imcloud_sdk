@@ -15,8 +15,8 @@
 package sdk_params_callback
 
 import (
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/server_api_params"
-	"github.com/openimsdk/openim-sdk-core/v3/sdk_struct"
+	"github.com/openimsdk/openim-sdk-core/pkg/server_api_params"
+	"github.com/openimsdk/openim-sdk-core/sdk_struct"
 )
 
 type FindMessageListParams []*ConversationArgs

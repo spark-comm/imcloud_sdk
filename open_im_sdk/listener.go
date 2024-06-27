@@ -15,7 +15,7 @@
 package open_im_sdk
 
 import (
-	"github.com/openimsdk/openim-sdk-core/v3/open_im_sdk_callback"
+	"github.com/openimsdk/openim-sdk-core/open_im_sdk_callback"
 )
 
 func SetGroupListener(listener open_im_sdk_callback.OnGroupListener) {

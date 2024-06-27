@@ -5,16 +5,17 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
+
 	authPB "github.com/OpenIMSDK/protocol/auth"
 	"github.com/OpenIMSDK/protocol/msg"
 	"github.com/OpenIMSDK/tools/log"
 	"github.com/OpenIMSDK/tools/mcontext"
-	"github.com/openimsdk/openim-sdk-core/v3/internal/util"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/constant"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/sdkerrs"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/utils"
-	"io"
-	"net/http"
+	"github.com/openimsdk/openim-sdk-core/internal/util"
+	"github.com/openimsdk/openim-sdk-core/pkg/constant"
+	"github.com/openimsdk/openim-sdk-core/pkg/sdkerrs"
+	"github.com/openimsdk/openim-sdk-core/pkg/utils"
 )
 
 const (

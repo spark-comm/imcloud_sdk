@@ -20,10 +20,11 @@ import (
 	"errors"
 	"net"
 
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/utils"
 	"io/ioutil"
 	"net/http"
 	"time"
+
+	"github.com/openimsdk/openim-sdk-core/pkg/utils"
 )
 
 func get(url string) (response []byte, err error) {

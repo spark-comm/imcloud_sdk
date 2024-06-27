@@ -5,8 +5,8 @@ import (
 	pbMsg "github.com/OpenIMSDK/protocol/msg"
 	"github.com/OpenIMSDK/protocol/sdkws"
 	"github.com/golang/protobuf/ptypes/empty"
-	"github.com/openimsdk/openim-sdk-core/v3/internal/util"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/constant"
+	"github.com/openimsdk/openim-sdk-core/internal/util"
+	"github.com/openimsdk/openim-sdk-core/pkg/constant"
 	"golang.org/x/net/context"
 )
 

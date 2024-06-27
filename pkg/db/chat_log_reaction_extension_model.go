@@ -20,8 +20,9 @@ package db
 import (
 	"context"
 	"errors"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/db/model_struct"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/utils"
+
+	"github.com/openimsdk/openim-sdk-core/pkg/db/model_struct"
+	"github.com/openimsdk/openim-sdk-core/pkg/utils"
 )
 
 func (d *DataBase) GetMessageReactionExtension(ctx context.Context, msgID string) (result *model_struct.LocalChatLogReactionExtensions, err error) {

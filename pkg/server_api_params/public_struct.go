@@ -15,7 +15,7 @@
 package server_api_params
 
 import (
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/db/model_struct"
+	"github.com/openimsdk/openim-sdk-core/pkg/db/model_struct"
 )
 
 type ApiUserInfo struct {

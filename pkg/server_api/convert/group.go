@@ -2,8 +2,8 @@ package convert
 
 import (
 	groupmodel "github.com/miliao_apis/api/common/model/group/v2"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/db/model_struct"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/utils"
+	"github.com/openimsdk/openim-sdk-core/pkg/db/model_struct"
+	"github.com/openimsdk/openim-sdk-core/pkg/utils"
 )
 
 const (

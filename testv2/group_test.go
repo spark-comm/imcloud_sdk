@@ -15,11 +15,12 @@
 package testv2
 
 import (
-	groupPb "github.com/miliao_apis/api/im_cloud/group/v2"
-	"github.com/openimsdk/openim-sdk-core/v3/open_im_sdk"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/constant"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/sdk_params_callback"
 	"testing"
+
+	groupPb "github.com/miliao_apis/api/im_cloud/group/v2"
+	"github.com/openimsdk/openim-sdk-core/open_im_sdk"
+	"github.com/openimsdk/openim-sdk-core/pkg/constant"
+	"github.com/openimsdk/openim-sdk-core/pkg/sdk_params_callback"
 )
 
 func Test_CreateGroupV2(t *testing.T) {

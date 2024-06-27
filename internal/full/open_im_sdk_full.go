@@ -16,11 +16,12 @@ package full
 
 import (
 	"context"
+
 	"github.com/OpenIMSDK/tools/log"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/common"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/constant"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/db/model_struct"
-	api "github.com/openimsdk/openim-sdk-core/v3/pkg/server_api_params"
+	"github.com/openimsdk/openim-sdk-core/pkg/common"
+	"github.com/openimsdk/openim-sdk-core/pkg/constant"
+	"github.com/openimsdk/openim-sdk-core/pkg/db/model_struct"
+	api "github.com/openimsdk/openim-sdk-core/pkg/server_api_params"
 )
 
 func (u *Full) GetUsersInfo(ctx context.Context, userIDs []string) ([]*api.FullUserInfo, error) {

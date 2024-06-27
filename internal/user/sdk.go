@@ -16,11 +16,12 @@ package user
 
 import (
 	"context"
+
 	usermodel "github.com/miliao_apis/api/common/model/user/v2"
 	userPb "github.com/miliao_apis/api/im_cloud/user/v2"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/constant"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/db/model_struct"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/server_api"
+	"github.com/openimsdk/openim-sdk-core/pkg/constant"
+	"github.com/openimsdk/openim-sdk-core/pkg/db/model_struct"
+	"github.com/openimsdk/openim-sdk-core/pkg/server_api"
 
 	"github.com/OpenIMSDK/protocol/sdkws"
 )

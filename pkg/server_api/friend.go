@@ -6,11 +6,11 @@ import (
 	friendmodel "github.com/miliao_apis/api/common/model/friend/v2"
 	netmodel "github.com/miliao_apis/api/common/net/v2"
 	friendPb "github.com/miliao_apis/api/im_cloud/friend/v2"
-	"github.com/openimsdk/openim-sdk-core/v3/internal/util"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/constant"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/db/model_struct"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/sdkerrs"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/server_api/convert"
+	"github.com/openimsdk/openim-sdk-core/internal/util"
+	"github.com/openimsdk/openim-sdk-core/pkg/constant"
+	"github.com/openimsdk/openim-sdk-core/pkg/db/model_struct"
+	"github.com/openimsdk/openim-sdk-core/pkg/sdkerrs"
+	"github.com/openimsdk/openim-sdk-core/pkg/server_api/convert"
 	"golang.org/x/net/context"
 )
 

@@ -16,10 +16,11 @@ package common
 
 import (
 	"encoding/json"
-	"github.com/openimsdk/openim-sdk-core/v3/open_im_sdk_callback"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/sdkerrs"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/utils"
 	"runtime"
+
+	"github.com/openimsdk/openim-sdk-core/open_im_sdk_callback"
+	"github.com/openimsdk/openim-sdk-core/pkg/sdkerrs"
+	"github.com/openimsdk/openim-sdk-core/pkg/utils"
 )
 
 //var validate *validator.Validate

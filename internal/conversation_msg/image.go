@@ -1,16 +1,17 @@
 package conversation_msg
 
 import (
-	"github.com/OpenIMSDK/tools/errs"
-	"github.com/openimsdk/openim-sdk-core/v3/sdk_struct"
-	_ "golang.org/x/image/bmp"
-	_ "golang.org/x/image/tiff"
-	_ "golang.org/x/image/webp"
 	"image"
 	_ "image/gif"
 	_ "image/jpeg"
 	_ "image/png"
 	"os"
+
+	"github.com/OpenIMSDK/tools/errs"
+	"github.com/openimsdk/openim-sdk-core/sdk_struct"
+	_ "golang.org/x/image/bmp"
+	_ "golang.org/x/image/tiff"
+	_ "golang.org/x/image/webp"
 )
 
 func getImageInfo(filePath string) (*sdk_struct.ImageInfo, error) {

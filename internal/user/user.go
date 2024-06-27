@@ -17,22 +17,23 @@ package user
 import (
 	"context"
 	"fmt"
+
 	"github.com/OpenIMSDK/protocol/sdkws"
 	userPb "github.com/OpenIMSDK/protocol/user"
 	"github.com/OpenIMSDK/tools/log"
 	usermodel "github.com/miliao_apis/api/common/model/user/v2"
 	imUserPb "github.com/miliao_apis/api/im_cloud/user/v2"
-	"github.com/openimsdk/openim-sdk-core/v3/internal/cache"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/db/db_interface"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/db/model_struct"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/sdkerrs"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/server_api"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/syncer"
+	"github.com/openimsdk/openim-sdk-core/internal/cache"
+	"github.com/openimsdk/openim-sdk-core/pkg/db/db_interface"
+	"github.com/openimsdk/openim-sdk-core/pkg/db/model_struct"
+	"github.com/openimsdk/openim-sdk-core/pkg/sdkerrs"
+	"github.com/openimsdk/openim-sdk-core/pkg/server_api"
+	"github.com/openimsdk/openim-sdk-core/pkg/syncer"
 
-	"github.com/openimsdk/openim-sdk-core/v3/open_im_sdk_callback"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/common"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/constant"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/utils"
+	"github.com/openimsdk/openim-sdk-core/open_im_sdk_callback"
+	"github.com/openimsdk/openim-sdk-core/pkg/common"
+	"github.com/openimsdk/openim-sdk-core/pkg/constant"
+	"github.com/openimsdk/openim-sdk-core/pkg/utils"
 )
 
 type BasicInfo struct {

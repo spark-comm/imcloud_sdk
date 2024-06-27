@@ -1,4 +1,4 @@
-module github.com/openimsdk/openim-sdk-core/v3
+module github.com/openimsdk/openim-sdk-core
 
 go 1.18
 

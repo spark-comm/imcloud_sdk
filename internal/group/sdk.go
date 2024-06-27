@@ -16,15 +16,16 @@ package group
 
 import (
 	"context"
-	groupmodel "github.com/miliao_apis/api/common/model/group/v2"
-	v2 "github.com/miliao_apis/api/im_cloud/group/v2"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/server_api"
 	"time"
 
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/constant"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/db/model_struct"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/sdk_params_callback"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/sdkerrs"
+	groupmodel "github.com/miliao_apis/api/common/model/group/v2"
+	v2 "github.com/miliao_apis/api/im_cloud/group/v2"
+	"github.com/openimsdk/openim-sdk-core/pkg/server_api"
+
+	"github.com/openimsdk/openim-sdk-core/pkg/constant"
+	"github.com/openimsdk/openim-sdk-core/pkg/db/model_struct"
+	"github.com/openimsdk/openim-sdk-core/pkg/sdk_params_callback"
+	"github.com/openimsdk/openim-sdk-core/pkg/sdkerrs"
 
 	"github.com/OpenIMSDK/tools/log"
 

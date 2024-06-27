@@ -16,8 +16,9 @@ package main
 
 import (
 	"fmt"
-	"github.com/openimsdk/openim-sdk-core/v3/test"
 	"time"
+
+	"github.com/openimsdk/openim-sdk-core/test"
 )
 
 func main() {

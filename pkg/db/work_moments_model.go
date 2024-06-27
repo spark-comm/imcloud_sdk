@@ -20,10 +20,11 @@ package db
 import (
 	"context"
 	"errors"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/db/model_struct"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/utils"
-	"gorm.io/gorm"
 	"time"
+
+	"github.com/openimsdk/openim-sdk-core/pkg/db/model_struct"
+	"github.com/openimsdk/openim-sdk-core/pkg/utils"
+	"gorm.io/gorm"
 )
 
 func (d *DataBase) InsertWorkMomentsNotification(ctx context.Context, jsonDetail string) error {

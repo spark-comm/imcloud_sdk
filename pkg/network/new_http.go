@@ -19,13 +19,14 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/utils"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
 	"time"
 	"unsafe"
+
+	"github.com/openimsdk/openim-sdk-core/pkg/utils"
 )
 
 type HttpCli struct {

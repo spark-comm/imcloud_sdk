@@ -19,14 +19,15 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/OpenIMSDK/protocol/constant"
-	"github.com/openimsdk/openim-sdk-core/v3/open_im_sdk"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/ccontext"
 	"io"
 	"math/rand"
 	"net/http"
 	"strconv"
 	"time"
+
+	"github.com/OpenIMSDK/protocol/constant"
+	"github.com/openimsdk/openim-sdk-core/open_im_sdk"
+	"github.com/openimsdk/openim-sdk-core/pkg/ccontext"
 
 	"github.com/OpenIMSDK/tools/log"
 )

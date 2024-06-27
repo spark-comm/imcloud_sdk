@@ -16,8 +16,9 @@ package convert
 
 import (
 	"encoding/json"
+
 	usermodel "github.com/miliao_apis/api/common/model/user/v2"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/db/model_struct"
+	"github.com/openimsdk/openim-sdk-core/pkg/db/model_struct"
 )
 
 func ServerUserToLocalUser(user *usermodel.UserProfile) (*model_struct.LocalUser, error) {

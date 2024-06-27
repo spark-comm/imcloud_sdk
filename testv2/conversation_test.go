@@ -16,10 +16,11 @@ package testv2
 
 import (
 	"context"
-	"github.com/openimsdk/openim-sdk-core/v3/open_im_sdk"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/sdk_params_callback"
-	"github.com/openimsdk/openim-sdk-core/v3/sdk_struct"
 	"testing"
+
+	"github.com/openimsdk/openim-sdk-core/open_im_sdk"
+	"github.com/openimsdk/openim-sdk-core/pkg/sdk_params_callback"
+	"github.com/openimsdk/openim-sdk-core/sdk_struct"
 )
 
 func Test_GetAllConversationList(t *testing.T) {

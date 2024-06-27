@@ -3,14 +3,16 @@ package module
 import (
 	"context"
 	"fmt"
-	"github.com/openimsdk/openim-sdk-core/v3/internal/interaction"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/ccontext"
 
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/common"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/constant"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/utils"
-	"github.com/openimsdk/openim-sdk-core/v3/sdk_struct"
+	"github.com/openimsdk/openim-sdk-core/internal/interaction"
+	"github.com/openimsdk/openim-sdk-core/pkg/ccontext"
+
 	"time"
+
+	"github.com/openimsdk/openim-sdk-core/pkg/common"
+	"github.com/openimsdk/openim-sdk-core/pkg/constant"
+	"github.com/openimsdk/openim-sdk-core/pkg/utils"
+	"github.com/openimsdk/openim-sdk-core/sdk_struct"
 
 	"github.com/OpenIMSDK/protocol/sdkws"
 	"github.com/OpenIMSDK/tools/log"

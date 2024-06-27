@@ -17,7 +17,8 @@ package interaction
 import (
 	"bytes"
 	"encoding/gob"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/utils"
+
+	"github.com/openimsdk/openim-sdk-core/pkg/utils"
 )
 
 type Encoder interface {

@@ -16,17 +16,18 @@ package group
 
 import (
 	"context"
+
 	"github.com/OpenIMSDK/tools/log"
 	utils2 "github.com/OpenIMSDK/tools/utils"
-	"github.com/openimsdk/openim-sdk-core/v3/open_im_sdk_callback"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/common"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/constant"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/db/db_interface"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/db/model_struct"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/sdkerrs"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/server_api"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/syncer"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/utils"
+	"github.com/openimsdk/openim-sdk-core/open_im_sdk_callback"
+	"github.com/openimsdk/openim-sdk-core/pkg/common"
+	"github.com/openimsdk/openim-sdk-core/pkg/constant"
+	"github.com/openimsdk/openim-sdk-core/pkg/db/db_interface"
+	"github.com/openimsdk/openim-sdk-core/pkg/db/model_struct"
+	"github.com/openimsdk/openim-sdk-core/pkg/sdkerrs"
+	"github.com/openimsdk/openim-sdk-core/pkg/server_api"
+	"github.com/openimsdk/openim-sdk-core/pkg/syncer"
+	"github.com/openimsdk/openim-sdk-core/pkg/utils"
 )
 
 func NewGroup(loginUserID string, db db_interface.DataBase,

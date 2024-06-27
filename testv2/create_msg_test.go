@@ -15,9 +15,10 @@
 package testv2
 
 import (
-	"github.com/openimsdk/openim-sdk-core/v3/open_im_sdk"
-	"github.com/openimsdk/openim-sdk-core/v3/sdk_struct"
 	"testing"
+
+	"github.com/openimsdk/openim-sdk-core/open_im_sdk"
+	"github.com/openimsdk/openim-sdk-core/sdk_struct"
 )
 
 func Test_CreateTextMessage(t *testing.T) {

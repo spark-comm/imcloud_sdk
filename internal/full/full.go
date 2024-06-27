@@ -17,13 +17,14 @@ package full
 import (
 	"context"
 	"fmt"
-	"github.com/openimsdk/openim-sdk-core/v3/internal/friend"
-	"github.com/openimsdk/openim-sdk-core/v3/internal/group"
-	"github.com/openimsdk/openim-sdk-core/v3/internal/user"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/common"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/constant"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/db/db_interface"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/db/model_struct"
+
+	"github.com/openimsdk/openim-sdk-core/internal/friend"
+	"github.com/openimsdk/openim-sdk-core/internal/group"
+	"github.com/openimsdk/openim-sdk-core/internal/user"
+	"github.com/openimsdk/openim-sdk-core/pkg/common"
+	"github.com/openimsdk/openim-sdk-core/pkg/constant"
+	"github.com/openimsdk/openim-sdk-core/pkg/db/db_interface"
+	"github.com/openimsdk/openim-sdk-core/pkg/db/model_struct"
 )
 
 type Full struct {

@@ -19,16 +19,17 @@ import (
 	"crypto/md5"
 	"encoding/binary"
 	"encoding/json"
+	"sync"
+	"time"
+
 	"github.com/OpenIMSDK/protocol/group"
 	"github.com/OpenIMSDK/protocol/sdkws"
 	"github.com/OpenIMSDK/tools/log"
 	utils2 "github.com/OpenIMSDK/tools/utils"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/constant"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/db/model_struct"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/server_api"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/utils"
-	"sync"
-	"time"
+	"github.com/openimsdk/openim-sdk-core/pkg/constant"
+	"github.com/openimsdk/openim-sdk-core/pkg/db/model_struct"
+	"github.com/openimsdk/openim-sdk-core/pkg/server_api"
+	"github.com/openimsdk/openim-sdk-core/pkg/utils"
 )
 
 func (g *Group) getGroupHash(members []*model_struct.LocalGroupMember) uint64 {

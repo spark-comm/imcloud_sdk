@@ -17,13 +17,14 @@ package test
 import (
 	"encoding/json"
 	"errors"
-	"github.com/OpenIMSDK/tools/log"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/constant"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/network"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/server_api_params"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/utils"
 	"sync"
 	"time"
+
+	"github.com/OpenIMSDK/tools/log"
+	"github.com/openimsdk/openim-sdk-core/pkg/constant"
+	"github.com/openimsdk/openim-sdk-core/pkg/network"
+	"github.com/openimsdk/openim-sdk-core/pkg/server_api_params"
+	"github.com/openimsdk/openim-sdk-core/pkg/utils"
 
 	"github.com/OpenIMSDK/protocol/sdkws"
 )

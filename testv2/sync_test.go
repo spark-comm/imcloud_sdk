@@ -15,8 +15,9 @@
 package testv2
 
 import (
-	"github.com/openimsdk/openim-sdk-core/v3/open_im_sdk"
 	"testing"
+
+	"github.com/openimsdk/openim-sdk-core/open_im_sdk"
 )
 
 //func Test_SyncJoinGroup(t *testing.T) {

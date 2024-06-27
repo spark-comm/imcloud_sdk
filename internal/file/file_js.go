@@ -20,9 +20,10 @@ package file
 import (
 	"bufio"
 	"errors"
-	"github.com/openimsdk/openim-sdk-core/v3/wasm/exec"
 	"io"
 	"syscall/js"
+
+	"github.com/openimsdk/openim-sdk-core/wasm/exec"
 )
 
 const readBufferSize = 1024 * 1024 * 5 // 5mb

@@ -15,10 +15,11 @@
 package testv2
 
 import (
-	"github.com/openimsdk/openim-sdk-core/v3/internal/file"
-	"github.com/openimsdk/openim-sdk-core/v3/open_im_sdk"
 	"path/filepath"
 	"testing"
+
+	"github.com/openimsdk/openim-sdk-core/internal/file"
+	"github.com/openimsdk/openim-sdk-core/open_im_sdk"
 )
 
 func TestUploadFile(t *testing.T) {

@@ -19,9 +19,10 @@ package main
 
 import (
 	"fmt"
-	"github.com/openimsdk/openim-sdk-core/v3/wasm/wasm_wrapper"
 	"runtime"
 	"runtime/debug"
+
+	"github.com/openimsdk/openim-sdk-core/wasm/wasm_wrapper"
 
 	"syscall/js"
 )

@@ -17,15 +17,16 @@ package util
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/golang/protobuf/proto"
-	v2 "github.com/miliao_apis/api/common/net/v2"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/ccontext"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/network"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/sdkerrs"
-	"golang.org/x/net/context"
 	"net/http"
 	"reflect"
 	"time"
+
+	"github.com/golang/protobuf/proto"
+	v2 "github.com/miliao_apis/api/common/net/v2"
+	"github.com/openimsdk/openim-sdk-core/pkg/ccontext"
+	"github.com/openimsdk/openim-sdk-core/pkg/network"
+	"github.com/openimsdk/openim-sdk-core/pkg/sdkerrs"
+	"golang.org/x/net/context"
 )
 
 // apiClient is a global HTTP client with a timeout of one minute.

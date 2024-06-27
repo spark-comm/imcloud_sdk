@@ -2,8 +2,8 @@ package server_api
 
 import (
 	"github.com/OpenIMSDK/protocol/third"
-	"github.com/openimsdk/openim-sdk-core/v3/internal/util"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/constant"
+	"github.com/openimsdk/openim-sdk-core/internal/util"
+	"github.com/openimsdk/openim-sdk-core/pkg/constant"
 	"golang.org/x/net/context"
 )
 

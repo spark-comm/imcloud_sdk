@@ -5,10 +5,10 @@ import (
 	"github.com/OpenIMSDK/protocol/msg"
 	"github.com/OpenIMSDK/tools/log"
 	"github.com/golang/protobuf/ptypes/empty"
-	"github.com/openimsdk/openim-sdk-core/v3/internal/util"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/constant"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/db/model_struct"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/server_api/convert"
+	"github.com/openimsdk/openim-sdk-core/internal/util"
+	"github.com/openimsdk/openim-sdk-core/pkg/constant"
+	"github.com/openimsdk/openim-sdk-core/pkg/db/model_struct"
+	"github.com/openimsdk/openim-sdk-core/pkg/server_api/convert"
 	"golang.org/x/net/context"
 )
 

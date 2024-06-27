@@ -21,13 +21,14 @@ import (
 	"bytes"
 	"context"
 	"errors"
-	"github.com/OpenIMSDK/tools/log"
-	"github.com/openimsdk/openim-sdk-core/v3/pkg/utils"
-	"github.com/openimsdk/openim-sdk-core/v3/wasm/exec"
 	"reflect"
 	"strconv"
 	"strings"
 	"syscall/js"
+
+	"github.com/OpenIMSDK/tools/log"
+	"github.com/openimsdk/openim-sdk-core/pkg/utils"
+	"github.com/openimsdk/openim-sdk-core/wasm/exec"
 )
 
 type Caller interface {

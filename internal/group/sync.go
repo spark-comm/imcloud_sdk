@@ -26,10 +26,10 @@ import (
 	"github.com/OpenIMSDK/protocol/sdkws"
 	"github.com/OpenIMSDK/tools/log"
 	utils2 "github.com/OpenIMSDK/tools/utils"
-	"github.com/openimsdk/openim-sdk-core/pkg/constant"
-	"github.com/openimsdk/openim-sdk-core/pkg/db/model_struct"
-	"github.com/openimsdk/openim-sdk-core/pkg/server_api"
-	"github.com/openimsdk/openim-sdk-core/pkg/utils"
+	"github.com/brian-god/imcloud_sdk/pkg/constant"
+	"github.com/brian-god/imcloud_sdk/pkg/db/model_struct"
+	"github.com/brian-god/imcloud_sdk/pkg/server_api"
+	"github.com/brian-god/imcloud_sdk/pkg/utils"
 )
 
 func (g *Group) getGroupHash(members []*model_struct.LocalGroupMember) uint64 {

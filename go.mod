@@ -1,4 +1,4 @@
-module github.com/openimsdk/openim-sdk-core
+module github.com/brian-god/imcloud_sdk
 
 go 1.18
 

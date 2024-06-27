@@ -26,7 +26,7 @@ import (
 
 	"github.com/OpenIMSDK/tools/errs"
 	"github.com/OpenIMSDK/tools/log"
-	"github.com/openimsdk/openim-sdk-core/pkg/utils"
+	"github.com/brian-god/imcloud_sdk/pkg/utils"
 )
 
 type CallbackData struct {

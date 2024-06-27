@@ -156,7 +156,7 @@ ifeq (${BINS},)
   $(error Could not determine BINS, set ROOT_DIR or run in source dir)
 endif
 
-EXCLUDE_TESTS=github.com/OpenIMSDK/openim-sdk-core/test
+EXCLUDE_TESTS=github.com/brian-god/imcloud_sdk/test
 
 # ==============================================================================
 # Build

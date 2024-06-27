@@ -22,8 +22,8 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/openimsdk/openim-sdk-core/pkg/db/model_struct"
-	"github.com/openimsdk/openim-sdk-core/pkg/utils"
+	"github.com/brian-god/imcloud_sdk/pkg/db/model_struct"
+	"github.com/brian-god/imcloud_sdk/pkg/utils"
 
 	"gorm.io/gorm"
 )

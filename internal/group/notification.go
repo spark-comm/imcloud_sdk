@@ -20,8 +20,8 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/openimsdk/openim-sdk-core/pkg/constant"
-	"github.com/openimsdk/openim-sdk-core/pkg/utils"
+	"github.com/brian-god/imcloud_sdk/pkg/constant"
+	"github.com/brian-god/imcloud_sdk/pkg/utils"
 
 	"github.com/OpenIMSDK/protocol/sdkws"
 	"github.com/OpenIMSDK/tools/log"

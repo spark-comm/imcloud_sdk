@@ -18,10 +18,10 @@ import (
 	"context"
 	"strings"
 
-	"github.com/openimsdk/openim-sdk-core/pkg/common"
-	"github.com/openimsdk/openim-sdk-core/pkg/constant"
-	"github.com/openimsdk/openim-sdk-core/pkg/db/db_interface"
-	"github.com/openimsdk/openim-sdk-core/sdk_struct"
+	"github.com/brian-god/imcloud_sdk/pkg/common"
+	"github.com/brian-god/imcloud_sdk/pkg/constant"
+	"github.com/brian-god/imcloud_sdk/pkg/db/db_interface"
+	"github.com/brian-god/imcloud_sdk/sdk_struct"
 
 	"github.com/OpenIMSDK/protocol/sdkws"
 	"github.com/OpenIMSDK/tools/log"

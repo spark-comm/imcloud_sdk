@@ -22,7 +22,7 @@ import (
 	"runtime"
 	"runtime/debug"
 
-	"github.com/openimsdk/openim-sdk-core/wasm/wasm_wrapper"
+	"github.com/brian-god/imcloud_sdk/wasm/wasm_wrapper"
 
 	"syscall/js"
 )

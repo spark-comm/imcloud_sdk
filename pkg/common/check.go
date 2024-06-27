@@ -18,9 +18,9 @@ import (
 	"encoding/json"
 	"runtime"
 
-	"github.com/openimsdk/openim-sdk-core/open_im_sdk_callback"
-	"github.com/openimsdk/openim-sdk-core/pkg/sdkerrs"
-	"github.com/openimsdk/openim-sdk-core/pkg/utils"
+	"github.com/brian-god/imcloud_sdk/open_im_sdk_callback"
+	"github.com/brian-god/imcloud_sdk/pkg/sdkerrs"
+	"github.com/brian-god/imcloud_sdk/pkg/utils"
 )
 
 //var validate *validator.Validate

@@ -24,7 +24,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/openimsdk/openim-sdk-core/pkg/utils"
+	"github.com/brian-god/imcloud_sdk/pkg/utils"
 )
 
 func get(url string) (response []byte, err error) {

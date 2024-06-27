@@ -30,9 +30,9 @@ import (
 	"time"
 
 	"github.com/OpenIMSDK/tools/errs"
-	"github.com/openimsdk/openim-sdk-core/pkg/db/db_interface"
-	"github.com/openimsdk/openim-sdk-core/pkg/db/model_struct"
-	"github.com/openimsdk/openim-sdk-core/pkg/server_api"
+	"github.com/brian-god/imcloud_sdk/pkg/db/db_interface"
+	"github.com/brian-god/imcloud_sdk/pkg/db/model_struct"
+	"github.com/brian-god/imcloud_sdk/pkg/server_api"
 
 	"github.com/OpenIMSDK/protocol/third"
 	"github.com/OpenIMSDK/tools/log"

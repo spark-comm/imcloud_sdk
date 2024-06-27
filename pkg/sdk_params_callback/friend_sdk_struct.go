@@ -16,9 +16,9 @@ package sdk_params_callback
 
 import (
 	"github.com/OpenIMSDK/protocol/wrapperspb"
-	"github.com/openimsdk/openim-sdk-core/pkg/constant"
-	"github.com/openimsdk/openim-sdk-core/pkg/db/model_struct"
-	"github.com/openimsdk/openim-sdk-core/pkg/server_api_params"
+	"github.com/brian-god/imcloud_sdk/pkg/constant"
+	"github.com/brian-god/imcloud_sdk/pkg/db/model_struct"
+	"github.com/brian-god/imcloud_sdk/pkg/server_api_params"
 )
 
 // 1

@@ -18,8 +18,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/openimsdk/openim-sdk-core/internal/file"
-	"github.com/openimsdk/openim-sdk-core/open_im_sdk"
+	"github.com/brian-god/imcloud_sdk/internal/file"
+	"github.com/brian-god/imcloud_sdk/open_im_sdk"
 )
 
 func TestUploadFile(t *testing.T) {

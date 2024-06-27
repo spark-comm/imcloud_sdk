@@ -26,7 +26,7 @@ import (
 	"time"
 	"unsafe"
 
-	"github.com/openimsdk/openim-sdk-core/pkg/utils"
+	"github.com/brian-god/imcloud_sdk/pkg/utils"
 )
 
 type HttpCli struct {

@@ -19,9 +19,9 @@ import (
 	"time"
 
 	"github.com/OpenIMSDK/tools/log"
-	"github.com/openimsdk/openim-sdk-core/pkg/db"
-	"github.com/openimsdk/openim-sdk-core/pkg/utils"
-	"github.com/openimsdk/openim-sdk-core/test"
+	"github.com/brian-god/imcloud_sdk/pkg/db"
+	"github.com/brian-god/imcloud_sdk/pkg/utils"
+	"github.com/brian-god/imcloud_sdk/test"
 )
 
 var allDB []*db.DataBase

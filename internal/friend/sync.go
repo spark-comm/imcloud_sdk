@@ -17,9 +17,9 @@ package friend
 import (
 	"context"
 
-	"github.com/openimsdk/openim-sdk-core/pkg/db/model_struct"
-	"github.com/openimsdk/openim-sdk-core/pkg/sdkerrs"
-	"github.com/openimsdk/openim-sdk-core/pkg/server_api"
+	"github.com/brian-god/imcloud_sdk/pkg/db/model_struct"
+	"github.com/brian-god/imcloud_sdk/pkg/sdkerrs"
+	"github.com/brian-god/imcloud_sdk/pkg/server_api"
 
 	"github.com/OpenIMSDK/tools/log"
 )

@@ -19,15 +19,15 @@ import (
 
 	"github.com/OpenIMSDK/tools/log"
 	utils2 "github.com/OpenIMSDK/tools/utils"
-	"github.com/openimsdk/openim-sdk-core/open_im_sdk_callback"
-	"github.com/openimsdk/openim-sdk-core/pkg/common"
-	"github.com/openimsdk/openim-sdk-core/pkg/constant"
-	"github.com/openimsdk/openim-sdk-core/pkg/db/db_interface"
-	"github.com/openimsdk/openim-sdk-core/pkg/db/model_struct"
-	"github.com/openimsdk/openim-sdk-core/pkg/sdkerrs"
-	"github.com/openimsdk/openim-sdk-core/pkg/server_api"
-	"github.com/openimsdk/openim-sdk-core/pkg/syncer"
-	"github.com/openimsdk/openim-sdk-core/pkg/utils"
+	"github.com/brian-god/imcloud_sdk/open_im_sdk_callback"
+	"github.com/brian-god/imcloud_sdk/pkg/common"
+	"github.com/brian-god/imcloud_sdk/pkg/constant"
+	"github.com/brian-god/imcloud_sdk/pkg/db/db_interface"
+	"github.com/brian-god/imcloud_sdk/pkg/db/model_struct"
+	"github.com/brian-god/imcloud_sdk/pkg/sdkerrs"
+	"github.com/brian-god/imcloud_sdk/pkg/server_api"
+	"github.com/brian-god/imcloud_sdk/pkg/syncer"
+	"github.com/brian-god/imcloud_sdk/pkg/utils"
 )
 
 func NewGroup(loginUserID string, db db_interface.DataBase,

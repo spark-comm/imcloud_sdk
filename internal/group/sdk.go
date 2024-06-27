@@ -18,14 +18,14 @@ import (
 	"context"
 	"time"
 
+	"github.com/brian-god/imcloud_sdk/pkg/server_api"
 	groupmodel "github.com/miliao_apis/api/common/model/group/v2"
 	v2 "github.com/miliao_apis/api/im_cloud/group/v2"
-	"github.com/openimsdk/openim-sdk-core/pkg/server_api"
 
-	"github.com/openimsdk/openim-sdk-core/pkg/constant"
-	"github.com/openimsdk/openim-sdk-core/pkg/db/model_struct"
-	"github.com/openimsdk/openim-sdk-core/pkg/sdk_params_callback"
-	"github.com/openimsdk/openim-sdk-core/pkg/sdkerrs"
+	"github.com/brian-god/imcloud_sdk/pkg/constant"
+	"github.com/brian-god/imcloud_sdk/pkg/db/model_struct"
+	"github.com/brian-god/imcloud_sdk/pkg/sdk_params_callback"
+	"github.com/brian-god/imcloud_sdk/pkg/sdkerrs"
 
 	"github.com/OpenIMSDK/tools/log"
 

@@ -8,8 +8,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/openimsdk/openim-sdk-core/msgtest/module"
-	"github.com/openimsdk/openim-sdk-core/sdk_struct"
+	"github.com/brian-god/imcloud_sdk/msgtest/module"
+	"github.com/brian-god/imcloud_sdk/sdk_struct"
 
 	"github.com/OpenIMSDK/tools/log"
 )

@@ -24,11 +24,11 @@ import (
 	"time"
 
 	"github.com/OpenIMSDK/tools/log"
-	"github.com/openimsdk/openim-sdk-core/open_im_sdk"
-	"github.com/openimsdk/openim-sdk-core/pkg/ccontext"
-	"github.com/openimsdk/openim-sdk-core/pkg/sdk_params_callback"
-	"github.com/openimsdk/openim-sdk-core/pkg/utils"
-	"github.com/openimsdk/openim-sdk-core/sdk_struct"
+	"github.com/brian-god/imcloud_sdk/open_im_sdk"
+	"github.com/brian-god/imcloud_sdk/pkg/ccontext"
+	"github.com/brian-god/imcloud_sdk/pkg/sdk_params_callback"
+	"github.com/brian-god/imcloud_sdk/pkg/utils"
+	"github.com/brian-god/imcloud_sdk/sdk_struct"
 
 	"github.com/OpenIMSDK/protocol/sdkws"
 

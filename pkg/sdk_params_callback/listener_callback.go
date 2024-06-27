@@ -15,7 +15,7 @@
 package sdk_params_callback
 
 import (
-	"github.com/openimsdk/openim-sdk-core/pkg/db/model_struct"
+	"github.com/brian-god/imcloud_sdk/pkg/db/model_struct"
 )
 
 // //////////////////////////////friend////////////////////////////////////

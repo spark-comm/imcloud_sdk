@@ -20,9 +20,9 @@ package wasm_wrapper
 import (
 	"syscall/js"
 
-	"github.com/openimsdk/openim-sdk-core/open_im_sdk"
-	"github.com/openimsdk/openim-sdk-core/pkg/utils"
-	"github.com/openimsdk/openim-sdk-core/wasm/event_listener"
+	"github.com/brian-god/imcloud_sdk/open_im_sdk"
+	"github.com/brian-god/imcloud_sdk/pkg/utils"
+	"github.com/brian-god/imcloud_sdk/wasm/event_listener"
 )
 
 // ------------------------------------group---------------------------

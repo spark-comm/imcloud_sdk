@@ -18,8 +18,8 @@ import (
 	"context"
 	"errors"
 
-	"github.com/openimsdk/openim-sdk-core/wasm/exec"
-	"github.com/openimsdk/openim-sdk-core/wasm/indexdb"
+	"github.com/brian-god/imcloud_sdk/wasm/exec"
+	"github.com/brian-god/imcloud_sdk/wasm/indexdb"
 )
 
 var ErrType = errors.New("from javascript data type err")

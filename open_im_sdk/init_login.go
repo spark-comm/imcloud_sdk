@@ -20,10 +20,10 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/openimsdk/openim-sdk-core/open_im_sdk_callback"
-	"github.com/openimsdk/openim-sdk-core/pkg/ccontext"
-	"github.com/openimsdk/openim-sdk-core/pkg/constant"
-	"github.com/openimsdk/openim-sdk-core/sdk_struct"
+	"github.com/brian-god/imcloud_sdk/open_im_sdk_callback"
+	"github.com/brian-god/imcloud_sdk/pkg/ccontext"
+	"github.com/brian-god/imcloud_sdk/pkg/constant"
+	"github.com/brian-god/imcloud_sdk/sdk_struct"
 
 	"github.com/OpenIMSDK/tools/log"
 	"github.com/OpenIMSDK/tools/mcontext"

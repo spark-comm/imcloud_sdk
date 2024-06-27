@@ -20,10 +20,10 @@ package indexdb
 import (
 	"context"
 
-	"github.com/openimsdk/openim-sdk-core/pkg/db/model_struct"
-	"github.com/openimsdk/openim-sdk-core/pkg/utils"
-	"github.com/openimsdk/openim-sdk-core/wasm/exec"
-	"github.com/openimsdk/openim-sdk-core/wasm/indexdb/temp_struct"
+	"github.com/brian-god/imcloud_sdk/pkg/db/model_struct"
+	"github.com/brian-god/imcloud_sdk/pkg/utils"
+	"github.com/brian-god/imcloud_sdk/wasm/exec"
+	"github.com/brian-god/imcloud_sdk/wasm/indexdb/temp_struct"
 )
 
 type LocalChatLogs struct {

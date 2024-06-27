@@ -6,8 +6,8 @@ import (
 
 	"github.com/OpenIMSDK/tools/errs"
 	"github.com/OpenIMSDK/tools/log"
-	"github.com/openimsdk/openim-sdk-core/open_im_sdk_callback"
-	"github.com/openimsdk/openim-sdk-core/pkg/common"
+	"github.com/brian-god/imcloud_sdk/open_im_sdk_callback"
+	"github.com/brian-god/imcloud_sdk/pkg/common"
 )
 
 type apiErrCallback struct {

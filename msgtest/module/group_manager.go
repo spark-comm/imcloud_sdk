@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/openimsdk/openim-sdk-core/pkg/constant"
+	"github.com/brian-god/imcloud_sdk/pkg/constant"
 
 	"github.com/OpenIMSDK/protocol/group"
 	"github.com/OpenIMSDK/protocol/sdkws"

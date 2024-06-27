@@ -5,10 +5,10 @@ import (
 	"testing"
 
 	"github.com/OpenIMSDK/tools/log"
-	"github.com/openimsdk/openim-sdk-core/msgtest/module"
-	"github.com/openimsdk/openim-sdk-core/msgtest/sdk_user_simulator"
-	"github.com/openimsdk/openim-sdk-core/pkg/ccontext"
-	"github.com/openimsdk/openim-sdk-core/pkg/utils"
+	"github.com/brian-god/imcloud_sdk/msgtest/module"
+	"github.com/brian-god/imcloud_sdk/msgtest/sdk_user_simulator"
+	"github.com/brian-god/imcloud_sdk/pkg/ccontext"
+	"github.com/brian-god/imcloud_sdk/pkg/utils"
 )
 
 func Test_SimulateMultiOnline(t *testing.T) {

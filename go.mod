@@ -9,7 +9,6 @@ require (
 	github.com/lestrrat-go/file-rotatelogs v2.4.0+incompatible // indirect
 	github.com/pkg/errors v0.9.1
 	google.golang.org/protobuf v1.33.0 // indirect
-	gorm.io/driver/sqlite v1.3.6
 	nhooyr.io/websocket v1.8.10
 )
 

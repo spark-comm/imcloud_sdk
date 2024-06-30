@@ -233,7 +233,10 @@ func (c *LongConnMgr) writePump(ctx context.Context) {
 
 	defer func() {
 		c.close()
-		close(c.send)
+		_, ok := <-c.send
+		if ok {
+			close(c.send)
+		}
 	}()
 	for {
 		select {
@@ -430,6 +433,7 @@ func (c *LongConnMgr) handleMessage(message []byte) error {
 	}
 	var wsResp GeneralWsResp
 	err := c.encoder.Decode(message, &wsResp)
+	fmt.Printf("收到消息: %+v\n", wsResp)
 	if err != nil {
 		log.ZError(c.ctx, "decodeBinaryWs err", err, "message", message)
 		return sdkerrs.ErrMsgDecodeBinaryWs

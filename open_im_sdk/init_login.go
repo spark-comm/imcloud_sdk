@@ -58,7 +58,6 @@ func InitSDK(listener open_im_sdk_callback.OnConnListener, operationID string, c
 	if err := log.InitFromConfig("open-im-sdk-core", "", int(configArgs.LogLevel), configArgs.IsLogStandardOutput, false, configArgs.LogFilePath, rotateCount, rotationTime); err != nil {
 		fmt.Println(operationID, "log init failed ", err.Error())
 	}
-	fmt.Println("init log success")
 	// localLog.NewPrivateLog("", configArgs.LogLevel)
 	ctx := mcontext.NewCtx(operationID)
 	if !strings.Contains(configArgs.ApiAddr, "http") {

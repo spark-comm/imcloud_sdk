@@ -29,7 +29,7 @@ import (
 	"github.com/brian-god/imcloud_sdk/pkg/utils"
 
 	"github.com/OpenIMSDK/tools/log"
-	"gorm.io/driver/sqlite"
+	"github.com/glebarez/sqlite"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 )

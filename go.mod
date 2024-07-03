@@ -19,14 +19,14 @@ require (
 	github.com/OpenIMSDK/tools v0.0.24
 	github.com/glebarez/sqlite v1.11.0
 	github.com/google/go-cmp v0.6.0
-	github.com/spark-comm/spark-api v0.0.0
+	//github.com/spark-comm/spark-api v0.0.0
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	golang.org/x/image v0.14.0
 	golang.org/x/text v0.14.0
 	gorm.io/gorm v1.25.7
 )
 
-replace github.com/spark-comm/spark-api => ../miliao_apis
+//replace github.com/spark-comm/spark-api => ../miliao_apis
 
 require (
 	github.com/bwmarrin/snowflake v0.3.0 // indirect
@@ -41,6 +41,7 @@ require (
 	github.com/mattn/go-isatty v0.0.19 // indirect
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
+	github.com/spark-comm/spark-api v0.0.1 // indirect
 	go.uber.org/atomic v1.7.0 // indirect
 	go.uber.org/multierr v1.6.0 // indirect
 	go.uber.org/zap v1.24.0 // indirect

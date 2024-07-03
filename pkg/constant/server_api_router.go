@@ -45,7 +45,6 @@ const (
 	GetFriendRequestByApplicantRouter = BaseRouterV2 + "/friend/get_friend_request_by_applicant"
 	GetFriendByAppIdsRouter           = BaseRouterV2 + "/friend/get_friend_by_ids"
 
-	GetSyncFriendList      = BaseRouter + "/friend/get_sync_friend_list"
 	SendMsgRouter          = "/chat/send_msg"
 	PullUserMsgRouter      = "/chat/pull_msg"
 	PullUserMsgBySeqRouter = BaseRouter + "/msg/pull_msg_by_seq"
@@ -76,53 +75,32 @@ const (
 	AwsStorageCredentialRouter          = BaseRouter + "/third/aws_storage_credential"
 
 	//group
-	CreateGroupRouter                 = BaseRouter + RouterGroup + "/create_group"
-	SetGroupInfoRouter                = BaseRouter + RouterGroup + "/set_group_info"
-	JoinGroupRouter                   = BaseRouter + RouterGroup + "/join_group"
-	QuitGroupRouter                   = BaseRouter + RouterGroup + "/quit_group"
-	GetGroupsInfoRouter               = BaseRouter + RouterGroup + "/get_groups_info"
-	GetGroupMemberListRouter          = BaseRouter + RouterGroup + "/get_group_member_list"
-	GetGroupAllMemberListRouter       = BaseRouter + RouterGroup + "/get_group_all_member_list"
-	GetGroupMembersInfoRouter         = BaseRouter + RouterGroup + "/get_group_members_info"
-	InviteUserToGroupRouter           = BaseRouter + RouterGroup + "/invite_user_to_group"
-	GetJoinedGroupListRouter          = BaseRouter + RouterGroup + "/get_joined_group_list"
-	KickGroupMemberRouter             = BaseRouter + RouterGroup + "/kick_group"
-	TransferGroupRouter               = BaseRouter + RouterGroup + "/transfer_group"
-	GetRecvGroupApplicationListRouter = BaseRouter + RouterGroup + "/get_recv_group_applicationList"
-	// 以群主或管理员身份获取未处理的加群请求
-	GetUntreatedRecvGroupApplicationListRouter = BaseRouter + RouterGroup + "/get_untreated_recv_group_application_list"
+	CreateGroupRouter                 = BaseRouterV2 + RouterGroup + "/create_group"
+	SetGroupInfoRouter                = BaseRouterV2 + RouterGroup + "/set_group_info"
+	JoinGroupRouter                   = BaseRouterV2 + RouterGroup + "/join_group"
+	QuitGroupRouter                   = BaseRouterV2 + RouterGroup + "/quit_group"
+	GetGroupsInfoRouter               = BaseRouterV2 + RouterGroup + "/get_groups_info"
+	GetGroupMemberListRouter          = BaseRouterV2 + RouterGroup + "/get_group_member_list"
+	InviteUserToGroupRouter           = BaseRouterV2 + RouterGroup + "/invite_user_to_group"
+	GetJoinedGroupListRouter          = BaseRouterV2 + RouterGroup + "/get_joined_group_list"
+	KickGroupMemberRouter             = BaseRouterV2 + RouterGroup + "/kick_group"
+	TransferGroupRouter               = BaseRouterV2 + RouterGroup + "/transfer_group"
+	GetRecvGroupApplicationListRouter = BaseRouterV2 + RouterGroup + "/get_recv_group_applicationList"
+	GetSendGroupApplicationListRouter = BaseRouterV2 + RouterGroup + "/get_user_req_group_applicationList"
+	FindFullGroupInfoRouter           = BaseRouterV2 + RouterGroup + "/find_full_group_info"
+	AcceptGroupApplicationRouter      = BaseRouterV2 + RouterGroup + "/group_application_response"
+	DismissGroupRouter                = BaseRouterV2 + RouterGroup + "/dismiss_group"
+	MuteGroupMemberRouter             = BaseRouterV2 + RouterGroup + "/mute_group_member"
+	CancelMuteGroupMemberRouter       = BaseRouterV2 + RouterGroup + "/cancel_mute_group_member"
+	MuteGroupRouter                   = BaseRouterV2 + RouterGroup + "/mute_group"
+	CancelMuteGroupRouter             = BaseRouterV2 + RouterGroup + "/cancel_mute_group"
+	SetGroupMemberInfoRouter          = BaseRouterV2 + RouterGroup + "/set_group_member_info"
+	GetGroupAbstractInfoRouter        = BaseRouterV2 + RouterGroup + "/get_group_abstract_info"
+	SearchGroupByCodeRouter           = BaseRouterV2 + RouterGroup + "/search_group_by_code"
 
-	FindFullGroupInfoRouter           = BaseRouter + RouterGroup + "/find_full_group_info"
-	GetSendGroupApplicationListRouter = BaseRouter + RouterGroup + "/get_user_req_group_applicationList"
-	AcceptGroupApplicationRouter      = BaseRouter + RouterGroup + "/group_application_response"
-	RefuseGroupApplicationRouter      = BaseRouter + RouterGroup + "/group_application_response"
-	DismissGroupRouter                = BaseRouter + RouterGroup + "/dismiss_group"
-	MuteGroupMemberRouter             = BaseRouter + RouterGroup + "/mute_group_member"
-	CancelMuteGroupMemberRouter       = BaseRouter + RouterGroup + "/cancel_mute_group_member"
-	MuteGroupRouter                   = BaseRouter + RouterGroup + "/mute_group"
-	CancelMuteGroupRouter             = BaseRouter + RouterGroup + "/cancel_mute_group"
-	SetGroupMemberNicknameRouter      = BaseRouter + RouterGroup + "/set_group_member_nickname"
-	SetGroupMemberInfoRouter          = BaseRouter + RouterGroup + "/set_group_member_info"
-	GetGroupAbstractInfoRouter        = BaseRouter + RouterGroup + "/get_group_abstract_info"
-	SearchGroupInfoRouter             = BaseRouter + RouterGroup + "/search_group_info"
-	SearchGroupByCodeRouter           = BaseRouter + RouterGroup + "/search_group_by_code"
-	GetJoinGroupRequestDetailRouter   = BaseRouter + RouterGroup + "/get_join_group_request_detail"
-	GetUserOwnerJoinRequestNumRouter  = BaseRouter + RouterGroup + "/get_user_owner_join_request_num"
 	// GetGroupMemberByIdsRouter 根据群成员id获取群信息
-	GetGroupMemberByIdsRouter = BaseRouter + RouterGroup + "/get_member_by_ids"
-
-	GetSyncGroupInfoList = BaseRouter + RouterGroup + "/get_sync_group_list"
-
-	UpdateGroupSwitch = BaseRouter + RouterGroup + "/set_group_switch_info"
-	//同步群成员
-	SyncGroupMemberInfoRouter = BaseRouter + RouterGroup + "/sync_group_members"
-	//根据时间同步群
-	SyncUserJoinGroupInfoByTimeRouter = BaseRouter + RouterGroup + "/sync_group_info_by_time"
-	//根据时间同步群成员
-	SyncGroupMemberInfoUpdateTimeRouter = BaseRouter + RouterGroup + "/sync_group_member_info_by_time"
-
-	GetUserMemberInfoInGroup = BaseRouter + RouterGroup + "/get_member_in_group"
-	group
+	GetGroupMemberByIdsRouter = BaseRouterV2 + RouterGroup + "/get_member_by_ids"
+	UpdateGroupSwitch         = BaseRouterV2 + RouterGroup + "/set_group_switch_info"
 
 	SetReceiveMessageOptRouter         = BaseRouter + "/conversation/set_receive_message_opt"
 	GetReceiveMessageOptRouter         = BaseRouter + "/conversation/get_receive_message_opt"
@@ -149,7 +127,7 @@ const (
 	SetAppBadgeRouter    = BaseRouter + RouterThird + "/set_app_badge"
 )
 const (
-	RouterGroup        = "/group"
+	RouterGroup        = "/pb/group"
 	ConversationGroup  = "/conversation"
 	RouterOrganization = "/organization"
 	RouterAuth         = "/auth"

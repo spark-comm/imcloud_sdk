@@ -70,8 +70,8 @@ func QuitGroup(ctx context.Context, groupID, loginUseID string) error {
 
 // DismissGroup 解散群
 func DismissGroup(ctx context.Context, groupID, loginUseID string) error {
-	req := &v2.DismissGroupReq{GroupID: groupID, UserID: loginUseID}
-	_, err := util.ProtoApiPost[v2.DismissGroupReq, empty.Empty](
+	req := &v2.DismissGroupNoticeReq{GroupID: groupID, UserID: loginUseID}
+	_, err := util.ProtoApiPost[v2.DismissGroupNoticeReq, empty.Empty](
 		ctx, constant.DismissGroupRouter, req,
 	)
 	return err
@@ -166,4 +166,15 @@ func InviteUserToGroup(ctx context.Context, groupID, loginUserId, reason string,
 		return nil
 	}
 	return nil
+}
+
+// SearchGroupByCode  搜索群组
+func SearchGroupByCode(ctx context.Context, loginUserId, groupCode string) (*groupmodel.GroupInfo, error) {
+	resp, err := util.ProtoApiPost[v2.GetGroupByCodeReq, v2.GetGroupByCodeReply](
+		ctx, constant.SearchGroupByCodeRouter, &v2.GetGroupByCodeReq{UserID: loginUserId, Code: groupCode},
+	)
+	if err != nil {
+		return nil, err
+	}
+	return resp.Data, nil
 }

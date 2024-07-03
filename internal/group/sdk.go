@@ -307,3 +307,6 @@ func (g *Group) IsJoinGroup(ctx context.Context, groupID string) (bool, error) {
 	}
 	return false, nil
 }
+func (g *Group) SearchGroupByCode(ctx context.Context, code string) (*groupmodel.GroupInfo, error) {
+	return server_api.SearchGroupByCode(ctx, g.loginUserID, code)
+}

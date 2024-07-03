@@ -33,7 +33,7 @@ func GetServerSelfGroupApplication(ctx context.Context, loginUserID string) ([]*
 	}
 	req := &netmodel.GetByUserListSdk{UserID: loginUserID, Pagination: &netmodel.RequestPagination{}}
 	resp := &v2.GetRecvGroupApplicationListReply{}
-	list, err := util.GetPageAll(ctx, constant.GetRecvGroupApplicationListRouter, req, resp, fn)
+	list, err := util.GetPageAll(ctx, constant.GetSendGroupApplicationListRouter, req, resp, fn)
 	if err != nil {
 		return nil, err
 	}

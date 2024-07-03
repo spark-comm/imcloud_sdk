@@ -8,7 +8,8 @@ import (
 	"github.com/brian-god/imcloud_sdk/pkg/sdkerrs"
 	"github.com/brian-god/imcloud_sdk/pkg/server_api/convert"
 	"github.com/golang/protobuf/ptypes/empty"
-	userPb "github.com/miliao_apis/api/im_cloud/user/v2"
+	usermodel "github.com/spark-comm/spark-api/api/common/model/user/v2"
+	userPb "github.com/spark-comm/spark-api/api/im_cloud/user/v2"
 	"golang.org/x/net/context"
 )
 
@@ -29,6 +30,33 @@ func GetSelfUserInfoFromSvr(ctx context.Context, loginUserId string) (*model_str
 		return nil, sdkerrs.Warp(err, "GetUsersInfoFromSvr failed")
 	}
 	return conversion, nil
+}
+
+// SearchUser 搜索用户
+func SearchUser(ctx context.Context, req *userPb.SearchProfileReq) (*usermodel.UserProfile, error) {
+	resp := &userPb.SearchProfileReply{}
+	err := util.CallPostApi[*userPb.SearchProfileReq, *userPb.SearchProfileReply](
+		ctx, constant.SearchUserInfoRouter,
+		req,
+		resp,
+	)
+	if err != nil {
+		return nil, sdkerrs.Warp(err, "SearchUser failed")
+	}
+	return resp.Data, nil
+}
+
+// FindFullProfileByUserId 获取完整用户信息
+func FindFullProfileByUserId(ctx context.Context, userIDs ...string) ([]*usermodel.UserProfile, error) {
+	resp := &userPb.FindFullProfileByUserIdReply{}
+	err := util.CallPostApi[*userPb.FindFullProfileByUserIdReq, *userPb.FindFullProfileByUserIdReply](
+		ctx, constant.FindFullProfileByUserIdRouter,
+		&userPb.FindFullProfileByUserIdReq{UserIds: userIDs},
+		resp)
+	if err != nil {
+		return nil, sdkerrs.Warp(err, "FindFullProfileByUserId failed")
+	}
+	return resp.List, nil
 }
 
 // GetServerUserInfo retrieves user information from the server.
@@ -87,6 +115,22 @@ func SetUsersOption(ctx context.Context, loginUserId, option string, value int32
 		return err
 	}
 	return nil
+}
+
+// GetUsersOption sets the option for the specified user.
+func GetUsersOption(ctx context.Context, loginUserId, option string) (int32, error) {
+	res, err := util.ProtoApiPost[userPb.GetOptionValReq, userPb.GetOptionValReply](
+		ctx,
+		constant.GetUserOperation,
+		&userPb.GetOptionValReq{
+			UserId: loginUserId,
+			Option: userPb.UserOption(userPb.UserOption_value[option]),
+		},
+	)
+	if err != nil {
+		return 0, err
+	}
+	return res.Value, nil
 }
 
 // UpdateSelfUserInfo updates the user's information.

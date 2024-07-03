@@ -81,19 +81,13 @@ type LocalFriend struct {
 // open_im_sdk.FriendRequest == imdb.FriendRequest
 type LocalFriendRequest struct {
 	FromUserID    string `gorm:"column:from_user_id;primary_key;type:varchar(64);comment:来源用户ID" json:"fromUserID"`
-	FromNickname  string `gorm:"column:from_nickname;type:varchar;type:varchar(255);comment:来源用户昵称" json:"fromNickname"`
-	FromFaceURL   string `gorm:"column:from_face_url;type:varchar;type:varchar(255);comment:来源用户头像" json:"fromFaceURL"`
-	FromGender    int32  `gorm:"column:from_gender;comment:来源用户性别" json:"fromGender"`
-	FromCode      string `json:"fromCode" gorm:"column:from_code;size:6;comment:来源用户code"`
-	FromMessage   string `json:"fromMessage" gorm:"column:from_message;size:6;comment:来源用户个性签名"`
-	FromPhone     string `json:"fromPhone" gorm:"column:from_phone;size:6;comment:来源用户手机号"`
 	ToUserID      string `gorm:"column:to_user_id;primary_key;type:varchar(64);comment:接收方用户ID" json:"toUserID"`
-	ToNickname    string `gorm:"column:to_nickname;type:varchar;type:varchar(255);comment:接收方昵称" json:"toNickname"`
-	ToFaceURL     string `gorm:"column:to_face_url;type:varchar;type:varchar(255);comment:接收方头像" json:"toFaceURL"`
-	ToGender      int32  `gorm:"column:to_gender;comment:接收方性别" json:"toGender"`
-	ToCode        string `json:"toCode" gorm:"column:to_code;size:6;comment:接收方的code"`
-	ToMessage     string `json:"toMessage" gorm:"column:to_message;size:6;comment:接收方个性签名"`
-	ToPhone       string `json:"toPhone" gorm:"column:to_phone;size:6;comment:接收方手机号"`
+	Nickname      string `gorm:"column:nickname;type:varchar;type:varchar(255);comment:来源用户昵称" json:"fromNickname"`
+	FaceURL       string `gorm:"column:face_url;type:varchar;type:varchar(255);comment:来源用户头像" json:"fromFaceURL"`
+	Gender        int32  `gorm:"column:gender;comment:来源用户性别" json:"fromGender"`
+	Code          string `json:"fromCode" gorm:"column:code;size:6;comment:来源用户code"`
+	Message       string `json:"fromMessage" gorm:"column:message;size:6;comment:来源用户个性签名"`
+	Phone         string `json:"fromPhone" gorm:"column:phone;size:6;comment:来源用户手机号"`
 	HandleResult  int32  `gorm:"column:handle_result;comment:处理0:待处理;1:同意;2:拒绝" json:"handleResult"`
 	ReqMsg        string `gorm:"column:req_msg;type:varchar(255);comment:请求消息" json:"reqMsg"`
 	CreateAt      int64  `gorm:"column:create_at;comment:创建时间" json:"createAt"`

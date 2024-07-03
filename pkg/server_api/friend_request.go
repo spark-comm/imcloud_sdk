@@ -7,9 +7,9 @@ import (
 	"github.com/brian-god/imcloud_sdk/pkg/sdkerrs"
 	"github.com/brian-god/imcloud_sdk/pkg/server_api/convert"
 	"github.com/golang/protobuf/ptypes/empty"
-	friendmodel "github.com/miliao_apis/api/common/model/friend/v2"
-	netmodel "github.com/miliao_apis/api/common/net/v2"
-	v2 "github.com/miliao_apis/api/im_cloud/friend/v2"
+	friendmodel "github.com/spark-comm/spark-api/api/common/model/friend/v2"
+	netmodel "github.com/spark-comm/spark-api/api/common/net/v2"
+	v2 "github.com/spark-comm/spark-api/api/im_cloud/friend/v2"
 	"golang.org/x/net/context"
 )
 
@@ -17,7 +17,7 @@ import (
 func ProcessFriendApplication(ctx context.Context, req *v2.ProcessFriendApplicationReq) error {
 	if _, err := util.ProtoApiPost[v2.ProcessFriendApplicationReq, empty.Empty](
 		ctx,
-		constant.AddFriendResponse,
+		constant.ProcessFriendApplicationRouter,
 		req,
 	); err != nil {
 		return err
@@ -54,7 +54,7 @@ func GetSendFriendApplication(ctx context.Context, loginUserId string) ([]*model
 		return nil, err
 	}
 	if requests == nil {
-		return nil, sdkerrs.ErrUserIDNotFound.Wrap("sync friend request failed")
+		return make([]*model_struct.LocalFriendRequest, 0), nil
 	}
 	return util.Batch(convert.ServerFriendRequestToLocalFriendRequest, requests), nil
 }
@@ -71,7 +71,7 @@ func GetReceiveFriendApplication(ctx context.Context, loginUserId string) ([]*mo
 		return nil, err
 	}
 	if requests == nil {
-		return nil, sdkerrs.ErrUserIDNotFound.Wrap("sync friend request failed")
+		return make([]*model_struct.LocalFriendRequest, 0), nil
 	}
 	return util.Batch(convert.ServerFriendRequestToLocalFriendRequest, requests), nil
 }

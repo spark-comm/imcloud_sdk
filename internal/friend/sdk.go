@@ -24,7 +24,7 @@ import (
 	"github.com/brian-god/imcloud_sdk/pkg/sdkerrs"
 	"github.com/brian-god/imcloud_sdk/pkg/server_api"
 	"github.com/brian-god/imcloud_sdk/pkg/server_api_params"
-	friendPb "github.com/miliao_apis/api/im_cloud/friend/v2"
+	friendPb "github.com/spark-comm/spark-api/api/im_cloud/friend/v2"
 )
 
 func (f *Friend) GetSpecifiedFriendsInfo(ctx context.Context, friendUserIDList []string) ([]*server_api_params.FullUserInfo, error) {

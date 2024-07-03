@@ -19,8 +19,8 @@ import (
 	"time"
 
 	"github.com/brian-god/imcloud_sdk/pkg/server_api"
-	groupmodel "github.com/miliao_apis/api/common/model/group/v2"
-	v2 "github.com/miliao_apis/api/im_cloud/group/v2"
+	groupmodel "github.com/spark-comm/spark-api/api/common/model/group/v2"
+	v2 "github.com/spark-comm/spark-api/api/im_cloud/group/v2"
 
 	"github.com/brian-god/imcloud_sdk/pkg/constant"
 	"github.com/brian-god/imcloud_sdk/pkg/db/model_struct"

@@ -18,7 +18,7 @@ import (
 	"encoding/json"
 
 	"github.com/brian-god/imcloud_sdk/pkg/db/model_struct"
-	usermodel "github.com/miliao_apis/api/common/model/user/v2"
+	usermodel "github.com/spark-comm/spark-api/api/common/model/user/v2"
 )
 
 func ServerUserToLocalUser(user *usermodel.UserProfile) (*model_struct.LocalUser, error) {

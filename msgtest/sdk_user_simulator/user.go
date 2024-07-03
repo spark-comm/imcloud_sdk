@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/OpenIMSDK/tools/log"
-	"github.com/brian-god/imcloud_sdk/internal/login"
+	"github.com/brian-god/imcloud_sdk/open_im_sdk"
 	"github.com/brian-god/imcloud_sdk/pkg/ccontext"
 	"github.com/brian-god/imcloud_sdk/pkg/constant"
 	"github.com/brian-god/imcloud_sdk/pkg/utils"
@@ -34,7 +34,7 @@ func GetRelativeServerTime() int64 {
 }
 
 func InitSDKAndLogin(userID, token string) error {
-	userForSDK := login.NewLoginMgr()
+	userForSDK := open_im_sdk.NewLoginMgr()
 	var cf sdk_struct.IMConfig
 	cf.ApiAddr = APIADDR
 	cf.PlatformID = int32(PLATFORMID)
@@ -59,7 +59,7 @@ func InitSDKAndLogin(userID, token string) error {
 	return nil
 }
 
-func SetListener(userForSDK *login.LoginMgr, userID string) {
+func SetListener(userForSDK *open_im_sdk.LoginMgr, userID string) {
 	var testConversation conversationCallBack
 	userForSDK.SetConversationListener(&testConversation)
 

@@ -20,8 +20,8 @@ import (
 	"github.com/brian-god/imcloud_sdk/pkg/constant"
 	"github.com/brian-god/imcloud_sdk/pkg/db/model_struct"
 	"github.com/brian-god/imcloud_sdk/pkg/server_api"
-	usermodel "github.com/miliao_apis/api/common/model/user/v2"
-	userPb "github.com/miliao_apis/api/im_cloud/user/v2"
+	usermodel "github.com/spark-comm/spark-api/api/common/model/user/v2"
+	userPb "github.com/spark-comm/spark-api/api/im_cloud/user/v2"
 
 	"github.com/OpenIMSDK/protocol/sdkws"
 )
@@ -87,4 +87,16 @@ func (u *User) GetSubscribeUsersStatus(ctx context.Context) ([]*usermodel.Online
 
 func (u *User) GetUserStatus(ctx context.Context, userID string) (*usermodel.OnlineStatus, error) {
 	return u.getUserStatus(ctx, userID)
+}
+
+// SearchUser 搜索好友
+// @param ctx
+//
+//	@param searchValue 搜索数据
+//	@param searchType  1-手机 2-用户ID 3-扫码 4-身份证号 5-邮箱
+func (u *User) SearchUser(ctx context.Context, searchValue string, searchType int32) (*usermodel.UserProfile, error) {
+	return server_api.SearchUser(ctx, &userPb.SearchProfileReq{
+		SearchValue: searchValue,
+		Type:        searchType,
+	})
 }

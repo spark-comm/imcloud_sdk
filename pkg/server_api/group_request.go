@@ -6,9 +6,9 @@ import (
 	"github.com/brian-god/imcloud_sdk/pkg/db/model_struct"
 	"github.com/brian-god/imcloud_sdk/pkg/server_api/convert"
 	"github.com/golang/protobuf/ptypes/empty"
-	groupmodel "github.com/miliao_apis/api/common/model/group/v2"
-	netmodel "github.com/miliao_apis/api/common/net/v2"
-	v2 "github.com/miliao_apis/api/im_cloud/group/v2"
+	groupmodel "github.com/spark-comm/spark-api/api/common/model/group/v2"
+	netmodel "github.com/spark-comm/spark-api/api/common/net/v2"
+	v2 "github.com/spark-comm/spark-api/api/im_cloud/group/v2"
 	"golang.org/x/net/context"
 )
 

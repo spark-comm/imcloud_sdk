@@ -210,6 +210,11 @@ func (testGroupListener) OnGroupDismissed(callbackInfo string) {
 type testConnListener struct {
 }
 
+func (t *testConnListener) OnUserTokenInvalid(errMsg string) {
+	//TODO implement me
+	panic("implement me")
+}
+
 func (t *testConnListener) OnUserTokenExpired() {
 
 }

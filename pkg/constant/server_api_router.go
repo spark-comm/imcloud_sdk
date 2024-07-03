@@ -19,33 +19,31 @@ const (
 	BaseRouterV2 = "/api/app/v2"
 )
 const (
-	GetSelfUserInfoRouter         = BaseRouter + "/user/get_pb_self_user_info"
-	GetUsersInfoRouter            = BaseRouter + "/user/get_users_info"
-	FindFullProfileByUserIdRouter = BaseRouter + "/user/find_full_users_info"
-	UpdateSelfUserInfoRouter      = BaseRouter + "/user/update_user_info"
-	SetGlobalRecvMessageOptRouter = BaseRouter + "/user/set_global_msg_recv_opt"
-	GetUsersInfoFromCacheRouter   = BaseRouter + "/user/get_users_info_from_cache"
-	SearchUserInfoRouter          = BaseRouter + "/user/search"
-	SetUsersOption                = BaseRouter + "/user/set_option"
-	GetUserLoginStatusRouter      = BaseRouter + "/user/get_login_status"
-	GetUserOperation              = BaseRouter + "/user/get_user_operation"
+	// 用户
+	GetSelfUserInfoRouter         = BaseRouterV2 + "/pb/user/get_self_user_info"
+	GetUsersInfoRouter            = BaseRouterV2 + "/pb/user/get_users_info"
+	FindFullProfileByUserIdRouter = BaseRouterV2 + "/pb/user/find_full_users_info"
+	UpdateSelfUserInfoRouter      = BaseRouterV2 + "/pb/user/update_user_info"
+	SearchUserInfoRouter          = BaseRouterV2 + "/pb/user/search"
+	SetUsersOption                = BaseRouterV2 + "/pb/user/set_option"
+	GetUserLoginStatusRouter      = BaseRouterV2 + "/pb/user/get_login_status"
+	GetUserOperation              = BaseRouterV2 + "/pb/user/get_user_operation"
 
-	ScreenUserProfile = BaseRouter + "/user/screen_profile"
-
-	AddFriendRouter                           = BaseRouter + "/friend/add_friend"
-	DeleteFriendRouter                        = BaseRouter + "/friend/delete_friend"
-	GetSelfFriendReceiveApplicationListRouter = BaseRouter + "/friend/get_self_receive_friend_apply_list" //recv
-	GetSelfFriendApplicationListRouter        = BaseRouter + "/friend/get_self_friend_apply_list"         //send
-	GetFriendListRouter                       = BaseRouter + "/friend/get_friend_list"
-	AddFriendResponse                         = BaseRouter + "/friend/add_friend_response"
-	SetFriendInfoRouter                       = BaseRouter + "/friend/set_friend_info"
+	// 好友
+	AddFriendRouter                           = BaseRouterV2 + "/pb/friend/add_friend"
+	DeleteFriendRouter                        = BaseRouterV2 + "/pb/friend/delete_friend"
+	GetSelfFriendReceiveApplicationListRouter = BaseRouterV2 + "/pb/friend/get_self_receive_friend_apply_list" //recv
+	GetSelfFriendApplicationListRouter        = BaseRouterV2 + "/pb/friend/get_self_friend_apply_list"         //send
+	GetFriendListRouter                       = BaseRouterV2 + "/pb/friend/get_friend_list"
+	ProcessFriendApplicationRouter            = BaseRouterV2 + "/pb/friend/process_friend_application"
+	SetFriendInfoRouter                       = BaseRouterV2 + "/pb/friend/set_friend_info"
 	// 黑明单
-	AddBlackRouter     = BaseRouter + "/friend/add_black"
-	RemoveBlackRouter  = BaseRouter + "/friend/remove_black"
-	GetBlackListRouter = BaseRouter + "/friend/get_black_list"
-	// GetFriendRequestByApplicantRouter 通过申请与被申请人获取好友请求详情
-	GetFriendRequestByApplicantRouter = BaseRouter + "/friend/get_friend_request_by_applicant"
-	GetFriendByAppIdsRouter           = BaseRouter + "/friend/get_friend_by_ids"
+	AddBlackRouter     = BaseRouterV2 + "/pb/friend/add_black"
+	RemoveBlackRouter  = BaseRouterV2 + "/pb/friend/remove_black"
+	GetBlackListRouter = BaseRouterV2 + "/pb/friend/get_black_list"
+	// 好友请求
+	GetFriendRequestByApplicantRouter = BaseRouterV2 + "/friend/get_friend_request_by_applicant"
+	GetFriendByAppIdsRouter           = BaseRouterV2 + "/friend/get_friend_by_ids"
 
 	GetSyncFriendList      = BaseRouter + "/friend/get_sync_friend_list"
 	SendMsgRouter          = "/chat/send_msg"

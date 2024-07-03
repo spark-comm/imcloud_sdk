@@ -3,26 +3,20 @@ package convert
 import (
 	"github.com/brian-god/imcloud_sdk/pkg/db/model_struct"
 	"github.com/brian-god/imcloud_sdk/pkg/utils"
-	friendmodel "github.com/miliao_apis/api/common/model/friend/v2"
+	friendmodel "github.com/spark-comm/spark-api/api/common/model/friend/v2"
 )
 
 // ServerFriendRequestToLocalFriendRequest 服务器好友请求转换为本地好友请求
 func ServerFriendRequestToLocalFriendRequest(info *friendmodel.FriendRequest) *model_struct.LocalFriendRequest {
 	return &model_struct.LocalFriendRequest{
 		FromUserID:    info.FromUserID,
-		FromNickname:  info.FromNickname,
-		FromFaceURL:   info.FromFaceURL,
-		FromGender:    info.FromGender,
-		FromCode:      info.FromCode,
-		FromPhone:     info.FromPhone,
-		FromMessage:   info.FromMessage,
+		Nickname:      info.Nickname,
+		FaceURL:       info.FaceURL,
+		Gender:        info.Gender,
+		Code:          info.Code,
+		Phone:         info.Phone,
+		Message:       info.Message,
 		ToUserID:      info.ToUserID,
-		ToNickname:    info.ToNickname,
-		ToFaceURL:     info.ToFaceURL,
-		ToGender:      info.ToGender,
-		ToMessage:     info.ToMessage,
-		ToCode:        info.ToCode,
-		ToPhone:       info.ToPhone,
 		HandleResult:  info.HandleResult,
 		ReqMsg:        info.ReqMsg,
 		CreateAt:      info.CreateTime,
@@ -30,7 +24,7 @@ func ServerFriendRequestToLocalFriendRequest(info *friendmodel.FriendRequest) *m
 		HandleMsg:     info.HandleMsg,
 		HandleTime:    info.HandleTime,
 		Ex:            info.Ex,
-		SortFlag:      getSortFlag(info.ToNickname, info.ToNickname),
+		SortFlag:      getSortFlag(info.Nickname, info.Nickname),
 	}
 }
 

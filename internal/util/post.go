@@ -25,7 +25,7 @@ import (
 	"github.com/brian-god/imcloud_sdk/pkg/network"
 	"github.com/brian-god/imcloud_sdk/pkg/sdkerrs"
 	"github.com/golang/protobuf/proto"
-	v2 "github.com/miliao_apis/api/common/net/v2"
+	v2 "github.com/spark-comm/spark-api/api/common/net/v2"
 	"golang.org/x/net/context"
 )
 

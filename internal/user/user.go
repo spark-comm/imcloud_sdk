@@ -27,8 +27,8 @@ import (
 	"github.com/brian-god/imcloud_sdk/pkg/sdkerrs"
 	"github.com/brian-god/imcloud_sdk/pkg/server_api"
 	"github.com/brian-god/imcloud_sdk/pkg/syncer"
-	usermodel "github.com/miliao_apis/api/common/model/user/v2"
-	imUserPb "github.com/miliao_apis/api/im_cloud/user/v2"
+	usermodel "github.com/spark-comm/spark-api/api/common/model/user/v2"
+	imUserPb "github.com/spark-comm/spark-api/api/im_cloud/user/v2"
 
 	"github.com/brian-god/imcloud_sdk/open_im_sdk_callback"
 	"github.com/brian-god/imcloud_sdk/pkg/common"

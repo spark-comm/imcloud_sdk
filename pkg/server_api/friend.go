@@ -8,9 +8,9 @@ import (
 	"github.com/brian-god/imcloud_sdk/pkg/sdkerrs"
 	"github.com/brian-god/imcloud_sdk/pkg/server_api/convert"
 	"github.com/golang/protobuf/ptypes/empty"
-	friendmodel "github.com/miliao_apis/api/common/model/friend/v2"
-	netmodel "github.com/miliao_apis/api/common/net/v2"
-	friendPb "github.com/miliao_apis/api/im_cloud/friend/v2"
+	friendmodel "github.com/spark-comm/spark-api/api/common/model/friend/v2"
+	netmodel "github.com/spark-comm/spark-api/api/common/net/v2"
+	friendPb "github.com/spark-comm/spark-api/api/im_cloud/friend/v2"
 	"golang.org/x/net/context"
 )
 

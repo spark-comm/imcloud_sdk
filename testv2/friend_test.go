@@ -22,7 +22,7 @@ import (
 	"github.com/brian-god/imcloud_sdk/open_im_sdk"
 	"github.com/brian-god/imcloud_sdk/pkg/sdk_params_callback"
 
-	friendPb "github.com/miliao_apis/api/im_cloud/friend/v2"
+	friendPb "github.com/spark-comm/spark-api/api/im_cloud/friend/v2"
 )
 
 func Test_GetSpecifiedFriendsInfo(t *testing.T) {

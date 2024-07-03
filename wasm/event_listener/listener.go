@@ -20,10 +20,10 @@ package event_listener
 import (
 	"syscall/js"
 
-	"github.com/brian-god/imcloud_sdk/internal/file"
-	"github.com/brian-god/imcloud_sdk/open_im_sdk_callback"
-	"github.com/brian-god/imcloud_sdk/pkg/utils"
-	"github.com/brian-god/imcloud_sdk/sdk_struct"
+	"github.com/spark-comm/imcloud_sdk/internal/file"
+	"github.com/spark-comm/imcloud_sdk/open_im_sdk_callback"
+	"github.com/spark-comm/imcloud_sdk/pkg/utils"
+	"github.com/spark-comm/imcloud_sdk/sdk_struct"
 )
 
 type ConnCallback struct {

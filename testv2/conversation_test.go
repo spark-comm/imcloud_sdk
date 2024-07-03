@@ -18,9 +18,9 @@ import (
 	"context"
 	"testing"
 
-	"github.com/brian-god/imcloud_sdk/open_im_sdk"
-	"github.com/brian-god/imcloud_sdk/pkg/sdk_params_callback"
-	"github.com/brian-god/imcloud_sdk/sdk_struct"
+	"github.com/spark-comm/imcloud_sdk/open_im_sdk"
+	"github.com/spark-comm/imcloud_sdk/pkg/sdk_params_callback"
+	"github.com/spark-comm/imcloud_sdk/sdk_struct"
 )
 
 func Test_GetAllConversationList(t *testing.T) {

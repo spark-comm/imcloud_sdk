@@ -15,8 +15,8 @@
 package open_im_sdk
 
 import (
-	"github.com/brian-god/imcloud_sdk/internal/file"
-	"github.com/brian-god/imcloud_sdk/open_im_sdk_callback"
+	"github.com/spark-comm/imcloud_sdk/internal/file"
+	"github.com/spark-comm/imcloud_sdk/open_im_sdk_callback"
 )
 
 func UploadFile(callback open_im_sdk_callback.Base, operationID string, req string, progress open_im_sdk_callback.UploadFileCallback) {

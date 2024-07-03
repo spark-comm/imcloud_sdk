@@ -15,8 +15,8 @@
 package sdk_params_callback
 
 import (
-	"github.com/brian-god/imcloud_sdk/pkg/server_api_params"
-	"github.com/brian-god/imcloud_sdk/sdk_struct"
+	"github.com/spark-comm/imcloud_sdk/pkg/server_api_params"
+	"github.com/spark-comm/imcloud_sdk/sdk_struct"
 )
 
 type FindMessageListParams []*ConversationArgs

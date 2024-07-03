@@ -1,7 +1,7 @@
 package module
 
 import (
-	"github.com/brian-god/imcloud_sdk/pkg/constant"
+	"github.com/spark-comm/imcloud_sdk/pkg/constant"
 
 	"github.com/OpenIMSDK/protocol/friend"
 )

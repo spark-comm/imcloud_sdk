@@ -15,7 +15,7 @@
 package server_api_params
 
 import (
-	"github.com/brian-god/imcloud_sdk/pkg/db/model_struct"
+	"github.com/spark-comm/imcloud_sdk/pkg/db/model_struct"
 )
 
 type ApiUserInfo struct {

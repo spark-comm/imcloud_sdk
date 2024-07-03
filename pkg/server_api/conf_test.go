@@ -2,8 +2,9 @@ package server_api
 
 import (
 	"context"
-	"github.com/brian-god/imcloud_sdk/pkg/ccontext"
-	"github.com/brian-god/imcloud_sdk/sdk_struct"
+
+	"github.com/spark-comm/imcloud_sdk/pkg/ccontext"
+	"github.com/spark-comm/imcloud_sdk/sdk_struct"
 )
 
 const (

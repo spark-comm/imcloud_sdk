@@ -1,4 +1,4 @@
-module github.com/brian-god/imcloud_sdk
+module github.com/spark-comm/imcloud_sdk
 
 go 1.18
 

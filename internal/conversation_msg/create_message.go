@@ -19,15 +19,15 @@ import (
 	"errors"
 
 	"github.com/OpenIMSDK/tools/log"
-	"github.com/brian-god/imcloud_sdk/pkg/constant"
+	"github.com/spark-comm/imcloud_sdk/pkg/constant"
 
 	"os"
 	"path/filepath"
 	"strings"
 
-	"github.com/brian-god/imcloud_sdk/pkg/sdkerrs"
-	"github.com/brian-god/imcloud_sdk/pkg/utils"
-	"github.com/brian-god/imcloud_sdk/sdk_struct"
+	"github.com/spark-comm/imcloud_sdk/pkg/sdkerrs"
+	"github.com/spark-comm/imcloud_sdk/pkg/utils"
+	"github.com/spark-comm/imcloud_sdk/sdk_struct"
 )
 
 func (c *Conversation) CreateTextMessage(ctx context.Context, text string) (*sdk_struct.MsgStruct, error) {

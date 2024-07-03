@@ -12,10 +12,10 @@ import (
 	"github.com/OpenIMSDK/protocol/msg"
 	"github.com/OpenIMSDK/tools/log"
 	"github.com/OpenIMSDK/tools/mcontext"
-	"github.com/brian-god/imcloud_sdk/internal/util"
-	"github.com/brian-god/imcloud_sdk/pkg/constant"
-	"github.com/brian-god/imcloud_sdk/pkg/sdkerrs"
-	"github.com/brian-god/imcloud_sdk/pkg/utils"
+	"github.com/spark-comm/imcloud_sdk/internal/util"
+	"github.com/spark-comm/imcloud_sdk/pkg/constant"
+	"github.com/spark-comm/imcloud_sdk/pkg/sdkerrs"
+	"github.com/spark-comm/imcloud_sdk/pkg/utils"
 )
 
 const (

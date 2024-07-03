@@ -19,9 +19,10 @@ package db
 
 import (
 	"context"
-	"github.com/brian-god/imcloud_sdk/pkg/db/model_struct"
-	"github.com/brian-god/imcloud_sdk/pkg/utils"
+
 	"github.com/pkg/errors"
+	"github.com/spark-comm/imcloud_sdk/pkg/db/model_struct"
+	"github.com/spark-comm/imcloud_sdk/pkg/utils"
 )
 
 // ProcessUserCommandAdd adds a new user command to the database.

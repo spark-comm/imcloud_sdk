@@ -18,7 +18,7 @@ import (
 	"bytes"
 	"encoding/gob"
 
-	"github.com/brian-god/imcloud_sdk/pkg/utils"
+	"github.com/spark-comm/imcloud_sdk/pkg/utils"
 )
 
 type Encoder interface {

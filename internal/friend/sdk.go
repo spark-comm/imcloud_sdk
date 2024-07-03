@@ -18,12 +18,12 @@ import (
 	"context"
 
 	"github.com/OpenIMSDK/tools/log"
-	"github.com/brian-god/imcloud_sdk/pkg/constant"
-	"github.com/brian-god/imcloud_sdk/pkg/db/model_struct"
-	sdk "github.com/brian-god/imcloud_sdk/pkg/sdk_params_callback"
-	"github.com/brian-god/imcloud_sdk/pkg/sdkerrs"
-	"github.com/brian-god/imcloud_sdk/pkg/server_api"
-	"github.com/brian-god/imcloud_sdk/pkg/server_api_params"
+	"github.com/spark-comm/imcloud_sdk/pkg/constant"
+	"github.com/spark-comm/imcloud_sdk/pkg/db/model_struct"
+	sdk "github.com/spark-comm/imcloud_sdk/pkg/sdk_params_callback"
+	"github.com/spark-comm/imcloud_sdk/pkg/sdkerrs"
+	"github.com/spark-comm/imcloud_sdk/pkg/server_api"
+	"github.com/spark-comm/imcloud_sdk/pkg/server_api_params"
 	friendPb "github.com/spark-comm/spark-api/api/im_cloud/friend/v2"
 )
 

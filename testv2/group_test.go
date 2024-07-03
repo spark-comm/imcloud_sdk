@@ -17,9 +17,9 @@ package testv2
 import (
 	"testing"
 
-	"github.com/brian-god/imcloud_sdk/open_im_sdk"
-	"github.com/brian-god/imcloud_sdk/pkg/constant"
-	"github.com/brian-god/imcloud_sdk/pkg/sdk_params_callback"
+	"github.com/spark-comm/imcloud_sdk/open_im_sdk"
+	"github.com/spark-comm/imcloud_sdk/pkg/constant"
+	"github.com/spark-comm/imcloud_sdk/pkg/sdk_params_callback"
 	groupPb "github.com/spark-comm/spark-api/api/im_cloud/group/v2"
 )
 

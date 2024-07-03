@@ -18,13 +18,13 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/brian-god/imcloud_sdk/internal/friend"
-	"github.com/brian-god/imcloud_sdk/internal/group"
-	"github.com/brian-god/imcloud_sdk/internal/user"
-	"github.com/brian-god/imcloud_sdk/pkg/common"
-	"github.com/brian-god/imcloud_sdk/pkg/constant"
-	"github.com/brian-god/imcloud_sdk/pkg/db/db_interface"
-	"github.com/brian-god/imcloud_sdk/pkg/db/model_struct"
+	"github.com/spark-comm/imcloud_sdk/internal/friend"
+	"github.com/spark-comm/imcloud_sdk/internal/group"
+	"github.com/spark-comm/imcloud_sdk/internal/user"
+	"github.com/spark-comm/imcloud_sdk/pkg/common"
+	"github.com/spark-comm/imcloud_sdk/pkg/constant"
+	"github.com/spark-comm/imcloud_sdk/pkg/db/db_interface"
+	"github.com/spark-comm/imcloud_sdk/pkg/db/model_struct"
 )
 
 type Full struct {

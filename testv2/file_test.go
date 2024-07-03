@@ -18,8 +18,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/brian-god/imcloud_sdk/internal/file"
-	"github.com/brian-god/imcloud_sdk/open_im_sdk"
+	"github.com/spark-comm/imcloud_sdk/internal/file"
+	"github.com/spark-comm/imcloud_sdk/open_im_sdk"
 )
 
 func TestUploadFile(t *testing.T) {

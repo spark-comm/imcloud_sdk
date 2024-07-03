@@ -20,9 +20,9 @@ package indexdb
 import (
 	"context"
 
-	"github.com/brian-god/imcloud_sdk/pkg/db/model_struct"
-	"github.com/brian-god/imcloud_sdk/pkg/utils"
-	"github.com/brian-god/imcloud_sdk/wasm/exec"
+	"github.com/spark-comm/imcloud_sdk/pkg/db/model_struct"
+	"github.com/spark-comm/imcloud_sdk/pkg/utils"
+	"github.com/spark-comm/imcloud_sdk/wasm/exec"
 )
 
 type LocalGroupRequest struct {

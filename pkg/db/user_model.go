@@ -21,8 +21,8 @@ import (
 	"context"
 	"errors"
 
-	"github.com/brian-god/imcloud_sdk/pkg/db/model_struct"
-	"github.com/brian-god/imcloud_sdk/pkg/utils"
+	"github.com/spark-comm/imcloud_sdk/pkg/db/model_struct"
+	"github.com/spark-comm/imcloud_sdk/pkg/utils"
 )
 
 func (d *DataBase) GetLoginUser(ctx context.Context, userID string) (*model_struct.LocalUser, error) {

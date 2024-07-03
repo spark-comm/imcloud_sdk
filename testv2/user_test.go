@@ -22,7 +22,7 @@ import (
 	"github.com/OpenIMSDK/protocol/user"
 	"github.com/OpenIMSDK/protocol/wrapperspb"
 
-	"github.com/brian-god/imcloud_sdk/open_im_sdk"
+	"github.com/spark-comm/imcloud_sdk/open_im_sdk"
 
 	"github.com/OpenIMSDK/protocol/sdkws"
 )

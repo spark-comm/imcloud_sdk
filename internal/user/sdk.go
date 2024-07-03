@@ -17,9 +17,9 @@ package user
 import (
 	"context"
 
-	"github.com/brian-god/imcloud_sdk/pkg/constant"
-	"github.com/brian-god/imcloud_sdk/pkg/db/model_struct"
-	"github.com/brian-god/imcloud_sdk/pkg/server_api"
+	"github.com/spark-comm/imcloud_sdk/pkg/constant"
+	"github.com/spark-comm/imcloud_sdk/pkg/db/model_struct"
+	"github.com/spark-comm/imcloud_sdk/pkg/server_api"
 	usermodel "github.com/spark-comm/spark-api/api/common/model/user/v2"
 	userPb "github.com/spark-comm/spark-api/api/im_cloud/user/v2"
 

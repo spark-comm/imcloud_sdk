@@ -15,7 +15,7 @@
 package sdk_params_callback
 
 import (
-	"github.com/brian-god/imcloud_sdk/pkg/db/model_struct"
+	"github.com/spark-comm/imcloud_sdk/pkg/db/model_struct"
 )
 
 // //////////////////////////////friend////////////////////////////////////

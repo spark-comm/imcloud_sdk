@@ -5,11 +5,11 @@ import (
 	"fmt"
 
 	"github.com/OpenIMSDK/tools/log"
-	"github.com/brian-god/imcloud_sdk/open_im_sdk"
-	"github.com/brian-god/imcloud_sdk/pkg/ccontext"
-	"github.com/brian-god/imcloud_sdk/pkg/constant"
-	"github.com/brian-god/imcloud_sdk/pkg/utils"
-	"github.com/brian-god/imcloud_sdk/sdk_struct"
+	"github.com/spark-comm/imcloud_sdk/open_im_sdk"
+	"github.com/spark-comm/imcloud_sdk/pkg/ccontext"
+	"github.com/spark-comm/imcloud_sdk/pkg/constant"
+	"github.com/spark-comm/imcloud_sdk/pkg/utils"
+	"github.com/spark-comm/imcloud_sdk/sdk_struct"
 )
 
 var (

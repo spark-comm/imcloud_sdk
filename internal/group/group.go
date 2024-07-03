@@ -19,15 +19,15 @@ import (
 
 	"github.com/OpenIMSDK/tools/log"
 	utils2 "github.com/OpenIMSDK/tools/utils"
-	"github.com/brian-god/imcloud_sdk/open_im_sdk_callback"
-	"github.com/brian-god/imcloud_sdk/pkg/common"
-	"github.com/brian-god/imcloud_sdk/pkg/constant"
-	"github.com/brian-god/imcloud_sdk/pkg/db/db_interface"
-	"github.com/brian-god/imcloud_sdk/pkg/db/model_struct"
-	"github.com/brian-god/imcloud_sdk/pkg/sdkerrs"
-	"github.com/brian-god/imcloud_sdk/pkg/server_api"
-	"github.com/brian-god/imcloud_sdk/pkg/syncer"
-	"github.com/brian-god/imcloud_sdk/pkg/utils"
+	"github.com/spark-comm/imcloud_sdk/open_im_sdk_callback"
+	"github.com/spark-comm/imcloud_sdk/pkg/common"
+	"github.com/spark-comm/imcloud_sdk/pkg/constant"
+	"github.com/spark-comm/imcloud_sdk/pkg/db/db_interface"
+	"github.com/spark-comm/imcloud_sdk/pkg/db/model_struct"
+	"github.com/spark-comm/imcloud_sdk/pkg/sdkerrs"
+	"github.com/spark-comm/imcloud_sdk/pkg/server_api"
+	"github.com/spark-comm/imcloud_sdk/pkg/syncer"
+	"github.com/spark-comm/imcloud_sdk/pkg/utils"
 )
 
 func NewGroup(loginUserID string, db db_interface.DataBase,

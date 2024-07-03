@@ -18,9 +18,9 @@ import (
 	"context"
 	"encoding/json"
 
-	"github.com/brian-god/imcloud_sdk/internal/file"
-	"github.com/brian-god/imcloud_sdk/pkg/db/db_interface"
-	"github.com/brian-god/imcloud_sdk/sdk_struct"
+	"github.com/spark-comm/imcloud_sdk/internal/file"
+	"github.com/spark-comm/imcloud_sdk/pkg/db/db_interface"
+	"github.com/spark-comm/imcloud_sdk/sdk_struct"
 
 	"github.com/OpenIMSDK/tools/log"
 )

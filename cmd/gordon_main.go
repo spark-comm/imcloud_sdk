@@ -21,10 +21,10 @@ import (
 	"time"
 
 	"github.com/OpenIMSDK/tools/log"
-	"github.com/brian-god/imcloud_sdk/pkg/network"
-	"github.com/brian-god/imcloud_sdk/pkg/server_api_params"
-	"github.com/brian-god/imcloud_sdk/pkg/utils"
-	"github.com/brian-god/imcloud_sdk/test"
+	"github.com/spark-comm/imcloud_sdk/pkg/network"
+	"github.com/spark-comm/imcloud_sdk/pkg/server_api_params"
+	"github.com/spark-comm/imcloud_sdk/pkg/utils"
+	"github.com/spark-comm/imcloud_sdk/test"
 )
 
 var (

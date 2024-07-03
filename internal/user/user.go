@@ -389,7 +389,7 @@ func (u *User) getUserStatus(ctx context.Context, userID string) (*usermodel.Onl
 		return nil, err
 	}
 	return &usermodel.OnlineStatus{
-		Status: resp.Status,
-		UserId: resp.UserID,
+		Status: resp.Data.Status,
+		UserId: resp.Data.UserId,
 	}, nil
 }

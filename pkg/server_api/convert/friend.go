@@ -1,8 +1,8 @@
 package convert
 
 import (
-	"github.com/brian-god/imcloud_sdk/pkg/db/model_struct"
-	"github.com/brian-god/imcloud_sdk/pkg/utils"
+	"github.com/spark-comm/imcloud_sdk/pkg/db/model_struct"
+	"github.com/spark-comm/imcloud_sdk/pkg/utils"
 	friendmodel "github.com/spark-comm/spark-api/api/common/model/friend/v2"
 )
 

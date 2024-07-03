@@ -21,10 +21,10 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/brian-god/imcloud_sdk/pkg/ccontext"
-	"github.com/brian-god/imcloud_sdk/pkg/network"
-	"github.com/brian-god/imcloud_sdk/pkg/sdkerrs"
 	"github.com/golang/protobuf/proto"
+	"github.com/spark-comm/imcloud_sdk/pkg/ccontext"
+	"github.com/spark-comm/imcloud_sdk/pkg/network"
+	"github.com/spark-comm/imcloud_sdk/pkg/sdkerrs"
 	v2 "github.com/spark-comm/spark-api/api/common/net/v2"
 	"golang.org/x/net/context"
 )

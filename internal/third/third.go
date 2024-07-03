@@ -17,7 +17,7 @@ package third
 import (
 	"context"
 
-	"github.com/brian-god/imcloud_sdk/internal/file"
+	"github.com/spark-comm/imcloud_sdk/internal/file"
 )
 
 type Third struct {

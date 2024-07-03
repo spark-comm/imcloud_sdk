@@ -4,9 +4,9 @@ import (
 	"github.com/OpenIMSDK/protocol/msg"
 	pbMsg "github.com/OpenIMSDK/protocol/msg"
 	"github.com/OpenIMSDK/protocol/sdkws"
-	"github.com/brian-god/imcloud_sdk/internal/util"
-	"github.com/brian-god/imcloud_sdk/pkg/constant"
 	"github.com/golang/protobuf/ptypes/empty"
+	"github.com/spark-comm/imcloud_sdk/internal/util"
+	"github.com/spark-comm/imcloud_sdk/pkg/constant"
 	"golang.org/x/net/context"
 )
 

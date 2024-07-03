@@ -18,10 +18,10 @@ import (
 	"context"
 
 	"github.com/OpenIMSDK/tools/log"
-	"github.com/brian-god/imcloud_sdk/pkg/common"
-	"github.com/brian-god/imcloud_sdk/pkg/constant"
-	"github.com/brian-god/imcloud_sdk/pkg/db/model_struct"
-	api "github.com/brian-god/imcloud_sdk/pkg/server_api_params"
+	"github.com/spark-comm/imcloud_sdk/pkg/common"
+	"github.com/spark-comm/imcloud_sdk/pkg/constant"
+	"github.com/spark-comm/imcloud_sdk/pkg/db/model_struct"
+	api "github.com/spark-comm/imcloud_sdk/pkg/server_api_params"
 )
 
 func (u *Full) GetUsersInfo(ctx context.Context, userIDs []string) ([]*api.FullUserInfo, error) {

@@ -18,7 +18,7 @@ import (
 	"context"
 	"encoding/json"
 
-	"github.com/brian-god/imcloud_sdk/pkg/syncer"
+	"github.com/spark-comm/imcloud_sdk/pkg/syncer"
 )
 
 func NoticeChange[T any](fn func(data string)) func(ctx context.Context, state int, value T) error {

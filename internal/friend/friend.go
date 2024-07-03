@@ -18,13 +18,13 @@ import (
 	"context"
 
 	"github.com/OpenIMSDK/tools/log"
-	"github.com/brian-god/imcloud_sdk/internal/user"
-	"github.com/brian-god/imcloud_sdk/open_im_sdk_callback"
-	"github.com/brian-god/imcloud_sdk/pkg/common"
-	"github.com/brian-god/imcloud_sdk/pkg/constant"
-	"github.com/brian-god/imcloud_sdk/pkg/db/db_interface"
-	"github.com/brian-god/imcloud_sdk/pkg/db/model_struct"
-	"github.com/brian-god/imcloud_sdk/pkg/syncer"
+	"github.com/spark-comm/imcloud_sdk/internal/user"
+	"github.com/spark-comm/imcloud_sdk/open_im_sdk_callback"
+	"github.com/spark-comm/imcloud_sdk/pkg/common"
+	"github.com/spark-comm/imcloud_sdk/pkg/constant"
+	"github.com/spark-comm/imcloud_sdk/pkg/db/db_interface"
+	"github.com/spark-comm/imcloud_sdk/pkg/db/model_struct"
+	"github.com/spark-comm/imcloud_sdk/pkg/syncer"
 )
 
 func NewFriend(loginUserID string, db db_interface.DataBase, user *user.User, conversationCh chan common.Cmd2Value) *Friend {

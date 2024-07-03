@@ -3,8 +3,8 @@ package msgtest
 import (
 	"fmt"
 
-	"github.com/brian-god/imcloud_sdk/pkg/constant"
-	"github.com/brian-god/imcloud_sdk/sdk_struct"
+	"github.com/spark-comm/imcloud_sdk/pkg/constant"
+	"github.com/spark-comm/imcloud_sdk/sdk_struct"
 )
 
 // config here

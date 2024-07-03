@@ -24,7 +24,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/brian-god/imcloud_sdk/pkg/utils"
+	"github.com/spark-comm/imcloud_sdk/pkg/utils"
 )
 
 func get(url string) (response []byte, err error) {

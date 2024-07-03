@@ -8,7 +8,7 @@ import (
 	"os"
 
 	"github.com/OpenIMSDK/tools/errs"
-	"github.com/brian-god/imcloud_sdk/sdk_struct"
+	"github.com/spark-comm/imcloud_sdk/sdk_struct"
 	_ "golang.org/x/image/bmp"
 	_ "golang.org/x/image/tiff"
 	_ "golang.org/x/image/webp"

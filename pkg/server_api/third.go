@@ -2,8 +2,8 @@ package server_api
 
 import (
 	"github.com/OpenIMSDK/protocol/third"
-	"github.com/brian-god/imcloud_sdk/internal/util"
-	"github.com/brian-god/imcloud_sdk/pkg/constant"
+	"github.com/spark-comm/imcloud_sdk/internal/util"
+	"github.com/spark-comm/imcloud_sdk/pkg/constant"
 	"golang.org/x/net/context"
 )
 

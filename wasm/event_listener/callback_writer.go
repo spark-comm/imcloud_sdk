@@ -20,7 +20,7 @@ package event_listener
 import (
 	"syscall/js"
 
-	"github.com/brian-god/imcloud_sdk/pkg/utils"
+	"github.com/spark-comm/imcloud_sdk/pkg/utils"
 )
 
 type CallbackWriter interface {

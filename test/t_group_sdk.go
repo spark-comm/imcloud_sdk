@@ -15,16 +15,16 @@
 package test
 
 import (
-	"github.com/brian-god/imcloud_sdk/open_im_sdk"
-	"github.com/brian-god/imcloud_sdk/pkg/constant"
-	"github.com/brian-god/imcloud_sdk/pkg/sdk_params_callback"
-	"github.com/brian-god/imcloud_sdk/pkg/server_api_params"
+	"github.com/spark-comm/imcloud_sdk/open_im_sdk"
+	"github.com/spark-comm/imcloud_sdk/pkg/constant"
+	"github.com/spark-comm/imcloud_sdk/pkg/sdk_params_callback"
+	"github.com/spark-comm/imcloud_sdk/pkg/server_api_params"
 
 	//	"encoding/json"
 	"fmt"
 
 	"github.com/OpenIMSDK/tools/log"
-	"github.com/brian-god/imcloud_sdk/pkg/utils"
+	"github.com/spark-comm/imcloud_sdk/pkg/utils"
 	//"open_im_sdk/internal/open_im_sdk"
 	//"open_im_sdk/pkg/utils"
 	//	"open_im_sdk/internal/common"

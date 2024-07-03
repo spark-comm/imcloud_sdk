@@ -23,7 +23,7 @@ import (
 	"io"
 	"syscall/js"
 
-	"github.com/brian-god/imcloud_sdk/wasm/exec"
+	"github.com/spark-comm/imcloud_sdk/wasm/exec"
 )
 
 const readBufferSize = 1024 * 1024 * 5 // 5mb

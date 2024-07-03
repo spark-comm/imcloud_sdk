@@ -15,7 +15,7 @@
 package convert
 
 import (
-	"github.com/brian-god/imcloud_sdk/pkg/db/model_struct"
+	"github.com/spark-comm/imcloud_sdk/pkg/db/model_struct"
 
 	pbConversation "github.com/OpenIMSDK/protocol/conversation"
 )

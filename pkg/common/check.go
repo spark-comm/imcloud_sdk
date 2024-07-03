@@ -18,9 +18,9 @@ import (
 	"encoding/json"
 	"runtime"
 
-	"github.com/brian-god/imcloud_sdk/open_im_sdk_callback"
-	"github.com/brian-god/imcloud_sdk/pkg/sdkerrs"
-	"github.com/brian-god/imcloud_sdk/pkg/utils"
+	"github.com/spark-comm/imcloud_sdk/open_im_sdk_callback"
+	"github.com/spark-comm/imcloud_sdk/pkg/sdkerrs"
+	"github.com/spark-comm/imcloud_sdk/pkg/utils"
 )
 
 //var validate *validator.Validate

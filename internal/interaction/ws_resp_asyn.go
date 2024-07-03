@@ -20,7 +20,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/brian-god/imcloud_sdk/pkg/utils"
+	"github.com/spark-comm/imcloud_sdk/pkg/utils"
 
 	"github.com/OpenIMSDK/tools/log"
 )

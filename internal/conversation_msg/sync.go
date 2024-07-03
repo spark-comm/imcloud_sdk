@@ -19,10 +19,10 @@ import (
 	"time"
 
 	utils2 "github.com/OpenIMSDK/tools/utils"
-	"github.com/brian-god/imcloud_sdk/pkg/common"
-	"github.com/brian-god/imcloud_sdk/pkg/constant"
-	"github.com/brian-god/imcloud_sdk/pkg/db/model_struct"
-	"github.com/brian-god/imcloud_sdk/pkg/syncer"
+	"github.com/spark-comm/imcloud_sdk/pkg/common"
+	"github.com/spark-comm/imcloud_sdk/pkg/constant"
+	"github.com/spark-comm/imcloud_sdk/pkg/db/model_struct"
+	"github.com/spark-comm/imcloud_sdk/pkg/syncer"
 
 	"github.com/OpenIMSDK/tools/log"
 )

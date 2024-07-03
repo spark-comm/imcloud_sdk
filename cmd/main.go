@@ -18,7 +18,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/brian-god/imcloud_sdk/test"
+	"github.com/spark-comm/imcloud_sdk/test"
 )
 
 func main() {

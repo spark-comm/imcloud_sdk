@@ -2,12 +2,12 @@ package server_api
 
 import (
 	authPb "github.com/OpenIMSDK/protocol/auth"
-	"github.com/brian-god/imcloud_sdk/internal/util"
-	"github.com/brian-god/imcloud_sdk/pkg/constant"
-	"github.com/brian-god/imcloud_sdk/pkg/db/model_struct"
-	"github.com/brian-god/imcloud_sdk/pkg/sdkerrs"
-	"github.com/brian-god/imcloud_sdk/pkg/server_api/convert"
 	"github.com/golang/protobuf/ptypes/empty"
+	"github.com/spark-comm/imcloud_sdk/internal/util"
+	"github.com/spark-comm/imcloud_sdk/pkg/constant"
+	"github.com/spark-comm/imcloud_sdk/pkg/db/model_struct"
+	"github.com/spark-comm/imcloud_sdk/pkg/sdkerrs"
+	"github.com/spark-comm/imcloud_sdk/pkg/server_api/convert"
 	usermodel "github.com/spark-comm/spark-api/api/common/model/user/v2"
 	userPb "github.com/spark-comm/spark-api/api/im_cloud/user/v2"
 	"golang.org/x/net/context"

@@ -5,10 +5,10 @@ import (
 	"testing"
 
 	"github.com/OpenIMSDK/tools/log"
-	"github.com/brian-god/imcloud_sdk/msgtest/module"
-	"github.com/brian-god/imcloud_sdk/msgtest/sdk_user_simulator"
-	"github.com/brian-god/imcloud_sdk/pkg/ccontext"
-	"github.com/brian-god/imcloud_sdk/pkg/utils"
+	"github.com/spark-comm/imcloud_sdk/msgtest/module"
+	"github.com/spark-comm/imcloud_sdk/msgtest/sdk_user_simulator"
+	"github.com/spark-comm/imcloud_sdk/pkg/ccontext"
+	"github.com/spark-comm/imcloud_sdk/pkg/utils"
 )
 
 func Test_SimulateMultiOnline(t *testing.T) {

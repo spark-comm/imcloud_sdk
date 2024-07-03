@@ -15,7 +15,7 @@
 package common
 
 import (
-	"github.com/brian-god/imcloud_sdk/pkg/utils"
+	"github.com/spark-comm/imcloud_sdk/pkg/utils"
 
 	"github.com/OpenIMSDK/protocol/sdkws"
 	"github.com/golang/protobuf/proto"

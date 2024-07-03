@@ -15,7 +15,7 @@
 package open_im_sdk
 
 import (
-	"github.com/brian-god/imcloud_sdk/open_im_sdk_callback"
+	"github.com/spark-comm/imcloud_sdk/open_im_sdk_callback"
 )
 
 func GetUsersInfo(callback open_im_sdk_callback.Base, operationID string, userIDs string) {

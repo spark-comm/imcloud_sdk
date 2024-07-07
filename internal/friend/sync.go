@@ -16,6 +16,7 @@ package friend
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/spark-comm/imcloud_sdk/pkg/db/model_struct"
 	"github.com/spark-comm/imcloud_sdk/pkg/sdkerrs"
@@ -30,6 +31,7 @@ func (f *Friend) SyncBothFriendRequest(ctx context.Context, fromUserID, toUserID
 	if err != nil {
 		return err
 	}
+	fmt.Println("localData", friendRequests)
 	data := []*model_struct.LocalFriendRequest{friendRequests}
 	if toUserID == f.loginUserID {
 		return f.requestRecvSyncer.Sync(ctx, data, localData, nil)

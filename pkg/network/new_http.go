@@ -53,6 +53,7 @@ func PostWithTimeOutByte(url string, data []byte, token, language string, timeou
 	toBytes, err := header.ToBytes()
 	if err != nil {
 		if err.Error() == http.ErrHandlerTimeout.Error() || strings.Contains(err.Error(), "network") {
+			fmt.Printf("errr %v", err)
 			return []byte{}, errors.New("网络错误！")
 		}
 	}

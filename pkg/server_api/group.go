@@ -169,12 +169,15 @@ func InviteUserToGroup(ctx context.Context, groupID, loginUserId, reason string,
 }
 
 // SearchGroupByCode  搜索群组
-func SearchGroupByCode(ctx context.Context, loginUserId, groupCode string) (*groupmodel.GroupInfo, error) {
+func SearchGroupByCode(ctx context.Context, loginUserId, groupCode string) (*model_struct.LocalGroup, error) {
 	resp, err := util.ProtoApiPost[v2.GetGroupByCodeReq, v2.GetGroupByCodeReply](
 		ctx, constant.SearchGroupByCodeRouter, &v2.GetGroupByCodeReq{UserID: loginUserId, Code: groupCode},
 	)
 	if err != nil {
 		return nil, err
 	}
-	return resp.Data, nil
+	if resp.Data == nil {
+		return nil, nil
+	}
+	return convert.ServerGroupToLocalGroup(resp.Data), nil
 }

@@ -42,8 +42,8 @@ const (
 	RemoveBlackRouter  = BaseRouterV2 + "/pb/friend/remove_black"
 	GetBlackListRouter = BaseRouterV2 + "/pb/friend/get_black_list"
 	// 好友请求
-	GetFriendRequestByApplicantRouter = BaseRouterV2 + "/friend/get_friend_request_by_applicant"
-	GetFriendByAppIdsRouter           = BaseRouterV2 + "/friend/get_friend_by_ids"
+	GetFriendRequestByApplicantRouter = BaseRouterV2 + "/pb/friend/get_friend_request_by_applicant"
+	GetFriendByAppIdsRouter           = BaseRouterV2 + "/pb/friend/get_friend_by_ids"
 
 	SendMsgRouter          = "/chat/send_msg"
 	PullUserMsgRouter      = "/chat/pull_msg"

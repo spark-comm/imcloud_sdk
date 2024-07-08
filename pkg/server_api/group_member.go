@@ -55,7 +55,7 @@ func KickGroupMember(ctx context.Context, groupID, loginUserId string, reason st
 			GroupID:          groupID,
 			KickedUserIdList: userIDList,
 			UserID:           loginUserId,
-			HandledMsg:       reason,
+			//HandledMsg:       reason,
 		},
 	); err != nil {
 		return err

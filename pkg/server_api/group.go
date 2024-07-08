@@ -113,14 +113,14 @@ func GetSpecifiedGroupsInfo(ctx context.Context, groupIDs []string) ([]*model_st
 
 // GetServerJoinGroup  获取服务端用户加入的群
 func GetServerJoinGroup(ctx context.Context, loginUserId string) ([]*model_struct.LocalGroup, error) {
-	fn := func(resp *v2.GetJoinedGroupListReply) []*groupmodel.BaseGroupInfo { return resp.List }
+	fn := func(resp *v2.GetJoinedGroupListReply) []*groupmodel.GroupInfo { return resp.List }
 	req := &netmodel.GetByFormUserListSdk{FromUserID: loginUserId, Pagination: &netmodel.RequestPagination{}}
 	resp := &v2.GetJoinedGroupListReply{}
 	list, err := util.GetPageAll(ctx, constant.GetJoinedGroupListRouter, req, resp, fn)
 	if err != nil {
 		return nil, err
 	}
-	return util.Batch(convert.ServerBaseGroupToLocalGroup, list), nil
+	return util.Batch(convert.ServerGroupToLocalGroup, list), nil
 }
 
 // GetGroupsInfo 从服务端获取群数据

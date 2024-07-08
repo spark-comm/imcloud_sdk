@@ -55,6 +55,8 @@ github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec h1:W09IVJc94
 github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec/go.mod h1:qqbHyh8v60DhA7CoWK5oRCqLrMHRGoxYCSS9EjAz6Eo=
 github.com/spark-comm/spark-api v0.0.1 h1:vOlM23XrTG65vT4AiuxqDneBItEH/i5rDumbGoUYbVk=
 github.com/spark-comm/spark-api v0.0.1/go.mod h1:8v9LkkidEc8sEZqPYwGCjgfy733O6vbgJ8AT6USDj3o=
+github.com/spark-comm/spark-api v0.0.2 h1:oi9uj8Cs1+3yCGpzEsXbcq7rM/7R6z35GQhszir1h90=
+github.com/spark-comm/spark-api v0.0.2/go.mod h1:8v9LkkidEc8sEZqPYwGCjgfy733O6vbgJ8AT6USDj3o=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
 github.com/stretchr/testify v1.3.0/go.mod h1:M5WIy9Dh21IEIfnGCwXGc5bZfKNJtfHm1UVUgZn+9EI=
 github.com/stretchr/testify v1.8.3 h1:RP3t2pwF7cMEbC1dqtB6poj3niw/9gnV4Cjg5oW5gtY=

@@ -82,12 +82,12 @@ type LocalFriend struct {
 type LocalFriendRequest struct {
 	FromUserID    string `gorm:"column:from_user_id;type:varchar(64);comment:来源用户ID" json:"fromUserID"`
 	ToUserID      string `gorm:"column:to_user_id;type:varchar(64);comment:接收方用户ID" json:"toUserID"`
-	Nickname      string `gorm:"column:nickname;type:varchar;type:varchar(255);comment:来源用户昵称" json:"fromNickname"`
-	FaceURL       string `gorm:"column:face_url;type:varchar;type:varchar(255);comment:来源用户头像" json:"fromFaceURL"`
-	Gender        int32  `gorm:"column:gender;comment:来源用户性别" json:"fromGender"`
-	Code          string `json:"fromCode" gorm:"column:code;size:6;comment:来源用户code"`
-	Message       string `json:"fromMessage" gorm:"column:message;size:6;comment:来源用户个性签名"`
-	Phone         string `json:"fromPhone" gorm:"column:phone;size:6;comment:来源用户手机号"`
+	Nickname      string `gorm:"column:nickname;type:varchar;type:varchar(255);comment:来源用户昵称" json:"nickname"`
+	FaceURL       string `gorm:"column:face_url;type:varchar;type:varchar(255);comment:来源用户头像" json:"faceURL"`
+	Gender        int32  `gorm:"column:gender;comment:来源用户性别" json:"gender"`
+	Code          string `json:"code" gorm:"column:code;size:6;comment:来源用户code"`
+	Message       string `json:"message" gorm:"column:message;size:6;comment:来源用户个性签名"`
+	Phone         string `json:"phone" gorm:"column:phone;size:6;comment:来源用户手机号"`
 	HandleResult  int32  `gorm:"column:handle_result;comment:处理0:待处理;1:同意;2:拒绝" json:"handleResult"`
 	ReqMsg        string `gorm:"column:req_msg;type:varchar(255);comment:请求消息" json:"reqMsg"`
 	CreateAt      int64  `gorm:"column:create_time;comment:创建时间" json:"createAt"`
@@ -143,9 +143,9 @@ type LocalGroup struct {
 	MaxMemberCount         int32  `json:"maxMemberCount" gorm:"column:max_member_count;comment:群的最大用户数"`
 	MemberCount            int32  `json:"memberCount" gorm:"column:member_count;comment:群用户数"`
 	AttachedInfo           string `json:"attachedInfo" gorm:"column:attached_info;size:1024;comment:附加信息"`
-	NeedVerification       int32  `json:"needVerification" gorm:"column:need_verification;default:0;comment:加群是否需要验证:0需要,1不需要"`
-	LookMemberInfo         int32  `json:"lookMemberInfo" gorm:"column:look_member_info;default:0;comment:支持成员信息查看:0支持,1不支持"`
-	ApplyMemberFriend      int32  `json:"applyMemberFriend" gorm:"column:apply_member_friend;default:0;comment:是否可通过群加好友:0支持,1不支持" `
+	NeedVerification       int32  `json:"need_verification" gorm:"column:need_verification;default:0;comment:加群是否需要验证:0不需要,1需要"`
+	LookMemberInfo         int32  `json:"look_member_info" gorm:"column:look_member_info;default:0;comment:支持成员信息查看:0支持,1不支持"`
+	ApplyMemberFriend      int32  `json:"apply_member_friend" gorm:"column:apply_member_friend;default:0;comment:是否可通过群加好友:0支持,1不支持" `
 	OnlyManageUpdateName   int32  `json:"onlyManageUpdateName" gorm:"column:only_manage_update_name;default:0;comment:是否仅管理员或群主能够更新群名称:"`
 	NotificationUpdateTime int64  `json:"notificationUpdateTime" gorm:"column:notification_update_time;comment:群公告更新时间"`
 	NotificationUserID     string `json:"notificationUserID" gorm:"column:notification_user_id;size:64;comment:更新公告用户id"`

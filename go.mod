@@ -41,7 +41,7 @@ require (
 	github.com/mattn/go-isatty v0.0.19 // indirect
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
-	github.com/spark-comm/spark-api v0.0.1 // indirect
+	github.com/spark-comm/spark-api v0.0.2 // indirect
 	go.uber.org/atomic v1.7.0 // indirect
 	go.uber.org/multierr v1.6.0 // indirect
 	go.uber.org/zap v1.24.0 // indirect

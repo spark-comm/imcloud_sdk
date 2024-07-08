@@ -47,4 +47,7 @@ var (
 
 	ErrLoginOut    = errs.NewCodeError(LoginOutError, "LoginOutError")
 	ErrLoginRepeat = errs.NewCodeError(LoginRepeatError, "LoginRepeatError")
+
+	//通用
+	GetDataError = errs.NewCodeError(GetDataErrorCode, "GetDataError")
 )

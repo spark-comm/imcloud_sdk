@@ -49,3 +49,19 @@ func Test_GetServerAdminGroupApplicationList(t *testing.T) {
 	}
 	t.Log(data)
 }
+
+func Test_GetServerGroupMembers(t *testing.T) {
+	data, err := GetServerGroupMembers(getCtx(), "237875325046784")
+	if err != nil {
+		t.Error(err)
+	}
+	t.Log(data)
+}
+
+func Test_GetGroupAbstractInfo(t *testing.T) {
+	data, err := GetGroupAbstractInfo(getCtx(), "237875325046784")
+	if err != nil {
+		t.Error(err)
+	}
+	t.Log(data)
+}

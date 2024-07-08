@@ -48,5 +48,6 @@ const (
 	//群组相关
 	GroupIDNotFoundError = 10400 //GroupID不存在
 	GroupTypeErr         = 10401 //群组类型错误
-
+	//通用
+	GetDataErrorCode = 10100
 )

@@ -918,7 +918,11 @@ func (c *Conversation) DeleteMessageFromLocalStorage(ctx context.Context, conver
 }
 
 func (c *Conversation) DeleteMessage(ctx context.Context, conversationID string, clientMsgID string) error {
-	return c.deleteMessage(ctx, conversationID, clientMsgID)
+	return c.deleteMessage(ctx, conversationID, clientMsgID, false)
+}
+
+func (c *Conversation) ClearMessage(ctx context.Context, conversationID string, clientMsgID string) error {
+	return c.deleteMessage(ctx, conversationID, clientMsgID, true)
 }
 
 func (c *Conversation) DeleteAllMsgFromLocalAndSvr(ctx context.Context) error {

@@ -26,7 +26,7 @@ func DeleteAllMessageFromSvr(ctx context.Context, loginUserID string) error {
 }
 
 // DeleteMessageFromSvr The user deletes part of the message from the server
-func DeleteMessageFromSvr(ctx context.Context, loginUserID string, conversationID string, seqs ...int64) error {
+func DeleteMessageFromSvr(ctx context.Context, loginUserID string, conversationID string, clearAll bool, seqs ...int64) error {
 	_, err := util.ProtoApiPost[msg.DeleteMsgsReq, empty.Empty](
 		ctx,
 		constant.DeleteMsgsRouter,
@@ -34,6 +34,10 @@ func DeleteMessageFromSvr(ctx context.Context, loginUserID string, conversationI
 			UserID:         loginUserID,
 			Seqs:           seqs,
 			ConversationID: conversationID,
+			DeleteSyncOpt: &msg.DeleteSyncOpt{
+				IsSyncSelf:  !clearAll,
+				IsSyncOther: clearAll,
+			},
 		},
 	)
 	if err != nil {

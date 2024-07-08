@@ -120,15 +120,15 @@ func (c *Conversation) deleteAllMsgFromLocal(ctx context.Context, markDelete boo
 }
 
 // Delete a message from the local
-func (c *Conversation) deleteMessage(ctx context.Context, conversationID string, clientMsgID string) error {
-	if err := c.deleteMessageFromSvr(ctx, conversationID, clientMsgID); err != nil {
+func (c *Conversation) deleteMessage(ctx context.Context, conversationID string, clientMsgID string, clearAll bool) error {
+	if err := c.deleteMessageFromSvr(ctx, conversationID, clientMsgID, clearAll); err != nil {
 		return err
 	}
 	return c.deleteMessageFromLocal(ctx, conversationID, clientMsgID)
 }
 
 // The user deletes part of the message from the server
-func (c *Conversation) deleteMessageFromSvr(ctx context.Context, conversationID string, clientMsgID string) error {
+func (c *Conversation) deleteMessageFromSvr(ctx context.Context, conversationID string, clientMsgID string, clearAll bool) error {
 	_, err := c.db.GetMessage(ctx, conversationID, clientMsgID)
 	if err != nil {
 		return err
@@ -145,7 +145,7 @@ func (c *Conversation) deleteMessageFromSvr(ctx context.Context, conversationID 
 		log.ZInfo(ctx, "delete msg seq is 0, try again", "msg", localMessage)
 		return sdkerrs.ErrMsgHasNoSeq
 	}
-	return server_api.DeleteMessageFromSvr(ctx, c.loginUserID, conversationID, localMessage.Seq)
+	return server_api.DeleteMessageFromSvr(ctx, c.loginUserID, conversationID, clearAll, localMessage.Seq)
 }
 
 // Delete messages from local

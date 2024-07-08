@@ -181,3 +181,15 @@ func SearchGroupByCode(ctx context.Context, loginUserId, groupCode string) (*mod
 	}
 	return convert.ServerGroupToLocalGroup(resp.Data), nil
 }
+func GetGroupAbstractInfo(ctx context.Context, groupID string) (*groupmodel.GroupAbstractInfo, error) {
+	resp, err := util.ProtoApiPost[v2.GetGroupAbstractInfoReq, v2.GetGroupAbstractInfoReply](
+		ctx, constant.GetGroupAbstractInfoRouter, &v2.GetGroupAbstractInfoReq{GroupIDs: []string{groupID}},
+	)
+	if err != nil {
+		return nil, err
+	}
+	if resp.GroupAbstractInfos == nil {
+		return nil, nil
+	}
+	return resp.GroupAbstractInfos[0], nil
+}

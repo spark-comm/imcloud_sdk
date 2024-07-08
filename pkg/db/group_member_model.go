@@ -116,6 +116,37 @@ func (d *DataBase) GetGroupMemberListSplit(ctx context.Context, groupID string, 
 	return transfer, utils.Wrap(err, "GetGroupMemberListSplit failed ")
 }
 
+func (d *DataBase) GetGroupMemberListPage(ctx context.Context, groupID string, filter int32, page, size int) ([]*model_struct.LocalGroupMember, int64, error) {
+	d.groupMtx.Lock()
+	defer d.groupMtx.Unlock()
+	var groupMemberList []*model_struct.LocalGroupMember
+	var err error
+	var total int64
+	tx := d.conn.WithContext(ctx).Model(&model_struct.LocalGroupMember{})
+	switch filter {
+	case constant.GroupFilterAll:
+		tx = tx.Where("group_id = ?", groupID).Order("role_level DESC,join_time ASC")
+	case constant.GroupFilterOwner:
+		tx = tx.Where("group_id = ? And role_level = ?", groupID, constant.GroupOwner)
+	case constant.GroupFilterAdmin:
+		tx = tx.Where("group_id = ? And role_level = ?", groupID, constant.GroupAdmin).Order("join_time ASC")
+	case constant.GroupFilterOrdinaryUsers:
+		tx = tx.Where("group_id = ? And role_level = ?", groupID, constant.GroupOrdinaryUsers).Order("join_time ASC")
+		tx = tx.Where("group_id = ? And (role_level = ? or role_level = ?)", groupID, constant.GroupAdmin, constant.GroupOrdinaryUsers).Order("role_level DESC,join_time ASC")
+	case constant.GroupFilterOwnerAndAdmin:
+		tx = tx.Where("group_id = ? And (role_level = ? or role_level = ?)", groupID, constant.GroupOwner, constant.GroupAdmin).Order("role_level DESC,join_time ASC")
+	default:
+		return nil, total, fmt.Errorf("filter args failed %d", filter)
+	}
+	if err = tx.Count(&total).Error; err != nil {
+		return nil, total, utils.Wrap(err, "GetGroupMemberListPage failed ")
+	}
+	if err = tx.Scopes(SqlDataLimit(size, page)).Scan(&groupMemberList).Error; err != nil {
+		return nil, total, utils.Wrap(err, "GetGroupMemberListPage failed ")
+	}
+	return groupMemberList, total, utils.Wrap(err, "GetGroupMemberListPage failed ")
+}
+
 func (d *DataBase) GetGroupMemberOwnerAndAdminDB(ctx context.Context, groupID string) ([]*model_struct.LocalGroupMember, error) {
 	d.groupMtx.Lock()
 	defer d.groupMtx.Unlock()

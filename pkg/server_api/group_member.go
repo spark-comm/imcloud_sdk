@@ -34,8 +34,8 @@ func GetDesignatedGroupMember(ctx context.Context, groupID string, userIDs ...st
 // GetServerGroupMembers 远程获取群成员
 func GetServerGroupMembers(ctx context.Context, groupID string) ([]*model_struct.LocalGroupMember, error) {
 	req := &groupmodel.GetByGroupListSdk{GroupID: groupID, Pagination: &netmodel.RequestPagination{ShowNumber: 100}}
-	fn := func(resp *v2.MemberByIdsReply) []*groupmodel.MemberInfo { return resp.List }
-	resp := &v2.MemberByIdsReply{}
+	fn := func(resp *v2.GetGroupMembersReply) []*groupmodel.MemberInfo { return resp.List }
+	resp := &v2.GetGroupMembersReply{}
 	list, err := util.GetPageAll(ctx, constant.GetGroupMemberListRouter, req, resp, fn)
 	if err != nil {
 		return nil, err

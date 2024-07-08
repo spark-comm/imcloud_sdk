@@ -19,9 +19,6 @@ import (
 	"crypto/md5"
 	"encoding/binary"
 	"encoding/json"
-	"sync"
-	"time"
-
 	"github.com/OpenIMSDK/protocol/group"
 	"github.com/OpenIMSDK/protocol/sdkws"
 	"github.com/OpenIMSDK/tools/log"
@@ -30,6 +27,7 @@ import (
 	"github.com/spark-comm/imcloud_sdk/pkg/db/model_struct"
 	"github.com/spark-comm/imcloud_sdk/pkg/server_api"
 	"github.com/spark-comm/imcloud_sdk/pkg/utils"
+	"sync"
 )
 
 func (g *Group) getGroupHash(members []*model_struct.LocalGroupMember) uint64 {
@@ -260,17 +258,13 @@ func (g *Group) GetDesignatedGroupMembers(ctx context.Context, groupID string, u
 }
 
 func (g *Group) GetGroupAbstractInfo(ctx context.Context, groupID string) (*group.GroupAbstractInfo, error) {
-	//resp, err := util.CallApi[group.GetGroupAbstractInfoResp](ctx, constant.GetGroupAbstractInfoRouter, &group.GetGroupAbstractInfoReq{GroupIDs: []string{groupID}})
-	//if err != nil {
-	//	return nil, err
-	//}
-	//if len(resp.GroupAbstractInfos) == 0 {
-	//	return nil, errors.New("group not found")
-	//}
-	//return resp.GroupAbstractInfos[0], nil
+	resp, err := server_api.GetGroupAbstractInfo(ctx, groupID)
+	if err != nil {
+		return nil, err
+	}
 	return &group.GroupAbstractInfo{
-		GroupID:             groupID,
-		GroupMemberNumber:   0,
-		GroupMemberListHash: uint64(time.Now().Unix()),
+		GroupID:             resp.GroupID,
+		GroupMemberNumber:   resp.GroupMemberNumber,
+		GroupMemberListHash: resp.GetGroupMemberListHash(),
 	}, nil
 }

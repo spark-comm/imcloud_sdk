@@ -234,6 +234,7 @@ func (f *Friend) PinFriends(ctx context.Context, friends *sdk.SetFriendPinParams
 
 func (f *Friend) SetFriendInfo(ctx context.Context, req *friendPb.SetFriendInfoReq) error {
 	req.FromUserID = f.loginUserID
+	req.UserID = f.loginUserID
 	if err := server_api.SetFriendInfo(ctx, req); err != nil {
 		return err
 	}

@@ -1,6 +1,9 @@
 package server_api
 
-import "testing"
+import (
+	friendPb "github.com/spark-comm/spark-api/api/im_cloud/friend/v2"
+	"testing"
+)
 
 func Test_GetAllFriendList(t *testing.T) {
 	list, err := GetAllFriendList(getCtx(), UserID)
@@ -38,4 +41,27 @@ func Test_BothFriendRequest(t *testing.T) {
 		t.Fatal(err)
 	}
 	t.Log(data)
+}
+
+func Test_SetFriendInfo(t *testing.T) {
+	err := SetFriendInfo(getCtx(), &friendPb.SetFriendInfoReq{FromUserID: "922670631751680", ToUserID: "931422227402752", Remark: "你好30"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log(err)
+}
+func Test_AddBlack(t *testing.T) {
+	err := AddBlack(getCtx(), UserID, "931422227402752")
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log(err)
+}
+
+func Test_RemoveBlack(t *testing.T) {
+	err := RemoveBlack(getCtx(), UserID, "931422227402752")
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log(err)
 }

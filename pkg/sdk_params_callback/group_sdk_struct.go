@@ -79,6 +79,10 @@ type SetGroupMemberInfoParam struct {
 	UserID  string  `json:"userID"`
 	Ex      *string `json:"ex"`
 }
+type GroupMemberPage struct {
+	Total int64                            `json:"total"`
+	List  []*model_struct.LocalGroupMember `json:"list"`
+}
 
 const SetGroupMemberInfoCallback = constant.SuccessCallbackDefault
 

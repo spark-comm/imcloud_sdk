@@ -26,6 +26,7 @@ type GroupModel interface {
 	DeleteGroup(ctx context.Context, groupID string) error
 	UpdateGroup(ctx context.Context, groupInfo *model_struct.LocalGroup) error
 	GetJoinedGroupListDB(ctx context.Context) ([]*model_struct.LocalGroup, error)
+	SearchJoinedGroupList(ctx context.Context, keyword string, status int32, page, size int) ([]*model_struct.LocalGroup, int64, error)
 	GetGroups(ctx context.Context, groupIDs []string) ([]*model_struct.LocalGroup, error)
 	GetGroupInfoByGroupID(ctx context.Context, groupID string) (*model_struct.LocalGroup, error)
 	GetAllGroupInfoByGroupIDOrGroupName(ctx context.Context, keyword string, isSearchGroupID bool, isSearchGroupName bool) ([]*model_struct.LocalGroup, error)
@@ -233,6 +234,7 @@ type FriendModel interface {
 	GetPageFriendList(ctx context.Context, offset, count int) ([]*model_struct.LocalFriend, error)
 	GetFriendsByPage(ctx context.Context, page, size int) ([]*model_struct.LocalFriend, int64, error)
 	SearchFriendList(ctx context.Context, keyword string, isSearchUserID, isSearchNickname, isSearchRemark bool) ([]*model_struct.LocalFriend, error)
+	SearchFriends(ctx context.Context, keyword string, notPeersFriend bool, page, size int) ([]*model_struct.LocalFriend, int64, error)
 	GetFriendInfoByFriendUserID(ctx context.Context, FriendUserID string) (*model_struct.LocalFriend, error)
 	GetFriendInfoList(ctx context.Context, friendUserIDList []string) ([]*model_struct.LocalFriend, error)
 	InsertFriendRequest(ctx context.Context, friendRequest *model_struct.LocalFriendRequest) error

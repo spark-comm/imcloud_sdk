@@ -190,3 +190,14 @@ func Test_GetFriendByPage(t *testing.T) {
 		t.Log(fmt.Sprintf("%#v", d.FriendInfo))
 	}
 }
+
+func Test_SearchFriendsList(t *testing.T) {
+	data, err := open_im_sdk.UserForSDK.Friend().SearchFriendsList(ctx, "177", true, 1, 10)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, d := range data.List {
+		t.Log(fmt.Sprintf("%#v", d))
+	}
+	t.Log(data.Total)
+}

@@ -210,6 +210,18 @@ func (f *Friend) GetFriendsByPage(ctx context.Context, page, size int) (*sdk.Fri
 		List:  res,
 	}, nil
 }
+
+// SearchFriendsList 搜索好友
+func (f *Friend) SearchFriendsList(ctx context.Context, keyword string, notPeersFriend bool, page, size int) (*sdk.OnlyFriendPage, error) {
+	data, total, err := f.db.SearchFriends(ctx, keyword, notPeersFriend, page, size)
+	if err != nil {
+		return nil, err
+	}
+	return &sdk.OnlyFriendPage{
+		Total: total,
+		List:  data,
+	}, nil
+}
 func (f *Friend) SearchFriends(ctx context.Context, param *sdk.SearchFriendsParam) ([]*sdk.SearchFriendItem, error) {
 	if len(param.KeywordList) == 0 || (!param.IsSearchNickname && !param.IsSearchUserID && !param.IsSearchRemark) {
 		return nil, sdkerrs.ErrArgs.Wrap("keyword is null or search field all false")

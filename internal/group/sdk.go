@@ -131,7 +131,16 @@ func (g *Group) SetGroupMemberInfo(ctx context.Context, groupMemberInfo *v2.SetG
 func (g *Group) GetJoinedGroupList(ctx context.Context) ([]*model_struct.LocalGroup, error) {
 	return g.db.GetJoinedGroupListDB(ctx)
 }
-
+func (g *Group) SearchJoinedGroupList(ctx context.Context, keyword string, status int32, page, size int) (*sdk_params_callback.OnlyGroupPage, error) {
+	data, total, err := g.db.SearchJoinedGroupList(ctx, keyword, status, page, size)
+	if err != nil {
+		return nil, err
+	}
+	return &sdk_params_callback.OnlyGroupPage{
+		Total: total,
+		List:  data,
+	}, nil
+}
 func (g *Group) GetSpecifiedGroupsInfo(ctx context.Context, groupIDs []string) ([]*model_struct.LocalGroup, error) {
 	groupList, err := g.db.GetJoinedGroupListDB(ctx)
 	if err != nil {

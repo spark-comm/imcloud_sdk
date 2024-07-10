@@ -140,6 +140,17 @@ func Test_GetJoinedGroupList(t *testing.T) {
 	}
 }
 
+func Test_SearchJoinedGroupList(t *testing.T) {
+	data, err := open_im_sdk.UserForSDK.Group().SearchJoinedGroupList(ctx, "小", 0, 1, 10)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, localGroup := range data.List {
+		t.Logf("%#v", localGroup)
+	}
+	t.Log(data.Total)
+}
+
 func Test_GetSpecifiedGroupsInfo(t *testing.T) {
 	info, err := open_im_sdk.UserForSDK.Group().GetSpecifiedGroupsInfo(ctx, []string{"test"})
 	if err != nil {

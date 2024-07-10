@@ -63,6 +63,28 @@ func (d *DataBase) GetJoinedGroupListDB(ctx context.Context) ([]*model_struct.Lo
 	return transfer, utils.Wrap(err, "GetJoinedGroupList failed ")
 }
 
+func (d *DataBase) SearchJoinedGroupList(ctx context.Context, keyword string, status int32, page, size int) ([]*model_struct.LocalGroup, int64, error) {
+	d.groupMtx.Lock()
+	defer d.groupMtx.Unlock()
+	var groupList []*model_struct.LocalGroup
+	var condition string
+	var total int64
+	fields := []string{"code", "name"}
+	for i, field := range fields {
+		if i == 0 {
+			condition = fmt.Sprintf("%s like %q ", field, "%"+keyword+"%")
+		} else {
+			condition += fmt.Sprintf("or %s like %q ", field, "%"+keyword+"%")
+		}
+	}
+	tx := d.conn.WithContext(ctx).Model(&model_struct.LocalGroup{}).Where(condition).Where("status = ?", status)
+	if err := tx.Count(&total).Error; err != nil {
+		return nil, 0, utils.Wrap(err, "GetJoinedGroupList failed ")
+	}
+	err := tx.Order("create_time DESC").Scopes(SqlDataLimit(size, page)).Scan(&groupList).Error
+	return groupList, total, utils.Wrap(err, "GetJoinedGroupList failed ")
+}
+
 func (d *DataBase) GetGroups(ctx context.Context, groupIDs []string) ([]*model_struct.LocalGroup, error) {
 	d.groupMtx.Lock()
 	defer d.groupMtx.Unlock()

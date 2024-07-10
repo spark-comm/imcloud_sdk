@@ -84,6 +84,12 @@ type GroupMemberPage struct {
 	List  []*model_struct.LocalGroupMember `json:"list"`
 }
 
+// 分页获取数据
+type OnlyGroupPage struct {
+	Total int64                      `json:"total"`
+	List  []*model_struct.LocalGroup `json:"list"`
+}
+
 const SetGroupMemberInfoCallback = constant.SuccessCallbackDefault
 
 const SetGroupInfoCallback = constant.SuccessCallbackDefault

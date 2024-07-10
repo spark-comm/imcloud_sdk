@@ -184,7 +184,32 @@ func (f *Friend) GetFriendListPage(ctx context.Context, offset, count int32) ([]
 	}
 	return res, nil
 }
-
+func (f *Friend) GetFriendsByPage(ctx context.Context, page, size int) (*sdk.FriendPage, error) {
+	localFriendList, total, err := f.db.GetFriendsByPage(ctx, page, size)
+	if err != nil {
+		return nil, err
+	}
+	localBlackList, err := f.db.GetBlackListDB(ctx)
+	if err != nil {
+		return nil, err
+	}
+	m := make(map[string]*model_struct.LocalBlack)
+	for i, black := range localBlackList {
+		m[black.BlackUserID] = localBlackList[i]
+	}
+	res := make([]*server_api_params.FullUserInfo, 0, len(localFriendList))
+	for _, localFriend := range localFriendList {
+		res = append(res, &server_api_params.FullUserInfo{
+			PublicInfo: nil,
+			FriendInfo: localFriend,
+			BlackInfo:  m[localFriend.FriendUserID],
+		})
+	}
+	return &sdk.FriendPage{
+		Total: total,
+		List:  res,
+	}, nil
+}
 func (f *Friend) SearchFriends(ctx context.Context, param *sdk.SearchFriendsParam) ([]*sdk.SearchFriendItem, error) {
 	if len(param.KeywordList) == 0 || (!param.IsSearchNickname && !param.IsSearchUserID && !param.IsSearchRemark) {
 		return nil, sdkerrs.ErrArgs.Wrap("keyword is null or search field all false")

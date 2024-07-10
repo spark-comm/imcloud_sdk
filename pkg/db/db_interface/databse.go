@@ -56,7 +56,7 @@ type GroupModel interface {
 	GetGroupAdminID(ctx context.Context, groupID string) ([]string, error)
 	GetGroupMemberListByGroupID(ctx context.Context, groupID string) ([]*model_struct.LocalGroupMember, error)
 	GetGroupMemberListSplit(ctx context.Context, groupID string, filter int32, offset, count int) ([]*model_struct.LocalGroupMember, error)
-	GetGroupMemberListPage(ctx context.Context, groupID string, filter int32, page, size int) ([]*model_struct.LocalGroupMember, int64, error)
+	GetGroupMemberByPage(ctx context.Context, groupID string, filter int32, page, size int) ([]*model_struct.LocalGroupMember, int64, error)
 	GetGroupMemberOwnerAndAdminDB(ctx context.Context, groupID string) ([]*model_struct.LocalGroupMember, error)
 	GetGroupMemberOwner(ctx context.Context, groupID string) (*model_struct.LocalGroupMember, error)
 	GetGroupMemberListSplitByJoinTimeFilter(ctx context.Context, groupID string, offset, count int, joinTimeBegin, joinTimeEnd int64, userIDList []string) ([]*model_struct.LocalGroupMember, error)
@@ -231,6 +231,7 @@ type FriendModel interface {
 	UpdateFriend(ctx context.Context, friend *model_struct.LocalFriend) error
 	GetAllFriendList(ctx context.Context) ([]*model_struct.LocalFriend, error)
 	GetPageFriendList(ctx context.Context, offset, count int) ([]*model_struct.LocalFriend, error)
+	GetFriendsByPage(ctx context.Context, page, size int) ([]*model_struct.LocalFriend, int64, error)
 	SearchFriendList(ctx context.Context, keyword string, isSearchUserID, isSearchNickname, isSearchRemark bool) ([]*model_struct.LocalFriend, error)
 	GetFriendInfoByFriendUserID(ctx context.Context, FriendUserID string) (*model_struct.LocalFriend, error)
 	GetFriendInfoList(ctx context.Context, friendUserIDList []string) ([]*model_struct.LocalFriend, error)

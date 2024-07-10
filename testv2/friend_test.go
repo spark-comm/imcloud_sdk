@@ -15,6 +15,7 @@
 package testv2
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
@@ -178,5 +179,14 @@ func Test_SetFriendsEx(t *testing.T) {
 	err := open_im_sdk.UserForSDK.Friend().SetFriendsEx(ctx, []string{"2"}, "exx")
 	if err != nil {
 		t.Fatal(err)
+	}
+}
+func Test_GetFriendByPage(t *testing.T) {
+	data, err := open_im_sdk.UserForSDK.Friend().GetFriendsByPage(ctx, 1, 2)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, d := range data.List {
+		t.Log(fmt.Sprintf("%#v", d.FriendInfo))
 	}
 }

@@ -10,6 +10,6 @@ func SqlDataLimit(pageSize, pageNum int) func(db *gorm.DB) *gorm.DB {
 		pageNum = 1
 	}
 	return func(db *gorm.DB) *gorm.DB {
-		return db.Limit(pageSize).Offset(pageNum - 1*pageSize)
+		return db.Limit(pageSize).Offset((pageNum - 1) * pageSize)
 	}
 }

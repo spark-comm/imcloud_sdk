@@ -15,6 +15,7 @@
 package testv2
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/spark-comm/imcloud_sdk/open_im_sdk"
@@ -310,5 +311,15 @@ func Test_SetGroupInfo(t *testing.T) {
 	})
 	if err != nil {
 		t.Fatal(err)
+	}
+}
+
+func Test_GetGroupMemberByPage(t *testing.T) {
+	data, err := open_im_sdk.UserForSDK.Group().GetGroupMemberByPage(ctx, "237875325046784", 0, 1, 2)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, d := range data.List {
+		t.Log(fmt.Sprintf("%#v", d))
 	}
 }

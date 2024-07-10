@@ -215,8 +215,8 @@ func (g *Group) SetGroupInfo(ctx context.Context, req *v2.EditGroupProfileReq) e
 func (g *Group) GetGroupMemberList(ctx context.Context, groupID string, filter, offset, count int32) ([]*model_struct.LocalGroupMember, error) {
 	return g.db.GetGroupMemberListSplit(ctx, groupID, filter, int(offset), int(count))
 }
-func (g *Group) GetGroupMemberListPage(ctx context.Context, groupID string, filter, offset, count int32) (*sdk_params_callback.GroupMemberPage, error) {
-	data, total, err := g.db.GetGroupMemberListPage(ctx, groupID, filter, int(offset), int(count))
+func (g *Group) GetGroupMemberByPage(ctx context.Context, groupID string, filter int32, page, size int) (*sdk_params_callback.GroupMemberPage, error) {
+	data, total, err := g.db.GetGroupMemberByPage(ctx, groupID, filter, page, size)
 	if err != nil {
 		return nil, sdkerrs.GetDataError.Wrap(fmt.Sprintf("GetGroupMemberListPage err: %v", err))
 	}

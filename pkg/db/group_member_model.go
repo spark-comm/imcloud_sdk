@@ -21,6 +21,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"gorm.io/gorm"
 
 	"github.com/spark-comm/imcloud_sdk/pkg/constant"
 	"github.com/spark-comm/imcloud_sdk/pkg/db/model_struct"
@@ -116,7 +117,7 @@ func (d *DataBase) GetGroupMemberListSplit(ctx context.Context, groupID string, 
 	return transfer, utils.Wrap(err, "GetGroupMemberListSplit failed ")
 }
 
-func (d *DataBase) GetGroupMemberListPage(ctx context.Context, groupID string, filter int32, page, size int) ([]*model_struct.LocalGroupMember, int64, error) {
+func (d *DataBase) GetGroupMemberByPage(ctx context.Context, groupID string, filter int32, page, size int) ([]*model_struct.LocalGroupMember, int64, error) {
 	d.groupMtx.Lock()
 	defer d.groupMtx.Unlock()
 	var groupMemberList []*model_struct.LocalGroupMember
@@ -125,23 +126,40 @@ func (d *DataBase) GetGroupMemberListPage(ctx context.Context, groupID string, f
 	tx := d.conn.WithContext(ctx).Model(&model_struct.LocalGroupMember{})
 	switch filter {
 	case constant.GroupFilterAll:
-		tx = tx.Where("group_id = ?", groupID).Order("role_level DESC,join_time ASC")
+		tx = tx.Where("group_id = ?", groupID)
 	case constant.GroupFilterOwner:
 		tx = tx.Where("group_id = ? And role_level = ?", groupID, constant.GroupOwner)
 	case constant.GroupFilterAdmin:
-		tx = tx.Where("group_id = ? And role_level = ?", groupID, constant.GroupAdmin).Order("join_time ASC")
+		tx = tx.Where("group_id = ? And role_level = ?", groupID, constant.GroupAdmin)
 	case constant.GroupFilterOrdinaryUsers:
-		tx = tx.Where("group_id = ? And role_level = ?", groupID, constant.GroupOrdinaryUsers).Order("join_time ASC")
-		tx = tx.Where("group_id = ? And (role_level = ? or role_level = ?)", groupID, constant.GroupAdmin, constant.GroupOrdinaryUsers).Order("role_level DESC,join_time ASC")
+		tx = tx.Where("group_id = ? And role_level = ?", groupID, constant.GroupOrdinaryUsers)
+	case constant.GroupFilterAdminAndOrdinaryUsers:
+		tx = tx.Where("group_id = ? And (role_level = ? or role_level = ?)", groupID, constant.GroupAdmin, constant.GroupOrdinaryUsers)
 	case constant.GroupFilterOwnerAndAdmin:
-		tx = tx.Where("group_id = ? And (role_level = ? or role_level = ?)", groupID, constant.GroupOwner, constant.GroupAdmin).Order("role_level DESC,join_time ASC")
+		tx = tx.Where("group_id = ? And (role_level = ? or role_level = ?)", groupID, constant.GroupOwner, constant.GroupAdmin)
 	default:
 		return nil, total, fmt.Errorf("filter args failed %d", filter)
 	}
 	if err = tx.Count(&total).Error; err != nil {
 		return nil, total, utils.Wrap(err, "GetGroupMemberListPage failed ")
 	}
-	if err = tx.Scopes(SqlDataLimit(size, page)).Scan(&groupMemberList).Error; err != nil {
+	if err = tx.Scopes(func(db *gorm.DB) *gorm.DB {
+		switch filter {
+		case constant.GroupFilterAll:
+			db = db.Order("role_level DESC,join_time ASC")
+		case constant.GroupFilterAdmin:
+			db = db.Order("join_time ASC")
+		case constant.GroupFilterOrdinaryUsers:
+			db = db.Order("join_time ASC")
+		case constant.GroupFilterAdminAndOrdinaryUsers:
+			db = db.Order("role_level DESC,join_time ASC")
+		case constant.GroupFilterOwnerAndAdmin:
+			db = db.Order("role_level DESC,join_time ASC")
+		default:
+			db = db.Order("join_time ASC")
+		}
+		return db
+	}).Scopes(SqlDataLimit(size, page)).Scan(&groupMemberList).Error; err != nil {
 		return nil, total, utils.Wrap(err, "GetGroupMemberListPage failed ")
 	}
 	return groupMemberList, total, utils.Wrap(err, "GetGroupMemberListPage failed ")

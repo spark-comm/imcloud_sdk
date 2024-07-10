@@ -107,3 +107,9 @@ type RemoveBlackParams string
 
 // type DeleteBlackCallback struct{}
 const RemoveBlackCallback = constant.SuccessCallbackDefault
+
+// 分页获取数据
+type FriendPage struct {
+	Total int64                             `json:"total"`
+	List  []*server_api_params.FullUserInfo `json:"list"`
+}

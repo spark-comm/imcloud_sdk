@@ -67,11 +67,23 @@ func (d *DataBase) GetPageFriendList(ctx context.Context, offset, count int) ([]
 	d.friendMtx.Lock()
 	defer d.friendMtx.Unlock()
 	var friendList []*model_struct.LocalFriend
-	err := utils.Wrap(d.conn.WithContext(ctx).Where("owner_user_id = ?", d.loginUserID).Offset(offset).Limit(count).Order("name").Find(&friendList).Error,
+	err := utils.Wrap(d.conn.WithContext(ctx).Where("owner_user_id = ?", d.loginUserID).Offset(offset).Limit(count).Order("sort_flag").Find(&friendList).Error,
 		"GetFriendList failed")
 	return friendList, err
 }
-
+func (d *DataBase) GetFriendsByPage(ctx context.Context, page, size int) ([]*model_struct.LocalFriend, int64, error) {
+	d.friendMtx.Lock()
+	defer d.friendMtx.Unlock()
+	var total int64
+	var friendList []*model_struct.LocalFriend
+	tx := d.conn.WithContext(ctx).Model(&model_struct.LocalFriend{}).Where("owner_user_id = ?", d.loginUserID)
+	if err := tx.Count(&total).Error; err != nil {
+		return nil, 0, utils.Wrap(err, "GetFriendList failed")
+	}
+	err := utils.Wrap(tx.Order("sort_flag").Scopes(SqlDataLimit(size, page)).Scan(&friendList).Error,
+		"GetFriendList failed")
+	return friendList, total, err
+}
 func (d *DataBase) SearchFriendList(ctx context.Context, keyword string, isSearchUserID, isSearchNickname, isSearchRemark bool) ([]*model_struct.LocalFriend, error) {
 	d.friendMtx.Lock()
 	defer d.friendMtx.Unlock()
@@ -86,7 +98,7 @@ func (d *DataBase) SearchFriendList(ctx context.Context, keyword string, isSearc
 		if count > 0 {
 			condition += "or "
 		}
-		condition += fmt.Sprintf("name like %q ", "%"+keyword+"%")
+		condition += fmt.Sprintf("nickname like %q ", "%"+keyword+"%")
 		count++
 	}
 	if isSearchRemark {

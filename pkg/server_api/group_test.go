@@ -1,6 +1,9 @@
 package server_api
 
-import "testing"
+import (
+	v2 "github.com/spark-comm/spark-api/api/im_cloud/group/v2"
+	"testing"
+)
 
 func Test_GetSpecifiedGroupsInfo(t *testing.T) {
 	data, err := GetSpecifiedGroupsInfo(getCtx(), []string{"237875325046784"})
@@ -60,6 +63,18 @@ func Test_GetServerGroupMembers(t *testing.T) {
 
 func Test_GetGroupAbstractInfo(t *testing.T) {
 	data, err := GetGroupAbstractInfo(getCtx(), "237875325046784")
+	if err != nil {
+		t.Error(err)
+	}
+	t.Log(data)
+}
+
+func Test_CreateGroup(t *testing.T) {
+	data, err := CreateGroup(getCtx(), &v2.CrateGroupReq{
+		GroupName:  "sdk创建",
+		GroupType:  2,
+		MemberList: []string{"1331954574168064", "1332177157492736", "1332053626851328", "922670631751680"},
+	})
 	if err != nil {
 		t.Error(err)
 	}

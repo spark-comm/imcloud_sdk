@@ -1,6 +1,7 @@
 package server_api
 
 import (
+	"fmt"
 	friendPb "github.com/spark-comm/spark-api/api/im_cloud/friend/v2"
 	"testing"
 )
@@ -20,19 +21,29 @@ func Test_GetAllBlackList(t *testing.T) {
 	}
 	t.Log(list)
 }
+func Test_AddBlackList(t *testing.T) {
+	err := AddBlack(getCtx(), UserID, "931422227402752")
+	if err != nil {
+		t.Fatal(err)
+	}
+}
 func Test_GetSendFriendApplication(t *testing.T) {
 	list, err := GetSendFriendApplication(getCtx(), UserID)
 	if err != nil {
 		t.Fatal(err)
 	}
-	t.Log(list)
+	for _, data := range list {
+		t.Log(fmt.Sprintf("%#v", data))
+	}
 }
 func Test_GetReceiveFriendApplication(t *testing.T) {
 	list, err := GetReceiveFriendApplication(getCtx(), UserID)
 	if err != nil {
 		t.Fatal(err)
 	}
-	t.Log(list)
+	for _, data := range list {
+		t.Log(fmt.Sprintf("%#v", data))
+	}
 }
 
 func Test_BothFriendRequest(t *testing.T) {

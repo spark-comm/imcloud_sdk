@@ -105,6 +105,9 @@ func (f *Friend) SyncFriends(ctx context.Context, friendIDs []string) error {
 	if err != nil {
 		return err
 	}
+	if friends == nil {
+		friends = make([]*model_struct.LocalFriend, 0)
+	}
 	log.ZDebug(ctx, "sync friend", "data from server", friends, "data from local", localData)
 	return f.friendSyncer.Sync(ctx, friends, localData, nil)
 }

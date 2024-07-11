@@ -334,3 +334,14 @@ func Test_GetGroupMemberByPage(t *testing.T) {
 		t.Log(fmt.Sprintf("%#v", d))
 	}
 }
+
+func Test_GetGroupMembers(t *testing.T) {
+	data, err := open_im_sdk.UserForSDK.Group().GetGroupMembers(ctx, "237875325046784", "177", 0, 1, 100)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log(data.Total)
+	for _, d := range data.List {
+		t.Log(fmt.Sprintf("%#v", d))
+	}
+}

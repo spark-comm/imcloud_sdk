@@ -234,6 +234,18 @@ func (g *Group) GetGroupMemberByPage(ctx context.Context, groupID string, filter
 		Total: total,
 	}, nil
 }
+
+// GetGroupMembers 条件过滤群成员
+func (g *Group) GetGroupMembers(ctx context.Context, groupID, keyword string, filter int32, page, size int) (*sdk_params_callback.GroupMemberPage, error) {
+	data, total, err := g.db.GetGroupMembers(ctx, groupID, keyword, filter, page, size)
+	if err != nil {
+		return nil, sdkerrs.GetDataError.Wrap(fmt.Sprintf("GetGroupMembers err: %v", err))
+	}
+	return &sdk_params_callback.GroupMemberPage{
+		List:  data,
+		Total: total,
+	}, nil
+}
 func (g *Group) GetGroupMemberOwnerAndAdmin(ctx context.Context, groupID string) ([]*model_struct.LocalGroupMember, error) {
 	return g.db.GetGroupMemberOwnerAndAdminDB(ctx, groupID)
 }

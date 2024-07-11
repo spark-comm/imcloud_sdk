@@ -222,6 +222,18 @@ func (f *Friend) SearchFriendsList(ctx context.Context, keyword string, notPeers
 		List:  data,
 	}, nil
 }
+
+// GetFriendsNotInGroup 不在指定群当中的好友
+func (f *Friend) GetFriendsNotInGroup(ctx context.Context, groupID, keyword string, page, size int) (*sdk.OnlyFriendPage, error) {
+	data, total, err := f.db.GetFriendsNotInGroup(ctx, groupID, keyword, page, size)
+	if err != nil {
+		return nil, err
+	}
+	return &sdk.OnlyFriendPage{
+		Total: total,
+		List:  data,
+	}, nil
+}
 func (f *Friend) SearchFriends(ctx context.Context, param *sdk.SearchFriendsParam) ([]*sdk.SearchFriendItem, error) {
 	if len(param.KeywordList) == 0 || (!param.IsSearchNickname && !param.IsSearchUserID && !param.IsSearchRemark) {
 		return nil, sdkerrs.ErrArgs.Wrap("keyword is null or search field all false")

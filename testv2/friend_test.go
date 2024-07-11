@@ -201,3 +201,14 @@ func Test_SearchFriendsList(t *testing.T) {
 	}
 	t.Log(data.Total)
 }
+
+func Test_GetFriendsNotInGroup(t *testing.T) {
+	data, err := open_im_sdk.UserForSDK.Friend().GetFriendsNotInGroup(ctx, "899258223955968", "", 1, 10)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log(data.Total)
+	for _, d := range data.List {
+		t.Log(fmt.Sprintf("%#v", d))
+	}
+}

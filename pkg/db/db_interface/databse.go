@@ -16,7 +16,6 @@ package db_interface
 
 import (
 	"context"
-
 	"github.com/spark-comm/imcloud_sdk/pkg/db/model_struct"
 	"github.com/spark-comm/imcloud_sdk/sdk_struct"
 )
@@ -58,6 +57,7 @@ type GroupModel interface {
 	GetGroupMemberListByGroupID(ctx context.Context, groupID string) ([]*model_struct.LocalGroupMember, error)
 	GetGroupMemberListSplit(ctx context.Context, groupID string, filter int32, offset, count int) ([]*model_struct.LocalGroupMember, error)
 	GetGroupMemberByPage(ctx context.Context, groupID string, filter int32, page, size int) ([]*model_struct.LocalGroupMember, int64, error)
+	GetGroupMembers(ctx context.Context, groupID, keyword string, filter int32, page, size int) ([]*model_struct.LocalGroupMember, int64, error)
 	GetGroupMemberOwnerAndAdminDB(ctx context.Context, groupID string) ([]*model_struct.LocalGroupMember, error)
 	GetGroupMemberOwner(ctx context.Context, groupID string) (*model_struct.LocalGroupMember, error)
 	GetGroupMemberListSplitByJoinTimeFilter(ctx context.Context, groupID string, offset, count int, joinTimeBegin, joinTimeEnd int64, userIDList []string) ([]*model_struct.LocalGroupMember, error)
@@ -245,6 +245,7 @@ type FriendModel interface {
 	GetFriendApplicationByBothID(ctx context.Context, fromUserID, toUserID string) (*model_struct.LocalFriendRequest, error)
 	GetBothFriendReq(ctx context.Context, fromUserID, toUserID string) ([]*model_struct.LocalFriendRequest, error)
 	UpdateColumnsFriend(ctx context.Context, friendIDs []string, args map[string]interface{}) error
+	GetFriendsNotInGroup(ctx context.Context, groupID, keyword string, page, size int) ([]*model_struct.LocalFriend, int64, error)
 
 	GetBlackListDB(ctx context.Context) ([]*model_struct.LocalBlack, error)
 	GetBlackListUserID(ctx context.Context) (blackListUid []string, err error)

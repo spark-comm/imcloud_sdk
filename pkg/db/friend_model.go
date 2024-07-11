@@ -21,7 +21,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-
 	"github.com/spark-comm/imcloud_sdk/pkg/db/model_struct"
 	"github.com/spark-comm/imcloud_sdk/pkg/utils"
 )
@@ -119,21 +118,23 @@ func (d *DataBase) SearchFriendList(ctx context.Context, keyword string, isSearc
 func (d *DataBase) SearchFriends(ctx context.Context, keyword string, notPeersFriend bool, page, size int) ([]*model_struct.LocalFriend, int64, error) {
 	d.friendMtx.Lock()
 	defer d.friendMtx.Unlock()
-	var condition string
 	var total int64
-	fields := []string{"remark", "nickname", "code", "phone", "email"}
-	for i, field := range fields {
-		if i == 0 {
-			condition = fmt.Sprintf("%s like %q ", field, "%"+keyword+"%")
-		} else {
-			condition += fmt.Sprintf("or %s like %q ", field, "%"+keyword+"%")
-		}
-	}
 	tx := d.conn.WithContext(ctx).Model(&model_struct.LocalFriend{})
+	if keyword != "" {
+		var condition string
+		fields := []string{"remark", "nickname", "code", "phone", "email"}
+		for i, field := range fields {
+			if i == 0 {
+				condition = fmt.Sprintf("%s like %q ", field, "%"+keyword+"%")
+			} else {
+				condition += fmt.Sprintf("or %s like %q ", field, "%"+keyword+"%")
+			}
+		}
+		tx = tx.Where(condition)
+	}
 	if notPeersFriend {
 		tx = tx.Where(" not_peers_friend = 0")
 	}
-	tx = tx.Where(condition)
 	if err := tx.Count(&total).Error; err != nil {
 		return nil, 0, utils.Wrap(err, "SearchFriends failed")
 	}
@@ -141,7 +142,32 @@ func (d *DataBase) SearchFriends(ctx context.Context, keyword string, notPeersFr
 	err := tx.Order("sort_flag ASC").Scopes(SqlDataLimit(size, page)).Scan(&friendList).Error
 	return friendList, total, utils.Wrap(err, "SearchFriendList failed ")
 }
-
+func (d *DataBase) GetFriendsNotInGroup(ctx context.Context, groupID, keyword string, page, size int) ([]*model_struct.LocalFriend, int64, error) {
+	d.friendMtx.Lock()
+	defer d.friendMtx.Unlock()
+	var friendList []*model_struct.LocalFriend
+	var totalCount int64
+	tx := d.conn.Table("local_friends").
+		Joins("LEFT JOIN local_group_members ON local_friends.friend_user_id = local_group_members.user_id AND local_group_members.group_id = ?", groupID).
+		Where("local_group_members.user_id IS NULL and local_friends.not_peers_friend = 0")
+	if keyword != "" {
+		var condition string
+		fields := []string{"remark", "nickname", "code", "phone", "email"}
+		for i, field := range fields {
+			if i == 0 {
+				condition = fmt.Sprintf("local_friends.%s like %q ", field, "%"+keyword+"%")
+			} else {
+				condition += fmt.Sprintf("or local_friends.%s like %q ", field, "%"+keyword+"%")
+			}
+		}
+		tx = tx.Where(condition)
+	}
+	if err := tx.Count(&totalCount).Error; err != nil {
+		return nil, 0, utils.Wrap(err, "GetFriendsNotInGroup failed")
+	}
+	err := tx.WithContext(ctx).Select("local_friends.*").Order("sort_flag ASC").Scopes(SqlDataLimit(size, page)).Scan(&friendList).Error
+	return friendList, totalCount, utils.Wrap(err, "GetFriendsNotInGroup failed ")
+}
 func (d *DataBase) GetFriendInfoByFriendUserID(ctx context.Context, FriendUserID string) (*model_struct.LocalFriend, error) {
 	d.friendMtx.Lock()
 	defer d.friendMtx.Unlock()

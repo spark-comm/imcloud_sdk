@@ -361,7 +361,19 @@ func (d *DataBase) GetGroupMemberInfoIfOwnerOrAdmin(ctx context.Context) ([]*mod
 	}
 	return ownerAndAdminList, nil
 }
-
+func (d *DataBase) GetGroupMemberById(ctx context.Context, groupID, userId string) (*model_struct.LocalGroupMember, error) {
+	d.groupMtx.Lock()
+	defer d.groupMtx.Unlock()
+	if groupID == "" || userId == "" {
+		return nil, utils.Wrap(errors.New("groupID is empty"), "")
+	}
+	var data = model_struct.LocalGroupMember{}
+	err := d.conn.WithContext(ctx).Model(&data).Where("group_id = ? AND user_id = ?", groupID, userId).First(&data).Error
+	if err != nil {
+		return nil, utils.Wrap(err, "GetGroupMemberById filed")
+	}
+	return &data, nil
+}
 func (d *DataBase) SearchGroupMembersDB(ctx context.Context, keyword string, groupID string, isSearchMemberNickname, isSearchUserID bool, offset, count int) (result []*model_struct.LocalGroupMember, err error) {
 	d.groupMtx.Lock()
 	defer d.groupMtx.Unlock()

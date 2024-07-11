@@ -246,6 +246,11 @@ func (g *Group) GetGroupMembers(ctx context.Context, groupID, keyword string, fi
 		Total: total,
 	}, nil
 }
+
+// GetGroupMemberById 根据id获取群成员
+func (g *Group) GetGroupMemberById(ctx context.Context, groupID, userId string) (*model_struct.LocalGroupMember, error) {
+	return g.db.GetGroupMemberById(ctx, groupID, userId)
+}
 func (g *Group) GetGroupMemberOwnerAndAdmin(ctx context.Context, groupID string) ([]*model_struct.LocalGroupMember, error) {
 	return g.db.GetGroupMemberOwnerAndAdminDB(ctx, groupID)
 }

@@ -71,6 +71,7 @@ type GroupModel interface {
 	UpdateGroupMember(ctx context.Context, groupMember *model_struct.LocalGroupMember) error
 	UpdateGroupMemberField(ctx context.Context, groupID, userID string, args map[string]interface{}) error
 	GetGroupMemberInfoIfOwnerOrAdmin(ctx context.Context) ([]*model_struct.LocalGroupMember, error)
+	GetGroupMemberById(ctx context.Context, groupID, userId string) (*model_struct.LocalGroupMember, error)
 	SearchGroupMembersDB(ctx context.Context, keyword string, groupID string, isSearchMemberNickname, isSearchUserID bool, offset, count int) (result []*model_struct.LocalGroupMember, err error)
 }
 

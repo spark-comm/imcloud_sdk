@@ -345,3 +345,11 @@ func Test_GetGroupMembers(t *testing.T) {
 		t.Log(fmt.Sprintf("%#v", d))
 	}
 }
+
+func Test_GetGroupMemberById(t *testing.T) {
+	data, err := open_im_sdk.UserForSDK.Group().GetGroupMemberById(ctx, "237875325046784", UserID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log(fmt.Sprintf("%#v", data))
+}

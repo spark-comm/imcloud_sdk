@@ -139,7 +139,7 @@ type onConversationListener struct {
 	ctx context.Context
 }
 
-func (o *onConversationListener) OnConversationDelete(conversationIds string) {
+func (o *onConversationListener) OnDeleteConversation(conversationIds string) {
 	//TODO implement me
 	panic("implement me")
 }

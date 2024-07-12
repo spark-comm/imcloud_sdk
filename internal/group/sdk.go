@@ -327,6 +327,9 @@ func (g *Group) HandlerGroupApplication(ctx context.Context, req *v2.Application
 	// SyncAdminGroupApplication todo
 	return nil
 }
+func (g *Group) GetUnProcessGroupRequestNum(ctx context.Context) (int64, error) {
+	return g.db.GetUnProcessGroupRequestNum(ctx, g.loginUserID)
+}
 
 func (g *Group) SearchGroupMembers(ctx context.Context, searchParam *sdk_params_callback.SearchGroupMembersParam) ([]*model_struct.LocalGroupMember, error) {
 	return g.db.SearchGroupMembersDB(ctx, searchParam.KeywordList[0], searchParam.GroupID, searchParam.IsSearchMemberNickname, searchParam.IsSearchUserID, searchParam.Offset, searchParam.Count)

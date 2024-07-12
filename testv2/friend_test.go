@@ -212,3 +212,10 @@ func Test_GetFriendsNotInGroup(t *testing.T) {
 		t.Log(fmt.Sprintf("%#v", d))
 	}
 }
+func Test_GetUnProcessFriendRequestNum(t *testing.T) {
+	num, err := open_im_sdk.UserForSDK.Friend().GetUnProcessFriendRequestNum(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log(num)
+}

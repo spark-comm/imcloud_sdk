@@ -93,6 +93,11 @@ func (f *Friend) RespondFriendApply(ctx context.Context, req *friendPb.ProcessFr
 	return nil
 }
 
+// GetUnProcessFriendRequestNum 获取未处理的好友请求
+func (f *Friend) GetUnProcessFriendRequestNum(ctx context.Context) (int64, error) {
+	return f.db.GetUnProcessFriendRequestNum(ctx, f.loginUserID)
+}
+
 func (f *Friend) CheckFriend(ctx context.Context, friendUserIDList []string) ([]*server_api_params.UserIDResult, error) {
 	friendList, err := f.db.GetFriendInfoList(ctx, friendUserIDList)
 	if err != nil {
@@ -309,6 +314,7 @@ func (f *Friend) RemoveBlack(ctx context.Context, blackUserID string) error {
 func (f *Friend) GetBlackList(ctx context.Context) ([]*model_struct.LocalBlack, error) {
 	return f.db.GetBlackListDB(ctx)
 }
+
 func (f *Friend) SetFriendsEx(ctx context.Context, friendIDs []string, ex string) error {
 	//if err := util.ApiPost(ctx, constant.UpdateFriends, &friend.UpdateFriendsReq{OwnerUserID: f.loginUserID, FriendUserIDs: friendIDs, Ex: &wrapperspb.StringValue{
 	//	Value: ex,

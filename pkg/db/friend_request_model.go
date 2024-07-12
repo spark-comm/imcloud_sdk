@@ -89,3 +89,10 @@ func (d *DataBase) GetBothFriendReq(ctx context.Context, fromUserID, toUserID st
 	err = utils.Wrap(d.conn.WithContext(ctx).Where("(from_user_id = ? AND to_user_id = ?) OR (from_user_id = ? AND to_user_id = ?)", fromUserID, toUserID, toUserID, fromUserID).Find(&friendRequests).Error, "GetFriendApplicationByBothID failed")
 	return friendRequests, utils.Wrap(err, "GetFriendApplicationByBothID failed")
 }
+func (d *DataBase) GetUnProcessFriendRequestNum(ctx context.Context, userid string) (int64, error) {
+	d.friendMtx.Lock()
+	defer d.friendMtx.Unlock()
+	var num int64
+	err := d.conn.WithContext(ctx).Model(&model_struct.LocalFriendRequest{}).Where("to_user_id = ? and handle_result = 0", userid).Count(&num).Error
+	return num, utils.Wrap(err, "GetUnProcessFriendRequestNum failed")
+}

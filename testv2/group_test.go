@@ -283,7 +283,7 @@ func Test_GetGroupApplicantsList(t *testing.T) {
 }
 func Test_IsJoinGroup(t *testing.T) {
 	t.Log("--------------------------")
-	join, err := open_im_sdk.UserForSDK.Group().IsJoinGroup(ctx, "3889561099")
+	join, err := open_im_sdk.UserForSDK.Group().IsJoinGroup(ctx, "237875325046784")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -352,4 +352,12 @@ func Test_GetGroupMemberById(t *testing.T) {
 		t.Fatal(err)
 	}
 	t.Log(fmt.Sprintf("%#v", data))
+}
+
+func Test_GetUnProcessGroupRequestNum(t *testing.T) {
+	num, err := open_im_sdk.UserForSDK.Group().GetUnProcessGroupRequestNum(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log(num)
 }

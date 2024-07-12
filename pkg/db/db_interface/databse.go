@@ -43,6 +43,7 @@ type GroupModel interface {
 	DeleteGroupRequest(ctx context.Context, groupID, userID string) error
 	UpdateGroupRequest(ctx context.Context, groupRequest *model_struct.LocalGroupRequest) error
 	GetSendGroupApplication(ctx context.Context) ([]*model_struct.LocalGroupRequest, error)
+	GetUnProcessGroupRequestNum(ctx context.Context, userId string) (int64, error)
 	InsertSuperGroup(ctx context.Context, groupInfo *model_struct.LocalGroup) error
 	DeleteAllSuperGroup(ctx context.Context) error
 	GetSuperGroupInfoByGroupID(ctx context.Context, groupID string) (*model_struct.LocalGroup, error)
@@ -247,7 +248,7 @@ type FriendModel interface {
 	GetBothFriendReq(ctx context.Context, fromUserID, toUserID string) ([]*model_struct.LocalFriendRequest, error)
 	UpdateColumnsFriend(ctx context.Context, friendIDs []string, args map[string]interface{}) error
 	GetFriendsNotInGroup(ctx context.Context, groupID, keyword string, page, size int) ([]*model_struct.LocalFriend, int64, error)
-
+	GetUnProcessFriendRequestNum(ctx context.Context, userid string) (int64, error)
 	GetBlackListDB(ctx context.Context) ([]*model_struct.LocalBlack, error)
 	GetBlackListUserID(ctx context.Context) (blackListUid []string, err error)
 	GetBlackInfoByBlockUserID(ctx context.Context, blockUserID string) (*model_struct.LocalBlack, error)

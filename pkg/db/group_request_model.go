@@ -20,6 +20,7 @@ package db
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/spark-comm/imcloud_sdk/pkg/db/model_struct"
 	"github.com/spark-comm/imcloud_sdk/pkg/utils"
@@ -59,4 +60,11 @@ func (d *DataBase) GetSendGroupApplication(ctx context.Context) ([]*model_struct
 		transfer = append(transfer, &v1)
 	}
 	return transfer, nil
+}
+func (d *DataBase) GetUnProcessGroupRequestNum(ctx context.Context, userId string) (int64, error) {
+	d.groupMtx.Lock()
+	defer d.groupMtx.Unlock()
+	var num int64
+	err := d.conn.WithContext(ctx).Model(&model_struct.LocalGroupRequest{}).Where("user_id != ? and handle_result = 0", userId).Count(&num).Error
+	return num, utils.Wrap(err, fmt.Sprintf("GetUnProcessGroupRequestNum er"))
 }

@@ -17,6 +17,7 @@ package conversation_msg
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/spark-comm/imcloud_sdk/pkg/common"
@@ -54,18 +55,22 @@ func (c *Conversation) Work(c2v common.Cmd2Value) {
 func (c *Conversation) doDeleteConversation(c2v common.Cmd2Value) {
 	node := c2v.Value.(common.DeleteConNode)
 	ctx := c2v.Ctx
+	fmt.Printf("do delete conversation %v\n", node)
 	// Mark messages related to this conversation for deletion
 	err := c.db.UpdateMessageStatusBySourceID(context.Background(), node.SourceID, constant.MsgStatusHasDeleted, int32(node.SessionType))
 	if err != nil {
 		log.ZError(ctx, "setMessageStatusBySourceID", err)
-		return
+		//return
 	}
 	// Reset the session information, empty session
 	err = c.db.ResetConversation(ctx, node.ConversationID)
 	if err != nil {
 		log.ZError(ctx, "ResetConversation err:", err)
 	}
+	//清空服务端会话的消息
+	c.DeleteConversationAndDeleteAllMsg(c.baseCtx, node.ConversationID)
 	c.doUpdateConversation(common.Cmd2Value{Value: common.UpdateConNode{"", constant.TotalUnreadMessageChanged, ""}})
+	fmt.Printf("do delete conversation %v\n cvn:%#v", node, c.ConversationListener())
 	c.ConversationListener().OnDeleteConversation(utils.StructToJsonString([]string{node.ConversationID}))
 }
 

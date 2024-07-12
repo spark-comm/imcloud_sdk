@@ -72,8 +72,8 @@ type Conversation struct {
 	full                 *full.Full
 	maxSeqRecorder       MaxSeqRecorder
 	IsExternalExtensions bool
-
-	startTime time.Time
+	baseCtx              context.Context
+	startTime            time.Time
 
 	typing *typing
 }
@@ -109,6 +109,7 @@ func NewConversation(ctx context.Context, longConnMgr *interaction.LongConnMgr, 
 		messageController:    NewMessageController(db, ch),
 		IsExternalExtensions: info.IsExternalExtensions(),
 		maxSeqRecorder:       NewMaxSeqRecorder(),
+		baseCtx:              ctx,
 	}
 	n.typing = newTyping(n)
 	n.initSyncer()

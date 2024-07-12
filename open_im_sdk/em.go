@@ -139,6 +139,11 @@ type emptyConversationListener struct {
 	ctx context.Context
 }
 
+func (e *emptyConversationListener) OnConversationDelete(conversationIds string) {
+	//TODO implement me
+	panic("implement me")
+}
+
 func newEmptyConversationListener(ctx context.Context) open_im_sdk_callback.OnConversationListener {
 	return &emptyConversationListener{ctx: ctx}
 }

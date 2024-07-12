@@ -66,6 +66,7 @@ func (c *Conversation) doDeleteConversation(c2v common.Cmd2Value) {
 		log.ZError(ctx, "ResetConversation err:", err)
 	}
 	c.doUpdateConversation(common.Cmd2Value{Value: common.UpdateConNode{"", constant.TotalUnreadMessageChanged, ""}})
+	c.ConversationListener().OnConversationDelete(node.ConversationID)
 }
 
 func (c *Conversation) getConversationLatestMsgClientID(latestMsg string) string {

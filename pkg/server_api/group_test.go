@@ -80,3 +80,10 @@ func Test_CreateGroup(t *testing.T) {
 	}
 	t.Log(data)
 }
+
+func Test_DismissGroup(t *testing.T) {
+	err := DismissGroup(getCtx(), "209711102169088", UserID)
+	if err != nil {
+		t.Error(err)
+	}
+}

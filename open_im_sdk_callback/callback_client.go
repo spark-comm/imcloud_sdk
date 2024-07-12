@@ -63,6 +63,7 @@ type OnConversationListener interface {
 	OnSyncServerFailed()
 	OnNewConversation(conversationList string)
 	OnConversationChanged(conversationList string)
+	OnConversationDelete(conversationIds string)
 	OnTotalUnreadMessageCountChanged(totalUnreadCount int32)
 	OnConversationUserInputStatusChanged(change string)
 }

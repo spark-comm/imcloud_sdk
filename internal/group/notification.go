@@ -16,10 +16,9 @@ package group
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
-
+	"github.com/spark-comm/imcloud_sdk/pkg/common"
 	"github.com/spark-comm/imcloud_sdk/pkg/constant"
 	"github.com/spark-comm/imcloud_sdk/pkg/utils"
 
@@ -113,34 +112,13 @@ func (g *Group) doNotification(ctx context.Context, msg *sdkws.MsgData) error {
 			}
 		}
 		if self {
-			members, err := g.db.GetGroupMemberListSplit(ctx, detail.Group.GroupID, 0, 0, 999999)
+			//被踢的人包含自己
+			groupStr, err := g.delGroupAndMember(ctx, detail.Group.GroupID)
 			if err != nil {
 				return err
 			}
-			if err := g.db.DeleteGroupAllMembers(ctx, detail.Group.GroupID); err != nil {
-				return err
-			}
-			for _, member := range members {
-				data, err := json.Marshal(member)
-				if err != nil {
-					return err
-				}
-				g.listener().OnGroupMemberDeleted(string(data))
-			}
-			group, err := g.db.GetGroupInfoByGroupID(ctx, detail.Group.GroupID)
-			if err != nil {
-				return err
-			}
-			group.MemberCount = 0
-			data, err := json.Marshal(group)
-			if err != nil {
-				return err
-			}
-			if err := g.db.DeleteGroup(ctx, detail.Group.GroupID); err != nil {
-				return err
-			}
-			g.listener().OnGroupInfoChanged(string(data))
-			g.listener().OnJoinedGroupDeleted(string(data))
+			//调用加入的群删除
+			g.listener().OnJoinedGroupDeleted(groupStr)
 			return nil
 		} else {
 			var userIDs []string
@@ -155,33 +133,12 @@ func (g *Group) doNotification(ctx context.Context, msg *sdkws.MsgData) error {
 			return err
 		}
 		if detail.QuitUser.UserID == g.loginUserID {
-			members, err := g.db.GetGroupMemberListSplit(ctx, detail.Group.GroupID, 0, 0, 999999)
+			groupStr, err := g.delGroupAndMember(ctx, detail.Group.GroupID)
 			if err != nil {
 				return err
 			}
-			if err := g.db.DeleteGroupAllMembers(ctx, detail.Group.GroupID); err != nil {
-				return err
-			}
-			for _, member := range members {
-				data, err := json.Marshal(member)
-				if err != nil {
-					return err
-				}
-				g.listener().OnGroupMemberDeleted(string(data))
-			}
-			group, err := g.db.GetGroupInfoByGroupID(ctx, detail.Group.GroupID)
-			if err != nil {
-				return err
-			}
-			group.MemberCount = 0
-			data, err := json.Marshal(group)
-			if err != nil {
-				return err
-			}
-			if err := g.db.DeleteGroup(ctx, detail.Group.GroupID); err != nil {
-				return err
-			}
-			g.listener().OnGroupInfoChanged(string(data))
+			//调用加入的群删除
+			g.listener().OnJoinedGroupDeleted(groupStr)
 			return nil
 		} else {
 			return g.SyncGroupMembers(ctx, detail.Group.GroupID, detail.QuitUser.UserID)
@@ -222,14 +179,14 @@ func (g *Group) doNotification(ctx context.Context, msg *sdkws.MsgData) error {
 		if err := utils.UnmarshalNotificationElem(msg.Content, &detail); err != nil {
 			return err
 		}
-		g.listener().OnGroupDismissed(utils.StructToJsonString(detail.Group))
-		if err := g.db.DeleteGroupAllMembers(ctx, detail.Group.GroupID); err != nil {
+		//被踢的人包含自己
+		groupStr, err := g.delGroupAndMember(ctx, detail.Group.GroupID)
+		if err != nil {
 			return err
 		}
-		if err := g.db.DeleteGroup(ctx, detail.Group.GroupID); err != nil {
-			return err
-		}
-		return g.SyncAllGroupMember(ctx, detail.Group.GroupID)
+		//调用加入的群删除
+		g.listener().OnGroupDismissed(groupStr)
+		return nil
 	case constant.GroupMemberMutedNotification: // 1512
 		var detail sdkws.GroupMemberMutedTips
 		if err := utils.UnmarshalNotificationElem(msg.Content, &detail); err != nil {
@@ -280,4 +237,32 @@ func (g *Group) doNotification(ctx context.Context, msg *sdkws.MsgData) error {
 	default:
 		return fmt.Errorf("unknown tips type: %d", msg.ContentType)
 	}
+}
+
+// 删除群信息
+func (g *Group) delGroupAndMember(ctx context.Context, groupID string) (string, error) {
+	fmt.Printf("删除群和群成员:%s\n", groupID)
+	group, err := g.db.GetGroupInfoByGroupID(ctx, groupID)
+	if err != nil {
+		return "", err
+	}
+	group.MemberCount = 0
+	data := utils.StructToJsonString(group)
+	if err = g.db.DeleteGroup(ctx, groupID); err != nil {
+		log.ZError(ctx, "delGroupMember", err)
+	}
+	if err = g.db.DeleteGroupAllMembers(ctx, groupID); err != nil {
+		log.ZError(ctx, "delGroupMember", err)
+	}
+	//todo 通知会话删除
+	sessionType := constant.SuperGroupChatType
+	if group.GroupType == 0 {
+		sessionType = constant.GroupChatType
+	}
+	conversationId := utils.GetConversationIDBySessionType(groupID, sessionType)
+	err = common.TriggerCmdDeleteConversationAndMessage(groupID, conversationId, sessionType, g.conversationCh)
+	if err != nil {
+		log.ZError(ctx, "delGroupMember", err)
+	}
+	return data, nil
 }

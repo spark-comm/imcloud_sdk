@@ -139,6 +139,11 @@ type onConversationListener struct {
 	ctx context.Context
 }
 
+func (o *onConversationListener) OnConversationDelete(conversationIds string) {
+	//TODO implement me
+	panic("implement me")
+}
+
 func (o *onConversationListener) OnSyncServerStart() {
 	log.ZInfo(o.ctx, "OnSyncServerStart")
 }

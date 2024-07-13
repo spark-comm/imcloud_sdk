@@ -16,7 +16,6 @@ package group
 
 import (
 	"context"
-
 	"github.com/OpenIMSDK/tools/log"
 	utils2 "github.com/OpenIMSDK/tools/utils"
 	"github.com/spark-comm/imcloud_sdk/open_im_sdk_callback"
@@ -155,6 +154,8 @@ func (g *Group) initSyncer() {
 			default:
 				g.listener().OnGroupApplicationAdded(utils.StructToJsonString(server))
 			}
+		case syncer.Delete:
+			g.listener().OnGroupApplicationDeleted(utils.StructToJsonString(server))
 		}
 		return nil
 	})
@@ -180,6 +181,8 @@ func (g *Group) initSyncer() {
 			default:
 				g.listener().OnGroupApplicationAdded(utils.StructToJsonString(server))
 			}
+		case syncer.Delete:
+			g.listener().OnGroupApplicationDeleted(utils.StructToJsonString(server))
 		}
 		return nil
 	})

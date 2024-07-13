@@ -28,7 +28,14 @@ import (
 func (d *DataBase) InsertAdminGroupRequest(ctx context.Context, groupRequest *model_struct.LocalAdminGroupRequest) error {
 	d.groupMtx.Lock()
 	defer d.groupMtx.Unlock()
-	return utils.Wrap(d.conn.WithContext(ctx).Create(groupRequest).Error, "InsertAdminGroupRequest failed")
+	var localGroupMember model_struct.LocalAdminGroupRequest
+	if d.conn.WithContext(ctx).Where("group_id = ?  and user_id = ?", groupRequest.GroupID, groupRequest.UserID).First(&localGroupMember).RowsAffected == 0 {
+		// 记录不存在，创建新记录
+		return utils.Wrap(d.conn.WithContext(ctx).Create(groupRequest).Error, "InsertGroupMember failed")
+	} else {
+		// 记录存在，更新记录
+		return utils.Wrap(d.conn.WithContext(ctx).Model(&localGroupMember).Updates(groupRequest).Error, "InsertGroupMember failed")
+	}
 }
 
 func (d *DataBase) DeleteAdminGroupRequest(ctx context.Context, groupID, userID string) error {

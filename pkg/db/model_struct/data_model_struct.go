@@ -80,8 +80,8 @@ type LocalFriend struct {
 // }
 // open_im_sdk.FriendRequest == imdb.FriendRequest
 type LocalFriendRequest struct {
-	FromUserID    string `gorm:"column:from_user_id;type:varchar(64);comment:来源用户ID" json:"fromUserID"`
-	ToUserID      string `gorm:"column:to_user_id;type:varchar(64);comment:接收方用户ID" json:"toUserID"`
+	FromUserID    string `gorm:"column:from_user_id;type:varchar(64);primary_key;comment:来源用户ID" json:"fromUserID"`
+	ToUserID      string `gorm:"column:to_user_id;type:varchar(64);primary_key;comment:接收方用户ID" json:"toUserID"`
 	Nickname      string `gorm:"column:nickname;type:varchar;type:varchar(255);comment:来源用户昵称" json:"nickname"`
 	FaceURL       string `gorm:"column:face_url;type:varchar;type:varchar(255);comment:来源用户头像" json:"faceURL"`
 	Gender        int32  `gorm:"column:gender;comment:来源用户性别" json:"gender"`

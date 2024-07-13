@@ -75,7 +75,14 @@ func (d *DataBase) GetBlackInfoList(ctx context.Context, blockUserIDList []strin
 func (d *DataBase) InsertBlack(ctx context.Context, black *model_struct.LocalBlack) error {
 	d.friendMtx.Lock()
 	defer d.friendMtx.Unlock()
-	return utils.Wrap(d.conn.WithContext(ctx).Create(black).Error, "InsertBlack failed")
+	var localblack model_struct.LocalBlack
+	if d.conn.WithContext(ctx).Where("owner_user_id = ? and black_user_id = ?", black.OwnerUserID, black.BlackUserID).First(&localblack).RowsAffected == 0 {
+		// 记录不存在，创建新记录
+		return utils.Wrap(d.conn.WithContext(ctx).Create(black).Error, "InsertBlack failed")
+	} else {
+		// 记录存在，更新记录
+		return utils.Wrap(d.conn.WithContext(ctx).Model(&localblack).Updates(black).Error, "InsertBlack failed")
+	}
 }
 
 func (d *DataBase) UpdateBlack(ctx context.Context, black *model_struct.LocalBlack) error {

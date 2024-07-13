@@ -52,10 +52,12 @@ func (g *Group) doNotification(ctx context.Context, msg *sdkws.MsgData) error {
 		}
 		return g.SyncGroups(ctx, detail.Group.GroupID)
 	case constant.JoinGroupApplicationNotification: // 1503
+		fmt.Printf("收到新的加群请求")
 		var detail sdkws.JoinGroupApplicationTips
 		if err := utils.UnmarshalNotificationElem(msg.Content, &detail); err != nil {
 			return err
 		}
+		fmt.Printf("收到新的加群请求：%v", detail)
 		if detail.Applicant.UserID == g.loginUserID {
 			return g.SyncSelfGroupApplications(ctx, detail.Group.GroupID)
 		} else {

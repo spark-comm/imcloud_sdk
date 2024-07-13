@@ -20,7 +20,6 @@ package db
 import (
 	"context"
 	"errors"
-
 	"github.com/spark-comm/imcloud_sdk/pkg/db/model_struct"
 	"github.com/spark-comm/imcloud_sdk/pkg/utils"
 )
@@ -28,7 +27,14 @@ import (
 func (d *DataBase) InsertFriendRequest(ctx context.Context, friendRequest *model_struct.LocalFriendRequest) error {
 	d.friendMtx.Lock()
 	defer d.friendMtx.Unlock()
-	return utils.Wrap(d.conn.WithContext(ctx).Create(friendRequest).Error, "InsertFriendRequest failed")
+	var localFriendRec model_struct.LocalFriendRequest
+	if d.conn.WithContext(ctx).Where("from_user_id = ? and to_user_id = ?", friendRequest.FromUserID, friendRequest.ToUserID).First(&localFriendRec).RowsAffected == 0 {
+		// 记录不存在，创建新记录
+		return utils.Wrap(d.conn.WithContext(ctx).Create(friendRequest).Error, "InsertFriendRequest failed")
+	} else {
+		// 记录存在，更新记录
+		return utils.Wrap(d.conn.WithContext(ctx).Model(&localFriendRec).Updates(friendRequest).Error, "InsertFriendRequest failed")
+	}
 }
 
 func (d *DataBase) DeleteFriendRequestBothUserID(ctx context.Context, fromUserID, toUserID string) error {

@@ -87,3 +87,16 @@ func Test_DismissGroup(t *testing.T) {
 		t.Error(err)
 	}
 }
+
+func Test_SetGroupSwitchInfo(t *testing.T) {
+	err := SetGroupSwitchInfo(getCtx(), "586691660222464", UserID, v2.GroupSwitchOption_needVerification.String(), 1)
+	if err != nil {
+		t.Error(err)
+	}
+}
+func Test_JoinGroup(t *testing.T) {
+	err := JoinGroup(getCtx(), UserID, "586691660222464", "我想进群", 1)
+	if err != nil {
+		t.Error(err)
+	}
+}

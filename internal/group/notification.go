@@ -66,7 +66,7 @@ func (g *Group) doNotification(ctx context.Context, msg *sdkws.MsgData) error {
 		if err := utils.UnmarshalNotificationElem(msg.Content, &detail); err != nil {
 			return err
 		}
-		fmt.Printf("加群的申请被同意")
+		//fmt.Printf("加群的申请被同意")
 		switch detail.ReceiverAs {
 		case 0:
 			return g.SyncAllSelfGroupApplication(ctx)

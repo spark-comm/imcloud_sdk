@@ -16,6 +16,7 @@ package conversation_msg
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/spark-comm/imcloud_sdk/pkg/common"
 	"github.com/spark-comm/imcloud_sdk/pkg/constant"
@@ -227,6 +228,7 @@ func (c *Conversation) doClearConversations(ctx context.Context, msg *sdkws.MsgD
 			log.ZError(ctx, "clearConversation err", err, "conversationID", v)
 		}
 	}
+	fmt.Printf("执行清空会话%#v", msg)
 	c.doUpdateConversation(common.Cmd2Value{Value: common.UpdateConNode{Action: constant.ConChange, Args: tips.ConversationIDs}})
 	c.doUpdateConversation(common.Cmd2Value{Value: common.UpdateConNode{Action: constant.TotalUnreadMessageChanged}})
 }

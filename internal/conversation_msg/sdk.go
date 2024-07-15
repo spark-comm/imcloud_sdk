@@ -941,6 +941,16 @@ func (c *Conversation) DeleteConversationAndDeleteAllMsg(ctx context.Context, co
 	return c.clearConversationFromLocalAndSvr(ctx, conversationID, c.db.ResetConversation)
 }
 
+// ClearConversationSelfMessage 清除自己的会话消息
+func (c *Conversation) ClearConversationSelfMessage(ctx context.Context, conversationID string) error {
+	return c.clearConversationMsgFromSvr(ctx, conversationID, false)
+}
+
+// ClearConversationAllMessage 清除所有人的消息
+func (c *Conversation) ClearConversationAllMessage(ctx context.Context, conversationID string) error {
+	return c.clearConversationMsgFromSvr(ctx, conversationID, true)
+}
+
 // insert
 func (c *Conversation) InsertSingleMessageToLocalStorage(ctx context.Context, s *sdk_struct.MsgStruct, recvID, sendID string) (*sdk_struct.MsgStruct, error) {
 	if recvID == "" || sendID == "" {

@@ -238,7 +238,7 @@ type FriendModel interface {
 	SearchFriendList(ctx context.Context, keyword string, isSearchUserID, isSearchNickname, isSearchRemark bool) ([]*model_struct.LocalFriend, error)
 	SearchFriends(ctx context.Context, keyword string, notPeersFriend bool, page, size int) ([]*model_struct.LocalFriend, int64, error)
 	GetFriendInfoByFriendUserID(ctx context.Context, FriendUserID string) (*model_struct.LocalFriend, error)
-	GetFriendInfoList(ctx context.Context, friendUserIDList []string) ([]*model_struct.LocalFriend, error)
+	GetFriendInfoList(ctx context.Context, friendUserIDList []string, filterNotPeersFriend bool) ([]*model_struct.LocalFriend, error)
 	InsertFriendRequest(ctx context.Context, friendRequest *model_struct.LocalFriendRequest) error
 	DeleteFriendRequestBothUserID(ctx context.Context, fromUserID, toUserID string) error
 	UpdateFriendRequest(ctx context.Context, friendRequest *model_struct.LocalFriendRequest) error

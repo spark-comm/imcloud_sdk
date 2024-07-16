@@ -25,7 +25,7 @@ import (
 )
 
 func (u *Full) GetUsersInfo(ctx context.Context, userIDs []string) ([]*api.FullUserInfo, error) {
-	friendList, err := u.db.GetFriendInfoList(ctx, userIDs)
+	friendList, err := u.db.GetFriendInfoList(ctx, userIDs, false)
 	if err != nil {
 		return nil, err
 	}
@@ -89,7 +89,7 @@ func (u *Full) GetUsersInfo(ctx context.Context, userIDs []string) ([]*api.FullU
 }
 
 func (u *Full) GetUsersInfoWithCache(ctx context.Context, userIDs []string, groupID string) ([]*api.FullUserInfoWithCache, error) {
-	friendList, err := u.db.GetFriendInfoList(ctx, userIDs)
+	friendList, err := u.db.GetFriendInfoList(ctx, userIDs, false)
 	if err != nil {
 		return nil, err
 	}

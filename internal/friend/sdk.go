@@ -28,7 +28,7 @@ import (
 )
 
 func (f *Friend) GetSpecifiedFriendsInfo(ctx context.Context, friendUserIDList []string) ([]*server_api_params.FullUserInfo, error) {
-	localFriendList, err := f.db.GetFriendInfoList(ctx, friendUserIDList)
+	localFriendList, err := f.db.GetFriendInfoList(ctx, friendUserIDList, false)
 	if err != nil {
 		return nil, err
 	}
@@ -99,7 +99,7 @@ func (f *Friend) GetUnProcessFriendRequestNum(ctx context.Context) (int64, error
 }
 
 func (f *Friend) CheckFriend(ctx context.Context, friendUserIDList []string) ([]*server_api_params.UserIDResult, error) {
-	friendList, err := f.db.GetFriendInfoList(ctx, friendUserIDList)
+	friendList, err := f.db.GetFriendInfoList(ctx, friendUserIDList, true)
 	if err != nil {
 		return nil, err
 	}

@@ -183,11 +183,16 @@ func (d *DataBase) GetFriendInfoByFriendUserID(ctx context.Context, FriendUserID
 		d.loginUserID, FriendUserID).Take(&friend).Error, "GetFriendInfoByFriendUserID failed")
 }
 
-func (d *DataBase) GetFriendInfoList(ctx context.Context, friendUserIDList []string) ([]*model_struct.LocalFriend, error) {
+func (d *DataBase) GetFriendInfoList(ctx context.Context, friendUserIDList []string, filterNotPeersFriend bool) ([]*model_struct.LocalFriend, error) {
 	d.friendMtx.Lock()
 	defer d.friendMtx.Unlock()
 	var friendList []model_struct.LocalFriend
-	err := utils.Wrap(d.conn.WithContext(ctx).Where("friend_user_id IN ?", friendUserIDList).Find(&friendList).Error, "GetFriendInfoListByFriendUserID failed")
+	var err error
+	if filterNotPeersFriend {
+		err = utils.Wrap(d.conn.WithContext(ctx).Where("not_peers_friend = 0 and friend_user_id IN ?", friendUserIDList).Find(&friendList).Error, "GetFriendInfoListByFriendUserID failed")
+	} else {
+		err = utils.Wrap(d.conn.WithContext(ctx).Where("friend_user_id IN ?", friendUserIDList).Find(&friendList).Error, "GetFriendInfoListByFriendUserID failed")
+	}
 	var transfer []*model_struct.LocalFriend
 	for _, v := range friendList {
 		v1 := v

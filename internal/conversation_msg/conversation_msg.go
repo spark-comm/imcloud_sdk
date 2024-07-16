@@ -990,7 +990,7 @@ func (c *Conversation) batchGetUserNameAndFaceURL(ctx context.Context, userIDs .
 	var notCachedUserIDs []string
 	var notInFriend []string
 
-	friendList, err := c.friend.Db().GetFriendInfoList(ctx, userIDs)
+	friendList, err := c.friend.Db().GetFriendInfoList(ctx, userIDs, false)
 	if err != nil {
 		log.ZWarn(ctx, "BatchGetUserNameAndFaceURL", err, "userIDs", userIDs)
 		notInFriend = userIDs

@@ -81,7 +81,7 @@ func (f *Friend) SyncAllFriendList(ctx context.Context) error {
 }
 
 func (f *Friend) deleteFriend(ctx context.Context, friendUserID string) error {
-	friends, err := f.db.GetFriendInfoList(ctx, []string{friendUserID})
+	friends, err := f.db.GetFriendInfoList(ctx, []string{friendUserID}, false)
 	if err != nil {
 		return err
 	}
@@ -101,7 +101,7 @@ func (f *Friend) SyncFriends(ctx context.Context, friendIDs []string) error {
 	if err != nil {
 		return err
 	}
-	localData, err := f.db.GetFriendInfoList(ctx, friendIDs)
+	localData, err := f.db.GetFriendInfoList(ctx, friendIDs, false)
 	if err != nil {
 		return err
 	}

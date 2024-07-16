@@ -125,10 +125,10 @@ func (f *Friend) CheckFriend(ctx context.Context, friendUserIDList []string) ([]
 			}
 		}
 		r.UserID = v
-		if isFriend {
-			r.Result = 1
-		} else if isBlack {
+		if isBlack {
 			r.Result = 2
+		} else if isFriend {
+			r.Result = 1
 		} else {
 			r.Result = 0
 		}

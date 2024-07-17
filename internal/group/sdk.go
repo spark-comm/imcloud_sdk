@@ -166,7 +166,7 @@ func (g *Group) GetSpecifiedGroupsInfo(ctx context.Context, groupIDs []string) (
 			res = append(res, groups...)
 		}
 	}
-	fmt.Printf("GetSpecifiedGroupsInfo val:%s", utils.StructToJsonString(res))
+	//fmt.Printf("GetSpecifiedGroupsInfo val:%s", utils.StructToJsonString(res))
 	return res, nil
 }
 

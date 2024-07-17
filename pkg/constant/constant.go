@@ -143,7 +143,7 @@ const (
 
 	HasReadReceiptNotification      = 2150
 	GroupHasReadReceiptNotification = 2155
-	ClearConversationNotification   = 2101
+	ClearConversationNotification   = 2103
 	DeleteMsgsNotification          = 2102
 
 	HasReadReceipt = 2200

@@ -16,8 +16,6 @@ package conversation_msg
 
 import (
 	"context"
-	"fmt"
-
 	"github.com/spark-comm/imcloud_sdk/pkg/common"
 	"github.com/spark-comm/imcloud_sdk/pkg/constant"
 	"github.com/spark-comm/imcloud_sdk/pkg/sdkerrs"
@@ -220,6 +218,7 @@ func (c *Conversation) doDeleteMsgs(ctx context.Context, msg *sdkws.MsgData) {
 }
 
 func (c *Conversation) doClearConversations(ctx context.Context, msg *sdkws.MsgData) {
+	//fmt.Printf("执行清空会话%#v", msg)
 	tips := sdkws.ClearConversationTips{}
 	utils.UnmarshalNotificationElem(msg.Content, &tips)
 	log.ZDebug(ctx, "doClearConversations", "tips", tips)
@@ -228,7 +227,8 @@ func (c *Conversation) doClearConversations(ctx context.Context, msg *sdkws.MsgD
 			log.ZError(ctx, "clearConversation err", err, "conversationID", v)
 		}
 	}
-	fmt.Printf("执行清空会话%#v", msg)
+	//调用通知事件
+	c.ConversationListener().OnClearConversation(utils.StructToJsonString(tips.ConversationIDs))
 	c.doUpdateConversation(common.Cmd2Value{Value: common.UpdateConNode{Action: constant.ConChange, Args: tips.ConversationIDs}})
 	c.doUpdateConversation(common.Cmd2Value{Value: common.UpdateConNode{Action: constant.TotalUnreadMessageChanged}})
 }

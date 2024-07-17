@@ -182,6 +182,7 @@ func (m *MsgSyncer) compareSeqsAndBatchSync(ctx context.Context, maxSeqToSync ma
 
 func (m *MsgSyncer) doPushMsg(ctx context.Context, push *sdkws.PushMessages) {
 	log.ZDebug(ctx, "push msgs", "push", push, "syncedMaxSeqs", m.syncedMaxSeqs)
+	//fmt.Printf("doPushMsg value %#v\n", push)
 	m.pushTriggerAndSync(ctx, push.Msgs, m.triggerConversation)
 	m.pushTriggerAndSync(ctx, push.NotificationMsgs, m.triggerNotification)
 }

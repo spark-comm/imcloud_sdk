@@ -139,6 +139,11 @@ type emptyConversationListener struct {
 	ctx context.Context
 }
 
+func (e *emptyConversationListener) OnClearConversation(conversationIds string) {
+	//TODO implement me
+	log.ZDebug(e.ctx, "OnClearConversation", conversationIds)
+}
+
 func (e *emptyConversationListener) OnDeleteConversation(conversationIds string) {
 	//TODO implement me
 	panic("implement me")

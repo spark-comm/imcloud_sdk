@@ -290,14 +290,16 @@ func (d *DataBase) GetGroupMemberUIDListByGroupID(ctx context.Context, groupID s
 func (d *DataBase) InsertGroupMember(ctx context.Context, groupMember *model_struct.LocalGroupMember) error {
 	d.groupMtx.Lock()
 	defer d.groupMtx.Unlock()
-	var localGroupMember model_struct.LocalGroupMember
-	if d.conn.WithContext(ctx).Where("group_id = ?  and user_id = ?", groupMember.GroupID, groupMember.UserID).First(&localGroupMember).RowsAffected == 0 {
-		// 记录不存在，创建新记录
-		return utils.Wrap(d.conn.WithContext(ctx).Create(groupMember).Error, "InsertGroupMember failed")
-	} else {
-		// 记录存在，更新记录
-		return utils.Wrap(d.conn.WithContext(ctx).Model(&localGroupMember).Updates(groupMember).Error, "InsertGroupMember failed")
-	}
+	// 记录不存在，创建新记录
+	return utils.Wrap(d.conn.WithContext(ctx).Create(groupMember).Error, "InsertGroupMember failed")
+	//var localGroupMember model_struct.LocalGroupMember
+	//if d.conn.WithContext(ctx).Where("group_id = ?  and user_id = ?", groupMember.GroupID, groupMember.UserID).First(&localGroupMember).RowsAffected == 0 {
+	//	// 记录不存在，创建新记录
+	//	return utils.Wrap(d.conn.WithContext(ctx).Create(groupMember).Error, "InsertGroupMember failed")
+	//} else {
+	//	// 记录存在，更新记录
+	//	return utils.Wrap(d.conn.WithContext(ctx).Model(&localGroupMember).Updates(groupMember).Error, "InsertGroupMember failed")
+	//}
 }
 
 //funcation (d *DataBase) BatchInsertMessageList(ctx context.Context, MessageList []*model_struct.LocalChatLog) error {

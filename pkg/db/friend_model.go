@@ -28,14 +28,16 @@ import (
 func (d *DataBase) InsertFriend(ctx context.Context, friend *model_struct.LocalFriend) error {
 	d.friendMtx.Lock()
 	defer d.friendMtx.Unlock()
-	var localFriend model_struct.LocalFriend
-	if d.conn.WithContext(ctx).Where("owner_user_id = ? and friend_user_id = ?", friend.OwnerUserID, friend.FriendUserID).First(&localFriend).RowsAffected == 0 {
-		// 记录不存在，创建新记录
-		return utils.Wrap(d.conn.WithContext(ctx).Create(friend).Error, "InsertFriend failed")
-	} else {
-		// 记录存在，更新记录
-		return utils.Wrap(d.conn.WithContext(ctx).Model(&localFriend).Updates(friend).Error, "InsertFriend failed")
-	}
+	// 记录不存在，创建新记录
+	return utils.Wrap(d.conn.WithContext(ctx).Create(friend).Error, "InsertFriend failed")
+	//var localFriend model_struct.LocalFriend
+	//if d.conn.WithContext(ctx).Where("owner_user_id = ? and friend_user_id = ?", friend.OwnerUserID, friend.FriendUserID).First(&localFriend).RowsAffected == 0 {
+	//	// 记录不存在，创建新记录
+	//	return utils.Wrap(d.conn.WithContext(ctx).Create(friend).Error, "InsertFriend failed")
+	//} else {
+	//	// 记录存在，更新记录
+	//	return utils.Wrap(d.conn.WithContext(ctx).Model(&localFriend).Updates(friend).Error, "InsertFriend failed")
+	//}
 }
 
 func (d *DataBase) DeleteFriendDB(ctx context.Context, friendUserID string) error {

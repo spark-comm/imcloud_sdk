@@ -31,14 +31,16 @@ import (
 func (d *DataBase) InsertGroup(ctx context.Context, groupInfo *model_struct.LocalGroup) error {
 	d.groupMtx.Lock()
 	defer d.groupMtx.Unlock()
-	var localGroup model_struct.LocalGroup
-	if d.conn.WithContext(ctx).Where("group_id = ? ", groupInfo.GroupID).First(&localGroup).RowsAffected == 0 {
-		// 记录不存在，创建新记录
-		return utils.Wrap(d.conn.WithContext(ctx).Create(groupInfo).Error, "InsertGroup failed")
-	} else {
-		// 记录存在，更新记录
-		return utils.Wrap(d.conn.WithContext(ctx).Model(&localGroup).Updates(groupInfo).Error, "InsertGroup failed")
-	}
+	// 记录不存在，创建新记录
+	return utils.Wrap(d.conn.WithContext(ctx).Create(groupInfo).Error, "InsertGroup failed")
+	//var localGroup model_struct.LocalGroup
+	//if d.conn.WithContext(ctx).Where("group_id = ? ", groupInfo.GroupID).First(&localGroup).RowsAffected == 0 {
+	//	// 记录不存在，创建新记录
+	//	return utils.Wrap(d.conn.WithContext(ctx).Create(groupInfo).Error, "InsertGroup failed")
+	//} else {
+	//	// 记录存在，更新记录
+	//	return utils.Wrap(d.conn.WithContext(ctx).Model(&localGroup).Updates(groupInfo).Error, "InsertGroup failed")
+	//}
 }
 func (d *DataBase) DeleteGroup(ctx context.Context, groupID string) error {
 	d.groupMtx.Lock()

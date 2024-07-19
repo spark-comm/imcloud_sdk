@@ -63,12 +63,12 @@ func (f *Friend) AddFriend(ctx context.Context, req *friendPb.AddFriendReq) erro
 	return f.SyncAllFriendApplication(ctx)
 }
 
-func (f *Friend) GetFriendApplicationListAsRecipient(ctx context.Context) ([]*model_struct.LocalFriendRequest, error) {
-	return f.db.GetRecvFriendApplication(ctx)
+func (f *Friend) GetFriendApplicationListAsRecipient(ctx context.Context, handleResult int) ([]*model_struct.LocalFriendRequest, error) {
+	return f.db.GetRecvFriendApplication(ctx, handleResult)
 }
 
-func (f *Friend) GetFriendApplicationListAsApplicant(ctx context.Context) ([]*model_struct.LocalFriendRequest, error) {
-	return f.db.GetSendFriendApplication(ctx)
+func (f *Friend) GetFriendApplicationListAsApplicant(ctx context.Context, handleResult int) ([]*model_struct.LocalFriendRequest, error) {
+	return f.db.GetSendFriendApplication(ctx, handleResult)
 }
 
 func (f *Friend) AcceptFriendApplication(ctx context.Context, userIDHandleMsg *sdk.ProcessFriendApplicationParams) error {

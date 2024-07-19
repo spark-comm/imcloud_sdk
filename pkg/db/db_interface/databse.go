@@ -242,8 +242,10 @@ type FriendModel interface {
 	InsertFriendRequest(ctx context.Context, friendRequest *model_struct.LocalFriendRequest) error
 	DeleteFriendRequestBothUserID(ctx context.Context, fromUserID, toUserID string) error
 	UpdateFriendRequest(ctx context.Context, friendRequest *model_struct.LocalFriendRequest) error
-	GetRecvFriendApplication(ctx context.Context) ([]*model_struct.LocalFriendRequest, error)
-	GetSendFriendApplication(ctx context.Context) ([]*model_struct.LocalFriendRequest, error)
+	GetRecvFriendApplication(ctx context.Context, handleResult int) ([]*model_struct.LocalFriendRequest, error)
+	GetSendFriendApplication(ctx context.Context, handleResult int) ([]*model_struct.LocalFriendRequest, error)
+	GetAllRecvFriendApplication(ctx context.Context) ([]*model_struct.LocalFriendRequest, error)
+	GetAllSendFriendApplication(ctx context.Context) ([]*model_struct.LocalFriendRequest, error)
 	GetFriendApplicationByBothID(ctx context.Context, fromUserID, toUserID string) (*model_struct.LocalFriendRequest, error)
 	GetBothFriendReq(ctx context.Context, fromUserID, toUserID string) ([]*model_struct.LocalFriendRequest, error)
 	UpdateColumnsFriend(ctx context.Context, friendIDs []string, args map[string]interface{}) error

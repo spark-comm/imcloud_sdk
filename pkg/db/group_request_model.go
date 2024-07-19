@@ -29,14 +29,16 @@ import (
 func (d *DataBase) InsertGroupRequest(ctx context.Context, groupRequest *model_struct.LocalGroupRequest) error {
 	d.groupMtx.Lock()
 	defer d.groupMtx.Unlock()
-	var localGroupReq model_struct.LocalGroupRequest
-	if d.conn.WithContext(ctx).Where("group_id = ? and user_id = ?", groupRequest.GroupID, groupRequest.UserID).First(&localGroupReq).RowsAffected == 0 {
-		// 记录不存在，创建新记录
-		return utils.Wrap(d.conn.WithContext(ctx).Create(groupRequest).Error, "InsertGroupRequest failed")
-	} else {
-		// 记录存在，更新记录
-		return utils.Wrap(d.conn.WithContext(ctx).Model(&localGroupReq).Updates(groupRequest).Error, "InsertGroupRequest failed")
-	}
+	// 记录不存在，创建新记录
+	return utils.Wrap(d.conn.WithContext(ctx).Create(groupRequest).Error, "InsertGroupRequest failed")
+	//var localGroupReq model_struct.LocalGroupRequest
+	//if d.conn.WithContext(ctx).Where("group_id = ? and user_id = ?", groupRequest.GroupID, groupRequest.UserID).First(&localGroupReq).RowsAffected == 0 {
+	//	// 记录不存在，创建新记录
+	//	return utils.Wrap(d.conn.WithContext(ctx).Create(groupRequest).Error, "InsertGroupRequest failed")
+	//} else {
+	//	// 记录存在，更新记录
+	//	return utils.Wrap(d.conn.WithContext(ctx).Model(&localGroupReq).Updates(groupRequest).Error, "InsertGroupRequest failed")
+	//}
 }
 func (d *DataBase) DeleteGroupRequest(ctx context.Context, groupID, userID string) error {
 	d.groupMtx.Lock()

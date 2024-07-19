@@ -211,10 +211,10 @@ func Test_HandlerGroupApplication(t *testing.T) {
 
 func Test_SearchGroupMembers(t *testing.T) {
 	info, err := open_im_sdk.UserForSDK.Group().SearchGroupMembers(ctx, &sdk_params_callback.SearchGroupMembersParam{
-		GroupID:                "3459296007",
-		KeywordList:            []string{""},
-		IsSearchUserID:         false,
-		IsSearchMemberNickname: false,
+		GroupID:                "237875325046784",
+		KeywordList:            []string{"177"},
+		IsSearchUserID:         true,
+		IsSearchMemberNickname: true,
 		Offset:                 0,
 		Count:                  10,
 	})

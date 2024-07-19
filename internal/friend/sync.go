@@ -47,7 +47,7 @@ func (f *Friend) SyncAllSelfFriendApplication(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	localData, err := f.db.GetSendFriendApplication(ctx)
+	localData, err := f.db.GetAllSendFriendApplication(ctx)
 	if err != nil {
 		return err
 	}
@@ -60,7 +60,7 @@ func (f *Friend) SyncAllFriendApplication(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	localData, err := f.db.GetRecvFriendApplication(ctx)
+	localData, err := f.db.GetAllRecvFriendApplication(ctx)
 	if err != nil {
 		return err
 	}

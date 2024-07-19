@@ -89,7 +89,7 @@ func (f *Friend) RespondFriendApply(ctx context.Context, req *friendPb.ProcessFr
 	if req.Flag == constant.FriendResponseAgree {
 		_ = f.SyncFriends(ctx, []string{req.FromUserID})
 	}
-	_ = f.SyncAllFriendApplication(ctx)
+	//_ = f.SyncAllFriendApplication(ctx)
 	return nil
 }
 

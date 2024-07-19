@@ -26,12 +26,12 @@ import (
 )
 
 func (f *Friend) SyncBothFriendRequest(ctx context.Context, fromUserID, toUserID string) error {
-	friendRequests, err := server_api.BothFriendRequest(ctx, fromUserID, toUserID)
+	friendRequests, err := server_api.BothFriendRequest(ctx, f.loginUserID, fromUserID, toUserID)
 	localData, err := f.db.GetBothFriendReq(ctx, fromUserID, toUserID)
 	if err != nil {
 		return err
 	}
-	fmt.Println("localData", friendRequests)
+	fmt.Println("localData", localData, "server data", friendRequests)
 	data := []*model_struct.LocalFriendRequest{friendRequests}
 	if toUserID == f.loginUserID {
 		return f.requestRecvSyncer.Sync(ctx, data, localData, nil)

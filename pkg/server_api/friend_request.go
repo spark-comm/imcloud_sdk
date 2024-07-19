@@ -26,11 +26,11 @@ func ProcessFriendApplication(ctx context.Context, req *v2.ProcessFriendApplicat
 }
 
 // BothFriendRequest 好友请求
-func BothFriendRequest(ctx context.Context, fromUserID, toUserID string) (*model_struct.LocalFriendRequest, error) {
+func BothFriendRequest(ctx context.Context, loginUserId, fromUserID, toUserID string) (*model_struct.LocalFriendRequest, error) {
 	res := &v2.GetFriendRequestByApplicantReply{}
 	err := util.CallPostApi[*v2.GetFriendRequestByApplicantReq, *v2.GetFriendRequestByApplicantReply](
 		ctx, constant.GetFriendRequestByApplicantRouter,
-		&v2.GetFriendRequestByApplicantReq{FromUserID: fromUserID, ToUserID: toUserID},
+		&v2.GetFriendRequestByApplicantReq{FromUserID: fromUserID, ToUserID: toUserID, UserId: loginUserId},
 		res,
 	)
 	if err != nil {

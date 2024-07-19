@@ -16,6 +16,7 @@ package friend
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/OpenIMSDK/tools/log"
 	"github.com/spark-comm/imcloud_sdk/internal/user"
@@ -114,6 +115,8 @@ func (f *Friend) initSyncer() {
 			case constant.FriendResponseAgree:
 				f.friendListener.OnFriendApplicationAccepted(*server)
 			case constant.FriendResponseRefuse:
+
+				fmt.Println("好友请求被拒绝")
 				f.friendListener.OnFriendApplicationRejected(*server)
 			case constant.FriendResponseDefault:
 				f.friendListener.OnFriendApplicationAdded(*server)
